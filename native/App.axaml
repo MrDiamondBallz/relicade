@@ -23,6 +23,10 @@
 			<SolidColorBrush x:Key="ThemeError" Color="#ef4444"/>
 			<SolidColorBrush x:Key="ThemeAccent" Color="#FF663D"/>
 			<SolidColorBrush x:Key="ThemeFocusRing" Color="#F4F0E6"/>
+            <!-- Fluent's accent template sets its content presenter's foreground directly. -->
+            <SolidColorBrush x:Key="AccentButtonForeground" Color="#111211" />
+            <SolidColorBrush x:Key="AccentButtonForegroundPointerOver" Color="#111211" />
+            <SolidColorBrush x:Key="AccentButtonForegroundPressed" Color="#111211" />
 		</ResourceDictionary>
 	</Application.Resources>
 

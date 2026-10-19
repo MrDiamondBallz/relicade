@@ -1,4 +1,9 @@
 using System.Net;
+using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Headless.XUnit;
+using Avalonia.Media;
+using Avalonia.VisualTree;
 using FluentAssertions;
 using Relicade.Services;
 
@@ -6,6 +11,21 @@ namespace Relicade.Tests;
 
 public sealed class ProductBoundaryTests
 {
+    [AvaloniaFact]
+    public void Orange_primary_action_has_dark_text_in_the_actual_fluent_content_presenter()
+    {
+        var window = LauncherPromptService.CreateWelcomeMessageBoxWindow("Synthetic welcome fixture", "Relicade fixture");
+        try
+        {
+            window.Show();
+            window.UpdateLayout();
+            var button = window.GetVisualDescendants().OfType<Button>().Single();
+            var presenter = button.GetVisualDescendants().OfType<ContentPresenter>().Single(p => p.Name == "PART_ContentPresenter");
+            (presenter.Foreground as ISolidColorBrush)!.Color.Should().Be(Color.Parse("#111211"));
+        }
+        finally { window.Close(); }
+    }
+
     private sealed class Requests : HttpMessageHandler
     {
         public int Count;
