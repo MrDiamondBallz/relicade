@@ -41,9 +41,8 @@ internal sealed class GameBananaApiClient
 
         if (!forceRefresh && TryReadCache(cachePath, IndexCacheTtl, out var cachedJson))
         {
-            var cached = JsonSerializer.Deserialize<GameBananaIndexResponse>(cachedJson, GameBananaJson.Options);
-            if (cached != null)
-                return ToIndexResult(cached, page);
+            try { return ToIndexResult(ModProviderResponse.ParsePage<GameBananaIndexResponse>(cachedJson, "_aRecords", GameBananaJson.Options), page); }
+            catch (JsonException) { /* An invalid cache is not an exhausted response; retry the provider. */ }
         }
 
         var url = BuildIndexUrl(gameId, page, pageSize, indexSort);
@@ -51,11 +50,9 @@ internal sealed class GameBananaApiClient
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        var parsed = ModProviderResponse.ParsePage<GameBananaIndexResponse>(json, "_aRecords", GameBananaJson.Options);
         Directory.CreateDirectory(Path.GetDirectoryName(cachePath)!);
         await File.WriteAllTextAsync(cachePath, json, cancellationToken).ConfigureAwait(false);
-
-        var parsed = JsonSerializer.Deserialize<GameBananaIndexResponse>(json, GameBananaJson.Options)
-                     ?? new GameBananaIndexResponse();
         return ToIndexResult(parsed, page);
     }
 
@@ -114,9 +111,8 @@ internal sealed class GameBananaApiClient
 
         if (!forceRefresh && TryReadCache(cachePath, IndexCacheTtl, out var cachedJson))
         {
-            var cached = JsonSerializer.Deserialize<GameBananaIndexResponse>(cachedJson, GameBananaJson.Options);
-            if (cached != null)
-                return ToSearchResult(cached, page);
+            try { return ToSearchResult(ModProviderResponse.ParsePage<GameBananaIndexResponse>(cachedJson, "_aRecords", GameBananaJson.Options), page); }
+            catch (JsonException) { /* Retry invalid cached pages against the provider. */ }
         }
 
         var url = BuildSearchUrl(gameId, query.Trim(), page, pageSize, order);
@@ -124,11 +120,9 @@ internal sealed class GameBananaApiClient
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        var parsed = ModProviderResponse.ParsePage<GameBananaIndexResponse>(json, "_aRecords", GameBananaJson.Options);
         Directory.CreateDirectory(Path.GetDirectoryName(cachePath)!);
         await File.WriteAllTextAsync(cachePath, json, cancellationToken).ConfigureAwait(false);
-
-        var parsed = JsonSerializer.Deserialize<GameBananaIndexResponse>(json, GameBananaJson.Options)
-                     ?? new GameBananaIndexResponse();
         return ToSearchResult(parsed, page);
     }
 

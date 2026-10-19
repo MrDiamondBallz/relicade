@@ -88,7 +88,7 @@ public sealed class ModsCatalogWorkspace
         try
         {
             var options = CurrentModsListOptions();
-            var paged = search || ModCatalog.HasPagedSources(game.ModsSources);
+            var paged = true; // Non-paged providers also need truthful per-source errors.
             ModBrowseSession? browse = null;
             IReadOnlyList<ModPackage> packages;
             if (search)
@@ -111,10 +111,10 @@ public sealed class ModsCatalogWorkspace
             SyncModListItemsFromCatalog();
             ApplyFilters();
             await RefreshModUpdateFlagsForGameAsync(game);
-            if (Current(game, generation)) Model.Status = FormatModsLoadedStatus();
+            if (Current(game, generation)) { Model.HasLoadError = browse?.HasErrors == true; Model.Status = FormatModsLoadedStatus(); }
         }
         catch (Exception) when (!Current(game, generation) || load.IsCancellationRequested) { }
-        catch (Exception ex) { Model.Status = $"{(search ? "Search failed" : "Failed to load mods")}: {ex.Message}"; }
+        catch (Exception ex) { Model.HasLoadError = true; Model.Status = $"{(search ? "Search failed" : "Failed to load mods")}: {ex.Message}. Repair the local sidecar if required, then Refresh to retry."; }
         finally
         {
             if (Current(game, generation)) Model.ListIsLoading = false;
@@ -136,13 +136,14 @@ public sealed class ModsCatalogWorkspace
                 : await ModCatalog.LoadMoreBrowseSessionAsync(browse, ModCatalogLoader.DefaultPageSize, CurrentModsListOptions(), load.Token);
             if (!Current(game, generation) || load.IsCancellationRequested) return;
             Model.BrowseSession = next;
+            Model.HasLoadError = next.HasErrors;
             SetModsCatalog(next.Packages);
             SyncModListItemsFromCatalog();
             ApplyFilters();
             Model.Status = FormatModsLoadedStatus();
         }
         catch (Exception) when (!Current(game, generation) || load.IsCancellationRequested) { }
-        catch (Exception ex) { Model.Status = $"Failed to load more mods: {ex.Message}"; }
+        catch (Exception ex) { Model.HasLoadError = true; Model.Status = $"Failed to load more mods: {ex.Message}. Retry or Refresh after repair."; }
         finally
         {
             if (Current(game, generation)) Model.IsLoadingMore = false;
@@ -158,7 +159,9 @@ public sealed class ModsCatalogWorkspace
         };
 
 
-    internal string FormatModsLoadedStatus() =>
+    internal string FormatModsLoadedStatus() => Model.BrowseSession?.HasErrors == true
+        ? $"{Model.Catalog.Count} usable mods; provider unavailable: {string.Join("; ", Model.BrowseSession.SourceStates.Where(s => s.Error != null).Select(s => s.Source.DisplayLabel + ": " + s.Error!.Reason))}. Use Retry to request the same page."
+        :
         FormatModsLoadedStatus(
             Model.Catalog.Count,
             Model.BrowseSession?.IsSearch == true,
@@ -485,6 +488,7 @@ public sealed class ModsCatalogWorkspace
             {
                 var package = packages.FirstOrDefault(p =>
                     string.Equals(p.ProviderId, record.Provider, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(p.SourceKey, record.SourceKey, StringComparison.OrdinalIgnoreCase) &&
                     (string.Equals(p.Id, record.Id, StringComparison.OrdinalIgnoreCase) ||
                      string.Equals(p.FullName, record.FullName, StringComparison.OrdinalIgnoreCase) ||
                      (string.Equals(p.Owner, record.Owner, StringComparison.OrdinalIgnoreCase) &&

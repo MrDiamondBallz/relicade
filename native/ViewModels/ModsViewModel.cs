@@ -10,6 +10,8 @@ public sealed class ModsViewModel : ObservableViewModel
     public ObservableCollection<ModListItem> Rows { get; } = [];
     private string _status = string.Empty;
     public string Status { get => _status; set => Set(ref _status, value); }
+    private bool _hasLoadError;
+    public bool HasLoadError { get => _hasLoadError; internal set => Set(ref _hasLoadError, value); }
     internal int OpenVersion;
     internal GameInfo? Game;
     internal List<ModPackage> Catalog = [];
@@ -59,6 +61,7 @@ public sealed class ModsViewModel : ObservableViewModel
         ListIsLoading = false;
         Rows.Clear();
         Status = string.Empty;
+        HasLoadError = false;
     }
 
     public void ApplyFilters()
