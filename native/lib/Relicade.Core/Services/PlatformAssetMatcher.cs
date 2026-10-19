@@ -124,6 +124,17 @@ namespace Relicade.Core.Services
                     return false;
                 }
 
+                // A multi-CPU build is a finite set: another architecture's label must not
+                // veto a target that is present, or imply support for a target that is absent.
+                var processors = DownloadAssetPolicy.ProcessorsOf(assetNameLower);
+                if (processors.Count > 1)
+                {
+                    var target = platformLower.Contains("arm64") || platformLower.Contains("aarch64") ? Architecture.Arm64
+                        : platformLower.Contains("arm") ? Architecture.Arm
+                        : platformLower.Contains("x86") ? Architecture.X86 : Architecture.X64;
+                    return processors.Contains(target);
+                }
+
                 if (platformLower.Contains("arm64") || platformLower.Contains("arm") || platformLower.Contains("aarch64"))
                 {
                     bool isArm = !HasAnyOf(assetNameLower, "x64", "x86", "amd64", "i686", "i386", "i586", "armv7", "armhf", "arm-");

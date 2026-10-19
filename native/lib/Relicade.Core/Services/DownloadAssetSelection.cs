@@ -86,7 +86,11 @@ public static class DownloadAssetPolicy
     /// Emulation requires a separate deliberate runner choice, never a sole-asset fallback.</summary>
     internal static List<GitHubAsset> ForProcessor(IEnumerable<GitHubAsset> assets, Architecture machine)
     {
-        return assets.Where(a => ProcessorOf(a.name) is not { } processor || processor == machine).ToList();
+        return assets.Where(a =>
+        {
+            var processors = ProcessorsOf(a.name);
+            return processors.Count == 0 || processors.Contains(machine);
+        }).ToList();
     }
 
     private static readonly Regex ArmName = new(@"(?:^|[^a-z0-9])(?:arm64|aarch64|armv8)(?:$|[^a-z0-9])",
@@ -98,15 +102,24 @@ public static class DownloadAssetPolicy
     private static readonly Regex X86Name = new(@"(?:^|[^a-z0-9])(?:x86(?![_-]64)|i386|i586|i686)(?:$|[^a-z0-9])",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    /// <summary>Explicit CPU identity; null when unspecified or the name declares multiple architectures.</summary>
+    /// <summary>Single explicit CPU identity, or null for unspecified/multi-CPU builds.
+    /// Compatibility checks must use the full declared set, not this scalar projection.</summary>
     internal static Architecture? ProcessorOf(string name)
+    {
+        var processors = ProcessorsOf(name);
+        return processors.Count == 1 ? processors[0] : null;
+    }
+
+    /// <summary>All explicitly declared CPUs. Only an empty set is unspecified/universal;
+    /// multiple labels describe a finite set, not support for every CPU.</summary>
+    internal static IReadOnlyList<Architecture> ProcessorsOf(string name)
     {
         var processors = new List<Architecture>();
         if (ArmName.IsMatch(name)) processors.Add(Architecture.Arm64);
         if (Arm32Name.IsMatch(name)) processors.Add(Architecture.Arm);
         if (X64Name.IsMatch(name)) processors.Add(Architecture.X64);
         if (X86Name.IsMatch(name)) processors.Add(Architecture.X86);
-        return processors.Count == 1 ? processors[0] : null;
+        return processors;
     }
 
     /// <summary>
