@@ -19,6 +19,10 @@ internal sealed class PortableBackupCleanupFixture
     internal async Task Install(string version)
     {
         Directory.CreateDirectory(Root);
+        Directory.CreateDirectory(Path.Combine(Root, "coord"));
+        Directory.CreateDirectory(Path.Combine(Root, "sibling"));
+        if (!File.Exists(Path.Combine(Root, "outside-canary.bin"))) File.WriteAllText(Path.Combine(Root, "outside-canary.bin"), "SYNTHETIC OUTSIDE CANARY — must remain byte exact");
+        if (!File.Exists(Path.Combine(Root, "sibling/keep.bin"))) File.WriteAllText(Path.Combine(Root, "sibling/keep.bin"), "SYNTHETIC SIBLING CANARY — never a cleanup target");
         await Tx().InstallAsync(p =>
         {
             foreach (var name in new[] { "fixture.AppImage", "other.AppImage" }) File.WriteAllBytes(Path.Combine(p, name), PortableInstallationFixtures.NativePayload(version + name));
@@ -48,6 +52,9 @@ internal sealed class PortableBackupCleanupFixture
             if (paths.Contains(row.Key)) Assert.False(after.ContainsKey(row.Key), row.Key);
             else Assert.Equal(row.Value, after[row.Key]);
         Assert.All(after.Keys.Except(before.Keys), p => Assert.Equal(Path.GetRelativePath(Root, Path.Combine(Tx().OperationsPath, "backup-cleanup-" + plan.PlanSha256 + ".json")), p));
+        File.WriteAllText(Path.Combine(Root, "coord", "snapshot-" + Guid.NewGuid().ToString("N") + ".json"),
+            JsonSerializer.Serialize(new { plan.PlanSha256, approvedFiles = plan.Files, before, after, onlyApprovedFilesRemoved = true,
+                retainedDirectoriesAfter = Directory.GetDirectories(Root, "*", SearchOption.AllDirectories).Select(p => Path.GetRelativePath(Root, p)).Order(StringComparer.Ordinal).ToArray() }));
     }
 }
 
