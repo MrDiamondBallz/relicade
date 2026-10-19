@@ -1,11 +1,11 @@
 {
   "passed": true,
   "checks": [
-    "Real restricted preview loads 12 authentic project entries with all visible art/fonts",
+    "Real restricted preview: 12 authentic metadata entries, all visible original fallback tiles/fonts in explicit offline artwork mode",
     "Details, save persistence, dialog focus and Ctrl+K under production preview CSP",
     "Fresh render and bidirectional responsive breakpoint transitions without horizontal overflow",
     "Brand board and vector assets render under restricted preview CSP",
-    "Zero page errors/CSP violations or remote runtime requests"
+    "Zero page errors/CSP violations or remote runtime requests in explicit offline artwork mode"
   ],
   "pageErrors": [],
   "cspViolations": [],

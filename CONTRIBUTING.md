@@ -30,10 +30,13 @@ python prototype/tests/test_project_art.py
 python prototype/tests/test_malformed.py
 python prototype/tests/test_ui.py
 python prototype/tests/test_safety.py
+python prototype/tests/test_artwork.py
+node --test prototype/tests/art_policy.test.cjs
+node tools/check_artwork.cjs
 python tools/qa_preview.py
 ```
 
-Select an existing browser with `CHROME_EXECUTABLE` if needed. Node is optional for `node --check prototype/app.js`. Pillow supports original project-tile generation; it is not required just to open the bundled preview.
+Select an existing browser with `CHROME_EXECUTABLE` if needed. Node is required for artwork policy/manifest tests, not for opening the preview. Check JavaScript with `node --check prototype/app.js` and the other prototype scripts. Pillow supports original project-tile generation; it is not required just to open the bundled preview. Standard browser suites explicitly use offline artwork or deterministic synthetic image responses, preserving local-network assertions. Opt-in real-provider checks: `python tools/qa_artwork_live.py --network`; keep those ignored live screenshots private. Automated preview exports are separate from the curated README image.
 
 ## Change discipline
 

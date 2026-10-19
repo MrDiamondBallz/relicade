@@ -8,6 +8,7 @@ Progress is accepted through working behaviour and recorded tests, not screensho
 - Brand system, local fonts and responsive presentation.
 - Real-metadata discovery, search/filter, details and saved-library bookmarks.
 - Original project-tile artwork, with no bundled third-party game images.
+- Runtime real-game artwork from credited source URLs, including the exact Ocarina hero; explicit loading/cache/failure/offline fallback and 36-slot repair diagnostics. Browser opaque-cache limitations and native art-cache/privacy gates remain explicit in [ARTWORK.md](ARTWORK.md).
 - Restricted local preview and regression suites.
 - Product requirements, architecture and CI template.
 
