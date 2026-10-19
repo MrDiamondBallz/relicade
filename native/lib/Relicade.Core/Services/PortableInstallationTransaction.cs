@@ -141,39 +141,18 @@ public sealed class PortableInstallationTransaction
     /// needs explicit repair/retention policy before any removal can be safe.
     /// Caller must hold this lease through its complete unmanaged mutation.
     /// </summary>
-    public IDisposable AcquireUnmanagedRemovalLease() => AcquireUnmanagedRemovalLeases([root]);
-    /// <summary>
-    /// One removal may have overlapping default and located roots. Share only
-    /// this operation's explicitly owned lock handles, never re-enter a lock or
-    /// borrow another caller's exclusion. Each root still passes the full guard.
-    /// </summary>
-    public static IDisposable AcquireUnmanagedRemovalLeases(IEnumerable<string> installRoots)
+    public IDisposable AcquireUnmanagedRemovalLease()
     {
-        var comparer = OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
-        var held = new Dictionary<string, IDisposable>(comparer);
+        // A selected/located directory is not necessarily an installation root.
+        // Establish existing ancestor authority BEFORE AcquireLease can create a
+        // child's history inside an owned generation (including its current data).
+        var ancestors = new List<IDisposable>();
+        FileStream? modLease = null;
         try
         {
-            var roots = installRoots.Select(p => Path.TrimEndingDirectorySeparator(Path.GetFullPath(p)))
-                .Distinct(comparer).Order(StringComparer.Ordinal).ToArray();
-            if (roots.Length == 0) throw new IOException("The removal folder is not configured.");
-            foreach (var path in roots) new PortableInstallationTransaction(path).AcquireUnmanagedRemovalLease(held);
-            return new RemovalAuthorityLeases(held.Values.ToList());
-        }
-        catch
-        {
-            foreach (var lease in held.Values.Reverse()) lease.Dispose();
-            throw;
-        }
-    }
-    void AcquireUnmanagedRemovalLease(Dictionary<string, IDisposable> held)
-    {
-        // Resolve ancestor authority before creating child history. Held handles
-        // span ALL roots and the entire caller mutation, including callback errors.
-        try { AcquireRemovalAncestorLeases(held); }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
-        { throw new IOException(RemovalRefusal, ex); }
-        HoldRemovalLease(held, SafePath(operations, "writer.lock"), AcquireLease);
-        {
+            AcquireRemovalAncestorLeases(ancestors);
+            var lease = AcquireLease();
+            ancestors.Add(lease);
             foreach (var entry in Directory.EnumerateFileSystemEntries(operations))
             {
                 CheckLinks(entry);
@@ -206,15 +185,17 @@ public sealed class PortableInstallationTransaction
             Inspect(root);
             // Older mod writers may hold the in-generation lock alone. Do not create
             // it (or the root); retain an existing lock until the mutation finishes.
-            var mod = SafePath(root, ModLock);
-            try { HoldRemovalLease(held, mod, () => new FileStream(mod, FileMode.Open, FileAccess.ReadWrite, FileShare.None)); }
+            try { modLease = new FileStream(SafePath(root, ModLock), FileMode.Open, FileAccess.ReadWrite, FileShare.None); }
             catch (FileNotFoundException) { }
             catch (DirectoryNotFoundException) { }
+            return new RemovalLease(new RemovalAuthorityLeases(ancestors), modLease);
         }
-    }
-    static void HoldRemovalLease(Dictionary<string, IDisposable> held, string identity, Func<IDisposable> acquire)
-    {
-        if (!held.ContainsKey(identity)) held.Add(identity, acquire());
+        catch
+        {
+            modLease?.Dispose();
+            foreach (var held in ancestors.AsEnumerable().Reverse()) held.Dispose();
+            throw;
+        }
     }
     const string RemovalRefusal = "Managed/recovery removal is not supported safely yet. Use Remove from Library to keep files, or explicitly repair the retained installation evidence.";
     // Read-only discovery: never create ancestor/child history to establish that
@@ -222,7 +203,7 @@ public sealed class PortableInstallationTransaction
     // even when corrupt; missing markers cannot revoke retained history. Existing
     // ancestor writer identities are opened, not recreated, and held until the
     // entire allowed callback/metadata mutation completes. No Recover is used.
-    void AcquireRemovalAncestorLeases(Dictionary<string, IDisposable> held)
+    void AcquireRemovalAncestorLeases(List<IDisposable> held)
     {
         var chain = new List<string>();
         for (string? path = root; path != null; path = Path.GetDirectoryName(path))
@@ -244,8 +225,7 @@ public sealed class PortableInstallationTransaction
             {
                 // Missing/unknown/unreadable writer identity is uncertainty, not
                 // authorization to manufacture a replacement inside a generation.
-                var writer = SafePath(history, "writer.lock");
-                HoldRemovalLease(held, writer, () => new FileStream(writer, FileMode.Open, FileAccess.ReadWrite, FileShare.None));
+                held.Add(new FileStream(SafePath(history, "writer.lock"), FileMode.Open, FileAccess.ReadWrite, FileShare.None));
                 foreach (var entry in Directory.EnumerateFileSystemEntries(history))
                 {
                     CheckLinks(entry);
@@ -256,7 +236,7 @@ public sealed class PortableInstallationTransaction
             }
             var mod = SafePath(ancestor, ModLock);
             if (RemovalEntryExists(mod))
-                HoldRemovalLease(held, mod, () => new FileStream(mod, FileMode.Open, FileAccess.ReadWrite, FileShare.None));
+                held.Add(new FileStream(mod, FileMode.Open, FileAccess.ReadWrite, FileShare.None));
         }
     }
     static bool RemovalEntryExists(string path)
@@ -270,7 +250,10 @@ public sealed class PortableInstallationTransaction
     {
         public void Dispose() { foreach (var lease in held.AsEnumerable().Reverse()) lease.Dispose(); }
     }
-
+    sealed class RemovalLease(IDisposable stable, IDisposable? mod) : IDisposable
+    {
+        public void Dispose() { try { mod?.Dispose(); } finally { stable.Dispose(); } }
+    }
     static FileStream AcquireModLease(string path)
     {
         Directory.CreateDirectory(path);
