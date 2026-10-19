@@ -1,0 +1,11 @@
+namespace Relicade.Services;
+
+/// <summary>Navigation and host visibility needed when an update check presents results.</summary>
+public interface IUpdatePresentation
+{
+    bool CanPresentResults { get; }
+    bool CanShowFailureSummary { get; }
+    void OpenAppUpdatesReview();
+    void OpenBrowse();
+    void UpdateStatusChanged();
+}

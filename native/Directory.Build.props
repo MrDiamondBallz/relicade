@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+    <RestoreDisableParallel>true</RestoreDisableParallel>
+    <BuildInParallel>false</BuildInParallel>
+    <UseSharedCompilation>false</UseSharedCompilation>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)LICENSE" Link="licenses/Native-MIT.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)lib/Relicade.Core/LICENSE" Link="licenses/Core-MIT.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)THIRD_PARTY_NOTICES.md" Link="licenses/THIRD_PARTY_NOTICES.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="$(MSBuildThisFileDirectory)TRADEMARKS.md" Link="licenses/Upstream-TRADEMARKS.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

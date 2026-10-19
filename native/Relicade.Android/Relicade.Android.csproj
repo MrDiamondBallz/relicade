@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0-android</TargetFramework>
+		<SupportedOSPlatformVersion>24</SupportedOSPlatformVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<ApplicationId>io.github.mrdiamondballz.relicade</ApplicationId>
+		<ApplicationVersion>100</ApplicationVersion>
+		<ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+		<DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+		<RootNamespace>Relicade.Android</RootNamespace>
+		<AssemblyName>Relicade.Android</AssemblyName>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Avalonia.Android" Version="12.1.1" />
+		<PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.1" />
+		<PackageReference Include="System.Drawing.Common" Version="10.0.3">
+			<ExcludeAssets>all</ExcludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<!-- Android has no SDL controller input (PlatformCapabilities.SupportsGamepadSdl), so leave SDL's native
+		     libraries out of the APK. Keep the version in step with Relicade.App.csproj. -->
+		<PackageReference Include="ppy.SDL3-CS" Version="2026.1002.1">
+			<ExcludeAssets>native</ExcludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Relicade.App.csproj">
+			<AdditionalProperties>RelicadeExcludeWindowsDrawing=true</AdditionalProperties>
+		</ProjectReference>
+	</ItemGroup>
+</Project>

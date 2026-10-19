@@ -13,9 +13,11 @@ Progress is accepted through working behaviour and recorded tests, not screensho
 
 Hosted CI remains pending activation. No native launcher release is implied.
 
-## 2. Native library and readiness — pending
+## 2. Native foundation — in intensive development, not full readiness
 
-Implement durable local-library state, project requirements, owned-data setup, executable/runtime discovery and truthful Ready/Needs setup/Repair states. Local launch must not require a catalog account or network round trip.
+A buildable .NET 10/Avalonia source foundation now retains the shared native capability baseline, with independent application/data identities, local-library persistence/headless fixtures, real runtime artwork loading/cache and disabled inherited self-update/telemetry/reporting channels. Linux self-contained startup and Windows cross-publish are development checks, not complete native/platform acceptance; see [native status](../native/README.md).
+
+Next gates remain complete reference-behavior reconciliation, project requirements/owned-data setup, truthful Ready/Needs setup/Repair states, real install/launch/recovery and independent functional/platform acceptance. Local launch must not require a catalog account or network round trip. Keep real available game imagery, including Ocarina, with accurate credits and explicit offline/error fallbacks; do not bundle unlicensed third-party pixels or replace normal available artwork with generic brand tiles.
 
 ## 3. Installation, downloads and recovery — pending
 

@@ -1,0 +1,12 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Relicade"
+        x:Class="Relicade.MainWindow"
+        Title="Relicade"
+        Width="1280" Height="720"
+        MinWidth="750" MinHeight="490"
+        Background="{Binding WindowBackground}"
+        WindowState="Normal"
+        WindowStartupLocation="CenterScreen">
+	<local:MainView x:Name="RootView"/>
+</Window>

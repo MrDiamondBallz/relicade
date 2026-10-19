@@ -2,7 +2,7 @@
 
 ## Current implementation
 
-Relicade currently consists of an original brand system and a browser interaction preview. There is no privileged native backend, account service, production catalog, executable installer or game-launch API yet.
+Relicade has two separate development surfaces: the original browser/brand preview and the .NET 10/Avalonia native foundation under `native/`. The native shared code retains real local persistence, installation/launch, release, mods, input, kiosk and recovery services. Successful compilation and synthetic/headless exercises do not establish complete reference-behavior reconciliation, full readiness, platform acceptance or a packaged release. Relicade does not operate a production catalog/account service.
 
 ```text
 Locally cached public catalog + artwork provenance
@@ -33,9 +33,11 @@ Locally cached public catalog + artwork provenance
 
 The browser owns view/filter/dialog state and a set of saved project IDs under `relicade.library`. The snapshot owns public metadata. No DOM class, downloaded image or saved bookmark can imply an installed or playable game. Dialog close/focus restoration checks the active open state so an older close event cannot invalidate a newly opened dialog.
 
-## Native target architecture — not implemented
+## Native foundation — implemented source, incomplete acceptance
 
-A suitable native implementation needs a shared domain core and platform-specific adapters, with separately testable frontends. The exact production UI/packaging stack is an implementation decision; a static browser prototype does not select or deliver it.
+`native/Relicade.App.csproj` supplies the shared Avalonia UI/services, `native/lib/Relicade.Core` the domain/provider/install layer, and the desktop/Android projects the platform hosts. The inherited capabilities and source origin are documented in technical/legal notices rather than product presentation. Local-library fixtures exercise persistence, snapshots, corrupt-store preservation, missing files and native shell composition. Linux self-contained startup uses an isolated virtual display; Windows cross-publish is not Windows runtime acceptance. [Build instructions and platform status](../native/README.md) identify the remaining gates.
+
+The product's target architecture still requires the following completed boundaries; source reuse alone does not deliver or accept every item:
 
 - **Library domain:** stable game/project/installation IDs; atomic/versioned metadata; per-install presentation and provenance; guided import/export/recovery.
 - **Operation engine:** durable queue/journal, bounded transfers, trust/digest checks, contained staging and transactional activation. Publish readiness only from authoritative manifests and platform checks.
@@ -45,6 +47,8 @@ A suitable native implementation needs a shared domain core and platform-specifi
 - **Catalog/trust:** lawful source/provenance, cached metadata, independently defined signing/review policy and explicit offline state. Relicade must not inherit the reference launcher's app/update/telemetry identity or claim to operate its backend.
 
 Crossing from frontend to native execution must require typed operations, scoped filesystem roots, truthful effective state and safe cancellation. Remote metadata must never become arbitrary shell commands, HTML or destructive paths.
+
+The foundation owns Relicade application/package/data/shortcut identities and does not adopt another executable's settings sidecar. Inherited self-update hooks/destinations, telemetry, announcement delivery and automatic download reports are disabled. External metadata/image endpoints retain their actual identity; their reported verdicts are not independent Relicade verification. Real game-art loading and caching remain primary, with explicit unavailable/offline fallbacks and no bundled unlicensed game pixels. The retained installation engine is not yet journaled/transactional; product-wide offline enforcement, vault-backed tokens and complete functional/platform reconciliation remain acceptance work.
 
 ## Acceptance
 
