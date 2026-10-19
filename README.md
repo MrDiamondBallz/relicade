@@ -29,6 +29,14 @@ Power belongs underneath a clear interface, not behind missing features. Release
 
 The current preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. The preview does not install, update, verify or launch executables.
 
+### Ocarina of Time
+
+![Ocarina of Time artwork showing Link riding across a sunlit field](https://cdn2.steamgriddb.com/hero/b63d7ec7840735552cb77df807d944ef.png)
+
+*Artwork reference for the listed community project. [Image source](https://cdn2.steamgriddb.com/hero/b63d7ec7840735552cb77df807d944ef.png) · [Project](https://github.com/HarbourMasters/Shipwright). This is third-party game artwork, not Relicade-created imagery; rights remain with the respective creators and rights holders. Linking the source does not claim an artwork license or endorsement.*
+
+### Interface preview
+
 ![Relicade browser prototype](docs/assets/relicade-launcher.png)
 
 *Actual browser rendering. Project tiles are original Relicade presentation artwork—not gameplay, official game artwork or an affiliation claim.*
