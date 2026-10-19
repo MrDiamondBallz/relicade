@@ -106,7 +106,8 @@ public sealed class PortableOwnershipAuthorityTests : IDisposable
         await Missing("updated"); var before = Snapshot(root);
         using var child = new Process { StartInfo = new ProcessStartInfo(Environment.ProcessPath!)
         { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false } };
-        child.StartInfo.ArgumentList.Add(typeof(PortableOwnershipAuthorityTests).Assembly.Location);
+        if (Path.GetFileNameWithoutExtension(Environment.ProcessPath!).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
+            child.StartInfo.ArgumentList.Add(typeof(PortableOwnershipAuthorityTests).Assembly.Location);
         child.StartInfo.ArgumentList.Add("-noLogo"); child.StartInfo.ArgumentList.Add("-noColor");
         child.StartInfo.ArgumentList.Add("-method"); child.StartInfo.ArgumentList.Add("Relicade.Tests.PortableOwnershipAuthorityTests.Independent_authority_worker");
         child.StartInfo.Environment["RELICADE_AUTHORITY_FIXTURE"] = root;
