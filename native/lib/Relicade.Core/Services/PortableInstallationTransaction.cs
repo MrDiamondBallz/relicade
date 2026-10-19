@@ -121,8 +121,7 @@ public sealed class PortableInstallationTransaction
                 if (j.Phase != "Committed" && j.Resolution != "Old")
                     throw new IOException("Portable installation recovery is needed before managing mods. Evidence retained; reopen/repair the game installation first.");
             }
-            var manifest = Optional(SafePath(root, ManifestFileName));
-            if (manifest != null) ValidateCommittedIdentity(Parse<Manifest>(manifest));
+            ValidateCommittedIdentity(ReadManifest(root, allowDataChanges: true));
             return lease;
         }
         catch { lease.Dispose(); throw; }

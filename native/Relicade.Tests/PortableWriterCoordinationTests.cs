@@ -163,6 +163,33 @@ public sealed class PortableWriterCoordinationTests : IDisposable
         finally { if (fault == "permission" && !OperatingSystem.IsWindows()) File.SetUnixFileMode(journal, mode); }
         Assert.Equal(before.OrderBy(e => e.Key), Snapshot(root).OrderBy(e => e.Key));
     }
+    [Theory]
+    [InlineData("payload")][InlineData("manifest")][InlineData("missing-target")][InlineData("version")]
+    public async Task Unknown_committed_generation_blocks_mod_and_launch_without_substituting_helpers(string fault)
+    {
+        await Install(root, "old", nested: true);
+        var selected = Path.Combine(Live, "bin", "game.exe");
+        if (fault == "payload") File.WriteAllText(selected, "unknown changed bytes");
+        if (fault == "missing-target") File.Delete(selected);
+        if (fault == "manifest") File.WriteAllText(Path.Combine(Live, PortableInstallationTransaction.ManifestFileName), "{invalid");
+        if (fault == "version") File.WriteAllText(Path.Combine(Live, "version.txt"), "unknown");
+        var before = Snapshot(root);
+        Assert.NotNull(Record.Exception(() => new InstalledModsStore().Save(Live, new())));
+        var game = new GameInfo { Name = "synthetic", FolderName = "live", SelectedExecutable = selected };
+        Assert.False(await GameLaunchService.LaunchAsync(game, root));
+        Assert.DoesNotContain(game.SelectedExecutable, new[] { Path.Combine(Live, "tool-a.exe"), Path.Combine(Live, "tool-b.exe") });
+        Assert.False(File.Exists(Path.Combine(Live, "LastPlayed.txt")));
+        Assert.Equal(before.OrderBy(e => e.Key), Snapshot(root).OrderBy(e => e.Key));
+    }
+    [Fact]
+    public async Task Interrupted_untracked_launch_receipt_blocks_mod_after_OS_lease_is_released()
+    {
+        await Initial(); var lifetime = PortableInstallationLifetime.Begin(Live); lifetime.PreserveUncertain();
+        var before = Snapshot(root);
+        var ex = Assert.Throws<IOException>(() => new InstalledModsStore().Save(Live, new()));
+        Assert.Contains("interrupted", ex.Message);
+        Assert.Equal(before.OrderBy(e => e.Key), Snapshot(root).OrderBy(e => e.Key));
+    }
     [Fact]
     public async Task Committed_nested_target_is_kept_when_root_helpers_exist_without_running_any_payload()
     {

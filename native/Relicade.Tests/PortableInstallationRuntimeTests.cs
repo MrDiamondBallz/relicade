@@ -137,6 +137,11 @@ public sealed class PortableInstallationRuntimeTests : IDisposable
             using var nativeTracked = Process.GetProcessById(tracked.Value); Assert.False(nativeTracked.HasExited, "The independent tracked control must still be alive after its launcher exits");
             var ex = await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(Source, Live, "fixture.exe", "new"));
             Assert.Contains("running", ex.Message); Assert.Equal("old", File.ReadAllText(Path.Combine(Live, "fixture.exe")));
+            var beforeMod = File.ReadAllBytes(Path.Combine(Live, PortableInstallationTransaction.ManifestFileName));
+            var modError = Assert.Throws<IOException>(() => new Relicade.Services.Mods.InstalledModsStore().Save(Live, new()));
+            Assert.Contains("running", modError.Message);
+            Assert.False(File.Exists(Path.Combine(Live, Relicade.Services.Mods.InstalledModsStore.SidecarFileName)));
+            Assert.Equal(beforeMod, File.ReadAllBytes(Path.Combine(Live, PortableInstallationTransaction.ManifestFileName)));
         }
         finally
         {
