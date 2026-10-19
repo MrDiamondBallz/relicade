@@ -100,6 +100,39 @@ public class PreservationSelectionRetryTests
         Assert.Equal(128, coordinator.Progress.Completed);
     }
 
+    private sealed class CompletedGenerationWorkflow : IUpdateCheckWorkflow
+    {
+        private IProgress<AppCheckProgress>? priorProgress;
+        private int calls;
+        public bool CanPresentResults => false;
+        public UpdateCheckResult? Result;
+        public Task<ManualLauncherCheckResult> CheckLauncherAsync(bool manual, CancellationToken token) => Task.FromResult(new ManualLauncherCheckResult { CheckSucceeded = true });
+        public Task<LibraryCheckResult> CheckAppsAsync(bool manual, IProgress<AppCheckProgress> progress, CancellationToken token, IReadOnlySet<string>? appKeys = null)
+        {
+            var row = new AppCheckResult(++calls == 1 ? "folder:A" : "folder:B", AppCheckOutcome.Successful);
+            progress.Report(new(0, 1, Targets: [row]));
+            priorProgress?.Report(new(99, 99, new("folder:A", AppCheckOutcome.Failed)));
+            priorProgress = progress;
+            return Task.FromResult(new LibraryCheckResult([row]));
+        }
+        public void ApplyCheckResult(UpdateCheckResult result, DateTime time) => Result = result;
+        public void QueuePostCheckWork(UpdateCheckResult result, bool retry = false) { }
+        public Task PresentCheckResultAsync(ManualLauncherCheckResult result, int updated, bool manual) => Task.CompletedTask;
+        public Task ReportCheckFailureAsync(Exception error, bool present) => Task.CompletedTask;
+    }
+
+    [Fact]
+    public async Task Completed_uncancelled_generation_cannot_publish_into_a_new_pass()
+    {
+        var workflow = new CompletedGenerationWorkflow();
+        var coordinator = new UpdateCheckCoordinator(workflow);
+        await coordinator.CheckAsync(false, true, TestContext.Current.CancellationToken);
+        await coordinator.CheckAsync(false, true, TestContext.Current.CancellationToken);
+        Assert.True(workflow.Result!.Complete);
+        Assert.Equal("folder:B", Assert.Single(workflow.Result.Apps.Apps).IdentityKey);
+        Assert.Equal(1, coordinator.Progress.Total);
+    }
+
     [Fact]
     public void Duplicate_success_rows_cannot_establish_completion()
     {
