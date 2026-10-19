@@ -31,11 +31,14 @@ namespace Relicade
         internal CLIHandler(GameManager gameManager, Func<GameInfo, string, Task<(bool Launched, Task? Lifetime)>> launch)
             : this(gameManager) => _managedShortcutLaunch = launch;
 
-        public CLIHandler(GameManager? gameManager = null, LauncherUpdateService? launcherUpdateService = null)
+        private readonly Action<string> _removalMoveToTrash;
+
+        public CLIHandler(GameManager? gameManager = null, LauncherUpdateService? launcherUpdateService = null, Action<string>? moveToTrash = null)
         {
             _gameManager = gameManager;
             _launcherUpdateService = launcherUpdateService ?? new LauncherUpdateService();
             _velopackUpdateService = new VelopackUpdateService();
+            _removalMoveToTrash = moveToTrash ?? RecycleBinHelper.MoveToRecycleBin;
         }
 
         public async Task<int> Execute(string[] args)
@@ -862,46 +865,68 @@ namespace Relicade
                 return PrintError($"App not found: '{gameName}'");
             }
 
-            if (game.Status == GameStatus.NotInstalled)
-            {
-                WriteColor($"✓ {game.Name} ", ColorMuted);
-                Console.WriteLine("is not installed.");
-                Console.WriteLine();
-                return 0;
-            }
-
-            WriteColor($"→ Uninstalling {game.Name}...", ColorWarning);
-            Console.WriteLine();
-
             try
             {
-                if (string.IsNullOrEmpty(game.FolderName))
-                {
+                if (string.IsNullOrWhiteSpace(game.FolderName))
                     return PrintError("App folder is not configured.");
-                }
-
-                var gamePath = game.GetInstallPath(_gameManager.GamesFolder);
-
-                if (WindowsInstallerService.HasReceipt(gamePath))
-                    return PrintError("Uninstall this application in Windows Settings → Apps → Installed apps. Relicade does not delete Windows Installer application folders.");
-                if (FlatpakService.HasReceipt(gamePath))
+                PortableInstallationTransaction.ValidateRelative(game.FolderName);
+                var defaultPath = Path.GetFullPath(Path.Combine(_gameManager!.GamesFolder, game.FolderName));
+                var gamePath = Path.GetFullPath(game.GetInstallPath(_gameManager.GamesFolder));
+                var located = !string.IsNullOrWhiteSpace(game.InstallPath);
+                // Disk authority precedes stale status and OS receipt dispatch. Match
+                // LibraryActions' deterministic order when both slots are relevant.
+                var paths = new[] { defaultPath, gamePath }.Select(Path.TrimEndingDirectorySeparator)
+                    .Distinct(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)
+                    .Order(StringComparer.Ordinal).ToArray();
+                var leases = new System.Collections.Generic.List<IDisposable>();
+                bool flatpak;
+                try
                 {
-                    await FlatpakService.Current.UninstallAsync(gamePath);
-                    await game.CheckStatusAsync(_gameManager.HttpClient, _gameManager.GamesFolder, checkRemoteVersion: false);
-                    Console.WriteLine("Flatpak app uninstalled. Saves and application data were preserved.");
-                    return 0;
+                    foreach (var path in paths)
+                        leases.Add(new PortableInstallationTransaction(path).AcquireUnmanagedRemovalLease());
+                    if (Path.GetFullPath(game.GetInstallPath(_gameManager.GamesFolder)) != gamePath ||
+                        Path.GetFullPath(Path.Combine(_gameManager.GamesFolder, game.FolderName)) != defaultPath)
+                        throw new IOException("The installation location changed. Refresh and try again.");
+                    if (WindowsInstallerService.HasReceipt(gamePath))
+                        return PrintError("Uninstall this application in Windows Settings → Apps → Installed apps. Relicade does not delete Windows Installer application folders.");
+                    flatpak = FlatpakService.HasReceipt(gamePath);
+                    if (!flatpak && !Directory.Exists(gamePath))
+                    {
+                        if (game.Status != GameStatus.NotInstalled)
+                            throw new DirectoryNotFoundException("The game folder is missing; no files were removed.");
+                        WriteColor($"✓ {game.Name} ", ColorMuted);
+                        Console.WriteLine("is not installed.");
+                        Console.WriteLine();
+                        return 0;
+                    }
+                    WriteColor($"→ Uninstalling {game.Name}...", ColorWarning);
+                    Console.WriteLine();
+                    if (flatpak) await FlatpakService.Current.UninstallAsync(gamePath);
+                    else if (located)
+                    {
+                        // Keep linked/shared folders and other applications, exactly
+                        // as the desktop Library route does. Leases are already held.
+                        var shared = LocatedInstallRemoval.FolderHasOtherApps(game, _gameManager.Games, _gameManager.GamesFolder);
+                        LocatedInstallRemoval.RemoveWhileLeased(gamePath, shared, _removalMoveToTrash);
+                        game.InstallPath = null;
+                        await new LibraryPersistenceService(_gameManager).SaveInstallLocationAsync(game);
+                    }
+                    else _removalMoveToTrash(gamePath);
                 }
+                finally { foreach (var lease in leases.AsEnumerable().Reverse()) lease.Dispose(); }
 
-                if (Directory.Exists(gamePath))
+                // Refresh only after allowed mutation; never recover, clear state or
+                // request catalog metadata on refusal/callback failure.
+                await game.CheckStatusAsync(_gameManager.HttpClient, _gameManager.GamesFolder, checkRemoteVersion: false);
+                if (flatpak) Console.WriteLine("Flatpak app uninstalled. Saves and application data were preserved.");
+                else
                 {
-                    RecycleBinHelper.MoveToRecycleBin(gamePath);
+                    WriteColor($"✓ {game.Name} ", ColorSuccess);
+                    Console.WriteLine(located
+                        ? "removed from its linked folder; other files were kept."
+                        : "uninstalled successfully.");
+                    Console.WriteLine();
                 }
-
-                await game.CheckStatusAsync(_gameManager.HttpClient, _gameManager.GamesFolder, forceUpdateCheck: true);
-
-                WriteColor($"✓ {game.Name} ", ColorSuccess);
-                Console.WriteLine("uninstalled successfully.");
-                Console.WriteLine();
                 return 0;
             }
             catch (Exception ex)

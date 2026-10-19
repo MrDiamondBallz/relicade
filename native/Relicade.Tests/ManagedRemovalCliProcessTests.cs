@@ -1,0 +1,115 @@
+using System.Diagnostics;
+using System.Text.Json;
+using Relicade.Core.Services;
+using Relicade.Services;
+using Relicade.Services.Mods;
+
+namespace Relicade.Tests;
+
+public sealed class ManagedRemovalCliProcessTests
+{
+    static Process Child(string root, string mode)
+    {
+        var exe = Environment.ProcessPath!; var psi = new ProcessStartInfo(exe) { RedirectStandardOutput = true, RedirectStandardError = true };
+        if (Path.GetFileNameWithoutExtension(exe).Equals("dotnet", StringComparison.OrdinalIgnoreCase)) psi.ArgumentList.Add(typeof(ManagedRemovalCliProcessTests).Assembly.Location);
+        foreach (var arg in new[] { "-noLogo", "-noColor", "-parallel", "none", "-method", "Relicade.Tests.ManagedRemovalCliProcessTests.Worker" }) psi.ArgumentList.Add(arg);
+        psi.Environment["RELICADE_CLI_REMOVAL_ROOT"] = root; psi.Environment["RELICADE_CLI_REMOVAL_MODE"] = mode;
+        return Process.Start(psi)!;
+    }
+    static async Task Success(Process child, string label)
+    {
+        var output = child.StandardOutput.ReadToEndAsync(); var errors = child.StandardError.ReadToEndAsync();
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(35));
+        await child.WaitForExitAsync(timeout.Token);
+        var text = await output + await errors; Console.WriteLine(label + " pid=" + child.Id + " exit=" + child.ExitCode + "\n" + text);
+        var receipts = Path.Combine(Path.GetTempPath(), "removal-cli-process-receipts"); Directory.CreateDirectory(receipts);
+        File.WriteAllText(Path.Combine(receipts, child.Id + ".json"), JsonSerializer.Serialize(new { label, pid = child.Id, exit = child.ExitCode, output = text }));
+        Assert.True(child.ExitCode == 0, text);
+    }
+    static async Task Barrier(Process child, string root)
+    {
+        var timer = Stopwatch.StartNew();
+        while (!File.Exists(Path.Combine(root, "barrier")) && !child.HasExited && timer.Elapsed < TimeSpan.FromSeconds(30)) await Task.Delay(20);
+        Assert.False(child.HasExited); Assert.True(File.Exists(Path.Combine(root, "barrier")));
+    }
+    [Fact]
+    public async Task Worker()
+    {
+        var root = Environment.GetEnvironmentVariable("RELICADE_CLI_REMOVAL_ROOT");
+        if (root == null) return; // entry only, NOT accepted independent process evidence
+        var mode = Environment.GetEnvironmentVariable("RELICADE_CLI_REMOVAL_MODE")!;
+        using var f = new ManagedRemovalFixture(root, initialize: false);
+        void Pause() { File.WriteAllText(Path.Combine(root, "barrier"), mode); using var wait = new ManualResetEventSlim(); wait.Wait(); }
+        if (mode.StartsWith("pause:"))
+            await ManagedRemovalFixture.InstallAt(f.Live, "new", point => { if (point == mode[6..]) Pause(); });
+        else if (mode == "hold-writer") { using var lease = f.Tx.AcquireLease(); Pause(); }
+        else if (mode == "hold-G05") { using var lease = ModInstallTransaction.Acquire(f.Live); Pause(); }
+        else if (mode == "tracked") Pause();
+        else if (mode == "refuse")
+        {
+            await using var h = new ManagedRemovalLibraryTests.Harness(f, true);
+            var before = f.Snapshot(); var exists = Directory.Exists(f.Live); var callbacks = 0;
+            var result = await ManagedRemovalCliTests.Remove(h, _ => callbacks++);
+            Assert.NotEqual(0, result.Code); Assert.Contains("ERROR:", result.Output);
+            Assert.DoesNotContain("uninstalled successfully", result.Output);
+            Assert.Empty(h.Callbacks); Assert.Equal(0, h.Network.Calls); Assert.Equal(0, callbacks);
+            Assert.Equal(exists, Directory.Exists(f.Live)); Assert.Equal(before, f.Snapshot());
+            Console.WriteLine("ACTUAL CLI UninstallGame removal refused, exact owned/history/sibling snapshot preserved; liveExists=" + exists);
+        }
+        else if (mode == "reopen")
+        {
+            var manifest = f.Tx.ReadCommitted(); Assert.NotNull(manifest); Assert.Equal("old", manifest.SelectedVersion);
+            Assert.Equal("NONEXECUTABLE synthetic old", File.ReadAllText(Path.Combine(f.Live, "fixture.exe")));
+            Assert.Equal("current save old", File.ReadAllText(Path.Combine(f.Live, "saves", "slot")));
+            Assert.Equal("synthetic owned original", File.ReadAllText(Path.Combine(f.Live, "owned-data", "original")));
+            Assert.Equal("MR01 synthetic sibling canary", File.ReadAllText(Path.Combine(root, "sibling-canary")));
+            Console.WriteLine("Independent reopen recovered complete OLD generation/current save/owned data/sibling without executing payload.");
+        }
+        else throw new InvalidOperationException(mode);
+    }
+    [Theory]
+    [InlineData("Extracted")][InlineData("Prepared")][InlineData("Applying")]
+    [InlineData("PreviousRenamed")][InlineData("CandidateRenamed")]
+    public async Task Independent_removal_refuses_during_rename_gap_after_kill_and_before_independent_reopen(string point)
+    {
+        using var f = new ManagedRemovalFixture(); await f.Install();
+        using var writer = Child(f.Root, "pause:" + point);
+        try
+        {
+            await Barrier(writer, f.Root);
+            Assert.Equal(point != "PreviousRenamed", Directory.Exists(f.Live));
+            using (var remover = Child(f.Root, "refuse")) await Success(remover, "while writer paused " + point);
+            writer.Kill(true); await writer.WaitForExitAsync();
+            Console.WriteLine("Killed actual paused own writer pid=" + writer.Id + " exit=" + writer.ExitCode);
+            using (var remover = Child(f.Root, "refuse")) await Success(remover, "after kill " + point);
+            using (var reopen = Child(f.Root, "reopen")) await Success(reopen, "reopen " + point);
+        }
+        finally { if (!writer.HasExited) { writer.Kill(true); await writer.WaitForExitAsync(); } }
+    }
+    [Theory]
+    [InlineData("hold-writer")][InlineData("hold-G05")]
+    public async Task Independent_writer_domains_exclude_unmanaged_removal(string mode)
+    {
+        using var f = new ManagedRemovalFixture(); Directory.CreateDirectory(f.Live); File.WriteAllText(Path.Combine(f.Live, "version.txt"), "unmanaged");
+        using var writer = Child(f.Root, mode);
+        try { await Barrier(writer, f.Root); using var remover = Child(f.Root, "refuse"); await Success(remover, mode); }
+        finally { if (!writer.HasExited) { writer.Kill(true); await writer.WaitForExitAsync(); } }
+    }
+    [Fact]
+    public async Task Tracked_real_benign_process_blocks_removal_without_any_game_execution()
+    {
+        using var f = new ManagedRemovalFixture(); await f.Install();
+        using var lifetime = PortableInstallationLifetime.Begin(f.Live);
+        using var tracked = Child(f.Root, "tracked");
+        try
+        {
+            await Barrier(tracked, f.Root); lifetime.Attach(tracked);
+            using var remover = Child(f.Root, "refuse"); await Success(remover, "actual tracked own-source process");
+        }
+        finally { if (!tracked.HasExited) { tracked.Kill(true); await tracked.WaitForExitAsync(); } }
+        // The lifetime asynchronously owns its duplicated handle/lease until exit.
+        var timer = Stopwatch.StartNew();
+        while (File.Exists(Path.Combine(f.Tx.OperationsPath, "launch.json")) && timer.Elapsed < TimeSpan.FromSeconds(10)) await Task.Delay(10);
+        Assert.False(File.Exists(Path.Combine(f.Tx.OperationsPath, "launch.json")));
+    }
+}
