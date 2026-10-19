@@ -24,6 +24,10 @@ public static class LauncherUpdateBackup
                 try { sources[name] = new FileStream(Path.Combine(dataRoot, name), FileMode.Open, FileAccess.Read, FileShare.Read); }
                 catch (FileNotFoundException) { sources[name] = null; }
             }
+            // A new raw snapshot must not duplicate plaintext left by older Relicade settings.
+            // Reject before creating/copying anything, preserving sensitive/corrupt original bytes.
+            if (sources["settings.json"] is { } settingsSource)
+                Credentials.LegacyCredentialDocument.RequireSafeSnapshot(settingsSource);
             Directory.CreateDirectory(staging);
             var hashes = new Dictionary<string, string?>();
             foreach (var (name, source) in sources)

@@ -133,10 +133,7 @@ public class FileSettingsStore : ISettingsStore, ISettingsRecoveryState, ICreden
         var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? throw new JsonException("The existing settings document is null.");
         using var document = JsonDocument.Parse(json);
         // Inspect names/presence only. Never hydrate, import, print, back up or silently scrub a legacy secret.
-        HasLegacyCredentials = document.RootElement.EnumerateObject().Any(property =>
-            new[] { "GitHubApiToken", "GitLabApiToken", "CodebergApiToken" }.Contains(property.Name, StringComparer.OrdinalIgnoreCase)
-            && property.Value.ValueKind != JsonValueKind.Null
-            && (property.Value.ValueKind != JsonValueKind.String || !string.IsNullOrEmpty(property.Value.GetString())));
+        HasLegacyCredentials = LegacyCredentialDocument.HasCredentials(document.RootElement);
         settings.EnsureInitialized();
         return settings;
     }
