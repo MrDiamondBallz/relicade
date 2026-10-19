@@ -34,14 +34,14 @@ try:
         page.on('pageerror', lambda e: errors.append(str(e)))
         page.on('console', lambda m: blocked.append(m.text) if 'Content Security Policy' in m.text or 'Refused to' in m.text else None)
         page.on('request', lambda r: requests.append(r.url))
-        page.goto(base+'/prototype/')
+        page.goto(base+'/prototype/?art=offline')
         page.locator('.game-card').first.wait_for()
-        page.wait_for_function('document.fonts.status === "loaded"')
-        page.wait_for_function('Array.from(document.images).filter(i => i.getBoundingClientRect().top < innerHeight).every(i => i.complete && i.naturalWidth > 0)')
+        page.wait_for_function('() => document.fonts.status === "loaded"')
+        page.wait_for_function('() => Array.from(document.images).filter(i => i.getBoundingClientRect().top < innerHeight).every(i => i.complete && i.naturalWidth > 0)')
         count = page.locator('.game-card').count()
         assert count == 12
         page.screenshot(path=str(assets/'relicade-launcher.png'))
-        checks.append('Real restricted preview loads 12 authentic project entries with all visible art/fonts')
+        checks.append('Real restricted preview: 12 authentic metadata entries, all visible original fallback tiles/fonts in explicit offline artwork mode')
         page.locator('#hero-detail').click()
         assert page.locator('#detail-title').is_visible()
         page.locator('#detail-save').click()
@@ -58,7 +58,7 @@ try:
         checks.append('Fresh render and bidirectional responsive breakpoint transitions without horizontal overflow')
         page.goto(base+'/brand/')
         page.set_viewport_size({'width':1440,'height':1100})
-        page.wait_for_function('document.fonts.status === "loaded"')
+        page.wait_for_function('() => document.fonts.status === "loaded"')
         assert page.locator('img').evaluate_all('(images) => images.every(i => i.complete && i.naturalWidth > 0)')
         page.screenshot(path=str(assets/'relicade-brand.png'))
         checks.append('Brand board and vector assets render under restricted preview CSP')
@@ -66,7 +66,7 @@ try:
         assert not blocked, blocked
         origin = lambda value: (urlsplit(value).scheme, urlsplit(value).hostname, urlsplit(value).port)
         assert all(origin(u) == origin(base) for u in requests), 'Unexpected remote runtime requests'
-        checks.append('Zero page errors/CSP violations or remote runtime requests')
+        checks.append('Zero page errors/CSP violations or remote runtime requests in explicit offline artwork mode')
         browser.close()
 finally:
     server.shutdown()

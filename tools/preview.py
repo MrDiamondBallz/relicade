@@ -73,10 +73,14 @@ class PreviewHandler(SimpleHTTPRequestHandler):
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('Referrer-Policy', 'no-referrer')
         self.send_header('Cache-Control', 'no-store')
-        self.send_header('Content-Security-Policy',
+        if urlsplit(self.path).path == '/prototype/art-worker.js':
+            self.send_header('Content-Security-Policy',
+                             "default-src 'none'; script-src 'self'; connect-src https://cdn2.steamgriddb.com")
+        else:
+            self.send_header('Content-Security-Policy',
                          "default-src 'self'; script-src 'self'; "
                          "style-src 'self' 'unsafe-inline'; font-src 'self'; "
-                         "img-src 'self' https: data:; connect-src 'self'; "
+                         "img-src 'self' https://cdn2.steamgriddb.com; connect-src 'self'; worker-src 'self'; "
                          "object-src 'none'; frame-ancestors 'none'; "
                          "base-uri 'none'; form-action 'none'")
         super().end_headers()

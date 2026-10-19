@@ -6,7 +6,7 @@
     "untrusted catalog text cannot inject HTML/script",
     "javascript URLs are omitted",
     "untrusted artwork URLs rejected",
-    "all runtime asset requests local",
+    "all runtime asset requests local in explicit offline artwork mode",
     "browser DPR 1/1.25/1.5/2 no overflow",
     "brand variants and fonts rendered",
     "brand desktop/mobile no overflow",

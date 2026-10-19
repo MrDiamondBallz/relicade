@@ -6,7 +6,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
  def log_message(self,format,*args):pass
 server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Quiet,directory=str(ROOT)))
 threading.Thread(target=server.serve_forever,daemon=True).start()
-url=f'http://127.0.0.1:{server.server_port}/prototype/'
+url=f'http://127.0.0.1:{server.server_port}/prototype/?art=offline'
 reports=[]
 with sync_playwright() as p:
  executable=os.environ.get('CHROME_EXECUTABLE') or shutil.which('google-chrome') or shutil.which('chromium') or shutil.which('chromium-browser')

@@ -68,7 +68,7 @@ class MalformedSnapshotTests(unittest.TestCase):
     def load_snapshot(self):
         self.page.route('**/data/catalog.json', lambda route: route.fulfill(
             content_type='application/json', body=json.dumps(self.payload)))
-        self.page.goto(self.base + '/prototype/')
+        self.page.goto(self.base + '/prototype/?art=offline')
         self.page.locator('.game-card').first.wait_for()
         self.assertEqual(self.page.locator('.game-card').count(), 2)
 

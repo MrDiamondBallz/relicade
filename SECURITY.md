@@ -11,7 +11,8 @@ Do not include credentials, personal data, private screenshots or exploit payloa
 - Browser preview: a local metadata snapshot and browser-local saved project IDs. No native install/launch privileges, account service or telemetry.
 - Local preview server: loopback-only, restricted asset roots, no directory listings or mutation methods, Host validation, no-referrer policy and restrictive CSP.
 - External project/source links are third-party destinations, not security endorsements.
-- Normal bundled-preview use requires no remote runtime requests. Metadata refresh is an explicit developer operation with network-boundary tests.
+- Online artwork contacts the credited SteamGridDB provider at runtime, exposing IP/user agent but forwarding no credentials or referrer values. Explicit offline artwork mode (`?art=offline` on first visit) uses bounded decoded cache/original fallback without provider requests; local static shell/snapshot requests remain. Worker CSP and exact-host/path validation restrict transport; unsupported servers/browsers fail closed. Browser opaque responses cannot provide native byte/DNS/content-integrity guarantees. See [runtime artwork](docs/ARTWORK.md).
+- Metadata refresh remains an explicit metadata-only developer operation with network-boundary tests; it does not download game art.
 - Project tiles are original presentation art. No ROMs, BIOS or commercial game files are supplied.
 
 ## Native release requirements

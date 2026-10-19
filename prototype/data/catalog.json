@@ -3,7 +3,7 @@
   "fetchedAt": "2026-10-18T22:36:20.040896+00:00",
   "source": "https://api.quiverlauncher.com/api/v1",
   "scope": "Editorial selection of 12 public catalog projects. Not a full catalog. Metadata is a point-in-time third-party snapshot, not independently validated by Relicade.",
-  "attribution": "Public catalog metadata and project details: respective providers and project maintainers. Local project tiles: original Relicade editorial art, not game imagery or gameplay. External artwork URLs are reference-only metadata, not downloaded or redistributed. Original sourceAttribution is retained verbatim; game/project names and external art rights remain with their respective owners. Unaffiliated prototype; no ROMs or executables included.",
+  "attribution": "Public catalog metadata and project details: respective providers and project maintainers. Local project tiles: original Relicade editorial art, not game imagery or gameplay. External artwork URLs are retained as metadata for optional runtime loading from credited sources; no third-party artwork is bundled in runtime assets. Offline/error states use cached decoded art when available or original tiles. Original sourceAttribution is retained verbatim; game/project names and external art rights remain with their respective owners. Unaffiliated prototype; no ROMs or executables included.",
   "sourceAttribution": "Public metadata: Quiver catalog and respective project maintainers. Game artwork: respective publishers, rights holders and SteamGridDB contributors. Unaffiliated prototype; no ROMs or executables included.",
   "apps": [
     {

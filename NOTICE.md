@@ -18,6 +18,8 @@ Bundled project tiles are original Relicade typographic/geometric presentation a
 
 The README's interface design preview includes third-party game artwork as displayed in the browser-rendered interface, including the [Ocarina of Time hero source](https://cdn2.steamgriddb.com/hero/b63d7ec7840735552cb77df807d944ef.png). Other source references remain in the catalog's `referenceArtSources`. This illustrative screenshot is not gameplay or native-readiness evidence. Embedded game artwork remains the work of its respective creators and rights holders, not original Relicade art, and is not licensed by any software license for this project. A public URL, source link or attribution is not an artwork-license grant or endorsement.
 
+Online browser artwork uses the exact retained SteamGridDB URLs at runtime, with publisher/rights-holder and contributing-artist credit. Third-party image files are not bundled into runtime assets. Provider access may expose the viewer's IP; Artwork & privacy offers explicit offline artwork mode. Original local tiles are labeled fallback, not gameplay. Cached means previously decoded, not licensed, authenticated or currently fresh. See [runtime artwork](docs/ARTWORK.md) for source selection, cache/security limits and independent native requirements.
+
 ## Fonts and source license
 
 Barlow Condensed and Manrope are bundled with SIL Open Font License notices and source information in `brand/assets/fonts/`. Preserve those notices with the fonts.

@@ -55,6 +55,20 @@ class PreviewTests(unittest.TestCase):
     def test_brand_is_reachable(self):
         self.assertEqual(self.request('/brand/')[0], 200)
 
+    def test_document_image_sources_are_exact_not_arbitrary_https(self):
+        _,headers,_=self.request('/prototype/')
+        policy=headers['Content-Security-Policy']
+        self.assertIn("img-src 'self' https://cdn2.steamgriddb.com;",policy)
+        self.assertNotIn('https:;',policy)
+        self.assertIn("connect-src 'self';",policy)
+        self.assertEqual(headers['Referrer-Policy'],'no-referrer')
+
+    def test_worker_connections_exclude_even_loopback_self_redirects(self):
+        (self.root/'prototype/art-worker.js').write_text('// Synthetic worker response fixture')
+        status,headers,_=self.request('/prototype/art-worker.js')
+        self.assertEqual(status,200)
+        self.assertEqual(headers['Content-Security-Policy'],"default-src 'none'; script-src 'self'; connect-src https://cdn2.steamgriddb.com")
+
     def test_research_is_not_reachable(self):
         self.assertEqual(self.request('/research/local-artifacts/private.json')[0], 404)
 
