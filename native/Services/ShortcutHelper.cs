@@ -153,8 +153,8 @@ namespace Relicade.Services
 
             startInfo.ArgumentList.Add("--add-steam-shortcut");
             startInfo.ArgumentList.Add(game.Name);
-            startInfo.ArgumentList.Add("--app-identity");
-            startInfo.ArgumentList.Add(game.IdentityKey);
+            startInfo.ArgumentList.Add(game.IsManagedPortable ? "--app-instance" : "--app-identity");
+            startInfo.ArgumentList.Add(game.IsManagedPortable ? game.InstanceKey : game.IdentityKey);
             startInfo.ArgumentList.Add("--wait-for-steam-exit");
             return startInfo;
         }
@@ -187,10 +187,17 @@ namespace Relicade.Services
             string shortcutsPath = Path.Combine(configDirectory, "shortcuts.vdf");
             string? iconPath = await PrepareIconAsync(game, cacheDirectory).ConfigureAwait(false);
             WriteGameToSteamFile(shortcutsPath, game, target, iconPath, out var updated);
-            return updated
-                ? "Updated the Steam shortcut to launch the game directly. Restart Steam or return to Game Mode to refresh your library."
-                : "Added the game to Steam. Restart Steam or return to Game Mode to refresh your library.";
+            return SteamShortcutMessage(target, updated);
         }
+
+        internal static string SteamShortcutMessage(GameShortcutTarget target, bool updated) =>
+            (updated ? "Updated" : "Added") + (IsManagedTarget(target) ? " the Steam shortcut to launch this exact instance through Relicade." : " the Steam shortcut to launch the game directly.") +
+            " Restart Steam or return to Game Mode to refresh your library.";
+
+        private static bool IsManagedTarget(GameShortcutTarget target) => target.Arguments.Count == 2 && target.Arguments[0] == ManagedShortcutLaunch.Command;
+
+        private static string ShortcutFileName(GameInfo game, GameShortcutTarget target) => SanitizeFileName(game.Name!) +
+            (IsManagedTarget(target) ? "-" + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(Encoding.UTF8.GetBytes(game.InstanceKey.ToUpperInvariant())))[..12] : "");
 
         internal static void WriteGameToSteamFile(string shortcutsPath, GameInfo game, GameShortcutTarget target, string? iconPath, out bool updated)
         {
@@ -201,9 +208,10 @@ namespace Relicade.Services
             var shortcutsObject = EnsureObject(root, "shortcuts");
             string launchOptions = string.Join(" ", target.Arguments.Select(QuoteCommandArgument));
             string quotedTargetPath = QuoteCommandArgument(target.FileName);
-            int appId = CalculateSteamShortcutAppId(quotedTargetPath, game.Name!);
+            var managed = IsManagedTarget(target);
+            int appId = CalculateSteamShortcutAppId(quotedTargetPath, managed ? game.InstanceKey.ToUpperInvariant() : game.Name!);
 
-            var existingEntry = FindMatchingSteamEntry(shortcutsObject, game.Name!, quotedTargetPath);
+            var existingEntry = managed ? FindManagedSteamEntry(shortcutsObject, game, quotedTargetPath) : FindMatchingSteamEntry(shortcutsObject, game.Name!, quotedTargetPath);
             updated = existingEntry != null;
 
             var shortcutEntry = existingEntry ?? new SteamObject();
@@ -216,6 +224,7 @@ namespace Relicade.Services
             SetShortcutString(shortcutEntry, "StartDir", QuoteCommandArgument(target.WorkingDirectory));
             if (iconPath != null || !updated) SetShortcutString(shortcutEntry, "icon", iconPath ?? string.Empty);
             SetShortcutString(shortcutEntry, "LaunchOptions", launchOptions);
+            if (managed) SetShortcutString(shortcutEntry, "RelicadeInstanceKey", game.InstanceKey);
             if (!updated)
             {
                 SetShortcutString(shortcutEntry, "ShortcutPath", string.Empty);
@@ -353,7 +362,7 @@ namespace Relicade.Services
         [SupportedOSPlatform("windows")]
         private static void CreateWindowsShortcut(string desktopPath, GameShortcutTarget target, GameInfo game, string? iconPath)
         {
-            var shortcutPath = Path.Combine(desktopPath, $"{SanitizeFileName(game.Name!)}.lnk");
+            var shortcutPath = Path.Combine(desktopPath, $"{ShortcutFileName(game, target)}.lnk");
             // COM properties accept literal paths; no shell interpolation of app names,
             // apostrophes, arguments, or installation folders is needed.
             object? shell = null;
@@ -381,7 +390,7 @@ namespace Relicade.Services
 
         private static void CreateLinuxDesktopFile(string desktopPath, GameShortcutTarget target, GameInfo game, string? iconPath)
         {
-            var desktopFilePath = Path.Combine(desktopPath, $"{SanitizeFileName(game.Name!)}.desktop");
+            var desktopFilePath = Path.Combine(desktopPath, $"{ShortcutFileName(game, target)}.desktop");
             File.WriteAllText(desktopFilePath, BuildLinuxDesktopFile(game.Name!, target, iconPath));
             if (OperatingSystem.IsLinux())
                 File.SetUnixFileMode(desktopFilePath, File.GetUnixFileMode(desktopFilePath) | UnixFileMode.UserExecute);
@@ -397,7 +406,7 @@ namespace Relicade.Services
         private static void CreateMacShortcut(string desktopPath, GameShortcutTarget target, GameInfo game, string? iconPath)
         {
             // Finder shows ':' in file names as '/'.
-            var name = SanitizeFileName(game.Name!).Replace(":", "");
+            var name = ShortcutFileName(game, target).Replace(":", "");
             if (target.Arguments.Count == 0 && IsMacAppBundle(target.FileName))
             {
                 var linkPath = Path.Combine(desktopPath, name);
@@ -515,9 +524,11 @@ namespace Relicade.Services
         private static string EscapeDesktopValue(string value) => value.Replace("\\", "\\\\").Replace("\n", "\\n").Replace("\r", "\\r").Replace("\t", "\\t");
         private static string QuoteUnixArgument(string value) => "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("$", "\\$").Replace("`", "\\`") + "\"";
 
-        internal static string QuoteCommandArgument(string value)
+        internal static string QuoteCommandArgument(string value) => QuoteCommandArgument(value, OperatingSystem.IsWindows());
+
+        internal static string QuoteCommandArgument(string value, bool windows)
         {
-            if (!OperatingSystem.IsWindows()) return QuoteUnixArgument(value);
+            if (!windows) return QuoteUnixArgument(value);
             // Windows CommandLineToArgvW / CRT quoting, including trailing backslashes.
             var result = new StringBuilder("\"");
             var slashes = 0;
@@ -822,12 +833,29 @@ namespace Relicade.Services
             writer.Write((byte)0x00);
         }
 
+        private static SteamObject? FindManagedSteamEntry(SteamObject shortcuts, GameInfo game, string target)
+        {
+            var entries = shortcuts.Properties.Select(p => p.Value).OfType<SteamObject>().ToArray();
+            var exact = entries.Where(e => string.Equals(GetShortcutString(e, "RelicadeInstanceKey"), game.InstanceKey, StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (exact.Length > 1) throw new InvalidDataException("Duplicate managed Steam instance. No shortcut was changed.");
+            if (exact.Length == 1) return exact[0];
+            // Retain older identity/art/controller data only when there is one
+            // unambiguous legacy entry. Never overwrite another managed instance.
+            var legacy = entries.Where(e => GetShortcutString(e, "RelicadeInstanceKey") == null &&
+                string.Equals(GetShortcutString(e, "appname"), game.Name, StringComparison.Ordinal) &&
+                (GetShortcutString(e, "exe") == target || TryGetObject(e, "tags")?.Properties.Any(p => p.Value is SteamString s && s.Value == LauncherSteamTag) == true)).ToArray();
+            if (legacy.Length > 1) throw new InvalidDataException("Ambiguous legacy Steam entries. No shortcut was changed.");
+            return legacy.SingleOrDefault();
+        }
+
         private static SteamObject? FindMatchingSteamEntry(SteamObject shortcutsObject, string gameName, string quotedTargetPath)
         {
             foreach (var property in shortcutsObject.Properties)
             {
                 if (property.Value is not SteamObject shortcut)
                     continue;
+
+                if (GetShortcutString(shortcut, "RelicadeInstanceKey") != null) continue;
 
                 string? existingName = GetShortcutString(shortcut, "appname");
                 string? existingTarget = GetShortcutString(shortcut, "exe");

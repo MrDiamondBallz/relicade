@@ -7,7 +7,10 @@ namespace Relicade.Services;
 
 public static class GameLaunchService
 {
-    public static async Task<bool> LaunchAsync(GameInfo game, string gamesFolder)
+    public static Task<bool> LaunchAsync(GameInfo game, string gamesFolder) => LaunchAsync(game, gamesFolder, null);
+
+    // Shortcut dispatch binds the generation it validated before entering this service.
+    internal static async Task<bool> LaunchAsync(GameInfo game, string gamesFolder, string? expectedOperationId)
     {
         if (string.IsNullOrEmpty(game.FolderName))
         {
@@ -19,7 +22,10 @@ public static class GameLaunchService
         {
             var gamePath = game.GetInstallPath(gamesFolder);
             var portableManifest = PortableInstallationRecovery.EnsureReadable(game, gamePath);
+            if (expectedOperationId != null && portableManifest?.OperationId != expectedOperationId)
+                throw new IOException("The managed generation changed before launch. Refresh and retry.");
             if (portableManifest != null) game.SelectedExecutable = PortableInstallationTransaction.SafePath(gamePath, portableManifest.SelectedExecutable);
+            if (expectedOperationId != null) ManagedShortcutLaunch.EnsureSupportedLifetime(game.SelectedExecutable!);
 
             if (FlatpakService.HasReceipt(gamePath))
                 return await LaunchFlatpakAsync(game, gamePath);
@@ -33,7 +39,7 @@ public static class GameLaunchService
                 return false;
             }
 
-            GameInstallationService.EnsureExecutableAtRoot(gamePath, game.GetInstallationOptions());
+            if (expectedOperationId == null) GameInstallationService.EnsureExecutableAtRoot(gamePath, game.GetInstallationOptions());
 
             var executables = GameInstallationService.FindExecutableCandidates(
                 gamePath,
@@ -106,7 +112,7 @@ public static class GameLaunchService
                 return false;
             }
 
-            using var portableLifetime = PortableInstallationLifetime.Begin(gamePath, portableManifest?.OperationId);
+            using var portableLifetime = PortableInstallationLifetime.Begin(gamePath, expectedOperationId ?? portableManifest?.OperationId);
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                 !executablePath.EndsWith(".app") &&
                 !needsWine)
