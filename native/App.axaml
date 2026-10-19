@@ -34,6 +34,10 @@
             </FluentTheme.Palettes>
         </FluentTheme>
 
+        <Style Selector="Button.accent">
+            <Setter Property="Foreground" Value="#111211" />
+        </Style>
+
         <!-- Real source artwork stays primary. Only an absent/failed picture gets text,
              never a brand tile masquerading as game art; successful cached images render normally. -->
         <Style Selector="asyncImageLoader|AdvancedImage">

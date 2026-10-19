@@ -62,6 +62,13 @@ class NativeIdentityTests(unittest.TestCase):
         self.assertIn('#FF663D', (NATIVE / 'Services/ThemeEditor.cs').read_text())
         self.assertIn('PrimaryColor { get; set; } = "#111211"', (NATIVE / 'Services/AppSettings.cs').read_text())
 
+    def test_orange_primary_actions_use_dark_readable_text(self):
+        styles = [e for e in ET.parse(NATIVE / 'App.axaml').iter()
+                  if e.tag.endswith('Style') and e.attrib.get('Selector') == 'Button.accent']
+        self.assertTrue(styles, 'Orange primary actions cannot inherit white-on-orange text')
+        self.assertTrue(any(e.attrib.get('Property') == 'Foreground' and e.attrib.get('Value') == '#111211'
+                            for e in styles[0]))
+
 
 if __name__ == '__main__':
     unittest.main()
