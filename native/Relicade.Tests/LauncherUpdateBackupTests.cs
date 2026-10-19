@@ -53,7 +53,7 @@ public sealed class LauncherUpdateBackupTests : IDisposable
     }
 
     [Fact]
-    public async Task Desktop_updater_blocks_both_staging_and_restart_when_backup_fails()
+    public async Task Disabled_desktop_updater_blocks_staging_and_restart_before_touching_a_failed_backup_location()
     {
         var previous = RelicadePaths.OverrideUserDataRoot;
         RelicadePaths.OverrideUserDataRoot = _root;
@@ -61,11 +61,13 @@ public sealed class LauncherUpdateBackupTests : IDisposable
         {
             File.WriteAllText(Path.Combine(_root, "Backups"), "not a directory");
             var updater = new VelopackUpdateService();
-            // Backup must fail before Velopack is invoked, even in this unpackaged test host.
+            // Product delivery is disabled even before backup validation. The helper-level
+            // backup-failure guards above remain tested independently for future packaging.
             var download = () => updater.DownloadUpdatesAsync(null!);
-            await download.Should().ThrowAsync<IOException>().WithMessage("*update stopped*");
+            await download.Should().ThrowAsync<NotSupportedException>().WithMessage("*unavailable*");
             Action apply = () => updater.ApplyUpdatesAndRestart(null!);
-            apply.Should().Throw<IOException>().WithMessage("*update stopped*");
+            apply.Should().Throw<NotSupportedException>().WithMessage("*unavailable*");
+            File.ReadAllText(Path.Combine(_root, "Backups")).Should().Be("not a directory");
         }
         finally { RelicadePaths.OverrideUserDataRoot = previous; }
     }
