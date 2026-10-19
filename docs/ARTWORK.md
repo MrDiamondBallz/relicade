@@ -39,6 +39,13 @@ artwork account, token, analytics request, backend proxy or remote font request.
   listed alternative or reload deliberately after the retry limit; there is no
   arbitrary URL input or infinite retry loop.
 
+Actual fetch starts charge their slot/source budget even if the user changes
+source or artwork mode before completion. Unresolved cache/queue lookups reserve
+capacity without counting as attempts; cache-only replies release it. An unknown
+transport outcome retains that reservation for the session rather than risk a
+fourth fetch. Stale responses cannot change the selected image or its state and
+their undecoded tickets are discarded, not committed to cache.
+
 Visible states are not color-only: not checked, loading with a local replacement,
 loaded game art, cached last-good, denied/missing source, offline original tile,
 and failed/missing/corrupt/timed-out image with original tile. Even a missing or
@@ -104,6 +111,13 @@ cache guarantee or HTTP-cache hit is fabricated. No native filesystem path is
 exposed to the renderer. The browser does not know the cached source's current
 freshness, license or authenticity; cached means previously decoded, not verified.
 
+Replacement uses `Cache.put` without a destructive prior delete, so a rejected
+refresh write does not itself remove the prior last-good response. Cache-only
+decode confirmations do not rewrite storage. Successful insertions and oldest-
+entry eviction are serialized to retain the 36-entry count bound under normal
+storage operation. These application guarantees do not prevent browser-initiated
+eviction, user clearing, storage denial or other browser storage failures.
+
 ## Provenance, refresh and rights
 
 The exact Ocarina source is
@@ -139,6 +153,9 @@ URLs but explicitly synthetic PNG/error responses. The opt-in live tool uses no
 interception and records actual decode outcomes per expected slot; failures are
 reported, not converted into production success. Automated captures go under
 ignored `qa/local/` by default, never over the curated documentation preview.
+The live checker exits nonzero if any expected project/kind/source is missing,
+duplicated, substituted, fallback-only or lacks positive decoded dimensions; its
+private report records availability separately from row count.
 
 ## Native adapter contract — requirements, not implemented here
 

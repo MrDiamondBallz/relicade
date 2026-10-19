@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import threading
 import unittest
+from urllib.parse import quote
 from PIL import Image
 from playwright.sync_api import sync_playwright
 
@@ -259,6 +260,183 @@ class ArtworkTests(unittest.TestCase):
         self.open()
         self.page.wait_for_function("() => document.querySelector('#hero-art').dataset.state === 'fallback'")
         self.assertEqual(self.requests,[])
+
+    def cache_key(self, url=OCARINA):
+        return self.base+'/prototype/art-cache/'+quote(url, safe="~()*!.'-")
+
+    def fault_ocarina_put(self):
+        self.ctx.service_workers[0].evaluate("""() => {
+          self.failedPuts=0;
+          const put=Cache.prototype.put;
+          Cache.prototype.put=function(request,response) {
+            if(String(request.url||request).includes('b63d7ec')) {
+              self.failedPuts++;
+              return Promise.reject(new DOMException('Synthetic quota failure','QuotaExceededError'));
+            }
+            return put.call(this,request,response);
+          };
+        }""")
+
+    def wait_good_cache(self):
+        self.page.wait_for_function("async key => Boolean(await (await caches.open('relicade-art-good-v1')).match(key))", arg=self.cache_key())
+
+    def test_valid_refresh_failed_put_preserves_offline_last_good(self):
+        self.open()
+        self.loaded()
+        self.wait_good_cache()
+        self.fault_ocarina_put()
+        replacement=io.BytesIO()
+        Image.new('RGB', (120, 60), '#123456').save(replacement, format='PNG')
+        self.fixture=replacement.getvalue()
+        self.page.locator('#art-settings-button').click()
+        self.page.locator('#art-diagnostics .art-retry').nth(9).click()
+        self.page.wait_for_function("() => document.querySelector('#hero-art').dataset.state==='loaded'")
+
+        # Wait for the injected failure, not a fixed delay or merely a decoded image.
+        worker=self.ctx.service_workers[0]
+        for _ in range(100):
+            if worker.evaluate('self.failedPuts'):
+                break
+            self.page.wait_for_timeout(20)
+        self.assertEqual(worker.evaluate('self.failedPuts'), 1)
+        self.page.wait_for_function("() => document.querySelector('#hero-art').artEntry.persisted===false")
+        self.assertEqual(self.page.locator('#hero-art .art-remote').evaluate('(i)=>i.naturalWidth'),120)
+        self.assertTrue(self.page.evaluate("async key => Boolean(await (await caches.open('relicade-art-good-v1')).match(key))", self.cache_key()))
+        self.page.locator('#art-offline').check()
+        self.page.wait_for_function("() => document.querySelector('#hero-art').dataset.state==='cached'")
+        self.assertTrue(self.page.locator('#hero-art .art-remote').evaluate('(i)=>i.complete&&i.naturalWidth>0'))
+        self.assertEqual(self.page.locator('#hero-art .art-remote').evaluate('(i)=>i.naturalWidth'),96, 'Offline recovered the old decoded pixels, not the unpersisted refresh')
+
+    def test_cached_confirmations_do_not_rewrite_or_charge_attempts(self):
+        self.open()
+        self.loaded()
+        self.wait_good_cache()
+        self.fault_ocarina_put()
+        self.page.locator('#art-settings-button').click()
+        count=sum(r.url==OCARINA for r in self.requests)
+        for _ in range(3):
+            self.page.locator('#art-offline').check()
+            self.page.wait_for_function("() => document.querySelector('#hero-art').dataset.state==='cached'")
+            self.page.locator('#art-offline').uncheck()
+            self.page.wait_for_function("() => document.querySelector('#hero-art').dataset.state==='cached'")
+        self.assertEqual(self.ctx.service_workers[0].evaluate('self.failedPuts'), 0)
+        self.assertEqual(sum(r.url==OCARINA for r in self.requests), count)
+        self.assertEqual(self.page.locator('#hero-art').get_attribute('data-attempts'), '1')
+        self.wait_good_cache()
+
+    def test_cache_count_bound_evicts_oldest_after_successful_insert(self):
+        self.open()
+        self.loaded()
+        self.page.locator('#art-settings-button').click()
+        self.page.locator('#art-scan').click()
+        self.page.wait_for_function("() => window.RelicadeArt.pending===0 && document.querySelectorAll('#art-diagnostics [data-state=loaded]').length===36")
+        self.page.wait_for_function("async () => (await (await caches.open('relicade-art-good-v1')).keys()).length===36")
+        # Direct worker messages still require renderer decode before confirmation.
+        result=self.page.evaluate("""async () => {
+          const rpc=data=>new Promise(resolve=>{const c=new MessageChannel();c.port1.onmessage=e=>{if(e.data.phase!=='attempt')resolve(e.data);};navigator.serviceWorker.controller.postMessage(data,[c.port2]);});
+          const cache=await caches.open('relicade-art-good-v1');
+          const oldest=(await cache.keys()).slice(0,2).map(k=>k.url);
+          const confirmations=await Promise.all(['00000000000000000000000000000000','00000000000000000000000000000001'].map(async hash=>{
+            const url='https://cdn2.steamgriddb.com/hero/'+hash+'.png';
+            const t=await rpc({type:'load',url,allowNetwork:true});
+            const img=new Image();img.src=t.src;await img.decode();
+            const confirmation=await rpc({type:'confirm',token:t.token});
+            return {persisted:confirmation.persisted,width:img.naturalWidth};
+          }));
+          return {confirmations,count:(await cache.keys()).length,oldestPresent:await Promise.all(oldest.map(async key=>Boolean(await cache.match(key))))};
+        }""")
+        self.assertEqual(result, {'confirmations':[{'persisted':True,'width':96}]*2,'count':36,'oldestPresent':[False,False]})
+
+    def stale_selection_budget(self, completion):
+        normal=self.provider
+        def held_hero(route):
+            if route.request.url==OCARINA:
+                self.requests.append(route.request)
+                self.held.append(route)
+            else:
+                normal(route)
+        self.ctx.unroute('https://cdn2.steamgriddb.com/**')
+        self.ctx.route('https://cdn2.steamgriddb.com/**', held_hero)
+        self.open()
+        self.page.locator('#art-settings-button').click()
+        select=self.page.locator('#art-diagnostics .art-alternative').nth(9)
+        slot=self.page.locator('#art-diagnostics .art-slot').nth(9)
+        header=select.locator('option').nth(1).get_attribute('value')
+        for attempt in range(1,4):
+            for _ in range(150):
+                if self.held:
+                    break
+                self.page.wait_for_timeout(20)
+            self.assertTrue(self.held, 'Expected actual held hero network attempt')
+            self.assertEqual(slot.get_attribute('data-attempts'), str(attempt))
+            # This is a real selection event, not direct mutation of internal state.
+            select.select_option(header)
+            self.page.wait_for_function("() => ['loaded','cached'].includes(document.querySelectorAll('#art-diagnostics .art-slot')[9].dataset.state)")
+            before=slot.evaluate('(e)=>({source:e.dataset.source,state:e.dataset.state,src:e.querySelector(".art-remote").src})')
+            for route in self.held:
+                if completion=='success':
+                    route.fulfill(status=200,content_type='image/png',body=self.fixture)
+                else:
+                    route.abort('failed')
+            self.held.clear()
+            self.page.wait_for_function('() => window.RelicadeArt.pending===0')
+            self.assertEqual(slot.evaluate('(e)=>({source:e.dataset.source,state:e.dataset.state,src:e.querySelector(".art-remote").src})'), before)
+            select.select_option(OCARINA)
+            if attempt<3:
+                self.page.wait_for_function("() => document.querySelectorAll('#art-diagnostics .art-slot')[9].dataset.state==='loading'")
+        self.page.wait_for_function("() => document.querySelectorAll('#art-diagnostics .art-slot')[9].dataset.state==='fallback'")
+        self.assertEqual(slot.get_attribute('data-attempts'), '3')
+        self.assertEqual(sum(r.url==OCARINA for r in self.requests), 3)
+        self.assertFalse(self.page.evaluate("async key => Boolean(await (await caches.open('relicade-art-good-v1')).match(key))", self.cache_key()), 'Stale successful pixels were never decoded/confirmed and must not persist')
+        self.assertTrue(self.page.locator('#art-diagnostics .art-retry').nth(9).is_disabled())
+        self.page.evaluate("window.dispatchEvent(new Event('online'))")
+        self.page.wait_for_timeout(100)
+        self.assertEqual(sum(r.url==OCARINA for r in self.requests), 3)
+
+    def test_stale_success_selection_charges_source_budget_without_stale_pixels(self):
+        self.stale_selection_budget('success')
+
+    def test_stale_error_selection_charges_source_budget_without_stale_state(self):
+        self.stale_selection_budget('error')
+
+    def test_rapid_alternatives_do_not_overbook_pending_network_capacity(self):
+        self.open(offline=True)
+        self.page.wait_for_function("() => window.RelicadeArt.pending===0")
+        self.page.locator('#art-settings-button').click()
+        worker=self.ctx.service_workers[0]
+        worker.evaluate("""() => {
+          self.cacheWaiters=[];
+          const match=Cache.prototype.match;
+          Cache.prototype.match=async function(request,...args) {
+            if(String(request.url||request).includes('b63d7ec'))
+              await new Promise(resolve=>self.cacheWaiters.push(resolve));
+            return match.call(this,request,...args);
+          };
+        }""")
+        self.page.locator('#art-offline').uncheck()
+        select=self.page.locator('#art-diagnostics .art-alternative').nth(9)
+        header=select.locator('option').nth(1).get_attribute('value')
+        # Delay cache lookup before fetch-start notifications. Merely counting
+        # completed/started requests without reserving capacity would overbook.
+        for count in range(1,6):
+            for _ in range(100):
+                if worker.evaluate('self.cacheWaiters.length')>=count:
+                    break
+                self.page.wait_for_timeout(20)
+            self.assertEqual(worker.evaluate('self.cacheWaiters.length'), count)
+            select.select_option(header)
+            self.page.wait_for_function("() => ['loaded','cached'].includes(document.querySelectorAll('#art-diagnostics .art-slot')[9].dataset.state)")
+            select.select_option(OCARINA)
+        # Include the final selection, then let all delayed lookups proceed.
+        for _ in range(100):
+            if worker.evaluate('self.cacheWaiters.length')==6:
+                break
+            self.page.wait_for_timeout(20)
+        worker.evaluate('self.cacheWaiters.splice(0).forEach(resolve=>resolve())')
+        self.page.wait_for_function('() => window.RelicadeArt.pending===0')
+        self.assertEqual(sum(r.url==OCARINA for r in self.requests), 3)
+        self.assertEqual(self.page.locator('#hero-art').get_attribute('data-attempts'), '3')
+        self.assertEqual(self.page.locator('#hero-art').get_attribute('data-state'), 'fallback')
 
     def test_denied_cache_does_not_fabricate_persistence(self):
         self.ctx.on('serviceworker', lambda w:w.evaluate("() => {caches.open=async()=>{throw Error('Fixture: cache denied')};}"))

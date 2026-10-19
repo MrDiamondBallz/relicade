@@ -7,6 +7,20 @@ const CACHE = 'relicade-art-good-v1', MAX_GOOD = 36, MAX_TICKETS = 48;
 const tickets = new Map(), modes = new Map(), transfers = new Map();
 let active = 0;
 const queue = [];
+let persistence = Promise.resolve();
+function persist(t) {
+  // Serialize insert + eviction. Cache.put replaces atomically: never delete a
+  // last-good entry first, and never rewrite a decoded cache-only confirmation.
+  const write = persistence.then(async () => {
+    const cache = await caches.open(CACHE);
+    await cache.put(key(t.url), t.response.clone());
+    const keys = await cache.keys();
+    for (const old of keys.slice(0, Math.max(0, keys.length - MAX_GOOD))) await cache.delete(old);
+    return true;
+  });
+  persistence = write.catch(() => false);
+  return persistence;
+}
 self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
 const runtime = (url, token) => new URL('art-runtime/' + encodeURIComponent(url) + '?ticket=' + token, self.registration.scope).href;
@@ -21,7 +35,7 @@ function ticket(client, url, response, finish=null) {
   tickets.set(id, {client, url, response, fromCache:finish===null, finish:finish||(()=>{}), created:Date.now()});
   return {token:id, src:runtime(url,id)};
 }
-async function transfer(client, url) {
+async function transfer(client, url, started) {
   // Bound concurrency and waiting work; no timer-based automatic retries.
   if (queue.length >= 72) throw new Error('Artwork queue full');
   if (active >= 2) await new Promise(resolve => queue.push(resolve));
@@ -37,6 +51,7 @@ async function transfer(client, url) {
     // Fetch forbids no-cors with redirect:error/manual. The worker's response
     // CSP therefore restricts EVERY redirect to the same approved HTTPS host.
     // Credentials/referrer stay omitted across permitted redirects.
+    started(); // Charge only a real fetch, before its possibly stale completion.
     const response = await fetch(url, {mode:'no-cors', credentials:'omit', redirect:'follow',
       referrerPolicy:'no-referrer', referrer:'', cache:'no-store', signal:abort.signal});
     return {response,finish}; // Keep concurrency + timeout until decode/reject.
@@ -57,24 +72,22 @@ async function message(event) {
       }
       port.postMessage({ok:true}); return;
     }
-    if (data.type === 'confirm' || data.type === 'reject') {
+    if (data.type === 'confirm' || data.type === 'reject' || data.type === 'discard') {
       const t = tickets.get(data.token);
       if (!t || t.client !== client.id) throw new Error('Expired artwork ticket');
       t.finish();
       if (data.type === 'confirm') {
         let persisted = false;
         try {
-          const cache = await caches.open(CACHE);
-          await cache.delete(key(t.url));
-          await cache.put(key(t.url), t.response.clone());
-          const keys = await cache.keys();
-          for (const old of keys.slice(0, Math.max(0, keys.length - MAX_GOOD))) await cache.delete(old);
-          persisted = true;
+          persisted = t.fromCache ? Boolean(await cached(t.url)) : await persist(t);
         } catch (_) { /* Decoded pixels remain usable, but persistence is not promised. */ }
         tickets.delete(data.token);
         port.postMessage({ok:true, persisted});
       } else {
         tickets.delete(data.token);
+        // A stale renderer never decoded this response. Release its transfer
+        // without committing, invalidating last-good, or creating a new ticket.
+        if(data.type==='discard'){port.postMessage({ok:true});return;}
         if(t.fromCache) await forget(t.url);
         const old = t.fromCache ? null : await cached(t.url);
         port.postMessage(old ? {...ticket(client.id,t.url,old),state:'cached',reason:'Refresh image invalid — cached last-good'} : {ok:true});
@@ -90,13 +103,13 @@ async function message(event) {
       port.postMessage(good ? {...ticket(client.id,url,good), state:'cached'} : data.allowNetwork!==true ? {state:'fallback',reason:'Retry limit reached — original tile'} : {state:'offline', reason:'Offline — original tile'}); return;
     }
     try {
-      const {response,finish} = await transfer(client.id,url);
+      const {response,finish} = await transfer(client.id,url,()=>port.postMessage({phase:'attempt'}));
       // Opaque responses deliberately expose no status or headers. Decode in the
       // renderer is the only success evidence; a 404/corrupt response won't pass.
       if (response.type !== 'opaque' && !response.ok) {finish();throw new Error('Image HTTP error');}
-      port.postMessage({...ticket(client.id,url,response,finish), state:'loaded', attempted:true});
+      port.postMessage({...ticket(client.id,url,response,finish), state:'loaded'});
     } catch (error) {
-      port.postMessage(good ? {...ticket(client.id,url,good), state:'cached', attempted:true, reason:'Refresh failed; last-good image'} : {state:'fallback', attempted:true, reason:'Source failed or timed out — original tile'});
+      port.postMessage(good ? {...ticket(client.id,url,good), state:'cached', reason:'Refresh failed; last-good image'} : {state:'fallback', reason:'Source failed or timed out — original tile'});
     }
   } catch (_) { port.postMessage({state:'fallback', reason:'Artwork transport/cache unavailable — original tile'}); }
 }

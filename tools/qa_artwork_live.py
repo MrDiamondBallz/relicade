@@ -13,6 +13,24 @@ from playwright.sync_api import sync_playwright
 
 ROOT=Path(__file__).resolve().parents[1]
 
+def availability_errors(catalog, slots):
+    """Require each expected source to decode, not merely 36 DOM row objects."""
+    expected={(app['id'],kind):app['referenceArtSources']['libraryArt'][kind]
+              for app in catalog['apps'] for kind in ('hero','header','capsule')}
+    seen=set()
+    errors=[]
+    for slot in slots:
+        key=(slot['project'],slot['kind'])
+        if key in seen:
+            errors.append(f'Duplicate slot: {key}')
+        seen.add(key)
+        if key not in expected or slot['source']!=expected[key]:
+            errors.append(f'Unexpected slot/source: {key}')
+        if slot['state'] not in ('loaded','cached') or slot['width']<=0 or slot['height']<=0:
+            errors.append(f'Expected image did not decode: {key} ({slot["state"]})')
+    errors.extend(f'Missing slot: {key}' for key in sorted(expected.keys()-seen))
+    return errors
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--network',action='store_true',help='Explicitly permit contact with credited public artwork provider')
@@ -48,6 +66,8 @@ def main():
             page.wait_for_function("() => window.RelicadeArt.pending === 0 && ![...document.querySelectorAll('#art-diagnostics .art-slot')].some(e=>e.dataset.state==='loading')",timeout=300000)
             report['summary']=page.locator('#art-summary').inner_text()
             report['slots']=page.locator('#art-diagnostics .art-slot').evaluate_all('(xs)=>xs.map(e=>({project:e.dataset.project,kind:e.dataset.kind,source:e.dataset.source,state:e.dataset.state,status:e.querySelector(".art-status").textContent,width:e.querySelector(".art-remote")?.naturalWidth||0,height:e.querySelector(".art-remote")?.naturalHeight||0}))')
+            report['availabilityErrors']=availability_errors(json.loads((ROOT/'prototype/data/catalog.json').read_text()),report['slots'])
+            report['availabilityPassed']=not report['availabilityErrors']
             page.keyboard.press('Escape')
             for width,height in [(390,844),(1280,800),(1600,1000)]:
                 page.set_viewport_size({'width':width,'height':height})
@@ -65,6 +85,7 @@ def main():
         server.server_close()
         (output/'report.json').write_text(json.dumps(report,indent=2)+'\n')
     assert len(report['slots'])==36
+    assert report['availabilityPassed'],report['availabilityErrors']
     assert report['ocarina']['source']=='https://cdn2.steamgriddb.com/hero/b63d7ec7840735552cb77df807d944ef.png'
     assert not report['pageErrors'] and not report['cspViolations'],report
     assert all(not any(r[k] for k in ('referrerPresent','cookiePresent','authorizationPresent')) for r in report['providerRequests'])

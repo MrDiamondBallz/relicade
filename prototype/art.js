@@ -18,13 +18,16 @@
   let offline = new URLSearchParams(location.search).get('art') === 'offline';
   try { offline ||= localStorage.getItem('relicade.art.offline') === 'true'; } catch (_) { /* session mode still works */ }
   const node = (tag, cls, content) => { const n = document.createElement(tag); n.className = cls; if (content) n.textContent = content; return n; };
-  function rpc(data) {
+  function rpc(data, started=()=>{}) {
     if(data.type==='mode')data={...data,sequence:++modeSequence};
     return new Promise((resolve, reject) => {
       if (!worker) { reject(new Error('Safe artwork transport unavailable')); return; }
       const channel = new MessageChannel();
       const timer = setTimeout(() => { channel.port1.close(); reject(new Error('Artwork transport timed out')); }, 16000);
-      channel.port1.onmessage = event => { clearTimeout(timer); channel.port1.close(); resolve(event.data); };
+      channel.port1.onmessage = event => {
+        if(event.data.phase==='attempt'){started();return;}
+        clearTimeout(timer); channel.port1.close(); resolve(event.data);
+      };
       worker.postMessage(data, [channel.port2]);
     });
   }
@@ -55,7 +58,7 @@
   }
   function entryFor(app, kind) {
     const key = app.id + ':' + kind;
-    if (!entries.has(key)) entries.set(key, {app,kind,source:P.source(app,kind),state:'idle',reason:'Not checked — original tile',src:null,attempts:new Map(),views:new Map(),generation:0,decoded:false});
+    if (!entries.has(key)) entries.set(key, {app,kind,source:P.source(app,kind),state:'idle',reason:'Not checked — original tile',src:null,attempts:new Map(),reserved:new Map(),views:new Map(),generation:0,decoded:false});
     return entries.get(key);
   }
   async function start(entry, force=false) {
@@ -78,15 +81,31 @@
       entry.release=release;
       await rpc({type:'mode',online:!offline && navigator.onLine});
       if(modeEpoch!==epoch || generation!==entry.generation)return;
-      // Offline cache lookups are not network attempts and do not use the retry budget.
-      const result = await rpc({type:'load', url, force, allowNetwork:attempts<3});
-      if (modeEpoch !== epoch || generation !== entry.generation) return;
-      if(result.attempted)entry.attempts.set(url,attempts+1);
+      // Reserve possible network capacity while a cache lookup/worker queue is
+      // unresolved, so rapid source switches cannot overbook the same budget.
+      // Only the worker's actual fetch-start notification charges an attempt;
+      // cache-only results and offline/queue rejection never charge it.
+      const allowNetwork=(entry.attempts.get(url)||0)+(entry.reserved.get(url)||0)<3;
+      let reserved=allowNetwork;
+      if(reserved)entry.reserved.set(url,(entry.reserved.get(url)||0)+1);
+      const unreserve=()=>{if(reserved){entry.reserved.set(url,entry.reserved.get(url)-1);reserved=false;}};
+      // Do not unreserve on an unknown RPC outcome: fail closed rather than
+      // granting another possibly fourth fetch after a transport timeout.
+      const result = await rpc({type:'load', url, force, allowNetwork},()=>{
+        unreserve();
+        entry.attempts.set(url,(entry.attempts.get(url)||0)+1);
+        if(entry.source===url)emit(entry);
+      });
+      unreserve();
+      if (modeEpoch !== epoch || generation !== entry.generation) {
+        if(result.token)await rpc({type:'discard',token:result.token});
+        return;
+      }
       entry.state = result.state; entry.reason = result.reason || (result.state==='cached'?'Cached game art — last-good':'Game art · SteamGridDB / respective rights holders');
       if(url!==P.source(entry.app,entry.kind))entry.reason+=' · approved alternative (different crop)';
       entry.src = result.src || null; entry.token = result.token;
     } catch (_) {
-      if (generation === entry.generation) { entry.state='fallback'; entry.reason='Artwork transport timed out — original tile'; }
+      if (generation === entry.generation && modeEpoch === epoch) { entry.state='fallback'; entry.reason='Artwork transport timed out — original tile'; }
     } finally {
       pending--;
       if(!entry.src || modeEpoch!==epoch || generation!==entry.generation)release?.();
