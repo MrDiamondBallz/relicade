@@ -87,6 +87,14 @@ public class CredentialCacheTests : IDisposable
     }
 
     [Fact]
+    public async Task Provider_transport_exception_cannot_expose_request_secret()
+    {
+        using var client = new HttpClient(new Handler(_ => throw new HttpRequestException(Canary)));
+        var ex = await Assert.ThrowsAsync<HttpRequestException>(() => ReleaseRequestCoordinator.For(client).FetchAsync(client, Endpoint, "github", Canary, _ => []));
+        Assert.DoesNotContain(Canary, ex.ToString()); Assert.Null(ex.InnerException);
+    }
+
+    [Fact]
     public async Task Validation_connection_errors_cannot_expose_request_secret()
     {
         using var client = new HttpClient(new Handler(_ => throw new HttpRequestException(Canary)));

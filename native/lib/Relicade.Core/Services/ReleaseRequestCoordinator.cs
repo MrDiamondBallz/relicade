@@ -110,7 +110,10 @@ public sealed class ReleaseRequestCoordinator
                 foreach (var key in coordinator._redirects.Keys.Where(k => k.StartsWith(context + ":", StringComparison.Ordinal)).ToArray())
                     coordinator._redirects.Remove(key);
                 foreach (var flight in coordinator._flights.Where(p => p.Key.StartsWith(context + ":", StringComparison.Ordinal)).Select(p => p.Value))
-                    flight.Cancellation.Cancel();
+                {
+                    try { flight.Cancellation.Cancel(); }
+                    catch (AggregateException) { /* A transport's cancellation callback cannot undo vault removal. */ }
+                }
                 coordinator._cache.RemoveCredentialContext(context);
             }
         }
@@ -175,6 +178,10 @@ public sealed class ReleaseRequestCoordinator
             RequestCompleted?.Invoke(result);
             return result;
         }
+        catch (Exception ex) when (!string.IsNullOrEmpty(token) && ex.ToString().Contains(token, StringComparison.Ordinal))
+        {
+            throw new HttpRequestException("The provider request failed. Credential-bearing diagnostic details were withheld.");
+        }
         finally
         {
             lock (_gate)
@@ -200,9 +207,12 @@ public sealed class ReleaseRequestCoordinator
         try
         {
             lock (_gate)
+            {
+                ct.ThrowIfCancellationRequested();
                 if (_cooldowns.TryGetValue(context, out var paused) && paused.RetryAt > Clock.GetUtcNow()) return paused;
-            if (ReserveKnownQuota(context, provider, !string.IsNullOrWhiteSpace(token)) is { } quotaPaused)
-                return quotaPaused;
+                if (ReserveKnownQuota(context, provider, !string.IsNullOrWhiteSpace(token)) is { } quotaPaused)
+                    return quotaPaused;
+            }
             // The payload itself is read only if the server says it is still current.
             var cachedETag = _cache.ETag(key);
             Uri url;
@@ -235,7 +245,7 @@ public sealed class ReleaseRequestCoordinator
                     if (!IsTrustedGitHubUri(destination) || seen.Contains(destination.AbsoluteUri))
                         throw new HttpRequestException("Rejected an unsafe or looping GitHub API redirect.");
                     if (response.StatusCode is HttpStatusCode.MovedPermanently or HttpStatusCode.PermanentRedirect)
-                        lock (_gate) _redirects[key] = destination;
+                        lock (_gate) { ct.ThrowIfCancellationRequested(); _redirects[key] = destination; }
                     url = destination;
                     continue;
                 }

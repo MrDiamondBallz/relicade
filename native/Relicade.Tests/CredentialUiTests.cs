@@ -27,11 +27,12 @@ public class CredentialUiTests
             var token = settings.FindControl<TextBox>("GitHubTokenTextBox")!;
             var successes = 0; settings.Model.CredentialsChanged += _ => successes++;
             Assert.Equal("synthetic-ui-saved-token", token.Text);
+            var savesBeforeClear = store.Saves; // Opening settings legitimately persists noncredential presentation state.
             vault.Failure = new CredentialVaultUnavailableException(CredentialVaultFailure.Denied);
             settings.ClearGitHubToken_Click(settings, new RoutedEventArgs()); Dispatcher.UIThread.RunJobs();
             Assert.Equal("synthetic-ui-saved-token", token.Text);
             Assert.Equal("synthetic-ui-saved-token", store.Current.GitHubApiToken);
-            Assert.Equal(0, successes); Assert.Equal(0, store.Saves);
+            Assert.Equal(0, successes); Assert.Equal(savesBeforeClear, store.Saves);
         }
         finally
         {
