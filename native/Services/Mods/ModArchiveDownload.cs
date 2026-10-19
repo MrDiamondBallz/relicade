@@ -77,18 +77,9 @@ public static class ModArchiveDownload
                 BufferSize,
                 FileOptions.Asynchronous | FileOptions.DeleteOnClose);
         }
-        catch
+        catch (Exception original)
         {
-            try
-            {
-                if (File.Exists(tempPath))
-                    File.Delete(tempPath);
-            }
-            catch
-            {
-                // Best-effort cleanup of a partial download.
-            }
-
+            ModInstallOutcome.CleanupAfterFailure(original, tempPath, () => { if (File.Exists(tempPath)) File.Delete(tempPath); });
             throw;
         }
     }

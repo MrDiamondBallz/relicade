@@ -18,7 +18,12 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
     private void SetModsStatus(string status) { if (!_session.IsClosed) Model.Status = status; }
     public Task InstallModAsync(ModListItem item, bool updateInstalledFilesOnly = false, bool promptForDependencies = true) =>
         _session.RunAsync(() => InstallCoreAsync(item, updateInstalledFilesOnly, promptForDependencies));
-    public Task UninstallModAsync(ModListItem item) => _session.RunAsync(() => UninstallCoreAsync(item));
+    public Task UninstallModAsync(ModListItem item) => _session.RunAsync(async () =>
+    {
+        try { await UninstallCoreAsync(item); }
+        catch (OperationCanceledException) { SetModsStatus("Uninstall cancelled; reload to check committed state."); }
+        catch (Exception ex) { SetModsStatus($"Uninstall failed: {ex.Message}. Repair and reload before retrying."); await ShowMessageBoxAsync(Model.Status, "Mods"); }
+    });
     public Task UpdateAllVisibleModsAsync() => _session.RunAsync(UpdateAllCoreAsync);
     /// <summary>Usage data: the app by its catalog slug, and where the mod comes from (never which mod).</summary>
     private static Dictionary<string, object?> ModUsage(GameInfo game, ModListItem item)
@@ -60,6 +65,21 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
         var isUpdate = updateInstalledFilesOnly;
         var actionLabel = isUpdate ? "Updating" : "Installing";
         SetModsStatus($"{actionLabel} {item.DisplayName}…");
+        bool installationCompleted = false;
+        void RefreshAfterFailure(string status)
+        {
+            try
+            {
+                Workspace.ApplyInstalledStateToAllItems();
+                Workspace.ApplyFilters();
+            }
+            catch (Exception refresh)
+            {
+                status += $" Installed-state reload failed: {refresh.Message}. Repair and reload before retrying.";
+                Model.HasLoadError = true;
+            }
+            SetModsStatus(status);
+        }
         try
         {
             var package = item.Package;
@@ -82,7 +102,8 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
                     selectedFiles = ModDownloadFileSelection.ResolveFilesToUpdate(package, installedRecords);
                     if (selectedFiles.Count == 0)
                     {
-                        SetModsStatus("Nothing to update");
+                        SetModsStatus(installedRecords.Any(r => ModDownloadFileSelection.HasFileIdentity(r) && ModDownloadFileSelection.FindCatalogFile(package, r) == null)
+                            ? "An installed file is unavailable. Choose files explicitly to add a different file; automatic replacement is disabled." : "Nothing to update");
                         return;
                     }
                 }
@@ -97,7 +118,7 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
                         return;
                     }
 
-                    if (package.DownloadFiles.Count == 1)
+                    if (package.DownloadFiles.Count == 1 && !installedRecords.Any(r => ModDownloadFileSelection.HasFileIdentity(r) && ModDownloadFileSelection.FindCatalogFile(package, r) == null))
                     {
                         selectedFiles = remaining;
                     }
@@ -105,7 +126,7 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
                     {
                         selectedFiles = await ShowModDownloadFilePickerAsync(
                             $"Choose files — {package.Name}",
-                            "This mod has multiple download files. Select one or more to install:",
+                            "Choose the exact files to install. Unavailable installed files are not automatically replaced:",
                             "Install",
                             remaining,
                             preselectedFileIds: null).ConfigureAwait(true);
@@ -165,6 +186,7 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
                 progress,
                 modsLayout: game.ModsLayout,
                 installDependencies: installDependencies, cancellationToken: _session.Token).ConfigureAwait(true);
+            installationCompleted = true;
 
             if (!Current()) return;
             Workspace.ApplyInstalledStateToAllItems();
@@ -175,14 +197,27 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
             Telemetry.Current.Track(isUpdate ? "mod_updated" : "mod_installed", ModUsage(game, item));
         }
         catch (Exception) when (!Current()) { }
+        catch (OperationCanceledException ex)
+        {
+            var committed = ModInstallOutcome.GetCommitted(ex);
+            var status = committed.Count > 0
+                ? $"Installation cancelled; these dependencies/files remain committed: {string.Join(", ", committed)}."
+                : installationCompleted ? "Installation committed; a follow-up operation was cancelled."
+                : "Installation cancelled before replacement commit.";
+            if (ex.Data["RecoveryError"] is Exception recovery) status += " " + recovery.Message;
+            RefreshAfterFailure(status + ModInstallOutcome.CleanupWarning(ex));
+        }
         catch (Exception ex)
         {
-            SetModsStatus($"{actionLabel} failed: {ex.Message}");
+            var cleanupWarning = ModInstallOutcome.CleanupWarning(ex);
+            RefreshAfterFailure((installationCompleted
+                ? $"Installation committed; a follow-up operation failed: {ex.Message}"
+                : $"{actionLabel} failed: {ex.Message}") + cleanupWarning);
             var usage = ModUsage(game, item);
             usage["update"] = isUpdate;
             usage["reason"] = Telemetry.ReasonOf(ex);
             Telemetry.Current.Track("mod_install_failed", usage);
-            await ShowMessageBoxAsync($"Failed to install mod:\n{ex.Message}", "Mods");
+            await ShowMessageBoxAsync($"Failed to install mod:\n{ex.Message}{cleanupWarning}", "Mods");
         }
         finally
         {
@@ -221,7 +256,7 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
             toRemove = installedRecords;
         }
 
-        if (package.DownloadFiles.Count > 1)
+        if (installedRecords.Count > 1)
         {
             var pickerFiles = ModDownloadFileSelection.ResolveInstalledFilesForPicker(package, installedRecords);
             var selected = await ShowModDownloadFilePickerAsync(
@@ -236,12 +271,11 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
                 return;
             }
 
-            var selectedIds = selected.Select(f => f.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
             toRemove = installedRecords.Where(r =>
-                selectedIds.Contains(r.DownloadFileId ?? string.Empty) ||
                 selected.Any(f =>
-                    !string.IsNullOrWhiteSpace(r.DownloadFileName) &&
-                    string.Equals(f.FileName, r.DownloadFileName, StringComparison.OrdinalIgnoreCase))).ToList();
+                    !string.IsNullOrWhiteSpace(r.DownloadFileId)
+                        ? string.Equals(f.Id, r.DownloadFileId, StringComparison.Ordinal)
+                        : string.Equals(f.FileName, r.DownloadFileName, StringComparison.Ordinal))).ToList();
             if (toRemove.Count == 0)
             {
                 SetModsStatus("Uninstall cancelled");
@@ -253,7 +287,7 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
         try
         {
             foreach (var record in toRemove)
-                ModInstaller.UninstallMatchingFile(installRoot, modsPath, package, record.DownloadFileId);
+                ModInstaller.UninstallMatchingRecord(installRoot, modsPath, package, record);
 
             if (!Current()) return;
             Workspace.ApplyInstalledStateToAllItems();

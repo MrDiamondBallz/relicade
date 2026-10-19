@@ -191,7 +191,7 @@ public sealed class ModListItem : INotifyPropertyChanged
 
     public string StatusLabel => Status switch
     {
-        ModInstallStatus.Installed => "Installed",
+        ModInstallStatus.Installed => HasUnavailableInstalledFile ? "Installed · file unavailable" : "Installed",
         ModInstallStatus.UpdateAvailable => "Update available",
         _ => string.Empty,
     };
@@ -200,6 +200,9 @@ public sealed class ModListItem : INotifyPropertyChanged
     public bool ShowStatusBadge => Status is ModInstallStatus.Installed or ModInstallStatus.UpdateAvailable;
 
     public bool HasUpdateAvailable => Status == ModInstallStatus.UpdateAvailable;
+
+    public bool HasUnavailableInstalledFile => _installedRecords.Any(r => ModDownloadFileSelection.HasFileIdentity(r)
+        && ModDownloadFileSelection.FindCatalogFile(EffectiveDownloadFiles, r) == null);
 
     public string VersionLine
     {
@@ -300,6 +303,8 @@ public sealed class ModListItem : INotifyPropertyChanged
         Status = records.Any(r => ModDownloadFileSelection.IsRecordUpdateAvailable(r, Package, files))
             ? ModInstallStatus.UpdateAvailable
             : ModInstallStatus.Installed;
+        OnPropertyChanged(nameof(StatusLabel));
+        OnPropertyChanged(nameof(HasUnavailableInstalledFile));
         OnPropertyChanged(nameof(CanInstall));
         OnPropertyChanged(nameof(AllowsAdditionalFiles));
         OnPropertyChanged(nameof(VersionLine));

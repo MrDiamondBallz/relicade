@@ -77,9 +77,8 @@ public sealed class ThunderstoreApiClient
 
         if (!forceRefresh && TryReadTextCache(cachePath, ListingCacheTtl, out var cachedJson))
         {
-            var cached = JsonSerializer.Deserialize<ThunderstoreListingPageDto>(cachedJson, ThunderstoreJson.Options);
-            if (cached != null)
-                return cached;
+            try { return ModProviderResponse.ParsePage<ThunderstoreListingPageDto>(cachedJson, "results", ThunderstoreJson.Options); }
+            catch (JsonException) { /* Retry invalid cached pages; never interpret them as exhaustion. */ }
         }
 
         var url = BuildListingUrl(communitySlug, page, query, includeNsfw, sectionUuid, ordering);
@@ -87,10 +86,9 @@ public sealed class ThunderstoreApiClient
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+        var listing = ModProviderResponse.ParsePage<ThunderstoreListingPageDto>(json, "results", ThunderstoreJson.Options);
         WriteTextCache(cachePath, json);
-
-        return JsonSerializer.Deserialize<ThunderstoreListingPageDto>(json, ThunderstoreJson.Options)
-               ?? new ThunderstoreListingPageDto();
+        return listing;
     }
 
     public async Task<ThunderstoreExperimentalPackageDto?> GetExperimentalPackageAsync(

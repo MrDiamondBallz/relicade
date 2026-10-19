@@ -24,8 +24,13 @@ public static class ModCatalogListBuilder
         if (!string.Equals(record.Provider, package.ProviderId, StringComparison.OrdinalIgnoreCase))
             return false;
 
+        if (!string.Equals(record.SourceKey, package.SourceKey, StringComparison.OrdinalIgnoreCase))
+            return false;
+
         if (string.Equals(record.Id, package.Id, StringComparison.OrdinalIgnoreCase))
             return true;
+
+        if (ModDownloadFileSelection.HasFileIdentity(record)) return false;
 
         if (!string.IsNullOrWhiteSpace(record.FullName) &&
             !string.IsNullOrWhiteSpace(package.FullName) &&
@@ -40,7 +45,8 @@ public static class ModCatalogListBuilder
 
     /// <summary>
     /// True when <paramref name="record"/> is this package's install of <paramref name="downloadFileId"/>.
-    /// A null/empty file id matches legacy records that have no <see cref="InstalledModRecord.DownloadFileId"/>.
+    /// A null/empty file id matches only legacy records with no stored file identity.
+    /// Filename-only legacy records require a unique exact catalog filename match.
     /// </summary>
     public static bool RecordMatchesPackageFile(
         InstalledModRecord record,
@@ -51,9 +57,13 @@ public static class ModCatalogListBuilder
             return false;
 
         if (string.IsNullOrWhiteSpace(downloadFileId))
-            return string.IsNullOrWhiteSpace(record.DownloadFileId);
+            return !ModDownloadFileSelection.HasFileIdentity(record);
 
-        return string.Equals(record.DownloadFileId, downloadFileId, StringComparison.OrdinalIgnoreCase);
+        if (!string.IsNullOrWhiteSpace(record.DownloadFileId))
+            return string.Equals(record.DownloadFileId, downloadFileId, StringComparison.Ordinal);
+
+        return !string.IsNullOrWhiteSpace(record.DownloadFileName) &&
+            string.Equals(ModDownloadFileSelection.FindCatalogFile(package, record)?.Id, downloadFileId, StringComparison.Ordinal);
     }
 
     /// <summary>True when two catalog packages refer to the same mod (Id, FullName, or Owner+Name).</summary>
@@ -63,6 +73,9 @@ public static class ModCatalogListBuilder
         ArgumentNullException.ThrowIfNull(right);
 
         if (!string.Equals(left.ProviderId, right.ProviderId, StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (!string.Equals(left.SourceKey, right.SourceKey, StringComparison.OrdinalIgnoreCase))
             return false;
 
         if (!string.IsNullOrWhiteSpace(left.Id) &&
@@ -126,7 +139,17 @@ public static class ModCatalogListBuilder
     {
         ArgumentNullException.ThrowIfNull(doc);
         ArgumentNullException.ThrowIfNull(package);
-        return doc.Mods.FirstOrDefault(m => RecordMatchesPackageFile(m, package, downloadFileId));
+        var scoped = FindMatchingRecords(doc, package);
+        var selected = package.DownloadFiles.Where(f => string.Equals(f.Id, downloadFileId, StringComparison.Ordinal)).ToList();
+        if (selected.Count > 1 || selected.Any(f => scoped.Any(r => string.IsNullOrWhiteSpace(r.DownloadFileId)
+                && !string.IsNullOrWhiteSpace(r.DownloadFileName)
+                && string.Equals(r.DownloadFileName, f.FileName, StringComparison.Ordinal))
+            && package.DownloadFiles.Count(other => string.Equals(other.FileName, f.FileName, StringComparison.Ordinal)) != 1))
+            throw new InvalidOperationException("Installed legacy filename is ambiguous; resolve the file identity before replacement.");
+        var matches = scoped.Where(m => RecordMatchesPackageFile(m, package, downloadFileId)).ToList();
+        if (matches.Count > 1)
+            throw new InvalidOperationException("Multiple installed records match this file; resolve the identity before replacement.");
+        return matches.SingleOrDefault();
     }
 
     public static IReadOnlyList<InstalledModRecord> FindMatchingRecords(
@@ -172,13 +195,13 @@ public static class ModCatalogListBuilder
             return null;
 
         if (!string.IsNullOrWhiteSpace(package.Id))
-            return PackageIdKey(package.ProviderId, package.Id);
+            return PackageIdKey(package.ProviderId + "|" + package.SourceKey, package.Id);
 
         if (!string.IsNullOrWhiteSpace(package.FullName))
-            return PackageFullNameKey(package.ProviderId, package.FullName);
+            return PackageFullNameKey(package.ProviderId + "|" + package.SourceKey, package.FullName);
 
         if (!string.IsNullOrWhiteSpace(package.Owner) && !string.IsNullOrWhiteSpace(package.Name))
-            return PackageOwnerNameKey(package.ProviderId, package.Owner, package.Name);
+            return PackageOwnerNameKey(package.ProviderId + "|" + package.SourceKey, package.Owner, package.Name);
 
         return null;
     }
@@ -191,40 +214,30 @@ public static class ModCatalogListBuilder
             yield break;
 
         if (!string.IsNullOrWhiteSpace(package.Id))
-            yield return PackageIdKey(package.ProviderId, package.Id);
+            yield return PackageIdKey(package.ProviderId + "|" + package.SourceKey, package.Id);
 
         if (!string.IsNullOrWhiteSpace(package.FullName))
-            yield return PackageFullNameKey(package.ProviderId, package.FullName);
+            yield return PackageFullNameKey(package.ProviderId + "|" + package.SourceKey, package.FullName);
 
         if (!string.IsNullOrWhiteSpace(package.Owner) && !string.IsNullOrWhiteSpace(package.Name))
-            yield return PackageOwnerNameKey(package.ProviderId, package.Owner, package.Name);
+            yield return PackageOwnerNameKey(package.ProviderId + "|" + package.SourceKey, package.Owner, package.Name);
     }
 
     /// <summary>
     /// Appends <paramref name="incoming"/> onto <paramref name="packages"/>, skipping packages
-    /// that share any identity key (Id / FullName / Owner+Name) with an existing entry.
+    /// with the same stable provider/source/package identity as an existing entry.
     /// </summary>
     public static void AppendUniquePackages(List<ModPackage> packages, IEnumerable<ModPackage> incoming)
     {
         ArgumentNullException.ThrowIfNull(packages);
         ArgumentNullException.ThrowIfNull(incoming);
 
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var existing in packages)
-        {
-            foreach (var key in PackageIdentityKeys(existing))
-                seen.Add(key);
-        }
-
+        var seen = packages.Select(PackageIdentityKey).Where(k => k != null).ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (var package in incoming)
         {
-            var keys = PackageIdentityKeys(package).ToList();
-            if (keys.Count > 0 && keys.Any(seen.Contains))
-                continue;
-
+            var key = PackageIdentityKey(package);
+            if (key != null && !seen.Add(key)) continue;
             packages.Add(package);
-            foreach (var key in keys)
-                seen.Add(key);
         }
     }
 
@@ -242,13 +255,13 @@ public static class ModCatalogListBuilder
                 continue;
 
             if (!string.IsNullOrWhiteSpace(package.Id))
-                known[PackageIdKey(package.ProviderId, package.Id)] = package;
+                known[PackageIdKey(package.ProviderId + "|" + package.SourceKey, package.Id)] = package;
 
             if (!string.IsNullOrWhiteSpace(package.FullName))
-                known[PackageFullNameKey(package.ProviderId, package.FullName)] = package;
+                known[PackageFullNameKey(package.ProviderId + "|" + package.SourceKey, package.FullName)] = package;
 
             if (!string.IsNullOrWhiteSpace(package.Owner) && !string.IsNullOrWhiteSpace(package.Name))
-                known[PackageOwnerNameKey(package.ProviderId, package.Owner, package.Name)] = package;
+                known[PackageOwnerNameKey(package.ProviderId + "|" + package.SourceKey, package.Owner, package.Name)] = package;
         }
     }
 
@@ -260,16 +273,16 @@ public static class ModCatalogListBuilder
             return null;
 
         if (!string.IsNullOrWhiteSpace(record.Id) &&
-            known.TryGetValue(PackageIdKey(record.Provider, record.Id), out var byId))
+            known.TryGetValue(PackageIdKey(record.Provider + "|" + record.SourceKey, record.Id), out var byId))
             return byId;
 
         if (!string.IsNullOrWhiteSpace(record.FullName) &&
-            known.TryGetValue(PackageFullNameKey(record.Provider, record.FullName), out var byFull))
+            known.TryGetValue(PackageFullNameKey(record.Provider + "|" + record.SourceKey, record.FullName), out var byFull))
             return byFull;
 
         if (!string.IsNullOrWhiteSpace(record.Owner) &&
             !string.IsNullOrWhiteSpace(record.Name) &&
-            known.TryGetValue(PackageOwnerNameKey(record.Provider, record.Owner, record.Name), out var byOwnerName))
+            known.TryGetValue(PackageOwnerNameKey(record.Provider + "|" + record.SourceKey, record.Owner, record.Name), out var byOwnerName))
             return byOwnerName;
 
         return null;
@@ -299,12 +312,8 @@ public static class ModCatalogListBuilder
 
         foreach (var package in catalog.Where(p => !p.IsDeprecated))
         {
-            var keys = PackageIdentityKeys(package).ToList();
-            if (keys.Count > 0 && keys.Any(seenCatalogKeys.Contains))
-                continue;
-
-            foreach (var key in keys)
-                seenCatalogKeys.Add(key);
+            var key = PackageIdentityKey(package);
+            if (key != null && !seenCatalogKeys.Add(key)) continue;
 
             var records = FindMatchingRecords(installedDoc, package);
             foreach (var record in records)

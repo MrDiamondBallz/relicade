@@ -49,7 +49,7 @@ public partial class ModsView : UserControl
         Workspace.RowsChanged += RestoreListFocus;
         Model.PropertyChanged += (_, e) =>
         {
-            if (!context.Session.IsClosed && e.PropertyName == nameof(Model.ListIsLoading))
+            if (!context.Session.IsClosed && e.PropertyName is nameof(Model.ListIsLoading) or nameof(Model.HasLoadError))
                 UpdateModsListPlaceholder();
         };
         Navigation = new ModsNavigation(this, context.Session, host);
@@ -141,7 +141,12 @@ public partial class ModsView : UserControl
     }
 
     internal void ModsClose_Click(object? sender, RoutedEventArgs e) => CloseModsOverlay();
-    internal async void ModsRefresh_Click(object? sender, RoutedEventArgs e) => await Workspace.RefreshAsync(forceRefresh: true);
+    internal async void ModsRefresh_Click(object? sender, RoutedEventArgs e)
+    {
+        if (Model.BrowseSession?.HasErrors == true && Workspace.CanLoadMore)
+            await Workspace.LoadMoreAsync();
+        else await Workspace.RefreshAsync(forceRefresh: true);
+    }
     internal async void ModsUpdateAll_Click(object? sender, RoutedEventArgs e) => await Actions.UpdateAllVisibleModsAsync();
     internal void ModsOpenFolder_Click(object? sender, RoutedEventArgs e)
     {
@@ -274,7 +279,7 @@ public partial class ModsView : UserControl
         {
             if (_context is null)
                 return;
-            if (!Workspace.CanLoadMore || !IsModsListNearBottomForPrefetch())
+            if (!Workspace.CanLoadMore || Model.HasLoadError || !IsModsListNearBottomForPrefetch())
                 return;
             await LoadMoreModsAsync().ConfigureAwait(true);
         });
@@ -375,7 +380,7 @@ public partial class ModsView : UserControl
         {
             var previous = Model.BrowseSession;
             await Workspace.LoadMoreAsync();
-            if (ReferenceEquals(previous, Model.BrowseSession) || !IsModsListNearBottomForPrefetch())
+            if (ReferenceEquals(previous, Model.BrowseSession) || Model.HasLoadError || !IsModsListNearBottomForPrefetch())
                 break;
         }
     }
@@ -386,7 +391,11 @@ public partial class ModsView : UserControl
         if (ModsListLoadingPanel != null)
             ModsListLoadingPanel.IsVisible = showLoading;
         if (ModsEmptyText != null)
+        {
             ModsEmptyText.IsVisible = !showLoading && ModListRows.Count == 0;
+            ModsEmptyText.Text = Model.HasLoadError ? "Mods unavailable. Review the error above, then Retry after repair." : "No mods found.";
+        }
+        if (ModsRefreshButton != null) ModsRefreshButton.Content = Model.HasLoadError ? "Retry" : "Refresh";
     }
 
     private bool _restoreListFocus;

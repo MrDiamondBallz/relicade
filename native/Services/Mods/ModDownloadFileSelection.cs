@@ -30,11 +30,11 @@ public static class ModDownloadFileSelection
         foreach (var record in installedRecords)
         {
             if (!string.IsNullOrWhiteSpace(record.DownloadFileId) &&
-                string.Equals(record.DownloadFileId, file.Id, StringComparison.OrdinalIgnoreCase))
+                string.Equals(record.DownloadFileId, file.Id, StringComparison.Ordinal))
                 return true;
 
-            if (!string.IsNullOrWhiteSpace(record.DownloadFileName) &&
-                string.Equals(record.DownloadFileName, file.FileName, StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(record.DownloadFileId) && !string.IsNullOrWhiteSpace(record.DownloadFileName) &&
+                string.Equals(record.DownloadFileName, file.FileName, StringComparison.Ordinal))
                 return true;
         }
 
@@ -61,6 +61,7 @@ public static class ModDownloadFileSelection
     public static ModDownloadFile? FindCatalogFile(ModPackage package, InstalledModRecord record)
     {
         ArgumentNullException.ThrowIfNull(package);
+        if (!ModCatalogListBuilder.RecordMatchesPackage(record, package)) return null;
         return FindCatalogFile(package.DownloadFiles, record);
     }
 
@@ -76,18 +77,16 @@ public static class ModDownloadFileSelection
 
         if (!string.IsNullOrWhiteSpace(record.DownloadFileId))
         {
-            var byId = files.FirstOrDefault(f =>
-                string.Equals(f.Id, record.DownloadFileId, StringComparison.OrdinalIgnoreCase));
-            if (byId != null)
-                return byId;
+            var byId = files.Where(f =>
+                string.Equals(f.Id, record.DownloadFileId, StringComparison.Ordinal)).ToList();
+            return byId.Count == 1 ? byId[0] : null;
         }
 
         if (!string.IsNullOrWhiteSpace(record.DownloadFileName))
         {
-            var byName = files.FirstOrDefault(f =>
-                string.Equals(f.FileName, record.DownloadFileName, StringComparison.OrdinalIgnoreCase));
-            if (byName != null)
-                return byName;
+            var byName = files.Where(f =>
+                string.Equals(f.FileName, record.DownloadFileName, StringComparison.Ordinal)).ToList();
+            return byName.Count == 1 ? byName[0] : null;
         }
 
         return files.Count == 1 ? files[0] : null;
@@ -129,13 +128,6 @@ public static class ModDownloadFileSelection
         var files = new List<ModDownloadFile>();
         foreach (var record in records)
         {
-            var catalogFile = FindCatalogFile(package, record);
-            if (catalogFile != null)
-            {
-                files.Add(catalogFile);
-                continue;
-            }
-
             files.Add(new ModDownloadFile
             {
                 Id = record.DownloadFileId ?? string.Empty,
@@ -168,6 +160,8 @@ public static class ModDownloadFileSelection
         ArgumentNullException.ThrowIfNull(record);
         ArgumentNullException.ThrowIfNull(package);
         ArgumentNullException.ThrowIfNull(downloadFiles);
+
+        if (!ModCatalogListBuilder.RecordMatchesPackage(record, package)) return record.Version;
 
         var file = FindCatalogFile(downloadFiles, record);
         if (file != null && !string.IsNullOrWhiteSpace(file.Version))

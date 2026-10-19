@@ -39,6 +39,11 @@ public sealed class InstalledModRecord
 
 public sealed class InstalledModsDocument
 {
+    /// <summary>Distinguishes commits even when selected metadata is unchanged but payload bytes differ.</summary>
+    [JsonPropertyName("generation")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Generation { get; set; }
+
     [JsonPropertyName("mods")]
     public List<InstalledModRecord> Mods { get; set; } = [];
 }
@@ -58,27 +63,65 @@ public sealed class InstalledModsStore
 
     public InstalledModsDocument Load(string installRoot)
     {
-        var path = GetSidecarPath(installRoot);
-        if (!File.Exists(path))
-            return new InstalledModsDocument();
-
-        try
-        {
-            var json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<InstalledModsDocument>(json, JsonOptions) ?? new InstalledModsDocument();
-        }
-        catch
-        {
-            return new InstalledModsDocument();
-        }
+        using var writer = ModInstallTransaction.Acquire(installRoot);
+        ModInstallTransaction.Recover(installRoot);
+        return LoadCore(installRoot);
     }
 
     public void Save(string installRoot, InstalledModsDocument document)
     {
-        Directory.CreateDirectory(installRoot);
-        var path = GetSidecarPath(installRoot);
-        var json = JsonSerializer.Serialize(document, JsonOptions);
-        File.WriteAllText(path, json);
+        using var writer = ModInstallTransaction.Acquire(installRoot);
+        ModInstallTransaction.Recover(installRoot);
+        SaveCore(installRoot, document);
+    }
+
+    internal static InstalledModsDocument LoadCore(string installRoot)
+    {
+        var bytes = ModInstallTransaction.ReadOptional(GetSidecarPath(installRoot));
+        return bytes == null ? new() : Parse(bytes);
+    }
+
+    internal static InstalledModsDocument Parse(byte[] bytes)
+    {
+        try
+        {
+            using var json = JsonDocument.Parse(bytes);
+            if (json.RootElement.ValueKind != JsonValueKind.Object ||
+                !json.RootElement.TryGetProperty("mods", out var mods) || mods.ValueKind != JsonValueKind.Array)
+                throw new JsonException("The mod sidecar must contain a mods array.");
+            foreach (var mod in mods.EnumerateArray())
+            {
+                if (mod.ValueKind != JsonValueKind.Object ||
+                    !mod.TryGetProperty("provider", out var provider) || provider.ValueKind != JsonValueKind.String ||
+                    !mod.TryGetProperty("id", out var id) || id.ValueKind != JsonValueKind.String ||
+                    !mod.TryGetProperty("files", out var files) || files.ValueKind != JsonValueKind.Array)
+                    throw new JsonException("The mod sidecar contains an invalid installed record.");
+            }
+            var document = JsonSerializer.Deserialize<InstalledModsDocument>(bytes, JsonOptions)
+                ?? throw new JsonException("The mod sidecar cannot be null.");
+            if (document.Mods.Any(m => m == null || m.Provider == null || m.SourceKey == null || m.Id == null ||
+                m.Name == null || m.FullName == null || m.Owner == null || m.Version == null || m.Files == null || m.Files.Any(f => f == null)))
+                throw new JsonException("Invalid mod record or payload list.");
+            return document;
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidDataException("The installed mod sidecar needs repair; original data was retained.", ex);
+        }
+    }
+
+    internal static byte[] Serialize(InstalledModsDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
+        Parse(bytes);
+        return bytes;
+    }
+
+    internal static void SaveCore(string installRoot, InstalledModsDocument document)
+    {
+        LoadCore(installRoot); // Revalidate disk while holding the exclusive writer lock.
+        ModInstallTransaction.AtomicWrite(GetSidecarPath(installRoot), Serialize(document));
     }
 
     public InstalledModRecord? Find(

@@ -748,18 +748,21 @@ public class ModsSystemTests
         var fileA = new InstalledModRecord
         {
             Provider = package.ProviderId,
+            SourceKey = package.SourceKey,
             Id = package.Id,
             DownloadFileId = "10",
         };
         var fileB = new InstalledModRecord
         {
             Provider = package.ProviderId,
+            SourceKey = package.SourceKey,
             Id = package.Id,
             DownloadFileId = "20",
         };
         var legacy = new InstalledModRecord
         {
             Provider = package.ProviderId,
+            SourceKey = package.SourceKey,
             Id = package.Id,
         };
 
@@ -1076,7 +1079,7 @@ public class ModsSystemTests
                 zipBytes;
             handler.BinaryResponses[
                 "https://thunderstore.io/package/download/Vertigo/Stop_N_Swop_Transfer_Tool_BK/1.1.4/"] =
-                zipBytes;
+                CreateMinimalModZip("root.nrm", "root");
 
             using var http = new HttpClient(handler);
             var provider = new ThunderstoreModProvider(http, cache);
@@ -1168,7 +1171,7 @@ public class ModsSystemTests
                 zipBytes;
             handler.BinaryResponses[
                 "https://thunderstore.io/package/download/Vertigo/Stop_N_Swop_Transfer_Tool_BK/1.1.4/"] =
-                zipBytes;
+                CreateMinimalModZip("root.nrm", "root");
 
             using var http = new HttpClient(handler);
             var provider = new ThunderstoreModProvider(http, cache);
@@ -1705,14 +1708,14 @@ public class ModsSystemTests
         item.CanInstall.Should().BeTrue();
         item.CanUninstall.Should().BeFalse();
 
-        item.ApplyInstalled(new InstalledModRecord { Version = "2.0.0" });
+        item.ApplyInstalled(new InstalledModRecord { Provider = package.ProviderId, SourceKey = package.SourceKey, Id = package.Id, Version = "2.0.0" });
         item.Status.Should().Be(ModInstallStatus.Installed);
         item.CanInstall.Should().BeFalse();
         item.CanUpdate.Should().BeFalse();
         item.CanUninstall.Should().BeTrue();
         item.InstalledVersion.Should().Be("2.0.0");
 
-        item.ApplyInstalled(new InstalledModRecord { Version = "1.0.0" });
+        item.ApplyInstalled(new InstalledModRecord { Provider = package.ProviderId, SourceKey = package.SourceKey, Id = package.Id, Version = "1.0.0" });
         item.Status.Should().Be(ModInstallStatus.UpdateAvailable);
         item.CanUpdate.Should().BeTrue();
 
@@ -1733,6 +1736,7 @@ public class ModsSystemTests
             new InstalledModRecord
             {
                 Provider = package.ProviderId,
+                SourceKey = package.SourceKey,
                 Id = package.Id,
                 Version = "1.0",
                 DownloadFileId = "10",
@@ -1740,6 +1744,7 @@ public class ModsSystemTests
             new InstalledModRecord
             {
                 Provider = package.ProviderId,
+                SourceKey = package.SourceKey,
                 Id = package.Id,
                 Version = "0.9",
                 DownloadFileId = "20",
@@ -1764,6 +1769,7 @@ public class ModsSystemTests
             new InstalledModRecord
             {
                 Provider = package.ProviderId,
+                SourceKey = package.SourceKey,
                 Id = package.Id,
                 Version = "1.0",
                 DownloadFileId = "10",
@@ -1779,6 +1785,7 @@ public class ModsSystemTests
             new InstalledModRecord
             {
                 Provider = package.ProviderId,
+                SourceKey = package.SourceKey,
                 Id = package.Id,
                 Version = "1.0",
                 DownloadFileId = "10",
@@ -1786,6 +1793,7 @@ public class ModsSystemTests
             new InstalledModRecord
             {
                 Provider = package.ProviderId,
+                SourceKey = package.SourceKey,
                 Id = package.Id,
                 Version = "1.0",
                 DownloadFileId = "20",
@@ -1818,6 +1826,7 @@ public class ModsSystemTests
         var fierceDeity = new InstalledModRecord
         {
             Provider = package.ProviderId,
+            SourceKey = package.SourceKey,
             Id = package.Id,
             Version = "1.0",
             DownloadFileId = "30",
@@ -1847,6 +1856,7 @@ public class ModsSystemTests
         var fierceDeity = new InstalledModRecord
         {
             Provider = package.ProviderId,
+            SourceKey = package.SourceKey,
             Id = package.Id,
             Version = "1.0",
             DownloadFileId = "30",
@@ -1864,6 +1874,7 @@ public class ModsSystemTests
         var behind = new InstalledModRecord
         {
             Provider = package.ProviderId,
+            SourceKey = package.SourceKey,
             Id = package.Id,
             Version = "1.0",
             DownloadFileId = "10",
@@ -1883,6 +1894,7 @@ public class ModsSystemTests
             new InstalledModRecord
             {
                 Provider = package.ProviderId,
+                SourceKey = package.SourceKey,
                 Id = package.Id,
                 Version = "1.0",
                 DownloadFileId = "10",
@@ -1890,6 +1902,7 @@ public class ModsSystemTests
             new InstalledModRecord
             {
                 Provider = package.ProviderId,
+                SourceKey = package.SourceKey,
                 Id = package.Id,
                 Version = "1.0",
                 DownloadFileId = "30",
@@ -2241,7 +2254,7 @@ public class ModsSystemTests
         };
 
         var item = new ModListItem { Package = package };
-        item.ApplyInstalled(new InstalledModRecord { Version = "1.0.0" });
+        item.ApplyInstalled(new InstalledModRecord { Provider = package.ProviderId, SourceKey = package.SourceKey, Id = package.Id, Version = "1.0.0" });
         item.Status.Should().Be(ModInstallStatus.UpdateAvailable);
 
         var filterKey = $"{item.ProviderId}|{item.SourceKey}";
