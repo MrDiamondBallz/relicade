@@ -28,8 +28,7 @@ public class GameInstallationServiceExtensionlessTests
         var downloadPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         const string assetName = "CrashBandicoot_Linux";
-        var payload = new byte[2048];
-        Random.Shared.NextBytes(payload);
+        var payload = PortableInstallationFixtures.NativePayload("synthetic extensionless payload");
 
         try
         {
@@ -43,7 +42,7 @@ public class GameInstallationServiceExtensionlessTests
 
             var installedPath = Path.Combine(gamePath, assetName);
             File.Exists(installedPath).Should().BeTrue();
-            File.Exists(downloadPath).Should().BeFalse("single-file assets are moved out of temp");
+            File.Exists(downloadPath).Should().BeTrue("source bytes remain until the caller cleans staging after a durable commit");
             (await File.ReadAllBytesAsync(installedPath)).Should().Equal(payload);
             (await File.ReadAllTextAsync(Path.Combine(gamePath, "version.txt"))).Trim().Should().Be("1.6.1");
         }
@@ -65,7 +64,7 @@ public class GameInstallationServiceExtensionlessTests
 
         try
         {
-            await File.WriteAllBytesAsync(downloadPath, [0x7F, (byte)'E', (byte)'L', (byte)'F', 2, 1, 1, 0]);
+            await File.WriteAllBytesAsync(downloadPath, PortableInstallationFixtures.NativePayload("synthetic dotted payload"));
 
             await GameInstallationService.InstallOrUpdateGameAsync(downloadPath, gamePath, assetName, "v1.0.1");
 

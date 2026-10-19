@@ -42,7 +42,8 @@ public sealed class LinuxLauncherScriptTests : IDisposable
                 stream.Write(bytes);
             }
 
-        await GameInstallationService.InstallOrUpdateGameAsync(archivePath, GamePath, "nectar-linux.zip", "fixture");
+        await GameInstallationService.InstallOrUpdateGameAsync(archivePath, GamePath, "nectar-linux.zip", "fixture",
+            new GameInstallationOptions { SelectedExecutableRelativePath = "nectar-launcher" });
         var candidates = GameInstallationService.FindExecutableCandidates(GamePath, SearchOption.AllDirectories,
             null, out var wine, OSPlatform.Linux);
         // Native ELF payloads with suffixes are eligible too; the saved wrapper

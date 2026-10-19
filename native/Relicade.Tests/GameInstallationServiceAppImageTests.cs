@@ -7,7 +7,7 @@ namespace Relicade.Tests;
 public class GameInstallationServiceAppImageTests
 {
     [Fact]
-    public async Task InstallOrUpdateGameAsync_deletes_other_top_level_appimages()
+    public async Task Unmanaged_folder_blocks_deletes_other_top_level_appimages()
     {
         var downloadPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.AppImage");
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -24,19 +24,19 @@ public class GameInstallationServiceAppImageTests
             await File.WriteAllBytesAsync(modsFile, [4, 5]);
             await File.WriteAllBytesAsync(downloadPath, newPayload);
 
-            await GameInstallationService.InstallOrUpdateGameAsync(
+            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(
                 downloadPath,
                 gamePath,
                 "Game-2.0.AppImage",
-                "v2.0.0");
+                "v2.0.0"));
 
             var installedPath = Path.Combine(gamePath, "Game-2.0.AppImage");
-            File.Exists(installedPath).Should().BeTrue();
-            (await File.ReadAllBytesAsync(installedPath)).Should().Equal(newPayload);
-            File.Exists(oldAppImage).Should().BeFalse();
+            File.Exists(installedPath).Should().BeFalse();
+            (await File.ReadAllBytesAsync(oldAppImage)).Should().Equal([1, 2, 3]);
+            File.Exists(oldAppImage).Should().BeTrue();
             (await File.ReadAllTextAsync(portablePath)).Should().Be("portable");
             File.Exists(modsFile).Should().BeTrue();
-            (await File.ReadAllTextAsync(Path.Combine(gamePath, "version.txt"))).Trim().Should().Be("v2.0.0");
+            File.Exists(Path.Combine(gamePath, "version.txt")).Should().BeFalse();
         }
         finally
         {
@@ -45,7 +45,7 @@ public class GameInstallationServiceAppImageTests
     }
 
     [Fact]
-    public async Task InstallOrUpdateGameAsync_overwrites_same_named_appimage_without_removing_other_files()
+    public async Task Unmanaged_folder_blocks_overwrites_same_named_appimage_without_removing_other_files()
     {
         var downloadPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.AppImage");
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -61,16 +61,16 @@ public class GameInstallationServiceAppImageTests
             await File.WriteAllTextAsync(portablePath, "keep");
             await File.WriteAllBytesAsync(downloadPath, newPayload);
 
-            await GameInstallationService.InstallOrUpdateGameAsync(
+            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(
                 downloadPath,
                 gamePath,
                 assetName,
-                "v3.0.0");
+                "v3.0.0"));
 
             File.Exists(installedPath).Should().BeTrue();
             Directory.GetFiles(gamePath, "*.AppImage", SearchOption.TopDirectoryOnly)
                 .Should().ContainSingle(path => Path.GetFileName(path) == assetName);
-            (await File.ReadAllBytesAsync(installedPath)).Should().Equal(newPayload);
+            (await File.ReadAllBytesAsync(installedPath)).Should().Equal([1, 1, 1]);
             (await File.ReadAllTextAsync(portablePath)).Should().Be("keep");
         }
         finally
@@ -80,7 +80,7 @@ public class GameInstallationServiceAppImageTests
     }
 
     [Fact]
-    public async Task InstallOrUpdateGameAsync_does_not_delete_nested_appimages()
+    public async Task Unmanaged_folder_blocks_does_not_delete_nested_appimages()
     {
         var downloadPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.AppImage");
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -92,14 +92,14 @@ public class GameInstallationServiceAppImageTests
             await File.WriteAllBytesAsync(nestedAppImage, [2, 2, 2]);
             await File.WriteAllBytesAsync(downloadPath, [3, 3, 3]);
 
-            await GameInstallationService.InstallOrUpdateGameAsync(
+            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(
                 downloadPath,
                 gamePath,
                 "Game-2.0.AppImage",
-                "v2.0.0");
+                "v2.0.0"));
 
             File.Exists(nestedAppImage).Should().BeTrue();
-            File.Exists(Path.Combine(gamePath, "Game-2.0.AppImage")).Should().BeTrue();
+            File.Exists(Path.Combine(gamePath, "Game-2.0.AppImage")).Should().BeFalse();
         }
         finally
         {
@@ -108,7 +108,7 @@ public class GameInstallationServiceAppImageTests
     }
 
     [Fact]
-    public async Task InstallOrUpdateGameAsync_retargets_stale_selected_executable()
+    public async Task Unmanaged_folder_blocks_retargets_stale_selected_executable()
     {
         var downloadPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.AppImage");
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -122,15 +122,15 @@ public class GameInstallationServiceAppImageTests
             await File.WriteAllTextAsync(selectedPath, oldAppImage);
             await File.WriteAllBytesAsync(downloadPath, [2]);
 
-            await GameInstallationService.InstallOrUpdateGameAsync(
+            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(
                 downloadPath,
                 gamePath,
                 "Game-2.0.AppImage",
-                "v2.0.0");
+                "v2.0.0"));
 
-            File.Exists(oldAppImage).Should().BeFalse();
+            File.Exists(oldAppImage).Should().BeTrue();
             var saved = (await File.ReadAllTextAsync(selectedPath)).Trim();
-            saved.Should().Be(Path.GetFullPath(Path.Combine(gamePath, "Game-2.0.AppImage")));
+            saved.Should().Be(oldAppImage);
         }
         finally
         {
@@ -139,7 +139,7 @@ public class GameInstallationServiceAppImageTests
     }
 
     [Fact]
-    public async Task InstallOrUpdateGameAsync_keeps_other_appimages_in_a_shared_folder()
+    public async Task Unmanaged_folder_blocks_keeps_other_appimages_in_a_shared_folder()
     {
         var downloadPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.AppImage");
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -156,19 +156,19 @@ public class GameInstallationServiceAppImageTests
             await File.WriteAllTextAsync(selectedPath, playersCopy);
             await File.WriteAllBytesAsync(downloadPath, [2]);
 
-            await GameInstallationService.InstallOrUpdateGameAsync(
+            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(
                 downloadPath,
                 gamePath,
                 "Zelda64Recompiled-1.1.AppImage",
                 "v1.1.0",
-                new GameInstallationOptions { IsSharedFolder = true });
+                new GameInstallationOptions { IsSharedFolder = true }));
 
             var installedPath = Path.Combine(gamePath, "Zelda64Recompiled-1.1.AppImage");
-            File.Exists(installedPath).Should().BeTrue();
+            File.Exists(installedPath).Should().BeFalse();
             File.Exists(launcher).Should().BeTrue();
             File.Exists(otherApp).Should().BeTrue();
             File.Exists(playersCopy).Should().BeTrue("Relicade didn't install it, so it isn't Relicade's to delete");
-            (await File.ReadAllTextAsync(selectedPath)).Trim().Should().Be(Path.GetFullPath(installedPath));
+            (await File.ReadAllTextAsync(selectedPath)).Trim().Should().Be(playersCopy);
         }
         finally
         {
@@ -177,7 +177,7 @@ public class GameInstallationServiceAppImageTests
     }
 
     [Fact]
-    public async Task InstallOrUpdateGameAsync_replaces_only_the_previously_installed_appimage_in_a_shared_folder()
+    public async Task Unmanaged_folder_blocks_replaces_only_the_previously_installed_appimage_in_a_shared_folder()
     {
         var downloadPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.AppImage");
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -191,19 +191,18 @@ public class GameInstallationServiceAppImageTests
             await File.WriteAllBytesAsync(previous, [1]);
             await File.WriteAllBytesAsync(downloadPath, [2]);
 
-            await GameInstallationService.InstallOrUpdateGameAsync(
+            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(
                 downloadPath,
                 gamePath,
                 "Game-2.0.AppImage",
                 "v2.0.0",
-                new GameInstallationOptions { IsSharedFolder = true, PreviousInstallFileName = "Game-1.0.AppImage" });
+                new GameInstallationOptions { IsSharedFolder = true, PreviousInstallFileName = "Game-1.0.AppImage" }));
 
-            File.Exists(previous).Should().BeFalse();
+            File.Exists(previous).Should().BeTrue();
             File.Exists(launcher).Should().BeTrue();
             var installedPath = Path.GetFullPath(Path.Combine(gamePath, "Game-2.0.AppImage"));
-            File.Exists(installedPath).Should().BeTrue();
-            // The launcher's AppImage is still there to choose from, so the new file is chosen for the player.
-            (await File.ReadAllTextAsync(Path.Combine(gamePath, "selected_executable.txt"))).Trim().Should().Be(installedPath);
+            File.Exists(installedPath).Should().BeFalse();
+            File.Exists(Path.Combine(gamePath, "selected_executable.txt")).Should().BeFalse();
         }
         finally
         {
@@ -212,7 +211,7 @@ public class GameInstallationServiceAppImageTests
     }
 
     [Fact]
-    public async Task InstallOrUpdateGameAsync_keeps_a_selected_wrapper_script()
+    public async Task Unmanaged_folder_blocks_keeps_a_selected_wrapper_script()
     {
         var downloadPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.AppImage");
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -226,11 +225,11 @@ public class GameInstallationServiceAppImageTests
             await File.WriteAllTextAsync(selectedPath, wrapper);
             await File.WriteAllBytesAsync(downloadPath, [2]);
 
-            await GameInstallationService.InstallOrUpdateGameAsync(
+            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(
                 downloadPath,
                 gamePath,
                 "Game-2.0.AppImage",
-                "v2.0.0");
+                "v2.0.0"));
 
             (await File.ReadAllTextAsync(selectedPath)).Trim().Should().Be(wrapper);
         }
@@ -241,7 +240,7 @@ public class GameInstallationServiceAppImageTests
     }
 
     [Fact]
-    public async Task InstallOrUpdateGameAsync_extensionless_binary_does_not_delete_sibling_appimage()
+    public async Task Unmanaged_folder_blocks_extensionless_binary_does_not_delete_sibling_appimage()
     {
         var downloadPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -253,14 +252,14 @@ public class GameInstallationServiceAppImageTests
             await File.WriteAllBytesAsync(siblingAppImage, [1, 2, 3]);
             await File.WriteAllBytesAsync(downloadPath, [4, 5, 6]);
 
-            await GameInstallationService.InstallOrUpdateGameAsync(
+            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(
                 downloadPath,
                 gamePath,
                 "CrashBandicoot_Linux",
-                "1.6.1");
+                "1.6.1"));
 
             File.Exists(siblingAppImage).Should().BeTrue();
-            File.Exists(Path.Combine(gamePath, "CrashBandicoot_Linux")).Should().BeTrue();
+            File.Exists(Path.Combine(gamePath, "CrashBandicoot_Linux")).Should().BeFalse();
         }
         finally
         {
@@ -269,7 +268,7 @@ public class GameInstallationServiceAppImageTests
     }
 
     [Fact]
-    public async Task InstallOrUpdateGameAsync_zip_does_not_delete_sibling_appimage()
+    public async Task Unmanaged_folder_blocks_zip_does_not_delete_sibling_appimage()
     {
         var archivePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.zip");
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
@@ -282,14 +281,14 @@ public class GameInstallationServiceAppImageTests
             await File.WriteAllBytesAsync(siblingAppImage, [1, 2, 3]);
             await File.WriteAllBytesAsync(archivePath, CreateZip([("game.exe", payload)]));
 
-            await GameInstallationService.InstallOrUpdateGameAsync(
+            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(
                 archivePath,
                 gamePath,
                 "game.zip",
-                "v1.0.0");
+                "v1.0.0"));
 
             File.Exists(siblingAppImage).Should().BeTrue();
-            File.ReadAllBytes(Path.Combine(gamePath, "game.exe")).Should().Equal(payload);
+            File.Exists(Path.Combine(gamePath, "game.exe")).Should().BeFalse();
         }
         finally
         {

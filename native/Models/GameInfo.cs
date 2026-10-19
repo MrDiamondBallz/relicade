@@ -438,7 +438,7 @@ namespace Relicade.Models
                         return false;
 
                     var selectedExePath = Path.Combine(gamePath, "selected_executable.txt");
-                    return File.Exists(selectedExePath);
+                    return IsManagedPortable && PortableRecoveryError == null || File.Exists(selectedExePath);
                 }
                 catch
                 {
@@ -558,10 +558,42 @@ namespace Relicade.Models
             }
         }
 
-        public bool CanLaunch => Status == GameStatus.Installed;
-        public bool CanDownload => Status == GameStatus.NotInstalled && !IsManuallyManaged;
+        private string? _portableRecoveryError;
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string? PortableRecoveryError
+        {
+            get => _portableRecoveryError;
+            internal set
+            {
+                if (_portableRecoveryError == value) return;
+                _portableRecoveryError = value;
+                if (value != null) { InstalledVersion = null; Status = GameStatus.NeedsExecutable; }
+                foreach (var property in new[] { nameof(PortableRecoveryError), nameof(StatusText), nameof(ButtonText), nameof(CanLaunch), nameof(CanDownload), nameof(CanUpdate), nameof(IsInstalled) }) DispatchPropertyChanged(property);
+            }
+        }
+        private bool _isManagedPortable;
+        private bool _isPortableCommitInProgress;
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool IsPortableCommitInProgress
+        {
+            get => _isPortableCommitInProgress;
+            internal set
+            {
+                if (_isPortableCommitInProgress == value) return;
+                _isPortableCommitInProgress = value;
+                DispatchPropertyChanged(); DispatchPropertyChanged(nameof(StatusText)); DispatchPropertyChanged(nameof(ButtonText));
+            }
+        }
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool IsManagedPortable
+        {
+            get => _isManagedPortable;
+            internal set { if (_isManagedPortable == value) return; _isManagedPortable = value; DispatchPropertyChanged(); DispatchPropertyChanged(nameof(CanManageMods)); }
+        }
+        public bool CanLaunch => PortableRecoveryError == null && Status == GameStatus.Installed;
+        public bool CanDownload => PortableRecoveryError == null && Status == GameStatus.NotInstalled && !IsManuallyManaged;
         public bool CanLocateInstall => !IsWindowsInstaller && Status == GameStatus.NotInstalled;
-        public bool CanUpdate => Status == GameStatus.UpdateAvailable;
+        public bool CanUpdate => PortableRecoveryError == null && Status == GameStatus.UpdateAvailable;
         public bool CanSkipUpdate => Status == GameStatus.UpdateAvailable;
         public bool CanChangeVersion => !IsFlatpak && (IsInstalled || Status == GameStatus.NotInstalled) && !IsManuallyManaged && !string.IsNullOrWhiteSpace(Repository);
         public bool CanVersionOptions => !IsManuallyManaged && (CanSkipUpdate || CanChangeVersion || IsInstalled);
@@ -570,8 +602,8 @@ namespace Relicade.Models
         public bool CanToggleAutoUpdate => !IsWindowsInstaller && !IsManuallyManaged;
         public bool CanOpenFolder =>
             !PlatformCapabilities.IsMobile && (IsManuallyManaged || IsInstalled);
-        public bool CanAddToSteam => PlatformCapabilities.SupportsSteamShortcuts && IsInstalled;
-        public bool CanManageMods => !IsWindowsInstaller && !IsFlatpak && PlatformCapabilities.SupportsModsFolder && IsInstalled;
+        public bool CanAddToSteam => !IsManagedPortable && PlatformCapabilities.SupportsSteamShortcuts && IsInstalled;
+        public bool CanManageMods => !IsManagedPortable && !IsWindowsInstaller && !IsFlatpak && PlatformCapabilities.SupportsModsFolder && IsInstalled;
         public bool ShowDesktopOnlyActions => !PlatformCapabilities.IsMobile;
         public bool ShowReleaseVersionInfo => !IsManuallyManaged;
         public bool IsWaitingForFiles => IsManuallyManaged && Status == GameStatus.NotInstalled;
@@ -800,6 +832,7 @@ namespace Relicade.Models
             get => _status;
             set
             {
+                if (PortableRecoveryError != null) value = GameStatus.NeedsExecutable;
                 if (_status != value)
                 {
                     _status = value;
@@ -860,6 +893,8 @@ namespace Relicade.Models
         {
             get
             {
+                if (PortableRecoveryError != null) return "Recovery needed";
+                if (IsPortableCommitInProgress) return "Finishing safely";
                 if (IsManuallyManaged && Status == GameStatus.NotInstalled)
                     return "Open Folder";
 
@@ -925,6 +960,8 @@ namespace Relicade.Models
         {
             get
             {
+                if (PortableRecoveryError != null) return PortableRecoveryError;
+                if (IsPortableCommitInProgress) return "Finishing safely — cancellation will not interrupt generation activation";
                 if (IsManuallyManaged)
                 {
                     return Status == GameStatus.Installed
@@ -1329,13 +1366,20 @@ namespace Relicade.Models
             {
                 var gamePath = GetInstallPath(gamesFolder);
                 var selectedExePath = Path.Combine(gamePath, "selected_executable.txt");
-                File.WriteAllText(selectedExePath, executablePath);
+                // Managed selections belong to the coherent generation, not a loose sidecar.
+                if (PortableInstallationTransaction.HasEvidence(gamePath))
+                {
+                    PortableInstallationRecovery.EnsureReadable(this, gamePath);
+                    new PortableInstallationTransaction(gamePath).SelectExecutable(Path.GetRelativePath(gamePath, executablePath).Replace('\\', '/'));
+                }
+                else File.WriteAllText(selectedExePath, executablePath);
                 System.Diagnostics.Debug.WriteLine($"Saved selected executable for {Name}: {executablePath}");
                 OnPropertyChanged(nameof(HasStoredExecutable));
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Failed to save selected executable for {Name}: {ex.Message}");
+                PortableRecoveryError = "Recovery needed: the executable selection could not be committed. Previous payload and selection are retained; retry local recovery.";
             }
         }
 
@@ -1352,6 +1396,8 @@ namespace Relicade.Models
                     var linked = WindowsInstallerService.ReadReceipt(gamePath)?.ExecutablePath;
                     return WindowsInstallerService.IsExecutable(linked) ? linked : null;
                 }
+                if (PortableInstallationRecovery.EnsureReadable(this, gamePath) is { } portable)
+                    return PortableInstallationTransaction.SafePath(gamePath, portable.SelectedExecutable);
                 var selectedExePath = Path.Combine(gamePath, "selected_executable.txt");
 
                 if (File.Exists(selectedExePath))
@@ -1622,6 +1668,11 @@ namespace Relicade.Models
             AppSettings settings,
             IGameDownloadDialogs? dialogs = null)
         {
+            if (PortableRecoveryError != null)
+            {
+                await (dialogs ?? AvaloniaGameDownloadDialogs.Instance).ShowErrorAsync(PortableRecoveryError, "Recovery needed");
+                return false;
+            }
             if (string.IsNullOrEmpty(FolderName))
             {
                 await ShowMessageBoxAsync("App configuration is invalid (missing folder name).", "Configuration Error");
@@ -1812,6 +1863,7 @@ namespace Relicade.Models
 
         internal void RefreshInstalledStatus()
         {
+            if (PortableRecoveryError != null) return;
             if (IsWindowsInstaller && Status == GameStatus.NeedsExecutable) return;
             if (Status is GameStatus.Downloading or GameStatus.Installing or GameStatus.Updating) return;
             if (ShouldSuggestUpdate())

@@ -292,9 +292,42 @@ public static class GameInstallationService
         string gamePath,
         string assetName,
         string version,
-        GameInstallationOptions? options = null)
+        GameInstallationOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
         options ??= GameInstallationOptions.Default;
+        var effectiveName = assetName;
+        if (!HasRecognizedInstallExtension(effectiveName) && DetectArchiveExtensionFromFile(downloadPath) is { } detected)
+            effectiveName += detected;
+        // OS-owned installers remain separate adapters, never silently inherit portable guarantees.
+        if (IsAndroidPackageAsset(effectiveName) || IsDiskImageAsset(effectiveName) || IsDebianPackageAsset(effectiveName))
+        {
+            if (PortableInstallationTransaction.HasEvidence(gamePath))
+                throw new IOException("A managed portable generation cannot be replaced by a platform package adapter. Keep its recovery data and choose a separate installation.");
+            await InstallAdapterPayloadAsync(downloadPath, gamePath, effectiveName, version, options).ConfigureAwait(false);
+            return;
+        }
+        if (IsWindowsInstallerAsset(effectiveName) || IsFlatpakAsset(effectiveName))
+            throw new InvalidOperationException("This package requires its platform installer adapter, not portable activation.");
+        var transaction = new PortableInstallationTransaction(gamePath, options);
+        await transaction.InstallAsync(stage => PortableInstallationExtraction.StageAsync(downloadPath, stage, effectiveName, options, cancellationToken), version, cancellationToken).ConfigureAwait(false);
+        options.ExtractProgress?.Report(1);
+    }
+
+    /// <summary>Unpacks a platform-adapter package into an EMPTY staging root. No version/readiness claim.</summary>
+    public static Task ExtractPackageToStagingAsync(string downloadPath, string stagingRoot, string assetName,
+        CancellationToken cancellationToken = default)
+    {
+        PortableInstallationTransaction.CheckLinks(stagingRoot);
+        if (Directory.Exists(stagingRoot) && Directory.EnumerateFileSystemEntries(stagingRoot).Any())
+            throw new IOException("Package extraction requires an empty staging root.");
+        Directory.CreateDirectory(stagingRoot);
+        return PortableInstallationExtraction.StageAsync(downloadPath, stagingRoot, assetName, GameInstallationOptions.Default, cancellationToken);
+    }
+
+    static async Task InstallAdapterPayloadAsync(
+        string downloadPath, string gamePath, string assetName, string version, GameInstallationOptions options)
+    {
         Directory.CreateDirectory(gamePath);
 
         var effectiveName = assetName;
@@ -388,75 +421,32 @@ public static class GameInstallationService
         options.ExtractProgress?.Report(1);
     }
 
+    /// <summary>Compatibility entry: layout normalization now occurs only in private staging.</summary>
     public static void EnsureExecutableAtRoot(string gamePath, GameInstallationOptions? options = null)
     {
-        options ??= GameInstallationOptions.Default;
-
-        if (!Directory.Exists(gamePath))
-            return;
-
-        while (!HasTopLevelExecutable(gamePath, options))
-        {
-            var topLevelDirs = Directory.GetDirectories(gamePath, "*", SearchOption.TopDirectoryOnly);
-            var topLevelFiles = Directory.GetFiles(gamePath, "*", SearchOption.TopDirectoryOnly)
-                .Where(f => !IsLauncherMetadataFile(f, options))
-                .ToList();
-
-            var flattened = false;
-
-            // Only hoist a single wrapper folder. Sibling files or directories
-            // (e.g. game.toml + recomp-ui/ + psxrecomp/ are part of the app tree.
-            if (topLevelDirs.Length == 1 && topLevelFiles.Count == 0)
-            {
-                var singleDir = topLevelDirs[0];
-                var singleDirCandidates = FindExecutableCandidates(singleDir, SearchOption.AllDirectories, options, out _);
-
-                if (singleDirCandidates.Count > 0)
-                {
-                    try
-                    {
-                        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-                        Directory.Move(singleDir, tempDir);
-                        MoveDirectoryContents(tempDir, gamePath);
-                        TryDeleteDirectory(tempDir);
-
-                        Log(options, $"Moved contents from subdirectory to root: {singleDir}");
-                        flattened = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Log(options, $"Failed to flatten directory structure: {ex.Message}");
-                    }
-                }
-            }
-
-            if (flattened)
-                continue;
-
-            var nestedCandidates = FindExecutableCandidates(gamePath, SearchOption.AllDirectories, options, out _)
-                .Where(f => !IsInRootDirectory(f, gamePath))
-                .ToList();
-
-            if (nestedCandidates.Count > 0 && (topLevelFiles.Count > 0 || topLevelDirs.Length > 1))
-            {
-                Log(options, "Leaving wrapper folder structure in place because nested executable cannot be safely flattened.");
-            }
-
-            return;
-        }
+        // Launch/read paths must never move a working tree merely to hoist its wrapper.
+        // Recursive executable discovery supports retained legacy layouts without mutation.
+        if (PortableInstallationTransaction.HasEvidence(gamePath))
+            new PortableInstallationTransaction(gamePath, options).ReadCommitted();
     }
 
-    public static bool HasCompletePortableInstallation(string path, GameInstallationOptions? options = null) =>
-        Directory.Exists(path) &&
-        !File.Exists(Path.Combine(path, IncompleteInstallFileName)) &&
-        FindExecutableCandidates(path, SearchOption.AllDirectories, options, out _).Count > 0;
+    public static bool HasCompletePortableInstallation(string path, GameInstallationOptions? options = null)
+    {
+        if (PortableInstallationTransaction.HasEvidence(path))
+            return new PortableInstallationTransaction(path, options).ReadCommitted() != null;
+        return Directory.Exists(path) && !File.Exists(Path.Combine(path, IncompleteInstallFileName)) &&
+            FindExecutableCandidates(path, SearchOption.AllDirectories, options, out _).Count > 0;
+    }
 
     public static List<string> FindExecutableCandidates(
         string path,
         SearchOption searchOption,
         GameInstallationOptions? options,
         out bool needsWine)
-        => FindExecutableCandidates(path, searchOption, options, out needsWine, CurrentDesktopPlatform);
+    {
+        if (PortableInstallationTransaction.HasEvidence(path)) new PortableInstallationTransaction(path, options).ReadCommitted();
+        return FindExecutableCandidates(path, searchOption, options, out needsWine, CurrentDesktopPlatform);
+    }
 
     internal static List<string> FindExecutableCandidates(
         string path,
@@ -592,6 +582,12 @@ public static class GameInstallationService
 
     public static void MoveDirectoryContents(string sourceDir, string destDir)
     {
+        // This legacy primitive is stage-only. Callers must never merge into a live,
+        // occupied tree: even a later access/collision failure would expose mixed bytes.
+        PortableInstallationTransaction.CheckLinks(sourceDir);
+        PortableInstallationTransaction.CheckLinks(destDir);
+        if (Directory.Exists(destDir) && Directory.EnumerateFileSystemEntries(destDir).Any())
+            throw new IOException("Directory moves require an empty staging destination; use the portable generation transaction for live installation.");
         Directory.CreateDirectory(destDir);
 
         foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.TopDirectoryOnly))
@@ -1263,7 +1259,7 @@ public static class GameInstallationService
             var source = appFolders.Length == 1 &&
                 FindExecutableCandidates(appFolders[0], SearchOption.AllDirectories, options, out _).Count > 0
                 ? appFolders[0]
-                : tree;
+                : GetEffectiveExtractionSource(tree);
             MoveDirectoryContents(source, gamePath);
         }
         finally

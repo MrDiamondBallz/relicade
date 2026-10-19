@@ -18,6 +18,8 @@ public static class GameLaunchService
         try
         {
             var gamePath = game.GetInstallPath(gamesFolder);
+            var portableManifest = PortableInstallationRecovery.EnsureReadable(game, gamePath);
+            if (portableManifest != null) game.SelectedExecutable = PortableInstallationTransaction.SafePath(gamePath, portableManifest.SelectedExecutable);
 
             if (FlatpakService.HasReceipt(gamePath))
                 return await LaunchFlatpakAsync(game, gamePath);
@@ -35,7 +37,10 @@ public static class GameLaunchService
 
             var executables = GameInstallationService.FindExecutableCandidates(
                 gamePath,
-                SearchOption.TopDirectoryOnly,
+                // A committed generation's validated target may be nested even when
+                // root-level helper executables exist. Never discard it or substitute
+                // a helper merely because legacy discovery prefers the root.
+                portableManifest != null ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly,
                 game.GetInstallationOptions(),
                 out var needsWine);
 
@@ -47,6 +52,9 @@ public static class GameLaunchService
                     game.GetInstallationOptions(),
                     out needsWine);
             }
+
+            if (portableManifest != null && !executables.Contains(game.SelectedExecutable!))
+                throw new IOException("The committed executable target is not launchable with the current platform/options. Repair or explicitly select a new target; no helper was substituted.");
 
             if (executables.Count == 0)
             {
@@ -98,6 +106,7 @@ public static class GameLaunchService
                 return false;
             }
 
+            using var portableLifetime = PortableInstallationLifetime.Begin(gamePath, portableManifest?.OperationId);
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                 !executablePath.EndsWith(".app") &&
                 !needsWine)
@@ -150,11 +159,17 @@ public static class GameLaunchService
                 : LaunchDebugReport.SnapshotStartInfoEnvironment(startInfo);
             var selectedExecutableFile = TryReadSelectedExecutableFile(gamePath);
 
-            game.UpdateLastPlayedTime(RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && executablePath.EndsWith(".app")
+            game.UpdateLastPlayedTime(game.IsManagedPortable || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && executablePath.EndsWith(".app")
                 ? gamePath
                 : (Path.GetDirectoryName(executablePath) ?? gamePath));
 
-            var gameProcess = HostGameSession.Start(startInfo);
+            System.Diagnostics.Process? gameProcess;
+            try
+            {
+                gameProcess = HostGameSession.Start(startInfo);
+                if (gameProcess != null) portableLifetime.Attach(gameProcess);
+            }
+            catch { portableLifetime.PreserveUncertain(); throw; }
             if (gameProcess == null)
             {
                 WriteLaunchReport(

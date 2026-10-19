@@ -6,6 +6,7 @@ using System.Text.Json;
 using Avalonia.Headless.XUnit;
 using FluentAssertions;
 using Relicade.Core.Models;
+using Relicade.Core.Services;
 using Relicade.Models;
 using Relicade.Services;
 
@@ -247,8 +248,7 @@ public class ReleaseVerificationTests
         byte[] first = Zip("nightly-1.txt"), second = Zip("nightly-2.txt");
         // Last night's build is installed, and recorded as such.
         var app = App("Alpha", repo, manager: launcher.Manager);
-        InstallOnDisk(app, launcher.Manager.GamesFolder, "nightly");
-        await new InstalledBuild(Asset, Sha256(first).ToLowerInvariant()).WriteAsync(app.GetInstallPath(launcher.Manager.GamesFolder));
+        InstallOnDisk(app, launcher.Manager.GamesFolder, "nightly", first);
         var served = rebuilt ? second : first;
         launcher.Network.Site["/release-status?limit=100"] = Page([Status("alpha", repo, "nightly", rolling: true)]);
         launcher.Network.Site["/apps/alpha/release-history?limit=100"] = Page(
@@ -679,12 +679,18 @@ public class ReleaseVerificationTests
         return app;
     }
 
-    private static void InstallOnDisk(GameInfo app, string gamesFolder, string version)
+    private static void InstallOnDisk(GameInfo app, string gamesFolder, string version, byte[]? archive = null)
     {
         var path = app.GetInstallPath(gamesFolder);
-        Directory.CreateDirectory(path);
-        File.WriteAllText(Path.Combine(path, "version.txt"), version);
-        File.WriteAllBytes(Path.Combine(path, "game.exe"), OldExe);
+        Directory.CreateDirectory(gamesFolder);
+        var source = Path.Combine(gamesFolder, "fixture-" + Guid.NewGuid().ToString("N"));
+        File.WriteAllBytes(source, archive ?? OldExe);
+        try
+        {
+            GameInstallationService.InstallOrUpdateGameAsync(source, path, archive == null ? "game.exe" : Asset, version,
+                new GameInstallationOptions { InstalledBuildText = archive == null ? null : $"{Asset}\n{Sha256(archive).ToLowerInvariant()}\n" }).GetAwaiter().GetResult();
+        }
+        finally { File.Delete(source); }
     }
 
     private static void AssertStillV1(GameInfo app, string gamesFolder)
@@ -692,7 +698,7 @@ public class ReleaseVerificationTests
         var path = app.GetInstallPath(gamesFolder);
         File.ReadAllText(Path.Combine(path, "version.txt")).Trim().Should().Be("v1");
         File.ReadAllBytes(Path.Combine(path, "game.exe")).Should().Equal(OldExe);
-        Directory.GetFiles(path).Select(f => Path.GetFileName(f)).Should().BeEquivalentTo(new[] { "version.txt", "game.exe" }, "nothing of v2 was installed");
+        Directory.GetFiles(path).Select(f => Path.GetFileName(f)).Should().BeEquivalentTo(new[] { "version.txt", "game.exe", PortableInstallationTransaction.ManifestFileName, ".relicade-mod-writer.lock" }, "nothing of v2 was installed; only coherent v1 metadata is present");
     }
 
     private static GitHubRelease OnGitHub(string tag, string? digest = null) => new()

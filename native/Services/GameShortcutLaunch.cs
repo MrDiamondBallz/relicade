@@ -13,6 +13,8 @@ public static class GameShortcutLaunch
     {
         await game.CatalogPreparation.WaitAsync(cancellationToken);
         var gamePath = game.GetInstallPath(gamesFolder);
+        if (PortableInstallationRecovery.EnsureReadable(game, gamePath) != null)
+            throw new NotSupportedException("Direct portable shortcuts bypass Relicade's running-game lease. Launch this managed installation through Relicade until launcher-managed shortcuts are supported; its payload and selection have not been changed.");
         if (WindowsInstallerService.HasReceipt(gamePath))
         {
             if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("This installation requires Windows desktop.");

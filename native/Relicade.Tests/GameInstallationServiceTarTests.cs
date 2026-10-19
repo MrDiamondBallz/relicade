@@ -74,7 +74,7 @@ public class GameInstallationServiceTarTests
 
         try
         {
-            var binary = Encoding.UTF8.GetBytes("binary");
+            var binary = PortableInstallationFixtures.NativePayload("binary");
             var readme = Encoding.UTF8.GetBytes("readme");
             File.WriteAllBytes(archivePath, CreateTarGz(
             [
@@ -109,7 +109,7 @@ public class GameInstallationServiceTarTests
 
         try
         {
-            var binary = Encoding.UTF8.GetBytes("nested-binary");
+            var binary = PortableInstallationFixtures.NativePayload("nested-binary");
             var rootFile = Encoding.UTF8.GetBytes("root-file");
             File.WriteAllBytes(archivePath, CreateTarGz(
             [
@@ -313,7 +313,7 @@ public class GameInstallationServiceTarTests
 
         try
         {
-            var binary = Encoding.UTF8.GetBytes("zip-binary");
+            var binary = PortableInstallationFixtures.NativePayload("zip-binary");
             var readme = Encoding.UTF8.GetBytes("zip-readme");
             File.WriteAllBytes(archivePath, CreateZip(
             [

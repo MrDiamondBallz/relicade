@@ -32,6 +32,7 @@ public static class GameStatusService
         try
         {
             var gamePath = game.GetInstallPath(gamesFolder);
+            PortableInstallationRecovery.EnsureReadable(game, gamePath);
             var versionFile = Path.Combine(gamePath, "version.txt");
             game.InstalledBuild = InstalledBuild.Read(gamePath);
             game.IsWindowsInstaller = WindowsInstallerService.HasReceipt(gamePath);
@@ -173,6 +174,7 @@ public static class GameStatusService
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Error checking status for {game.Name}: {ex.Message}");
+            if (game.PortableRecoveryError != null) return;
             game.Status = game.IsFlatpak && statusBeforeCheck is GameStatus.Installed or GameStatus.UpdateAvailable
                 ? statusBeforeCheck : GameStatus.NotInstalled;
         }

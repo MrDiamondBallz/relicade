@@ -17,8 +17,8 @@ public class GameInstallationServiceZipTests
 
         try
         {
-            var launcher = Encoding.UTF8.GetBytes(new string('L', 2048));
-            var biosTool = Encoding.UTF8.GetBytes(new string('B', 2048));
+            var launcher = PortableInstallationFixtures.NativePayload(new string('L', 2048));
+            var biosTool = PortableInstallationFixtures.NativePayload(new string('B', 2048));
             File.WriteAllBytes(archivePath, CreateZip(
             [
                 new ZipSpec("Yu_Gi_Oh_Forbidden_Memories_Recompiled", launcher, UnixExecutableAttributes),

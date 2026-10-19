@@ -71,6 +71,18 @@ public static class GameDownloadInstallService
             return;
         }
 
+        try
+        {
+            PortableInstallationTransaction.ValidateRelative(game.FolderName);
+            if (game.FolderName.Contains('/') || game.FolderName.Contains('\\')) throw new InvalidDataException("Use a single installation folder name, not an absolute or nested path.");
+            if (string.IsNullOrWhiteSpace(game.InstallPath)) PortableInstallationTransaction.SafePath(gamesFolder, game.FolderName);
+        }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
+        {
+            await dialogs.ShowErrorAsync("Invalid installation path authority. Choose a new unlinked managed folder; no installation files were changed.", "Configuration Error");
+            return;
+        }
+
         var apiToken = game.GetReleaseApiToken(settings);
 
         try
@@ -79,6 +91,7 @@ public static class GameDownloadInstallService
             game.DownloadProgress = 0;
 
             var gamePath = game.GetInstallPath(gamesFolder);
+            PortableInstallationRecovery.EnsureReadable(game, gamePath);
             var versionFile = Path.Combine(gamePath, "version.txt");
 
             if (releaseMode == ReleaseInstallMode.Automatic)
@@ -219,7 +232,7 @@ public static class GameDownloadInstallService
             try
             {
                 using var request = new HttpRequestMessage(HttpMethod.Get, asset.browser_download_url);
-                using var downloadResponse = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead)
+                using var downloadResponse = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, LauncherSession.OperationCancellation)
                     .ConfigureAwait(false);
                 // Deleted by its developer since Relicade listed it.
                 if (downloadResponse.StatusCode is HttpStatusCode.NotFound or HttpStatusCode.Gone)
@@ -259,16 +272,16 @@ public static class GameDownloadInstallService
                 var totalBytes = downloadResponse.Content.Headers.ContentLength ?? 0;
                 var canReportProgress = totalBytes > 0;
 
-                using (var contentStream = await downloadResponse.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                using (var contentStream = await downloadResponse.Content.ReadAsStreamAsync(LauncherSession.OperationCancellation).ConfigureAwait(false))
                 using (var fs = new FileStream(downloadPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
                 {
                     var buffer = new byte[8192];
                     long totalRead = 0;
                     int bytesRead;
 
-                    while ((bytesRead = await contentStream.ReadAsync(buffer).ConfigureAwait(false)) > 0)
+                    while ((bytesRead = await contentStream.ReadAsync(buffer, LauncherSession.OperationCancellation).ConfigureAwait(false)) > 0)
                     {
-                        await fs.WriteAsync(buffer.AsMemory(0, bytesRead)).ConfigureAwait(false);
+                        await fs.WriteAsync(buffer.AsMemory(0, bytesRead), LauncherSession.OperationCancellation).ConfigureAwait(false);
                         totalRead += bytesRead;
 
                         if (canReportProgress)
@@ -360,17 +373,8 @@ public static class GameDownloadInstallService
                 }
                 else
                 {
-                    // Keep failed first installs (including partially extracted apps)
-                    // uninstalled across restarts. A working previous release remains
-                    // usable if an update fails before replacing its files.
-                    if (!File.Exists(versionFile) ||
-                        GameInstallationService.FindExecutableCandidates(gamePath, SearchOption.AllDirectories,
-                            game.GetInstallationOptions(), out _).Count == 0)
-                    {
-                        Directory.CreateDirectory(gamePath);
-                        await File.WriteAllTextAsync(Path.Combine(gamePath, GameInstallationService.IncompleteInstallFileName),
-                            latestRelease.tag_name).ConfigureAwait(false);
-                    }
+                    // Do not create version/incomplete metadata in live before the portable
+                    // transaction: a failed first install leaves only private staging evidence.
 
                     // A folder the player located isn't Relicade's to clear: it can hold their other AppImages and
                     // other library apps, whose installs then share its record of the installed file.
@@ -383,6 +387,16 @@ public static class GameDownloadInstallService
                         AdditionalMetadataFileNames = baseOptions.AdditionalMetadataFileNames,
                         IsSharedFolder = sharedFolder || folderHasOtherApps,
                         PreviousInstallFileName = folderHasOtherApps ? null : InstalledBuild.Read(gamePath)?.FileName,
+                        ReleaseIdentity = latestRelease.tag_name,
+                        AssetIdentity = asset.name + "|sha256:" + actual,
+                        InstalledBuildText = $"{asset.name}\n{actual}\n",
+                        PrepareCandidate = path => AppFilesToAddService.Sync(path, null, game.FilesToAdd, throwOnFailure: true),
+                        TransactionBoundary = point =>
+                        {
+                            if (point != "Applying") return;
+                            game.IsPortableCommitInProgress = true;
+                            game.IsInstallIndeterminate = true;
+                        },
                         ExtractProgress = new Progress<double>(p =>
                         {
                             game.DownloadProgress = 90 + (Math.Clamp(p, 0, 1) * 9);
@@ -395,13 +409,14 @@ public static class GameDownloadInstallService
                         gamePath,
                         effectiveAssetName,
                         latestRelease.tag_name,
-                        installOptions).ConfigureAwait(false);
+                        installOptions, LauncherSession.OperationCancellation).ConfigureAwait(false);
                     File.Delete(Path.Combine(gamePath, FlatpakService.ReceiptFileName));
                     File.Delete(Path.Combine(gamePath, FlatpakService.PendingFileName));
                     game.IsFlatpak = false;
                 }
 
-                AppFilesToAddService.Sync(gamePath, previous: null, game.FilesToAdd);
+                if (!File.Exists(Path.Combine(gamePath, PortableInstallationTransaction.ManifestFileName)))
+                    AppFilesToAddService.Sync(gamePath, previous: null, game.FilesToAdd);
 
                 game.DownloadProgress = 100;
                 await Task.Delay(500).ConfigureAwait(false);
@@ -421,7 +436,8 @@ public static class GameDownloadInstallService
 
                 // Which build of the tag this is, so a rebuild under the same tag is seen as an update.
                 game.InstalledBuild = new InstalledBuild(asset.name, actual);
-                await game.InstalledBuild.WriteAsync(gamePath).ConfigureAwait(false);
+                if (!File.Exists(Path.Combine(gamePath, PortableInstallationTransaction.ManifestFileName)))
+                    await game.InstalledBuild.WriteAsync(gamePath).ConfigureAwait(false);
                 game.InstalledVersion = latestRelease.tag_name;
                 if (string.IsNullOrWhiteSpace(game.LatestVersion) ||
                     LauncherVersionService.IsNewerVersion(latestRelease.tag_name, game.LatestVersion))
@@ -544,9 +560,14 @@ public static class GameDownloadInstallService
         }
         finally
         {
+            game.IsPortableCommitInProgress = false;
             game.IsInstallIndeterminate = false;
             var path = game.GetInstallPath(gamesFolder);
-            if (WindowsInstallerService.HasReceipt(path))
+            if (PortableInstallationTransaction.HasEvidence(path))
+            {
+                await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder, checkRemoteVersion: false, applyCachedRelease: false).ConfigureAwait(false);
+            }
+            else if (WindowsInstallerService.HasReceipt(path))
             {
                 game.DownloadProgress = 0;
                 await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder,
@@ -681,7 +702,7 @@ public static class GameDownloadInstallService
     private static async Task<string> Sha256Async(string path)
     {
         await using var stream = File.OpenRead(path);
-        return Convert.ToHexStringLower(await SHA256.HashDataAsync(stream).ConfigureAwait(false));
+        return Convert.ToHexStringLower(await SHA256.HashDataAsync(stream, LauncherSession.OperationCancellation).ConfigureAwait(false));
     }
 }
 

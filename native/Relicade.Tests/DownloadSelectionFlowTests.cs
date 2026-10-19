@@ -137,9 +137,13 @@ public class DownloadSelectionFlowTests
         game.Status = GameStatus.UpdateAvailable;
         game.InstalledVersion = "0.9.0";
         var gamePath = game.GetInstallPath(fixture.Manager.GamesFolder);
-        Directory.CreateDirectory(gamePath);
         game.InstalledBuild = new InstalledBuild("Game-0.9.0-windows-x64-portable.zip", new string('0', 64));
-        await game.InstalledBuild.WriteAsync(gamePath);
+        Directory.CreateDirectory(fixture.Manager.GamesFolder);
+        var oldSource = Path.Combine(fixture.Manager.GamesFolder, "old-fixture.exe");
+        File.WriteAllText(oldSource, "synthetic old payload; never executed");
+        await Relicade.Core.Services.GameInstallationService.InstallOrUpdateGameAsync(oldSource, gamePath, "game.exe", "0.9.0",
+            new Relicade.Core.Services.GameInstallationOptions { InstalledBuildText = $"{game.InstalledBuild.FileName}\n{game.InstalledBuild.Sha256}\n" });
+        File.Delete(oldSource);
         var result = await fixture.Controller(session).HandleUpdateNowAsync(new Button(), game,
             preferAutoPlatform: !interactive, allowAssetPicker: interactive, interactive: interactive);
         result.Should().BeTrue();

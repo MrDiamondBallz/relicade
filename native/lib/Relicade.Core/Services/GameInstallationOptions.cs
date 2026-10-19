@@ -23,9 +23,18 @@ public sealed class GameInstallationOptions
     /// <summary>The file Relicade last installed this app from, when it recorded one.</summary>
     public string? PreviousInstallFileName { get; init; }
 
-    /// <summary>
-    /// Shows the player the license agreement a download asks them to accept (the download's file name, the
-    /// agreement) and returns whether they accept it. Without it, such a download isn't installed.
-    /// </summary>
+    /// <summary>Explicit project-adapter data locations, relative to this root. Unknown additions block updates.</summary>
+    public IReadOnlyCollection<string> PreservedDataPaths { get; init; } = ["LastPlayed.txt"];
+    public string? SelectedExecutableRelativePath { get; init; }
+    public string? ReleaseIdentity { get; init; }
+    public string? AssetIdentity { get; init; }
+    public string? InstalledBuildText { get; init; }
+    public Action<string>? PrepareCandidate { get; init; }
+    /// <summary>Deterministic diagnostic/fault boundary; never supplies success or bypasses validation.</summary>
+    public Action<string>? TransactionBoundary { get; init; }
+    public long MaximumExpandedBytes { get; init; } = 16L * 1024 * 1024 * 1024;
+    public int MaximumFileCount { get; init; } = 100000;
+
+    /// <summary>Platform disk-image license consent, separate from portable activation.</summary>
     public Func<string, string, Task<bool>>? AcceptLicenseAsync { get; init; }
 }

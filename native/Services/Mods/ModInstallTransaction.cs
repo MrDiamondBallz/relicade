@@ -39,24 +39,32 @@ internal static class ModInstallTransaction
         [JsonRequired] public string BackupPath { get; set; } = "";
         [JsonRequired] public string StagedPath { get; set; } = "";
     }
-    sealed class Lease(SemaphoreSlim gate, FileStream stream) : IDisposable
+    sealed class Lease(SemaphoreSlim gate, FileStream stream, IDisposable gameLease) : IDisposable
     {
-        public void Dispose() { stream.Dispose(); gate.Release(); }
+        public void Dispose()
+        {
+            try { stream.Dispose(); }
+            finally { try { gameLease.Dispose(); } finally { gate.Release(); } }
+        }
     }
     internal static IDisposable Acquire(string root)
     {
-        root = Path.GetFullPath(root);
+        root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
         CheckLinks(root);
-        Directory.CreateDirectory(root);
+        // Preserve G05's in-process queuing semantics, then take the shared stable
+        // OS lease before even recreating live. Game writers never wait on this gate.
         var gate = Gates.GetOrAdd(root, _ => new(1));
         gate.Wait();
+        IDisposable? gameLease = null;
         try
         {
+            gameLease = new Relicade.Core.Services.PortableInstallationTransaction(root).AcquireModWriterLease();
+            Directory.CreateDirectory(root);
             var path = SafePath(root, ".relicade-mod-writer.lock");
-            // FileShare.None uses an OS lock, including independent launcher processes.
-            return new Lease(gate, new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None));
+            // Keep the existing G05 lock and journal semantics as well.
+            return new Lease(gate, new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None), gameLease);
         }
-        catch { gate.Release(); throw; }
+        catch { gameLease?.Dispose(); gate.Release(); throw; }
     }
 
     internal static string SafePath(string root, string relative)
