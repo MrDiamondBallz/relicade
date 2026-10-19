@@ -1,6 +1,6 @@
 # Relicade — product requirements and release gates
 
-**Status: acceptance specification, not delivered native functionality.** The current product is a brand and browser development preview. Native installs, game launching, mod management and rollback remain requirements until executable tests and platform evidence accept them. A design screenshot cannot accept a backend requirement.
+**Status: acceptance specification, not completed native readiness.** The current product includes a brand/browser preview and a buildable native development foundation. Native shared services and local/headless fixtures are not full functional, behavior-reconciliation or platform acceptance. Real installs, game launches, mod management, owned-data readiness and rollback remain requirements until their executable tests and per-platform evidence accept them. A design screenshot or cross-publish cannot accept a backend requirement. See [native build/status](../native/README.md).
 
 **Position:** Old legends. New life. A confident home for community-built PC ports, recompilations and recreations. Premium means players can understand what will happen, recover from mistakes and get back to a game—not inflated engagement metrics or visual effects. Follow [brand/BRAND.md](../brand/BRAND.md); retain community/project attribution and distinguish original games from the ports/projects that run them.
 

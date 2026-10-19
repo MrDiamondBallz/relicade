@@ -4,7 +4,7 @@ Relicade has its own product identity. Source attribution remains accurate; an e
 
 ## Reference sources
 
-Technical reference work includes [Quiver Launcher](https://github.com/tgeorgiadis/quiver-launcher) and [GithubLauncher](https://github.com/SirDiabo/GithubLauncher), whose source is MIT licensed. The current browser preview is an original implementation, not a complete imported native codebase. Any subsequently incorporated code must retain its exact applicable copyright and license text; this notice does not replace those terms.
+The browser preview is an original implementation. The native foundation under `native/` adapts [Quiver Launcher](https://github.com/tgeorgiadis/quiver-launcher) at exact commit `66c45cbe2779818791948c7bd769d388e3a47b44`, derived from [GithubLauncher](https://github.com/SirDiabo/GithubLauncher). The complete inherited MIT notices are retained in `native/LICENSE` and `native/lib/Relicade.Core/LICENSE`; technical provenance and the asset/dependency boundaries are in [native/THIRD_PARTY_NOTICES.md](native/THIRD_PARTY_NOTICES.md). Renamed assemblies do not change source authorship. No affiliation, endorsement or source-product support is implied.
 
 ## Public metadata
 
@@ -22,4 +22,4 @@ The README's interface design preview includes third-party game artwork as displ
 
 Barlow Condensed and Manrope are bundled with SIL Open Font License notices and source information in `brand/assets/fonts/`. Preserve those notices with the fonts.
 
-No open-source license has been selected for original Relicade material. Public source visibility is not a reuse grant. This repository contains no ROMs, BIOS, commercial game data, user credentials or copied installed executables.
+No open-source license has been selected for original Relicade material; the inherited native code remains subject to its applicable MIT notices. Public source visibility is not a reuse grant for separately owned original material. This repository contains no ROMs, BIOS, commercial game data, user credentials or copied installed executables. Tiny archive fixtures containing text named `game.exe` are synthetic test inputs, not game executables.

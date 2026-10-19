@@ -40,3 +40,19 @@ prototype/tests/*.png
 brand/qa-*.png
 brand/qa-report.json
 qa/local/
+
+# Native toolchain, dependency caches and generated artifacts
+**/bin/
+**/obj/
+**/TestResults/
+**/.vs/
+**/.avalonia-build-tasks/
+native/artifacts/
+native/packages/
+*.apk
+*.aab
+*.AppImage
+*.msi
+*.dmg
+*.trx
+*.snupkg
