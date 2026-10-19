@@ -134,6 +134,62 @@ public sealed class PortableInstallationTransaction
         }
         catch { lease.Dispose(); throw; }
     }
+    /// <summary>
+    /// Loss-prevention boundary, NOT managed uninstall. Take the stable writer lock
+    /// before inspecting live/history, without Recover or stale-receipt cleanup.
+    /// Only writer.lock may exist in history; even pre-Prepared/resolved evidence
+    /// needs explicit repair/retention policy before any removal can be safe.
+    /// Caller must hold this lease through its complete unmanaged mutation.
+    /// </summary>
+    public IDisposable AcquireUnmanagedRemovalLease()
+    {
+        var lease = AcquireLease();
+        FileStream? modLease = null;
+        try
+        {
+            foreach (var entry in Directory.EnumerateFileSystemEntries(operations))
+            {
+                CheckLinks(entry);
+                if (Path.GetFileName(entry) != "writer.lock" ||
+                    (File.GetAttributes(entry) & FileAttributes.Directory) != 0)
+                    throw new IOException("Managed/recovery removal is not supported safely yet. Use Remove from Library to keep files, or explicitly repair the retained installation evidence.");
+            }
+            // In particular launch.json (live, uncertain OR stale) is refused above.
+            // EnsureNotRunning would delete a stale receipt, which removal must not do.
+            // File.GetAttributes/Enumerate propagate access denial, unlike Exists.
+            void Inspect(string dir)
+            {
+                FileAttributes attributes;
+                try { attributes = File.GetAttributes(dir); }
+                catch (FileNotFoundException) { return; }
+                catch (DirectoryNotFoundException) { return; }
+                CheckLinks(dir);
+                if ((attributes & FileAttributes.Directory) == 0)
+                    throw new IOException("The installation path is not a readable directory; repair before removal.");
+                foreach (var entry in Directory.EnumerateFileSystemEntries(dir))
+                {
+                    CheckLinks(entry);
+                    var name = Path.GetFileName(entry);
+                    if (name.StartsWith(".relicade-", StringComparison.OrdinalIgnoreCase) &&
+                        !(dir == root && name == ModLock))
+                        throw new IOException("Managed/recovery removal is not supported safely yet. Use Remove from Library to keep files, or explicitly repair the retained installation evidence.");
+                    if ((File.GetAttributes(entry) & FileAttributes.Directory) != 0) Inspect(entry);
+                }
+            }
+            Inspect(root);
+            // Older mod writers may hold the in-generation lock alone. Do not create
+            // it (or the root); retain an existing lock until the mutation finishes.
+            try { modLease = new FileStream(SafePath(root, ModLock), FileMode.Open, FileAccess.ReadWrite, FileShare.None); }
+            catch (FileNotFoundException) { }
+            catch (DirectoryNotFoundException) { }
+            return new RemovalLease(lease, modLease);
+        }
+        catch { modLease?.Dispose(); lease.Dispose(); throw; }
+    }
+    sealed class RemovalLease(IDisposable stable, IDisposable? mod) : IDisposable
+    {
+        public void Dispose() { try { mod?.Dispose(); } finally { stable.Dispose(); } }
+    }
     static FileStream AcquireModLease(string path)
     {
         Directory.CreateDirectory(path);

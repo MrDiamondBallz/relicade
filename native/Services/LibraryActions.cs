@@ -19,9 +19,10 @@ public sealed class LibraryActions
     private readonly Func<string, string, bool, bool, Task<bool>> _prompt;
     private readonly Action<string> _openUrl;
     private readonly Func<Task> _libraryChanged;
+    private readonly Action<string> _moveToTrash;
     private AppSettings _settings => _settingsModel.Current;
 
-    public LibraryActions(GameManager manager, LibraryPersistenceService persistence, SettingsViewModel settings, LauncherSession session, LibraryViewModel library, Func<IStorageProvider> storage, Func<string, string, bool, bool, Task<bool>> prompt, Action<string> openUrl, Func<Task> libraryChanged)
+    public LibraryActions(GameManager manager, LibraryPersistenceService persistence, SettingsViewModel settings, LauncherSession session, LibraryViewModel library, Func<IStorageProvider> storage, Func<string, string, bool, bool, Task<bool>> prompt, Action<string> openUrl, Func<Task> libraryChanged, Action<string>? moveToTrash = null)
     {
         _gameManager = manager;
         _libraryPersistence = persistence;
@@ -32,6 +33,7 @@ public sealed class LibraryActions
         _prompt = prompt;
         _openUrl = openUrl;
         _libraryChanged = libraryChanged;
+        _moveToTrash = moveToTrash ?? RecycleBinHelper.MoveToRecycleBin;
     }
 
     private bool RefuseKiosk() => _settingsModel.KioskLocked;
@@ -169,132 +171,134 @@ public sealed class LibraryActions
         });
     }
 
+    // Inspect both the located path and default slot: stale flags/InstallPath must
+    // not hide owned history behind an OS receipt or another root.
+    private string[] RemovalPaths(GameInfo game)
+    {
+        var paths = new List<string>();
+        if (!string.IsNullOrWhiteSpace(game.FolderName))
+        {
+            PortableInstallationTransaction.ValidateRelative(game.FolderName);
+            paths.Add(Path.GetFullPath(Path.Combine(_gameManager.GamesFolder, game.FolderName)));
+        }
+        if (!string.IsNullOrWhiteSpace(game.InstallPath)) paths.Add(Path.GetFullPath(game.InstallPath));
+        if (paths.Count == 0) throw new IOException("The game folder is not configured.");
+        return paths.Select(Path.TrimEndingDirectorySeparator).Distinct(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal)
+            .Order(StringComparer.Ordinal).ToArray();
+    }
+    // Consent is scoped to the previewed directory, not a later replacement at
+    // that path. This conservative timestamp check complements disk authority;
+    // cooperative locks are not immunity from hostile external timestamp/TOCTOU races.
+    private static string RemovalPreview(string[] paths) => string.Join("|", paths.Select(path =>
+    {
+        try
+        {
+            var attributes = File.GetAttributes(path);
+            return $"{attributes}:{Directory.GetCreationTimeUtc(path).Ticks}:{Directory.GetLastWriteTimeUtc(path).Ticks}";
+        }
+        catch (FileNotFoundException) { return "missing"; }
+        catch (DirectoryNotFoundException) { return "missing"; }
+    }));
+    private IDisposable AcquireRemovalLeases(GameInfo game, string[] expected)
+    {
+        if (!RemovalPaths(game).SequenceEqual(expected, StringComparer.Ordinal))
+            throw new IOException("The installation location changed while confirming removal. Refresh and try again.");
+        var leases = new List<IDisposable>();
+        try
+        {
+            foreach (var path in expected) leases.Add(new PortableInstallationTransaction(path).AcquireUnmanagedRemovalLease());
+            return new RemovalLeases(leases);
+        }
+        catch { foreach (var lease in leases.AsEnumerable().Reverse()) lease.Dispose(); throw; }
+    }
+    private sealed class RemovalLeases(List<IDisposable> leases) : IDisposable
+    {
+        public void Dispose() { foreach (var lease in leases.AsEnumerable().Reverse()) lease.Dispose(); }
+    }
+
     public async Task UninstallAsync(GameInfo? game)
     {
         if (RefuseKiosk()) return;
         await _session.RunAsync(async () =>
         {
-            if (game == null)
-                return;
-            var flatpakPath = game.GetInstallPath(_gameManager.GamesFolder);
-            if (WindowsInstallerService.HasReceipt(flatpakPath))
+            if (game == null) return;
+            bool? previousLoading = null;
+            try
             {
-                if (!OperatingSystem.IsWindows())
+                var paths = RemovalPaths(game);
+                // Never retain exclusion while awaiting consent.
+                string preview;
+                using (AcquireRemovalLeases(game, paths)) { preview = RemovalPreview(paths); }
+                var gamePath = game.GetInstallPath(_gameManager.GamesFolder);
+                if (WindowsInstallerService.HasReceipt(gamePath))
                 {
-                    await ShowMessageBoxAsync("Uninstall this application using Installed apps on Windows.", "Windows Installation");
+                    using var lease = AcquireRemovalLeases(game, paths);
+                    if (!OperatingSystem.IsWindows())
+                        await ShowMessageBoxAsync("Uninstall this application using Installed apps on Windows.", "Windows Installation");
+                    else OpenUrl(WindowsInstallerService.InstalledAppsUri);
                     return;
                 }
-                try { OpenUrl(WindowsInstallerService.InstalledAppsUri); }
-                catch (Exception ex) { await ShowMessageBoxAsync($"Open Windows Settings → Apps → Installed apps to uninstall {game.Name}. {ex.Message}", "Windows Settings"); }
-                return;
-            }
-            if (FlatpakService.HasReceipt(flatpakPath))
-            {
-                if (!await ShowMessageBoxAsync($"Uninstall {game.Name}?\n\nYour saves and application data will be preserved.",
-                    "Uninstall Flatpak", isQuestion: true, preferCancelDefault: true) || _session.IsClosed) return;
-                game.IsLoading = true;
-                try
+                var flatpak = FlatpakService.HasReceipt(gamePath);
+                if (game.Status == GameStatus.NotInstalled && !flatpak)
                 {
-                    await FlatpakService.Current.UninstallAsync(flatpakPath);
+                    await ShowMessageBoxAsync($"{game.Name} is not installed.", "Nothing to Delete");
+                    return;
+                }
+                if (PlatformCapabilities.IsMobile)
+                {
+                    using var lease = AcquireRemovalLeases(game, paths);
+                    await AndroidLibraryUninstall.RunAsync(game, gamePath, AppInstallLaunch.Current);
+                    TrackUninstalled(game); Changed(); return;
+                }
+                var located = !string.IsNullOrWhiteSpace(game.InstallPath);
+                var message = flatpak ? $"Uninstall {game.Name}?\n\nYour saves and application data will be preserved." :
+                    located ? $"Delete {game.Name}?\n\nYou chose its folder, {gamePath}, so Relicade leaves the folder " +
+                    "and your other files in it alone. Only the file Relicade downloaded there, if any, moves to the Recycle Bin / Trash, " +
+                    "and Relicade stops using the folder." :
+                    $"Are you sure you want to delete {game.Name}?\n\n" +
+                    "Relicade will attempt to move game files to your system's Recycle Bin / Trash so you can restore them if needed. " +
+                    "Portable installs may include save data in the same folder.";
+                if (!await ShowMessageBoxAsync(message, flatpak ? "Uninstall Flatpak" : "Confirm Deletion", true, true) ||
+                    _session.IsClosed || RefuseKiosk()) return;
+                using (AcquireRemovalLeases(game, paths))
+                {
+                    _session.Token.ThrowIfCancellationRequested();
+                    if (RemovalPreview(paths) != preview || game.GetInstallPath(_gameManager.GamesFolder) != gamePath ||
+                        FlatpakService.HasReceipt(gamePath) != flatpak || WindowsInstallerService.HasReceipt(gamePath))
+                        throw new IOException("The installation changed while confirming removal. Refresh and try again.");
+                    previousLoading = game.IsLoading;
+                    game.IsLoading = true;
+                    if (flatpak) await FlatpakService.Current.UninstallAsync(gamePath);
+                    else if (located)
+                    {
+                        var shared = LocatedInstallRemoval.FolderHasOtherApps(game, _gameManager.Games, _gameManager.GamesFolder);
+                        // This scope already owns the leases: no nested acquisition.
+                        await Task.Run(() => LocatedInstallRemoval.RemoveWhileLeased(gamePath, shared, _moveToTrash), _session.Token);
+                        game.InstallPath = null;
+                        await _libraryPersistence.SaveInstallLocationAsync(game);
+                    }
+                    else
+                    {
+                        if (!Directory.Exists(gamePath)) throw new DirectoryNotFoundException("The previewed game folder is missing; no files were removed.");
+                        await Task.Run(() => _moveToTrash(gamePath), _session.Token);
+                    }
                     TrackUninstalled(game);
                 }
-                catch (Exception ex) { await ShowMessageBoxAsync($"Could not uninstall {game.Name}: {ex.Message}", "Uninstall Failed"); }
-                finally
+                if (!_session.IsClosed)
                 {
                     await game.CheckStatusAsync(_gameManager.HttpClient, _gameManager.GamesFolder, checkRemoteVersion: false);
-                    game.IsLoading = false;
                     Changed();
                 }
-                return;
             }
-            if (game.Status == GameStatus.NotInstalled)
+            catch (OperationCanceledException) when (_session.IsClosed) { }
+            catch (Exception ex)
             {
-                _ = _session.RunAsync(() => ShowMessageBoxAsync($"{game.Name} is not installed.", "Nothing to Delete"));
-                return;
+                // No status/recovery/network refresh on refusal or callback failure:
+                // that can itself resolve retained journals or fabricate success.
+                await ShowMessageBoxAsync($"Failed to delete {game.Name}: {ex.Message}", "Deletion Failed");
             }
-
-            if (PlatformCapabilities.IsMobile)
-            {
-                try
-                {
-                    await AndroidLibraryUninstall.RunAsync(game, game.GetInstallPath(_gameManager.GamesFolder), AppInstallLaunch.Current);
-                    TrackUninstalled(game);
-                }
-                catch (Exception ex)
-                {
-                    await ShowMessageBoxAsync($"Could not uninstall {game.Name}: {ex.Message}", "Uninstall Failed");
-                }
-                finally { Changed(); }
-                return;
-            }
-
-            if (!string.IsNullOrWhiteSpace(game.InstallPath))
-            {
-                await RemoveFromLocatedFolderAsync(game);
-                return;
-            }
-
-            var confirmMessage = PlatformCapabilities.IsMobile ? $"Are you sure you want to uninstall {game.Name} from this device?" : $"Are you sure you want to delete {game.Name}?\n\n" + "Relicade will attempt to move game files to your system's Recycle Bin / Trash so you can restore them if needed. " + "Portable installs may include save data in the same folder.";
-            var result = await ShowMessageBoxAsync(confirmMessage, "Confirm Deletion", isQuestion: true, preferCancelDefault: true);
-            if (result && !_session.IsClosed)
-            {
-                try
-                {
-                    if (string.IsNullOrEmpty(game.FolderName))
-                    {
-                        await ShowMessageBoxAsync($"Failed to delete {game.Name}: game folder is not configured.", "Deletion Failed");
-                        return;
-                    }
-
-                    game.Status = GameStatus.Installing;
-                    game.IsLoading = true;
-                    var gamePath = game.GetInstallPath(_gameManager.GamesFolder);
-                    if (Directory.Exists(gamePath))
-                    {
-                        await Task.Run(() => RecycleBinHelper.MoveToRecycleBin(gamePath));
-                    }
-                    TrackUninstalled(game);
-
-                    game.IsLoading = false;
-                    await game.CheckStatusAsync(_gameManager.HttpClient, _gameManager.GamesFolder);
-                    Changed();
-                }
-                catch (Exception ex)
-                {
-                    game.IsLoading = false;
-                    _ = _session.RunAsync(() => ShowMessageBoxAsync($"Failed to delete {game.Name}: {ex.Message}", "Deletion Failed"));
-                }
-            }
+            finally { if (previousLoading.HasValue) game.IsLoading = previousLoading.Value; }
         });
-    }
-
-    private async Task RemoveFromLocatedFolderAsync(GameInfo game)
-    {
-        var folder = game.InstallPath!;
-        if (!await ShowMessageBoxAsync($"Delete {game.Name}?\n\nYou chose its folder, {folder}, so Relicade leaves the folder " +
-            "and your other files in it alone. Only the file Relicade downloaded there, if any, moves to the Recycle Bin / Trash, " +
-            "and Relicade stops using the folder.", "Confirm Deletion", isQuestion: true, preferCancelDefault: true) || _session.IsClosed)
-            return;
-
-        game.IsLoading = true;
-        try
-        {
-            var folderHasOtherApps = LocatedInstallRemoval.FolderHasOtherApps(game, _gameManager.Games, _gameManager.GamesFolder);
-            await Task.Run(() => LocatedInstallRemoval.Remove(folder, folderHasOtherApps, RecycleBinHelper.MoveToRecycleBin));
-            game.InstallPath = null;
-            await _libraryPersistence.SaveInstallLocationAsync(game);
-            TrackUninstalled(game);
-        }
-        catch (Exception ex)
-        {
-            _ = _session.RunAsync(() => ShowMessageBoxAsync($"Failed to delete {game.Name}: {ex.Message}", "Deletion Failed"));
-        }
-        finally
-        {
-            game.IsLoading = false;
-            await game.CheckStatusAsync(_gameManager.HttpClient, _gameManager.GamesFolder);
-            Changed();
-        }
     }
 
     private static void TrackUninstalled(GameInfo game) => Telemetry.Current.Track("app_uninstalled", Telemetry.AppRef(game));
@@ -359,7 +363,18 @@ public sealed class LibraryActions
                 // Drop only Relicade's link; Windows continues to own the installed application.
                 var metadataPath = game.GetInstallPath(_gameManager.GamesFolder);
                 if (WindowsInstallerService.HasReceipt(metadataPath))
-                    File.Delete(Path.Combine(metadataPath, WindowsInstallerService.ReceiptFileName));
+                {
+                    try
+                    {
+                        using var lease = new PortableInstallationTransaction(metadataPath).AcquireUnmanagedRemovalLease();
+                        File.Delete(Path.Combine(metadataPath, WindowsInstallerService.ReceiptFileName));
+                    }
+                    catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
+                    {
+                        // Removing a library link keeps all managed/uncertain bytes,
+                        // even a conflicting OS receipt. This is not an uninstall.
+                    }
+                }
                 await _gameManager.LoadGamesAsync();
                 if (_session.IsClosed)
                     return;

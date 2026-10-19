@@ -33,6 +33,15 @@ public static class LocatedInstallRemoval
     /// </param>
     public static void Remove(string folder, bool folderHasOtherApps, Action<string> moveToTrash)
     {
+        using var lease = new PortableInstallationTransaction(folder).AcquireUnmanagedRemovalLease();
+        RemoveWhileLeased(folder, folderHasOtherApps, moveToTrash);
+    }
+
+    // Assembly-internal composition only. LibraryActions holds all target/default
+    // leases through this helper AND subsequent location persistence. Public callers
+    // must use Remove so they cannot bypass the boundary or double-acquire it.
+    internal static void RemoveWhileLeased(string folder, bool folderHasOtherApps, Action<string> moveToTrash)
+    {
         if (folderHasOtherApps || !Directory.Exists(folder))
             return;
 
