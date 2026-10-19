@@ -117,6 +117,22 @@ public sealed class ModsPreservationEdgeTests : IDisposable
         record.DownloadFileName = null; Assert.Equal("different", ModDownloadFileSelection.FindCatalogFile(package, record)!.Id);
     }
     [Fact]
+    public void Legacy_uninstall_requires_explicit_source_when_package_id_is_ambiguous()
+    {
+        var package = Package(); Directory.CreateDirectory(Path.Combine(root, "mods"));
+        var one = Record(package); one.DownloadFileId = "different"; one.Files = ["one.txt"];
+        var other = Record(package); other.SourceKey = "other-source"; other.DownloadFileId = "different"; other.Files = ["other.txt"];
+        File.WriteAllText(Path.Combine(root, "mods", "one.txt"), "one"); File.WriteAllText(Path.Combine(root, "mods", "other.txt"), "other");
+        var store = new InstalledModsStore(); store.Save(root, new() { Mods = [one, other] });
+        var before = File.ReadAllBytes(InstalledModsStore.GetSidecarPath(root)); var service = new ModInstallService(new([]));
+        Assert.Throws<InvalidOperationException>(() => service.Uninstall(root, "mods", package.ProviderId, package.Id));
+        Assert.Equal(before, File.ReadAllBytes(InstalledModsStore.GetSidecarPath(root)));
+        Assert.True(service.UninstallMatchingFile(root, "mods", package, "different"));
+        Assert.Equal("other-source", Assert.Single(service.LoadInstalled(root).Mods).SourceKey);
+        Assert.Equal("other", File.ReadAllText(Path.Combine(root, "mods", "other.txt")));
+    }
+
+    [Fact]
     public async Task Parallel_atomic_sidecar_saves_always_reopen_as_complete_documents()
     {
         var tasks = Enumerable.Range(0, 12).Select(i => Task.Run(() =>

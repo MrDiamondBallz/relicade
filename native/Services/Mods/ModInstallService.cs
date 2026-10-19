@@ -355,6 +355,8 @@ public sealed class ModInstallService
              string.Equals(m.FullName, packageId, StringComparison.OrdinalIgnoreCase))).ToList();
         if (records.Count == 0)
             return false;
+        if (records.Select(r => r.SourceKey).Distinct(StringComparer.OrdinalIgnoreCase).Count() > 1)
+            throw new InvalidOperationException("This package ID exists in multiple mod sources; choose an explicit source before uninstalling.");
 
         return UninstallRecords(installRoot, modsPath, document, records);
     }
