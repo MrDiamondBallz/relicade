@@ -109,12 +109,17 @@ public sealed class PortableInstallationNegativeTests : IDisposable
         Assert.Equal(before.OrderBy(e => e.Key), Snapshot(Live).OrderBy(e => e.Key));
     }
     [Fact]
-    public async Task Mod_writer_held_before_game_update_excludes_game_without_changing_siblings()
+    public async Task Mod_writer_on_unmanaged_root_excludes_game_install_without_changing_siblings()
     {
-        await Initial(); var before = Snapshot(Live);
+        Directory.CreateDirectory(Live); Zip("game.exe");
+        File.WriteAllText(Path.Combine(root, "sibling.txt"), "unchanged sibling");
+        var before = Snapshot(Live);
         using (ModInstallTransaction.Acquire(Live))
-            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(Source, Live, "fixture.zip", "v2"));
+            await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(Source, Live, "fixture.zip", "v1"));
         Assert.Equal(before.OrderBy(e => e.Key), Snapshot(Live).OrderBy(e => e.Key));
+        Assert.Equal("unchanged sibling", File.ReadAllText(Path.Combine(root, "sibling.txt")));
+        await GameInstallationService.InstallOrUpdateGameAsync(Source, Live, "fixture.zip", "v1");
+        Assert.Equal("v1", new PortableInstallationTransaction(Live).ReadCommitted()!.SelectedVersion);
     }
     [Fact]
     public async Task Writer_in_the_two_rename_gap_is_retained_as_unknown_not_deleted()

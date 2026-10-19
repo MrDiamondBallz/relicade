@@ -143,12 +143,15 @@ public sealed class PortableInstallationRecoveryTests : IDisposable
         if (fault == "unknown-file") File.WriteAllText(Path.Combine(Live, "unknown.txt"), "external");
         if (fault == "payload-change") File.WriteAllText(Path.Combine(Live, "fixture.exe"), "external");
         if (fault == "link") Directory.CreateSymbolicLink(Path.Combine(Live, "linked"), root);
-        if (fault == "mod-state") new InstalledModsStore().Save(Live, new());
+        // External/noncooperative software can still leave incompatible mod state.
+        // Source-owned G05 Save must refuse this managed generation before mutation.
+        if (fault == "mod-state") File.WriteAllText(InstalledModsStore.GetSidecarPath(Live), "{\"mods\":[]}");
         var options = fault == "space" ? new GameInstallationOptions { MaximumExpandedBytes = 1 } : Options(p => { if (p == "Staged" && fault == "data-change") File.WriteAllText(Path.Combine(Live, "saves", "slot.dat"), "external"); });
         var error = await Record.ExceptionAsync(() => GameInstallationService.InstallOrUpdateGameAsync(Source, Live, "payload.zip", "new", options));
         if (fault == "link") Assert.IsType<InvalidDataException>(error); else Assert.IsType<IOException>(error);
         Assert.Equal(fault == "payload-change" ? "external" : "old", File.ReadAllText(Path.Combine(Live, "fixture.exe")));
         Assert.Equal(fault == "data-change" ? "external" : "current-save", File.ReadAllText(Path.Combine(Live, "saves", "slot.dat")));
+        if (fault == "mod-state") Assert.Equal("{\"mods\":[]}", File.ReadAllText(InstalledModsStore.GetSidecarPath(Live)));
     }
     static Process Child(string root, string mode)
     {

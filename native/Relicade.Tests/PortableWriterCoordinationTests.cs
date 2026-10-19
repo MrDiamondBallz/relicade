@@ -123,7 +123,9 @@ public sealed class PortableWriterCoordinationTests : IDisposable
     [Fact]
     public async Task Independent_game_process_is_excluded_by_mod_lease_and_kill_releases_stable_lock()
     {
-        await Initial(); using var mod = Child(root, "hold-mod");
+        // Managed generations now reject G05 entirely. Exercise the supported
+        // unmanaged lease -> fresh game install lock order without weakening it.
+        Directory.CreateDirectory(Live); using var mod = Child(root, "hold-mod");
         try
         {
             await Barrier(mod); using (var game = Child(root, "refuse-game")) await Success(game);
@@ -164,7 +166,7 @@ public sealed class PortableWriterCoordinationTests : IDisposable
         Assert.Equal(before.OrderBy(e => e.Key), Snapshot(root).OrderBy(e => e.Key));
     }
     [Theory]
-    [InlineData("payload")][InlineData("manifest")][InlineData("missing-target")][InlineData("version")]
+    [InlineData("payload")][InlineData("manifest")][InlineData("missing-manifest")][InlineData("missing-target")][InlineData("version")]
     public async Task Unknown_committed_generation_blocks_mod_and_launch_without_substituting_helpers(string fault)
     {
         await Install(root, "old", nested: true);
@@ -172,6 +174,7 @@ public sealed class PortableWriterCoordinationTests : IDisposable
         if (fault == "payload") File.WriteAllText(selected, "unknown changed bytes");
         if (fault == "missing-target") File.Delete(selected);
         if (fault == "manifest") File.WriteAllText(Path.Combine(Live, PortableInstallationTransaction.ManifestFileName), "{invalid");
+        if (fault == "missing-manifest") File.Delete(Path.Combine(Live, PortableInstallationTransaction.ManifestFileName));
         if (fault == "version") File.WriteAllText(Path.Combine(Live, "version.txt"), "unknown");
         var before = Snapshot(root);
         Assert.NotNull(Record.Exception(() => new InstalledModsStore().Save(Live, new())));

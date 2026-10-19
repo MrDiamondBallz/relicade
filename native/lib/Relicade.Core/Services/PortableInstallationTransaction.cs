@@ -104,6 +104,7 @@ public sealed class PortableInstallationTransaction
         try
         {
             PortableInstallationLifetime.EnsureNotRunning(operations);
+            var hasCommittedGeneration = false;
             foreach (var dir in Directory.GetDirectories(operations))
             {
                 CheckLinks(dir);
@@ -118,10 +119,19 @@ public sealed class PortableInstallationTransaction
                     continue; // pre-Prepared staging has never mutated live
                 }
                 var j = ReadJournal(dir);
+                hasCommittedGeneration |= j.Phase == "Committed";
                 if (j.Phase != "Committed" && j.Resolution != "Old")
                     throw new IOException("Portable installation recovery is needed before managing mods. Evidence retained; reopen/repair the game installation first.");
             }
-            ValidateCommittedIdentity(ReadManifest(root, allowDataChanges: true));
+            var manifest = ReadManifest(root, allowDataChanges: true);
+            ValidateCommittedIdentity(manifest);
+            if (manifest == null && hasCommittedGeneration)
+                throw new IOException("The committed portable manifest is missing; explicit repair is required before managing mods.");
+            // G05 mutates payload/sidecars in-place. Until an explicit compatible
+            // game/mod data policy exists, even a healthy managed generation must
+            // refuse BEFORE G05 creates locks, staging, downloads or metadata in live.
+            if (manifest != null)
+                throw new IOException("Mods are not supported for managed portable installations yet. Use a separate unmanaged installation with an explicit mod/data policy.");
             return lease;
         }
         catch { lease.Dispose(); throw; }
