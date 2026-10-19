@@ -65,6 +65,21 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
         var isUpdate = updateInstalledFilesOnly;
         var actionLabel = isUpdate ? "Updating" : "Installing";
         SetModsStatus($"{actionLabel} {item.DisplayName}…");
+        bool installationCompleted = false;
+        void RefreshAfterFailure(string status)
+        {
+            try
+            {
+                Workspace.ApplyInstalledStateToAllItems();
+                Workspace.ApplyFilters();
+            }
+            catch (Exception refresh)
+            {
+                status += $" Installed-state reload failed: {refresh.Message}. Repair and reload before retrying.";
+                Model.HasLoadError = true;
+            }
+            SetModsStatus(status);
+        }
         try
         {
             var package = item.Package;
@@ -171,6 +186,7 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
                 progress,
                 modsLayout: game.ModsLayout,
                 installDependencies: installDependencies, cancellationToken: _session.Token).ConfigureAwait(true);
+            installationCompleted = true;
 
             if (!Current()) return;
             Workspace.ApplyInstalledStateToAllItems();
@@ -183,13 +199,19 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
         catch (Exception) when (!Current()) { }
         catch (OperationCanceledException ex)
         {
-            var committed = ex.Data["CommittedMods"] as string[];
-            SetModsStatus(committed?.Length > 0 ? $"Installation cancelled; these dependencies/files remain committed: {string.Join(", ", committed)}." : "Installation cancelled before replacement commit.");
-            Workspace.ApplyInstalledStateToAllItems();
+            var committed = ModInstallOutcome.GetCommitted(ex);
+            var status = committed.Count > 0
+                ? $"Installation cancelled; these dependencies/files remain committed: {string.Join(", ", committed)}."
+                : installationCompleted ? "Installation committed; a follow-up operation was cancelled."
+                : "Installation cancelled before replacement commit.";
+            if (ex.Data["RecoveryError"] is Exception recovery) status += " " + recovery.Message;
+            RefreshAfterFailure(status);
         }
         catch (Exception ex)
         {
-            SetModsStatus($"{actionLabel} failed: {ex.Message}");
+            RefreshAfterFailure(installationCompleted
+                ? $"Installation committed; a follow-up operation failed: {ex.Message}"
+                : $"{actionLabel} failed: {ex.Message}");
             var usage = ModUsage(game, item);
             usage["update"] = isUpdate;
             usage["reason"] = Telemetry.ReasonOf(ex);

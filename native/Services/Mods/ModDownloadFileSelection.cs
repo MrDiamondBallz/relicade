@@ -77,16 +77,16 @@ public static class ModDownloadFileSelection
 
         if (!string.IsNullOrWhiteSpace(record.DownloadFileId))
         {
-            var byId = files.FirstOrDefault(f =>
-                string.Equals(f.Id, record.DownloadFileId, StringComparison.Ordinal));
-            return byId;
+            var byId = files.Where(f =>
+                string.Equals(f.Id, record.DownloadFileId, StringComparison.Ordinal)).ToList();
+            return byId.Count == 1 ? byId[0] : null;
         }
 
         if (!string.IsNullOrWhiteSpace(record.DownloadFileName))
         {
-            var byName = files.FirstOrDefault(f =>
-                string.Equals(f.FileName, record.DownloadFileName, StringComparison.Ordinal));
-            return byName;
+            var byName = files.Where(f =>
+                string.Equals(f.FileName, record.DownloadFileName, StringComparison.Ordinal)).ToList();
+            return byName.Count == 1 ? byName[0] : null;
         }
 
         return files.Count == 1 ? files[0] : null;

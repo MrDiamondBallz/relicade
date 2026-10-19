@@ -250,12 +250,24 @@ internal static class ModInstallTransaction
                     && journal.Payloads.All(e => FileHash(SafePath(root, e.Path)) == e.NewSha256);
                 boundary?.Invoke("Recovering"); RecoverOne(root, dir);
             }
-            catch (Exception recovery) { throw new IOException("Mod operation failed and recovery is incomplete; retained transaction evidence requires repair.", new AggregateException(original, recovery)); }
-            if (committed) throw new IOException("Mod replacement committed successfully, but a follow-up operation failed; the new generation remains installed.", original);
+            catch (Exception recovery)
+            {
+                var error = new IOException("Mod operation failed and recovery is incomplete; retained transaction evidence requires repair.", new AggregateException(original, recovery));
+                if (committed && record != null) ModInstallOutcome.Attach(error, [ModCommittedIdentity.From(record)]);
+                if (original is OperationCanceledException)
+                {
+                    original.Data["RecoveryError"] = error;
+                    ModInstallOutcome.Attach(original, ModInstallOutcome.GetCommitted(error));
+                    throw original;
+                }
+                throw error;
+            }
+            if (committed) throw ModInstallOutcome.FollowupFailure(original, record,
+                "Mod replacement committed successfully, but a follow-up operation failed; the new generation remains installed.");
             throw;
         }
         try { Cleanup(dir, boundary); }
-        catch (Exception ex) { throw new IOException("Mod replacement committed, but transaction cleanup failed; reload to finalize cleanup.", ex); }
+        catch (Exception ex) { throw ModInstallOutcome.FollowupFailure(ex, record, "Mod replacement committed, but a follow-up transaction cleanup failed; reload to finalize cleanup."); }
     }
 
     static void SetPayload(string root, string dir, Payload entry, bool useNew, Action<string>? boundary = null)

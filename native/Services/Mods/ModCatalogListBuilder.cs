@@ -46,6 +46,7 @@ public static class ModCatalogListBuilder
     /// <summary>
     /// True when <paramref name="record"/> is this package's install of <paramref name="downloadFileId"/>.
     /// A null/empty file id matches only legacy records with no stored file identity.
+    /// Filename-only legacy records require a unique exact catalog filename match.
     /// </summary>
     public static bool RecordMatchesPackageFile(
         InstalledModRecord record,
@@ -58,7 +59,11 @@ public static class ModCatalogListBuilder
         if (string.IsNullOrWhiteSpace(downloadFileId))
             return !ModDownloadFileSelection.HasFileIdentity(record);
 
-        return string.Equals(record.DownloadFileId, downloadFileId, StringComparison.Ordinal);
+        if (!string.IsNullOrWhiteSpace(record.DownloadFileId))
+            return string.Equals(record.DownloadFileId, downloadFileId, StringComparison.Ordinal);
+
+        return !string.IsNullOrWhiteSpace(record.DownloadFileName) &&
+            string.Equals(ModDownloadFileSelection.FindCatalogFile(package, record)?.Id, downloadFileId, StringComparison.Ordinal);
     }
 
     /// <summary>True when two catalog packages refer to the same mod (Id, FullName, or Owner+Name).</summary>
@@ -134,7 +139,17 @@ public static class ModCatalogListBuilder
     {
         ArgumentNullException.ThrowIfNull(doc);
         ArgumentNullException.ThrowIfNull(package);
-        return doc.Mods.FirstOrDefault(m => RecordMatchesPackageFile(m, package, downloadFileId));
+        var scoped = FindMatchingRecords(doc, package);
+        var selected = package.DownloadFiles.Where(f => string.Equals(f.Id, downloadFileId, StringComparison.Ordinal)).ToList();
+        if (selected.Count > 1 || selected.Any(f => scoped.Any(r => string.IsNullOrWhiteSpace(r.DownloadFileId)
+                && !string.IsNullOrWhiteSpace(r.DownloadFileName)
+                && string.Equals(r.DownloadFileName, f.FileName, StringComparison.Ordinal))
+            && package.DownloadFiles.Count(other => string.Equals(other.FileName, f.FileName, StringComparison.Ordinal)) != 1))
+            throw new InvalidOperationException("Installed legacy filename is ambiguous; resolve the file identity before replacement.");
+        var matches = scoped.Where(m => RecordMatchesPackageFile(m, package, downloadFileId)).ToList();
+        if (matches.Count > 1)
+            throw new InvalidOperationException("Multiple installed records match this file; resolve the identity before replacement.");
+        return matches.SingleOrDefault();
     }
 
     public static IReadOnlyList<InstalledModRecord> FindMatchingRecords(

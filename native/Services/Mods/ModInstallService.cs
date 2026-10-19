@@ -55,6 +55,7 @@ public sealed class ModInstallService
         ModInstallTransaction.Recover(installRoot);
         var document = InstalledModsStore.LoadCore(installRoot);
         var modsDir = GetModsDirectory(installRoot, modsPath);
+        var existing = ModCatalogListBuilder.FindMatchingRecord(document, package, selectedFile?.Id);
         var operation = ModInstallTransaction.CreateOperation(installRoot);
         try
         {
@@ -81,7 +82,7 @@ public sealed class ModInstallService
                 Version = package.LatestVersion.Version, DownloadFileId = selectedFile?.Id,
                 DownloadFileName = selectedFile?.FileName, Files = files,
             };
-            var replaced = document.Mods.Where(m => ModCatalogListBuilder.RecordMatchesPackageFile(m, package, selectedFile?.Id)).ToList();
+            IReadOnlyList<InstalledModRecord> replaced = existing == null ? [] : [existing];
             // The commit is deliberately noninterruptible after this last safe cancellation boundary.
             TransactionBoundary?.Invoke("Staged");
             cancellationToken.ThrowIfCancellationRequested();
@@ -163,7 +164,7 @@ public sealed class ModInstallService
         return depFullName;
     }
 
-    public async Task InstallWithDependenciesAsync(
+    public Task InstallWithDependenciesAsync(
         string installRoot,
         string modsPath,
         ModPackage package,
@@ -174,6 +175,14 @@ public sealed class ModInstallService
         CancellationToken cancellationToken = default,
         string? modsLayout = null,
         bool installDependencies = true)
+        => ModInstallOutcome.RunAsync(committed => InstallWithDependenciesCoreAsync(installRoot, modsPath, package,
+            catalog, provider, selectedFile, progress, cancellationToken, modsLayout, installDependencies, committed));
+
+    private async Task InstallWithDependenciesCoreAsync(
+        string installRoot, string modsPath, ModPackage package, IReadOnlyList<ModPackage> catalog,
+        IModProvider provider, ModDownloadFile? selectedFile, IProgress<double>? progress,
+        CancellationToken cancellationToken, string? modsLayout, bool installDependencies,
+        List<ModCommittedIdentity> committed)
     {
         ValidateSelection(package, provider, selectedFile);
         var document = _store.Load(installRoot);
@@ -219,25 +228,12 @@ public sealed class ModInstallService
             if (existing == null || !string.Equals(existing.Version, target, StringComparison.OrdinalIgnoreCase)) plan.Add(item);
         }
         await Resolve(package, true).ConfigureAwait(false);
-        var committed = new List<string>();
-        try
+        foreach (var item in plan)
         {
-            foreach (var item in plan)
-            {
-                await InstallAsync(installRoot, modsPath, item, provider,
-                    ModCatalogListBuilder.PackagesMatch(item, package) ? selectedFile : null,
-                    progress, cancellationToken, modsLayout).ConfigureAwait(false);
-                committed.Add(item.FullName);
-            }
-        }
-        catch (OperationCanceledException ex)
-        {
-            ex.Data["CommittedMods"] = committed.ToArray();
-            throw;
-        }
-        catch (Exception ex) when (committed.Count > 0)
-        {
-            throw new IOException($"Mod installation failed; already committed dependencies/files remain installed: {string.Join(", ", committed)}. The failed replacement retained its previous generation or recovery evidence.", ex);
+            var record = await InstallAsync(installRoot, modsPath, item, provider,
+                ModCatalogListBuilder.PackagesMatch(item, package) ? selectedFile : null,
+                progress, cancellationToken, modsLayout).ConfigureAwait(false);
+            committed.Add(ModCommittedIdentity.From(record));
         }
     }
 
@@ -245,7 +241,7 @@ public sealed class ModInstallService
     /// Installs each selected download file as its own sidecar record.
     /// Null or empty <paramref name="selectedFiles"/> keeps the single-file (Thunderstore) path.
     /// </summary>
-    public async Task InstallSelectedFilesAsync(
+    public Task InstallSelectedFilesAsync(
         string installRoot,
         string modsPath,
         ModPackage package,
@@ -256,40 +252,20 @@ public sealed class ModInstallService
         CancellationToken cancellationToken = default,
         string? modsLayout = null,
         bool installDependencies = true)
-    {
-        if (selectedFiles == null || selectedFiles.Count == 0)
+        => ModInstallOutcome.RunAsync(async committed =>
         {
-            await InstallWithDependenciesAsync(
-                    installRoot,
-                    modsPath,
-                    package,
-                    catalog,
-                    provider,
-                    selectedFile: null,
-                    progress,
-                    cancellationToken,
-                    modsLayout,
-                    installDependencies)
-                .ConfigureAwait(false);
-            return;
-        }
-
-        foreach (var file in selectedFiles)
-        {
-            await InstallWithDependenciesAsync(
-                    installRoot,
-                    modsPath,
-                    package,
-                    catalog,
-                    provider,
-                    file,
-                    progress,
-                    cancellationToken,
-                    modsLayout,
-                    installDependencies)
-                .ConfigureAwait(false);
-        }
-    }
+            if (selectedFiles == null || selectedFiles.Count == 0)
+            {
+                await InstallWithDependenciesCoreAsync(installRoot, modsPath, package, catalog, provider,
+                    null, progress, cancellationToken, modsLayout, installDependencies, committed).ConfigureAwait(false);
+                return;
+            }
+            foreach (var file in selectedFiles)
+            {
+                await InstallWithDependenciesCoreAsync(installRoot, modsPath, package, catalog, provider,
+                    file, progress, cancellationToken, modsLayout, installDependencies, committed).ConfigureAwait(false);
+            }
+        });
 
     /// <summary>
     /// Listing stubs have empty download URLs; enrich Thunderstore packages via experimental API.
