@@ -1,0 +1,48 @@
+/* Relicade — design prototype. Shared brand primitives, no remote assets. */
+@font-face { font-family: Manrope; src: url('assets/fonts/manrope-400.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+@font-face { font-family: Manrope; src: url('assets/fonts/manrope-600.ttf') format('truetype'); font-weight: 600; font-display: swap; }
+@font-face { font-family: Manrope; src: url('assets/fonts/manrope-800.ttf') format('truetype'); font-weight: 800; font-display: swap; }
+@font-face { font-family: Barlow; src: url('assets/fonts/barlow-700.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+:root {
+  color-scheme: dark;
+  --graphite: #111211;
+  --ivory: #F4F0E6;
+  --orange: #FF663D;
+  --bg: var(--graphite);
+  --surface: #1B1D1B;
+  --surface-raised: #242724;
+  --text: var(--ivory);
+  --muted: #ABA99F;
+  --border: #393C37;
+  --accent: var(--orange);
+  --on-accent: var(--graphite);
+  --focus: var(--ivory);
+  --font-body: Manrope, Arial, Helvetica, sans-serif;
+  --font-display: Barlow, 'Arial Narrow', Arial, sans-serif;
+  --font-mono: 'Courier New', monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-small: 4px;
+  --radius-medium: 8px;
+  --control-height: 44px;
+  --motion-fast: 160ms;
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+}
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 4px var(--graphite);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

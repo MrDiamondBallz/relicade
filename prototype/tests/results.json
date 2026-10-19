@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "checks": [
+    "12 real projects",
+    "project detail and source URL",
+    "library save/remove/reload persistence",
+    "empty library",
+    "search",
+    "safe untrusted search rendering",
+    "feature filter",
+    "platform filter",
+    "Ctrl+K keyboard selection",
+    "dialog Escape and focus return",
+    "spotlight switching",
+    "source disclosure",
+    "responsive overflow",
+    "reduced motion",
+    "corrupt storage recovery",
+    "catalog unavailable state",
+    "no page exceptions"
+  ],
+  "viewports": [
+    {
+      "viewport": "1600x1000",
+      "overflow": false,
+      "cards": 12
+    },
+    {
+      "viewport": "1280x800",
+      "overflow": false,
+      "cards": 12
+    },
+    {
+      "viewport": "390x844",
+      "overflow": false,
+      "cards": 12
+    }
+  ],
+  "pageErrors": []
+}

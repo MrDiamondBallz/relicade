@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "Real restricted preview loads 12 authentic project entries with all visible art/fonts",
+    "Details, save persistence, dialog focus and Ctrl+K under production preview CSP",
+    "Fresh render and bidirectional responsive breakpoint transitions without horizontal overflow",
+    "Brand board and vector assets render under restricted preview CSP",
+    "Zero page errors/CSP violations or remote runtime requests"
+  ],
+  "pageErrors": [],
+  "cspViolations": [],
+  "nativeLauncherTested": false
+}

@@ -1,0 +1,5 @@
+* text=auto
+
+# Preserve upstream OFL notice bytes, including inherited trailing spaces.
+brand/assets/fonts/Barlow-OFL.txt -text whitespace=-blank-at-eol
+brand/assets/fonts/Manrope-OFL.txt -text whitespace=-blank-at-eol

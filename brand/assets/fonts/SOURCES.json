@@ -1,0 +1,13 @@
+{
+  "distribution": "Google Fonts",
+  "license": "SIL Open Font License 1.1; full family notices are adjacent",
+  "networkAtRuntime": false,
+  "files": [
+    {"file":"barlow-700.ttf","family":"Barlow Condensed","weight":700,"source":"https://fonts.gstatic.com/s/barlowcondensed/v13/HTxwL3I-JCGChYJ8VI-L6OO_au7B46r2_3E.ttf"},
+    {"file":"manrope-400.ttf","family":"Manrope","weight":400,"source":"https://fonts.gstatic.com/s/manrope/v20/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk79FO_F.ttf"},
+    {"file":"manrope-600.ttf","family":"Manrope","weight":600,"source":"https://fonts.gstatic.com/s/manrope/v20/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk4jE-_F.ttf"},
+    {"file":"manrope-800.ttf","family":"Manrope","weight":800,"source":"https://fonts.gstatic.com/s/manrope/v20/xn7_YHE41ni1AdIRqAuZuw1Bx9mbZk59E-_F.ttf"},
+    {"file":"Barlow-OFL.txt","source":"https://raw.githubusercontent.com/google/fonts/main/ofl/barlowcondensed/OFL.txt"},
+    {"file":"Manrope-OFL.txt","source":"https://raw.githubusercontent.com/google/fonts/main/ofl/manrope/OFL.txt"}
+  ]
+}

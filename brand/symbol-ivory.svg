@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Relicade symbol</title>
+  <desc id="desc">A geometric R with an open angular counter and a forward-cut diagonal leg.</desc>
+  <!-- Original editable geometry. Live area: x16–112, y12–116. -->
+  <path id="relicade-cut-r" fill="#F4F0E6" d="M16 12H80L104 36V52H76V46L70 40H44V60H80L112 116H80L44 80V116H16Z"/>
+</svg>

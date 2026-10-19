@@ -1,0 +1,3 @@
+# Optional developer/browser QA; the preview server itself needs only Python.
+playwright==1.62.0
+Pillow==12.3.0

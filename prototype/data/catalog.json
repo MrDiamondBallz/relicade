@@ -1,0 +1,2760 @@
+{
+  "schemaVersion": 1,
+  "fetchedAt": "2026-10-18T22:36:20.040896+00:00",
+  "source": "https://api.quiverlauncher.com/api/v1",
+  "scope": "Editorial selection of 12 public catalog projects. Not a full catalog. Metadata is a point-in-time third-party snapshot, not independently validated by Relicade.",
+  "attribution": "Public catalog metadata and project details: respective providers and project maintainers. Local project tiles: original Relicade editorial art, not game imagery or gameplay. External artwork URLs are reference-only metadata, not downloaded or redistributed. Original sourceAttribution is retained verbatim; game/project names and external art rights remain with their respective owners. Unaffiliated prototype; no ROMs or executables included.",
+  "sourceAttribution": "Public metadata: Quiver catalog and respective project maintainers. Game artwork: respective publishers, rights holders and SteamGridDB contributors. Unaffiliated prototype; no ROMs or executables included.",
+  "apps": [
+    {
+      "addedAt": 1786576949000,
+      "aiLevel": "none",
+      "basedOn": {
+        "console": "n64"
+      },
+      "consoles": [
+        "n64"
+      ],
+      "description": "Zelda 64: Recompiled brings The Legend of Zelda: Majora's Mask and Ocarina of Time to PC.",
+      "developer": {
+        "key": "zelda64recompiledteam",
+        "name": "Zelda 64: Recompiled Team"
+      },
+      "gameId": "k972sfsph9rkz6qx6e6rrfr7398f5j65",
+      "games": [
+        {
+          "id": "k972sfsph9rkz6qx6e6rrfr7398f5j65",
+          "slug": "the-legend-of-zelda-majoras-mask",
+          "title": "The Legend of Zelda: Majora's Mask"
+        }
+      ],
+      "id": "k17cpjsz1df1z20rd1hcyvgccs8f47nv",
+      "lastReleaseAt": 1756256315000,
+      "lastReleaseVersion": "v1.2.2",
+      "launcher": {
+        "filesToAdd": [
+          "portable.txt"
+        ],
+        "folderName": "TheLegendOfZeldaMajorasMaskAndOcarinaOfTime-Zelda64Recompiled",
+        "modSources": [
+          {
+            "name": "thunderstore",
+            "url": "https://thunderstore.io/c/zelda-64-recompiled/"
+          }
+        ],
+        "mods": {
+          "path": "mods",
+          "sources": [
+            {
+              "provider": "thunderstore",
+              "sourceUrl": "https://thunderstore.io/c/zelda-64-recompiled/"
+            }
+          ]
+        }
+      },
+      "makers": [
+        "Nintendo"
+      ],
+      "name": "The Legend of Zelda: Majora's Mask and Ocarina of Time",
+      "projectId": "kh7dmtszce7xhq0h4ewge9s1g58f44ty",
+      "projectName": "Zelda 64: Recompiled",
+      "projectType": "port",
+      "recommended": 3,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 3,
+      "slug": "thelegendofzeldamajorasmaskandocarinaoftime-zelda64recompiled",
+      "supportedOS": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "tags": [
+        "recomp",
+        "n64",
+        "zelda",
+        "nintendo",
+        "nintendo 64",
+        "recompilation",
+        "mod support",
+        "unlocked framerate",
+        "widescreen",
+        "ultrawide",
+        "keyboard and mouse",
+        "controller support"
+      ],
+      "verified": {
+        "pinned": true,
+        "prerelease": false,
+        "releasedAt": 1756256315000,
+        "version": "v1.2.2"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790643152169,
+          "evidence": [
+            {
+              "detail": "README: \"The Zelda 64: Recompiled team has not, does not, and will not use generative AI tools in the development of this project for any purpose.\"",
+              "kind": "readme"
+            }
+          ],
+          "level": "none",
+          "source": "readme"
+        },
+        "author": "Zelda 64: Recompiled Team",
+        "description": "Zelda 64: Recompiled — community port project.",
+        "id": "kh7dmtszce7xhq0h4ewge9s1g58f44ty",
+        "name": "Zelda 64: Recompiled",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "Zelda64Recomp/Zelda64Recomp",
+        "slug": "github-zelda64recomp-zelda64recomp"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/thelegendofzeldamajorasmaskandocarinaoftime-zelda64recompiled",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/thelegendofzeldamajorasmaskandocarinaoftime-zelda64recompiled",
+      "localArt": {
+        "hero": "assets/art/thelegendofzeldamajorasmaskandocarinaoftime-zelda64recompiled-hero.webp",
+        "header": "assets/art/thelegendofzeldamajorasmaskandocarinaoftime-zelda64recompiled-header.webp",
+        "capsule": "assets/art/thelegendofzeldamajorasmaskandocarinaoftime-zelda64recompiled-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://raw.githubusercontent.com/Zelda64Recomp/Zelda64Recomp/refs/heads/dev/icons/512.png",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/bb2d55fb708826fe48ec86987cf873ae.png",
+          "header": "https://cdn2.steamgriddb.com/grid/28d2773fb459eb73bc44fdff37b02969.png",
+          "hero": "https://cdn2.steamgriddb.com/hero/ac5204973da26d417b15941d267b1b19.png",
+          "logo": "https://cdn2.steamgriddb.com/logo/267c18aa0c8ccc51b86425108274f5a9.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/ac5204973da26d417b15941d267b1b19.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/28d2773fb459eb73bc44fdff37b02969.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/bb2d55fb708826fe48ec86987cf873ae.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/thelegendofzeldamajorasmaskandocarinaoftime-zelda64recompiled-hero.webp",
+          "sha256": "f6c63fc2521072bac1b078db73b8c9dd3e96eb3b30cabadc65c2956399b9ea90",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 0,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/thelegendofzeldamajorasmaskandocarinaoftime-zelda64recompiled-header.webp",
+          "sha256": "acaf6de976fc0a2467a59131ef1236e253ff69ea1c7b443924f848c06671123c",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 0,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/thelegendofzeldamajorasmaskandocarinaoftime-zelda64recompiled-capsule.webp",
+          "sha256": "119096b242d9c5dba329e19376b74ad8699755041b7a2ea569a2a7f0778444d5",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 0,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1786576949000,
+      "aiLevel": "none",
+      "basedOn": {
+        "console": "x360"
+      },
+      "consoles": [
+        "x360"
+      ],
+      "description": "Unleashed Recompiled brings Sonic Unleashed to PC.",
+      "developer": {
+        "key": "hedgedev",
+        "name": "hedge-dev"
+      },
+      "gameId": "k97dzecjvzkhpp5mde59dkn93h8f4qrb",
+      "games": [
+        {
+          "id": "k97dzecjvzkhpp5mde59dkn93h8f4qrb",
+          "slug": "sonic-unleashed",
+          "title": "Sonic Unleashed"
+        }
+      ],
+      "id": "k17dj7trtnyg2krxbf27dj6k5n8f5517",
+      "lastReleaseAt": 1743717885000,
+      "lastReleaseVersion": "v1.0.3",
+      "launcher": {
+        "filesToAdd": [],
+        "folderName": "SonicUnleashed-UnleashedRecompiled"
+      },
+      "makers": [
+        "Xbox"
+      ],
+      "name": "Sonic Unleashed",
+      "projectId": "kh70ps2xdhc19gdv1c5net36sd8f4mmz",
+      "projectName": "Unleashed Recompiled",
+      "projectType": "port",
+      "recommended": 7,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 7,
+      "slug": "sonicunleashed-unleashedrecompiled",
+      "supportedOS": [
+        "linux",
+        "windows"
+      ],
+      "tags": [
+        "recomp",
+        "x360",
+        "sonic",
+        "xbox",
+        "xbox 360",
+        "recompilation",
+        "increased internal resolution",
+        "ultrawide",
+        "unlocked framerate",
+        "controller support",
+        "mod support"
+      ],
+      "verified": {
+        "pinned": false,
+        "prerelease": false,
+        "releasedAt": 1743717885000,
+        "version": "v1.0.3"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790514194431,
+          "evidence": [],
+          "level": "none",
+          "source": "signals"
+        },
+        "author": "hedge-dev",
+        "description": "Unleashed Recompiled — community port project.",
+        "id": "kh70ps2xdhc19gdv1c5net36sd8f4mmz",
+        "name": "Unleashed Recompiled",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "hedge-dev/UnleashedRecomp",
+        "slug": "github-hedge-dev-unleashedrecomp"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/sonicunleashed-unleashedrecompiled",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/sonicunleashed-unleashedrecompiled",
+      "localArt": {
+        "hero": "assets/art/sonicunleashed-unleashedrecompiled-hero.webp",
+        "header": "assets/art/sonicunleashed-unleashedrecompiled-header.webp",
+        "capsule": "assets/art/sonicunleashed-unleashedrecompiled-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://raw.githubusercontent.com/hedge-dev/UnleashedRecompResources/35322388006365a648f75f4981a496b12a7f7478/images/game_icon.png",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/7377c3c3d65d06e42390c4e045a11615.jpg",
+          "header": "https://cdn2.steamgriddb.com/grid/499aa145641db3ef2ac4d450e0098a9d.jpg",
+          "hero": "https://cdn2.steamgriddb.com/hero/f780f1e44d55288d088e0ffca54324d6.jpg",
+          "logo": "https://cdn2.steamgriddb.com/logo/29b2a4f288c727b44f6abc418ccf22c1.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/f780f1e44d55288d088e0ffca54324d6.jpg",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/499aa145641db3ef2ac4d450e0098a9d.jpg",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/7377c3c3d65d06e42390c4e045a11615.jpg",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/sonicunleashed-unleashedrecompiled-hero.webp",
+          "sha256": "a3732be7d2c81b5ca79d7d3d3563eba32fb86b8de5897384d9c95db7540bd84f",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 1,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/sonicunleashed-unleashedrecompiled-header.webp",
+          "sha256": "458e6f16949972e3f7168dca7f315537070a9572ce7fdbac38b7dae368f42e11",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 1,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/sonicunleashed-unleashedrecompiled-capsule.webp",
+          "sha256": "edd6b85fa49a2ae5e908604089283e7b373a479c5c764365c8224ec478d6298b",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 1,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1786576949000,
+      "aiLevel": "none",
+      "basedOn": {
+        "console": "n64"
+      },
+      "consoles": [
+        "n64"
+      ],
+      "description": "Banjo: Recompiled brings Banjo-Kazooie to PC.",
+      "developer": {
+        "key": "banjorecomp",
+        "name": "BanjoRecomp"
+      },
+      "gameId": "k971nxjf17w2swgnb9p5c3cqbd8f5p4g",
+      "games": [
+        {
+          "id": "k971nxjf17w2swgnb9p5c3cqbd8f5p4g",
+          "slug": "banjo-kazooie",
+          "title": "Banjo-Kazooie"
+        }
+      ],
+      "id": "k1782fkrh4226eedqe6zm8pvzd8f4ktx",
+      "lastReleaseAt": 1785526997000,
+      "lastReleaseVersion": "v1.0.2",
+      "launcher": {
+        "filesToAdd": [
+          "portable.txt"
+        ],
+        "folderName": "BanjoKazooie-BanjoRecompiled",
+        "modSources": [
+          {
+            "name": "thunderstore",
+            "url": "https://thunderstore.io/c/banjo-recompiled/"
+          }
+        ],
+        "mods": {
+          "path": "mods",
+          "sources": [
+            {
+              "provider": "thunderstore",
+              "sourceUrl": "https://thunderstore.io/c/banjo-recompiled/"
+            }
+          ]
+        }
+      },
+      "makers": [
+        "Nintendo"
+      ],
+      "name": "Banjo-Kazooie",
+      "projectId": "kh798mwh84zypkjtn3y3bjz0nn8f5t1k",
+      "projectName": "Banjo: Recompiled",
+      "projectType": "port",
+      "recommended": 10,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 10,
+      "slug": "banjokazooie-banjorecompiled",
+      "supportedOS": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "tags": [
+        "recomp",
+        "n64",
+        "banjo",
+        "nintendo",
+        "nintendo 64",
+        "recompilation",
+        "mod support",
+        "unlocked framerate",
+        "widescreen",
+        "ultrawide",
+        "increased internal resolution",
+        "controller support",
+        "keyboard and mouse"
+      ],
+      "verified": {
+        "pinned": true,
+        "prerelease": false,
+        "releasedAt": 1785526997000,
+        "version": "v1.0.2"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790643146844,
+          "evidence": [
+            {
+              "detail": "README: \"The Banjo: Recompiled team has not, does not, and will not use generative AI tools in the development of this project for any purpose.\"",
+              "kind": "readme"
+            },
+            {
+              "detail": "Reviewed by a catalog administrator.",
+              "kind": "admin"
+            }
+          ],
+          "level": "none",
+          "source": "admin"
+        },
+        "author": "BanjoRecomp",
+        "description": "Banjo: Recompiled — community port project.",
+        "id": "kh798mwh84zypkjtn3y3bjz0nn8f5t1k",
+        "name": "Banjo: Recompiled",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "BanjoRecomp/BanjoRecomp",
+        "slug": "github-banjorecomp-banjorecomp"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/banjokazooie-banjorecompiled",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/banjokazooie-banjorecompiled",
+      "localArt": {
+        "hero": "assets/art/banjokazooie-banjorecompiled-hero.webp",
+        "header": "assets/art/banjokazooie-banjorecompiled-header.webp",
+        "capsule": "assets/art/banjokazooie-banjorecompiled-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://raw.githubusercontent.com/BanjoRecomp/BanjoRecomp/refs/heads/main/icons/app.png",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/b09a78dcfcf530ae5459868210c63985.png",
+          "header": "https://cdn2.steamgriddb.com/grid/544bbfee222c8ec604bfc0b18e1683c7.png",
+          "hero": "https://cdn2.steamgriddb.com/hero/9b302dcca04a1f4150e7d6f4a3af572b.png",
+          "logo": "https://cdn2.steamgriddb.com/logo/7ea7be00c99292082e545a14b78bf606.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/9b302dcca04a1f4150e7d6f4a3af572b.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/544bbfee222c8ec604bfc0b18e1683c7.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/b09a78dcfcf530ae5459868210c63985.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/banjokazooie-banjorecompiled-hero.webp",
+          "sha256": "374d3035665ce6d02dfba9638ea0c837e50325ed06dac1e489e88f454d86a86f",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 2,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/banjokazooie-banjorecompiled-header.webp",
+          "sha256": "ce0099f7b9e88aecc31af91b464ff80e5d61d6e5cc5df9725faf102267fd9077",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 2,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/banjokazooie-banjorecompiled-capsule.webp",
+          "sha256": "842a4ac57dbd8d4562f17246574a347f2586cc0efe22e5135ccbce0b3c2bdd52",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 2,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1786576949000,
+      "aiLevel": "assisted",
+      "basedOn": {
+        "console": "n64"
+      },
+      "consoles": [
+        "n64"
+      ],
+      "description": "Ship of Harkinian brings The Legend of Zelda: Ocarina of Time to PC.",
+      "developer": {
+        "key": "harbourmasters",
+        "name": "Harbour Masters"
+      },
+      "gameId": "k973rqjwnr4m8mk13zj3y8hpg58f5taw",
+      "games": [
+        {
+          "id": "k973rqjwnr4m8mk13zj3y8hpg58f5taw",
+          "slug": "the-legend-of-zelda-ocarina-of-time",
+          "title": "The Legend of Zelda: Ocarina of Time"
+        }
+      ],
+      "id": "k17ec5y3n70wk0ed5g0yehqaad8f4016",
+      "lastReleaseAt": 1792357587000,
+      "lastReleaseVersion": "9.3.1",
+      "launcher": {
+        "filesToAdd": [],
+        "folderName": "TheLegendOfZeldaOcarinaOfTime-ShipOfHarkinian",
+        "modSources": [
+          {
+            "name": "thunderstore",
+            "url": "https://thunderstore.io/c/ship-of-harkinian/"
+          },
+          {
+            "name": "gamebanana",
+            "url": "https://gamebanana.com/games/16121"
+          }
+        ],
+        "mods": {
+          "path": "mods",
+          "sources": [
+            {
+              "provider": "thunderstore",
+              "sourceUrl": "https://thunderstore.io/c/ship-of-harkinian/"
+            },
+            {
+              "provider": "gamebanana",
+              "sourceUrl": "https://gamebanana.com/games/16121"
+            }
+          ]
+        },
+        "preferredExecutables": {
+          "linux": [
+            "soh.appimage"
+          ],
+          "macos": [
+            "soh.app"
+          ],
+          "windows": [
+            "soh.exe"
+          ]
+        }
+      },
+      "makers": [
+        "Nintendo"
+      ],
+      "name": "The Legend of Zelda: Ocarina of Time",
+      "projectId": "kh7dyxfy9ejrkvpwaktn3wm5vs8f5c3y",
+      "projectName": "Ship of Harkinian",
+      "projectType": "port",
+      "recommended": 11,
+      "reportBroken": 1,
+      "reportIssues": 0,
+      "reviewCount": 12,
+      "slug": "thelegendofzeldaocarinaoftime-shipofharkinian",
+      "supportedOS": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "tags": [
+        "decomp",
+        "n64",
+        "harbour masters",
+        "zelda",
+        "nintendo",
+        "nintendo 64",
+        "decompilation",
+        "mod support",
+        "keyboard and mouse",
+        "ultrawide",
+        "increased internal resolution",
+        "unlocked framerate",
+        "widescreen",
+        "controller support"
+      ],
+      "verified": {
+        "pinned": true,
+        "prerelease": false,
+        "releasedAt": 1791254695000,
+        "version": "9.3.0"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790513930421,
+          "evidence": [
+            {
+              "detail": "4 of the last 100 commits credit an AI tool (Claude).",
+              "kind": "commits",
+              "url": "https://github.com/HarbourMasters/Shipwright/commit/c9e3ef765224e97089fc3f43913c23bfe3f64a24"
+            }
+          ],
+          "level": "assisted",
+          "source": "signals"
+        },
+        "author": "Harbour Masters",
+        "description": "Ship of Harkinian — community port project.",
+        "id": "kh7dyxfy9ejrkvpwaktn3wm5vs8f5c3y",
+        "name": "Ship of Harkinian",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "harbourmasters/shipwright",
+        "slug": "github-harbourmasters-shipwright",
+        "website": "https://shipofharkinian.com"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/thelegendofzeldaocarinaoftime-shipofharkinian",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/thelegendofzeldaocarinaoftime-shipofharkinian",
+      "localArt": {
+        "hero": "assets/art/thelegendofzeldaocarinaoftime-shipofharkinian-hero.webp",
+        "header": "assets/art/thelegendofzeldaocarinaoftime-shipofharkinian-header.webp",
+        "capsule": "assets/art/thelegendofzeldaocarinaoftime-shipofharkinian-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://raw.githubusercontent.com/HarbourMasters/Shipwright/refs/heads/develop/soh/SHIPOFHARKINIAN.ico",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/1784857c352b39f4f3767a08e06b4fa1.png",
+          "header": "https://cdn2.steamgriddb.com/grid/e2e1dde15bd09677e1cd6bd2337d0816.png",
+          "hero": "https://cdn2.steamgriddb.com/hero/b63d7ec7840735552cb77df807d944ef.png",
+          "logo": "https://cdn2.steamgriddb.com/logo/8f4deeb91f0d96208ad28e5f23029896.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/b63d7ec7840735552cb77df807d944ef.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/e2e1dde15bd09677e1cd6bd2337d0816.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/1784857c352b39f4f3767a08e06b4fa1.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/thelegendofzeldaocarinaoftime-shipofharkinian-hero.webp",
+          "sha256": "374d3035665ce6d02dfba9638ea0c837e50325ed06dac1e489e88f454d86a86f",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 2,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/thelegendofzeldaocarinaoftime-shipofharkinian-header.webp",
+          "sha256": "9c1e9e9192e0a1edebbfd3d835e93855acede864efbe391063f536862261649a",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 2,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/thelegendofzeldaocarinaoftime-shipofharkinian-capsule.webp",
+          "sha256": "36529266be8470fa9e8d85e313c74270556e7f5b07766d52ebf43e5a8ff0625c",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 2,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1786602174000,
+      "aiLevel": "none",
+      "basedOn": {
+        "console": "n64"
+      },
+      "consoles": [
+        "n64"
+      ],
+      "description": "Super Mario 64 Co-op DX brings Super Mario 64 [Co-op DX] to PC.",
+      "developer": {
+        "key": "coopdeluxe",
+        "name": "Coop Deluxe"
+      },
+      "gameId": "k97dk2geq0td5nstew9arfjbb98f50qa",
+      "games": [
+        {
+          "id": "k97dk2geq0td5nstew9arfjbb98f50qa",
+          "slug": "super-mario-64",
+          "title": "Super Mario 64"
+        }
+      ],
+      "id": "k173eb96m3vatbc4mkcsywa63n8f55m1",
+      "lastReleaseAt": 1780279211000,
+      "lastReleaseVersion": "v1.5.1",
+      "launcher": {
+        "filesToAdd": [],
+        "folderName": "SuperMario64-SuperMario64CoopDX"
+      },
+      "makers": [
+        "Nintendo"
+      ],
+      "name": "Super Mario 64 [Co-op DX]",
+      "projectId": "kh742kq46y6da5c5kgpxagbxnd8f5p16",
+      "projectName": "Super Mario 64 Co-op DX",
+      "projectType": "port",
+      "recommended": 3,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 3,
+      "slug": "supermario64-supermario64coopdx",
+      "supportedOS": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "tags": [
+        "decomp",
+        "n64",
+        "mario",
+        "nintendo",
+        "nintendo 64",
+        "decompilation",
+        "online multiplayer",
+        "online co-op",
+        "mod support"
+      ],
+      "verified": {
+        "pinned": true,
+        "prerelease": false,
+        "releasedAt": 1780279211000,
+        "version": "v1.5.1"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790513945881,
+          "evidence": [],
+          "level": "none",
+          "source": "signals"
+        },
+        "author": "Coop Deluxe",
+        "description": "Super Mario 64 Co-op DX — community port project.",
+        "id": "kh742kq46y6da5c5kgpxagbxnd8f5p16",
+        "name": "Super Mario 64 Co-op DX",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "coop-deluxe/sm64coopdx",
+        "slug": "github-coop-deluxe-sm64coopdx",
+        "website": "https://sm64coopdx.com"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/supermario64-supermario64coopdx",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/supermario64-supermario64coopdx",
+      "localArt": {
+        "hero": "assets/art/supermario64-supermario64coopdx-hero.webp",
+        "header": "assets/art/supermario64-supermario64coopdx-header.webp",
+        "capsule": "assets/art/supermario64-supermario64coopdx-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://raw.githubusercontent.com/coop-deluxe/sm64coopdx/refs/heads/main/res/icon.icon/Assets/icon.png",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/20e547058699d105519b0bb69ecaf0cc.png",
+          "header": "https://cdn2.steamgriddb.com/grid/35780842448fe67142e3d4353fd50bc8.png",
+          "hero": "https://cdn2.steamgriddb.com/hero/b71f4e77696d6d3f2e29a19726b54a60.png",
+          "logo": "https://cdn2.steamgriddb.com/logo/1657e36705b0fd364066ff02e24d1953.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/b71f4e77696d6d3f2e29a19726b54a60.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/35780842448fe67142e3d4353fd50bc8.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/20e547058699d105519b0bb69ecaf0cc.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/supermario64-supermario64coopdx-hero.webp",
+          "sha256": "a3732be7d2c81b5ca79d7d3d3563eba32fb86b8de5897384d9c95db7540bd84f",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 1,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/supermario64-supermario64coopdx-header.webp",
+          "sha256": "5b9f52a2dd7b53f7c882a6e1c42060fba429a07a2bb44411357ae25b000df4ea",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 1,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/supermario64-supermario64coopdx-capsule.webp",
+          "sha256": "d805bd328d5c32a1ddc26da76f52b2bf607cf623a9f6bc5a6d897a120970af5a",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 1,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1790685604247,
+      "aiLevel": "none",
+      "basedOn": {
+        "console": "ps2"
+      },
+      "catalogId": "qcat_3b346cb1-4ca9-4ee9-8cbc-796e1bcb77a0",
+      "consoles": [
+        "ps2"
+      ],
+      "description": "OpenGOAL Launcher brings the Jak and Daxter Trilogy to PC.",
+      "developer": {
+        "key": "opengoal",
+        "name": "OpenGOAL"
+      },
+      "gameId": "k978m9c0nrt92xcna4q2tc7a718f7ne8",
+      "games": [
+        {
+          "id": "k978m9c0nrt92xcna4q2tc7a718f7ne8",
+          "slug": "jak-and-daxter-the-precursor-legacy",
+          "title": "Jak and Daxter: The Precursor Legacy"
+        },
+        {
+          "id": "k97dfaz07knnybwzv4x6dpvbwh8fb1hz",
+          "slug": "jak-ii",
+          "title": "Jak II"
+        },
+        {
+          "id": "k9716cb0tf283e5dzexc9jd6358fakzk",
+          "slug": "jak-3",
+          "title": "Jak 3"
+        }
+      ],
+      "id": "k17dbff4ypvh53kz3qw8xafh2n8fbfkg",
+      "lastReleaseAt": 1791570208000,
+      "lastReleaseVersion": "v2.11.2",
+      "launcher": {
+        "filesToAdd": [],
+        "folderName": "OpenGOALLauncher-OpenGOALLauncher",
+        "preferredExecutables": {
+          "linux": [
+            "OpenGOAL-Launcher_*_amd64.AppImage"
+          ]
+        }
+      },
+      "makers": [
+        "PlayStation"
+      ],
+      "name": "OpenGOAL Launcher",
+      "projectId": "kh776prwyms6hwd9k9erh57ww98facv9",
+      "projectName": "OpenGOAL Launcher",
+      "projectType": "port",
+      "recommended": 4,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 4,
+      "slug": "opengoal-launcher-opengoal-launcher",
+      "supportedOS": [
+        "macos",
+        "linux",
+        "windows"
+      ],
+      "tags": [
+        "decomp",
+        "ps2",
+        "jak and daxter",
+        "playstation",
+        "decompilation",
+        "widescreen",
+        "ultrawide",
+        "unlocked framerate",
+        "increased internal resolution",
+        "controller support",
+        "keyboard and mouse",
+        "mod support"
+      ],
+      "verified": {
+        "pinned": true,
+        "prerelease": false,
+        "releasedAt": 1791570208000,
+        "version": "v2.11.2"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790687429280,
+          "evidence": [
+            {
+              "detail": "Automated check found no sign of AI use: the README doesn't say AI wrote the code, the repository has no AI tool files, and none of the last 100 commits credit an AI tool.",
+              "kind": "check"
+            }
+          ],
+          "level": "none",
+          "source": "signals"
+        },
+        "author": "OpenGOAL",
+        "description": "",
+        "id": "kh776prwyms6hwd9k9erh57ww98facv9",
+        "name": "OpenGOAL Launcher",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "open-goal/launcher",
+        "slug": "opengoal-launcher"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/opengoal-launcher-opengoal-launcher",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/opengoal-launcher-opengoal-launcher",
+      "localArt": {
+        "hero": "assets/art/opengoal-launcher-opengoal-launcher-hero.webp",
+        "header": "assets/art/opengoal-launcher-opengoal-launcher-header.webp",
+        "capsule": "assets/art/opengoal-launcher-opengoal-launcher-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://raw.githubusercontent.com/open-goal/launcher/7e1c23b495f2e15dbe61e4c0ef938be4ca47b4bf/src-tauri/icons/Square284x284Logo.png",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/56337bc8c7a8f6499fb0a4fb06a8de53.png",
+          "header": "https://cdn2.steamgriddb.com/grid/493f0363ba21a6487780f59dfb441b5a.png",
+          "hero": "https://cdn2.steamgriddb.com/hero/1cc090c0001525e90ed2a4ac29eaab26.png",
+          "logo": "https://cdn2.steamgriddb.com/logo/3647bd229536d49169895dd867e8fe33.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/1cc090c0001525e90ed2a4ac29eaab26.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/493f0363ba21a6487780f59dfb441b5a.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/56337bc8c7a8f6499fb0a4fb06a8de53.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/opengoal-launcher-opengoal-launcher-hero.webp",
+          "sha256": "f6c63fc2521072bac1b078db73b8c9dd3e96eb3b30cabadc65c2956399b9ea90",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 0,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/opengoal-launcher-opengoal-launcher-header.webp",
+          "sha256": "cabd99edc792ba4261ef94c01cea353e243d7b03462bea67e19a288be8f2a3ed",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 0,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/opengoal-launcher-opengoal-launcher-capsule.webp",
+          "sha256": "391cb1adabb09549f3e25bec3d68c1f16b86fe6eacd9e992a7a7eec7f9903dd1",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 0,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1786576949000,
+      "aiLevel": "none",
+      "basedOn": {
+        "console": "n64"
+      },
+      "consoles": [
+        "n64"
+      ],
+      "description": "Perfect Dark PC Port brings Perfect Dark to PC.",
+      "developer": {
+        "key": "perfectdarkpcport",
+        "name": "perfect-dark-pc-port"
+      },
+      "gameId": "k971p5gpfwwsjj0pqfe41x29tx8f42yk",
+      "games": [
+        {
+          "id": "k971p5gpfwwsjj0pqfe41x29tx8f42yk",
+          "slug": "perfect-dark",
+          "title": "Perfect Dark"
+        }
+      ],
+      "id": "k171xq0t1320czgwaa9z8pg1yx8f5mtt",
+      "lastReleaseAt": 1715679683000,
+      "lastReleaseVersion": "ci-dev-build",
+      "launcher": {
+        "filesToAdd": [],
+        "folderName": "PerfectDark-PerfectDarkPCPort"
+      },
+      "makers": [
+        "Nintendo"
+      ],
+      "name": "Perfect Dark",
+      "projectId": "kh7bfhrkbbm3sa9q5cs9cb0ygs8f5qma",
+      "projectName": "Perfect Dark PC Port",
+      "projectType": "port",
+      "recommended": 4,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 4,
+      "slug": "perfectdark-perfectdarkpcport",
+      "supportedOS": [
+        "linux",
+        "macos",
+        "windows"
+      ],
+      "tags": [
+        "decomp",
+        "n64",
+        "perfect dark",
+        "nintendo",
+        "nintendo 64",
+        "decompilation",
+        "keyboard and mouse",
+        "controller support",
+        "widescreen",
+        "unlocked framerate",
+        "split screen",
+        "mod support"
+      ],
+      "verified": {
+        "pinned": true,
+        "prerelease": false,
+        "releasedAt": 1715679683000,
+        "version": "ci-dev-build"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790513943434,
+          "evidence": [],
+          "level": "none",
+          "source": "signals"
+        },
+        "author": "perfect-dark-pc-port",
+        "description": "Perfect Dark PC Port — community port project.",
+        "id": "kh7bfhrkbbm3sa9q5cs9cb0ygs8f5qma",
+        "name": "Perfect Dark PC Port",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "perfect-dark-pc-port/perfect_dark",
+        "slug": "github-perfect-dark-pc-port-perfect-dark"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/perfectdark-perfectdarkpcport",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/perfectdark-perfectdarkpcport",
+      "localArt": {
+        "hero": "assets/art/perfectdark-perfectdarkpcport-hero.webp",
+        "header": "assets/art/perfectdark-perfectdarkpcport-header.webp",
+        "capsule": "assets/art/perfectdark-perfectdarkpcport-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://cdn2.steamgriddb.com/icon/e1053e26abd1df9918c6d29040fa6e60.png",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/2b67ab7a629c3d1bed214e526b098f87.png",
+          "header": "https://cdn2.steamgriddb.com/grid/7bec253137855f3740a2809234da1c07.png",
+          "hero": "https://cdn2.steamgriddb.com/hero/eb454ad6be830064d49727814426bb6e.png",
+          "logo": "https://cdn2.steamgriddb.com/logo/7b99efbc101a6013d2c710028bca5cbf.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/eb454ad6be830064d49727814426bb6e.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/7bec253137855f3740a2809234da1c07.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/2b67ab7a629c3d1bed214e526b098f87.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/perfectdark-perfectdarkpcport-hero.webp",
+          "sha256": "f6c63fc2521072bac1b078db73b8c9dd3e96eb3b30cabadc65c2956399b9ea90",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 0,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/perfectdark-perfectdarkpcport-header.webp",
+          "sha256": "fee507203d31c518c2bb9eeaea5d9eabf8b6cae256827f1ba2e8f3d5b0f606b4",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 0,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/perfectdark-perfectdarkpcport-capsule.webp",
+          "sha256": "63e3c7437b3e61b7808e02a66e43a8f18fffd60b99cf47881592fff0c0e3a90f",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 0,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1786602174000,
+      "aiLevel": "none",
+      "basedOn": {
+        "console": "gen"
+      },
+      "consoles": [
+        "gen"
+      ],
+      "description": "Sonic 3 A.I.R. brings Sonic 3 & Knuckles to PC.",
+      "developer": {
+        "key": "eukaryot",
+        "name": "Eukaryot"
+      },
+      "gameId": "k9718m048j678qsk1vg7xssxvd8f5my9",
+      "games": [
+        {
+          "id": "k9718m048j678qsk1vg7xssxvd8f5my9",
+          "slug": "sonic-3-knuckles",
+          "title": "Sonic 3 & Knuckles"
+        }
+      ],
+      "id": "k176hbadtay5n67cht7g6r6a8h8f510w",
+      "lastReleaseAt": 1786801834000,
+      "lastReleaseVersion": "v26.08.15.0-test",
+      "launcher": {
+        "filesToAdd": [],
+        "folderName": "Sonic3Knuckles-Sonic3AIR"
+      },
+      "makers": [
+        "Sega"
+      ],
+      "name": "Sonic 3 & Knuckles",
+      "projectId": "kh73amn4s9ytxpvqyfreace1s58f48fx",
+      "projectName": "Sonic 3 A.I.R.",
+      "projectType": "port",
+      "recommended": 1,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 1,
+      "slug": "sonic3knuckles-sonic3air",
+      "supportedOS": [
+        "android",
+        "macos"
+      ],
+      "tags": [
+        "recreation",
+        "smd",
+        "gen",
+        "sonic",
+        "sega mega drive",
+        "sega genesis",
+        "mod support"
+      ],
+      "verified": {
+        "pinned": true,
+        "prerelease": false,
+        "releasedAt": 1774712227000,
+        "version": "v26.03.28.0-stable"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790514262811,
+          "evidence": [],
+          "level": "none",
+          "source": "signals"
+        },
+        "author": "Eukaryot",
+        "description": "Sonic 3 A.I.R. — community port project.",
+        "id": "kh73amn4s9ytxpvqyfreace1s58f48fx",
+        "name": "Sonic 3 A.I.R.",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "Eukaryot/sonic3air",
+        "slug": "github-eukaryot-sonic3air"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/sonic3knuckles-sonic3air",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/sonic3knuckles-sonic3air",
+      "localArt": {
+        "hero": "assets/art/sonic3knuckles-sonic3air-hero.webp",
+        "header": "assets/art/sonic3knuckles-sonic3air-header.webp",
+        "capsule": "assets/art/sonic3knuckles-sonic3air-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://cdn2.steamgriddb.com/icon/a70dab11c90d06b809d0be230731762a/32/256x256.png",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/8d5c814bc831f35be11c5b95b26a534f.png",
+          "header": "https://cdn2.steamgriddb.com/grid/5bd2535e8ecedd38287e489ba5b7cf67.jpg",
+          "hero": "https://cdn2.steamgriddb.com/hero/b65349bf70f92c59a821696b1a94fd92.jpg",
+          "logo": "https://cdn2.steamgriddb.com/logo/85bbbcff1e1ac5dae544e0a76eedde4b.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/b65349bf70f92c59a821696b1a94fd92.jpg",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/5bd2535e8ecedd38287e489ba5b7cf67.jpg",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/8d5c814bc831f35be11c5b95b26a534f.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/sonic3knuckles-sonic3air-hero.webp",
+          "sha256": "374d3035665ce6d02dfba9638ea0c837e50325ed06dac1e489e88f454d86a86f",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 2,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/sonic3knuckles-sonic3air-header.webp",
+          "sha256": "30c6cd3bcbfd340522fac22683f895344333b7ee40a4af57f9a783ea99b2ad50",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 2,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/sonic3knuckles-sonic3air-capsule.webp",
+          "sha256": "5ccc40aa187a4f06982fe9df21d206add5031fe96ba208eaa1b14babf51cc25c",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 2,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1786576949000,
+      "aiLevel": "none",
+      "basedOn": {
+        "console": "n64"
+      },
+      "consoles": [
+        "n64"
+      ],
+      "description": "Mario Kart 64: Recompiled brings Mario Kart 64 to PC.",
+      "developer": {
+        "key": "sonicdcer",
+        "name": "sonicdcer"
+      },
+      "gameId": "k971q83b5fqnja34k87n45g3hx8f5wgm",
+      "games": [
+        {
+          "id": "k971q83b5fqnja34k87n45g3hx8f5wgm",
+          "slug": "mario-kart-64",
+          "title": "Mario Kart 64"
+        }
+      ],
+      "id": "k174nar35ye9x6hweaemfgfn3x8f52jq",
+      "lastReleaseAt": 1770951600000,
+      "lastReleaseVersion": "v0.9.2",
+      "launcher": {
+        "filesToAdd": [
+          "portable.txt"
+        ],
+        "folderName": "MarioKart64-MarioKart64Recompiled"
+      },
+      "makers": [
+        "Nintendo"
+      ],
+      "name": "Mario Kart 64",
+      "projectId": "kh77zr1km6k8p8rf1a0npq60xh8f5c7e",
+      "projectName": "Mario Kart 64: Recompiled",
+      "projectType": "port",
+      "recommended": 1,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 1,
+      "slug": "mariokart64-mariokart64recompiled",
+      "supportedOS": [
+        "linux",
+        "windows",
+        "macos"
+      ],
+      "tags": [
+        "recomp",
+        "n64",
+        "mario",
+        "mario kart",
+        "racing",
+        "nintendo",
+        "nintendo 64",
+        "recompilation",
+        "unlocked framerate",
+        "widescreen",
+        "ultrawide",
+        "keyboard and mouse",
+        "controller support",
+        "mod support"
+      ],
+      "verified": {
+        "pinned": false,
+        "prerelease": false,
+        "releasedAt": 1770951600000,
+        "version": "v0.9.2"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790513897941,
+          "evidence": [],
+          "level": "none",
+          "source": "signals"
+        },
+        "author": "sonicdcer",
+        "description": "Mario Kart 64: Recompiled — community port project.",
+        "id": "kh77zr1km6k8p8rf1a0npq60xh8f5c7e",
+        "name": "Mario Kart 64: Recompiled",
+        "projectType": "port",
+        "provider": "gitlab",
+        "repository": "sonicdcer/MarioKart64Recomp",
+        "slug": "gitlab-sonicdcer-mariokart64recomp"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/mariokart64-mariokart64recompiled",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/mariokart64-mariokart64recompiled",
+      "localArt": {
+        "hero": "assets/art/mariokart64-mariokart64recompiled-hero.webp",
+        "header": "assets/art/mariokart64-mariokart64recompiled-header.webp",
+        "capsule": "assets/art/mariokart64-mariokart64recompiled-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://gitlab.com/sonicdcer/MarioKart64Recomp/-/raw/main/icons/512.png",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/c9c2fe7f430c9fa16fdb56caa39b44fc.jpg",
+          "header": "https://cdn2.steamgriddb.com/grid/73ba66630f494ccc5d84e6ba2b30b0b8.png",
+          "hero": "https://cdn2.steamgriddb.com/hero/15b926207df9d1f93fb6bc2484a21f1e.png",
+          "logo": "https://cdn2.steamgriddb.com/logo/4d5900709c457384ce728e6b1c6e3519.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/15b926207df9d1f93fb6bc2484a21f1e.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/73ba66630f494ccc5d84e6ba2b30b0b8.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/c9c2fe7f430c9fa16fdb56caa39b44fc.jpg",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/mariokart64-mariokart64recompiled-hero.webp",
+          "sha256": "a3732be7d2c81b5ca79d7d3d3563eba32fb86b8de5897384d9c95db7540bd84f",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 1,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/mariokart64-mariokart64recompiled-header.webp",
+          "sha256": "f3d5444ba1d982ef7bb2efd8b748d9637d58904c87702034c16722e649fa3c15",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 1,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/mariokart64-mariokart64recompiled-capsule.webp",
+          "sha256": "5ccc544ee1cab4759b5000f9608868ebd11bad211b4681f01f89760547e8bd11",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 1,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1790334465000,
+      "aiLevel": "none",
+      "basedOn": {
+        "console": "pc"
+      },
+      "consoles": [
+        "pc"
+      ],
+      "description": "GZDoom brings Doom to PC.",
+      "developer": {
+        "key": "zdoom",
+        "name": "ZDoom"
+      },
+      "gameId": "k97aa715jbm1pev9nxwgdwt0418f5jga",
+      "games": [
+        {
+          "id": "k97aa715jbm1pev9nxwgdwt0418f5jga",
+          "slug": "doom",
+          "title": "Doom"
+        }
+      ],
+      "id": "k171bz2wte6kzgh53pgrzzcdgs8f4y6n",
+      "lastReleaseAt": 1746267018000,
+      "lastReleaseVersion": "g4.14.2",
+      "launcher": {
+        "filesToAdd": [],
+        "folderName": "Doom-GZDoom"
+      },
+      "makers": [
+        "OtherPlatforms"
+      ],
+      "name": "Doom",
+      "projectId": "kh768vnqcz74txe28rvxp63fqx8f4326",
+      "projectName": "GZDoom",
+      "projectType": "port",
+      "recommended": 0,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 0,
+      "slug": "doom-gzdoom",
+      "supportedOS": [
+        "macos",
+        "windows",
+        "linux"
+      ],
+      "tags": [
+        "recreation",
+        "pc",
+        "doom",
+        "mod support"
+      ],
+      "verified": {
+        "pinned": false,
+        "prerelease": false,
+        "releasedAt": 1746267018000,
+        "version": "g4.14.2"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790514249856,
+          "evidence": [],
+          "level": "none",
+          "source": "signals"
+        },
+        "author": "ZDoom",
+        "description": "GZDoom — community port project.",
+        "id": "kh768vnqcz74txe28rvxp63fqx8f4326",
+        "name": "GZDoom",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "ZDoom/gzdoom",
+        "slug": "github-zdoom-gzdoom"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/doom-gzdoom",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/doom-gzdoom",
+      "localArt": {
+        "hero": "assets/art/doom-gzdoom-hero.webp",
+        "header": "assets/art/doom-gzdoom-header.webp",
+        "capsule": "assets/art/doom-gzdoom-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://cdn2.steamgriddb.com/icon/ef7d30fd7f6763d2c0c53229b27de2de.png",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/ffb556219a1a624b396d2b410766d75a.png",
+          "header": "https://cdn2.steamgriddb.com/grid/e65aafe112540376d7e8832885b2964c.png",
+          "hero": "https://cdn2.steamgriddb.com/hero/2e5281ee978b78d6f5728aad8f28fedb.png",
+          "logo": "https://cdn2.steamgriddb.com/logo/c212decf3630dc6af7d958ac0917be5a.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/2e5281ee978b78d6f5728aad8f28fedb.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/e65aafe112540376d7e8832885b2964c.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/ffb556219a1a624b396d2b410766d75a.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/doom-gzdoom-hero.webp",
+          "sha256": "374d3035665ce6d02dfba9638ea0c837e50325ed06dac1e489e88f454d86a86f",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 2,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/doom-gzdoom-header.webp",
+          "sha256": "0c95d5f2666b80e4305799e17bd75655d51666c29f0bc79374377e900e0220d1",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 2,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/doom-gzdoom-capsule.webp",
+          "sha256": "5e464a82198455def8f82a09043d7f931771f3f1e9a075e24e4666bda6f8fb88",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 2,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1790072365000,
+      "aiLevel": "assisted",
+      "basedOn": {
+        "console": "n64"
+      },
+      "consoles": [
+        "n64"
+      ],
+      "description": "Paper Mario ReCut brings Paper Mario to PC.",
+      "developer": {
+        "key": "smcgames",
+        "name": "SMCGames"
+      },
+      "gameId": "k97fz3awvjtnzd3tw93ag27xfx8f5131",
+      "games": [
+        {
+          "id": "k97fz3awvjtnzd3tw93ag27xfx8f5131",
+          "slug": "paper-mario",
+          "title": "Paper Mario"
+        }
+      ],
+      "id": "k17e4p4vm1epzf3eqhapvb6p7x8f5mpv",
+      "lastReleaseAt": 1780345997000,
+      "lastReleaseVersion": "v0.1.2",
+      "launcher": {
+        "filesToAdd": [],
+        "folderName": "PaperMario-PaperMarioReCut"
+      },
+      "makers": [
+        "Nintendo"
+      ],
+      "name": "Paper Mario",
+      "projectId": "kh7c9qb6cz5f0a15kkb1x2wwh58f5rcf",
+      "projectName": "Paper Mario ReCut",
+      "projectType": "port",
+      "recommended": 1,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 1,
+      "slug": "papermario-papermariorecut",
+      "supportedOS": [
+        "unknown"
+      ],
+      "tags": [
+        "recomp",
+        "n64",
+        "paper mario",
+        "nintendo",
+        "nintendo 64",
+        "recompilation",
+        "controller support",
+        "keyboard and mouse",
+        "mod support"
+      ],
+      "verified": {
+        "pinned": true,
+        "prerelease": true,
+        "releasedAt": 1780345997000,
+        "version": "v0.1.2"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790514034731,
+          "evidence": [
+            {
+              "detail": "README: \"This started as a hobby project made for fun with the help of AI to get N64Recomp to work smoothly with the Paper Mario decomp.\"",
+              "kind": "readme"
+            }
+          ],
+          "level": "assisted",
+          "source": "readme"
+        },
+        "author": "SMCGames",
+        "description": "Paper Mario ReCut — community port project.",
+        "id": "kh7c9qb6cz5f0a15kkb1x2wwh58f5rcf",
+        "name": "Paper Mario ReCut",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "SMCGames/Paper-Mario-ReCut",
+        "slug": "github-smcgames-paper-mario-recut"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/papermario-papermariorecut",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/papermario-papermariorecut",
+      "localArt": {
+        "hero": "assets/art/papermario-papermariorecut-hero.webp",
+        "header": "assets/art/papermario-papermariorecut-header.webp",
+        "capsule": "assets/art/papermario-papermariorecut-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://cdn2.steamgriddb.com/icon/877a9ba7a98f75b90a9d49f53f15a858.ico",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/42d7eb120af08efaafefa169cab02b36.png",
+          "header": "https://cdn2.steamgriddb.com/grid/ce2c5384fd44651e63fea2727333c559.png",
+          "hero": "https://cdn2.steamgriddb.com/hero/7c98720f27f903e08ff7cf5e08503292.png",
+          "logo": "https://cdn2.steamgriddb.com/logo/b72a5a099433a2099fc3d92f6ad3accf.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/7c98720f27f903e08ff7cf5e08503292.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/ce2c5384fd44651e63fea2727333c559.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/42d7eb120af08efaafefa169cab02b36.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/papermario-papermariorecut-hero.webp",
+          "sha256": "374d3035665ce6d02dfba9638ea0c837e50325ed06dac1e489e88f454d86a86f",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 2,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/papermario-papermariorecut-header.webp",
+          "sha256": "7ebd2c1c5916eeb9d15c34682ad2a33439fc5e1b09b1f4d97edb0460a1205c63",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 2,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/papermario-papermariorecut-capsule.webp",
+          "sha256": "08863dbd0577bb2cd5f53b60825e5533dcff7f9d0ecc55fa9f98ca8679e0a1f2",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 2,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    },
+    {
+      "addedAt": 1786602174000,
+      "aiLevel": "none",
+      "basedOn": {
+        "console": "snes"
+      },
+      "consoles": [
+        "snes"
+      ],
+      "description": "snesrev: Super Metroid Launcher brings Super Metroid to PC.",
+      "developer": {
+        "key": "radzprower",
+        "name": "RadzPrower"
+      },
+      "gameId": "k97eq43mbsyef7zrs161s7fwjd8f5k9k",
+      "games": [
+        {
+          "id": "k97eq43mbsyef7zrs161s7fwjd8f5k9k",
+          "slug": "super-metroid",
+          "title": "Super Metroid"
+        }
+      ],
+      "id": "k17bwvntxhrhhnd5tsn1rckqc18f4rmh",
+      "lastReleaseAt": 1679429670000,
+      "lastReleaseVersion": "v1.0",
+      "launcher": {
+        "filesToAdd": [],
+        "folderName": "SuperMetroid-SnesrevSuperMetroidLauncher",
+        "preferredExecutables": {
+          "windows": [
+            "Launcher.exe"
+          ]
+        }
+      },
+      "makers": [
+        "Nintendo"
+      ],
+      "name": "Super Metroid",
+      "projectId": "kh7dcbz5wzrhg6m7c8288btxt98f5vta",
+      "projectName": "snesrev: Super Metroid Launcher",
+      "projectType": "port",
+      "recommended": 0,
+      "reportBroken": 0,
+      "reportIssues": 0,
+      "reviewCount": 0,
+      "slug": "supermetroid-snesrevsupermetroidlauncher",
+      "supportedOS": [
+        "windows"
+      ],
+      "tags": [
+        "decomp",
+        "snes",
+        "metroid",
+        "nintendo",
+        "super nintendo entertainment system",
+        "decompilation",
+        "keyboard and mouse",
+        "controller support"
+      ],
+      "verified": {
+        "pinned": false,
+        "prerelease": false,
+        "releasedAt": 1679429670000,
+        "version": "v1.0"
+      },
+      "sourceProject": {
+        "aiUse": {
+          "checkedAt": 1790513971723,
+          "evidence": [],
+          "level": "none",
+          "source": "signals"
+        },
+        "author": "RadzPrower",
+        "description": "snesrev: Super Metroid Launcher — community port project.",
+        "id": "kh7dcbz5wzrhg6m7c8288btxt98f5vta",
+        "name": "snesrev: Super Metroid Launcher",
+        "projectType": "port",
+        "provider": "github",
+        "repository": "RadzPrower/Super-Metroid-Launcher",
+        "slug": "github-radzprower-super-metroid-launcher"
+      },
+      "catalogUrl": "https://quiverlauncher.com/apps/supermetroid-snesrevsupermetroidlauncher",
+      "metadataUrl": "https://api.quiverlauncher.com/api/v1/apps/supermetroid-snesrevsupermetroidlauncher",
+      "localArt": {
+        "hero": "assets/art/supermetroid-snesrevsupermetroidlauncher-hero.webp",
+        "header": "assets/art/supermetroid-snesrevsupermetroidlauncher-header.webp",
+        "capsule": "assets/art/supermetroid-snesrevsupermetroidlauncher-capsule.webp"
+      },
+      "referenceArtSources": {
+        "usage": "External reference metadata only; not downloaded or redistributed.",
+        "artwork": "https://cdn2.steamgriddb.com/icon/26e3dcb90aa10011db5b660c463f325f/32/256x256.png",
+        "libraryArt": {
+          "capsule": "https://cdn2.steamgriddb.com/grid/5c00d59b0e32c102417f1b83af8233c4.png",
+          "header": "https://cdn2.steamgriddb.com/grid/3703e2930fe831e52676c8ed9892169d.png",
+          "hero": "https://cdn2.steamgriddb.com/hero/7de793e05db68a8fc3e880d69b73264b.jpg",
+          "logo": "https://cdn2.steamgriddb.com/logo/738754a8dc187735701c05a35e80aff9.png"
+        },
+        "provenance": [
+          {
+            "kind": "hero",
+            "sourceUrl": "https://cdn2.steamgriddb.com/hero/7de793e05db68a8fc3e880d69b73264b.jpg",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "header",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/3703e2930fe831e52676c8ed9892169d.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          },
+          {
+            "kind": "capsule",
+            "sourceUrl": "https://cdn2.steamgriddb.com/grid/5c00d59b0e32c102417f1b83af8233c4.png",
+            "rights": "Third-party game artwork; rights remain with original owners and contributing artists. Prototype reference, not a Relicade identity asset.",
+            "transformation": "Resized and WebP encoded for local prototype."
+          }
+        ]
+      },
+      "artProvenance": [
+        {
+          "kind": "hero",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/supermetroid-snesrevsupermetroidlauncher-hero.webp",
+          "sha256": "f6c63fc2521072bac1b078db73b8c9dd3e96eb3b30cabadc65c2956399b9ea90",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1800,
+            750
+          ],
+          "layoutVariant": 0,
+          "presentation": "Crop-safe original brand geometry; accessible factual game/project titles are supplied by the product UI."
+        },
+        {
+          "kind": "header",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/supermetroid-snesrevsupermetroidlauncher-header.webp",
+          "sha256": "fe5cb7584e3c999c91c54cadce11df1cfd789f0fd5686ca68808ae52c6913092",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            1200,
+            650
+          ],
+          "layoutVariant": 0,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        },
+        {
+          "kind": "capsule",
+          "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+          "localPath": "assets/art/supermetroid-snesrevsupermetroidlauncher-capsule.webp",
+          "sha256": "05b3c2fadab5b0727e3a7fe5717e5b445546e2e111671a4b13ea97d1f1835336",
+          "rights": "Relicade original project-tile art: original typography and geometric composition; not game imagery or gameplay. Bundled Barlow and Manrope fonts retain their SIL OFL licenses. Factual game/project names identify their respective owners; no affiliation, endorsement or trademark clearance is implied. External reference art rights remain with its owners.",
+          "transformation": "Locally rendered original editorial typography and cut-R geometry; lossless WebP. No upstream images used.",
+          "renderer": {
+            "path": "prototype/project_art.py",
+            "sourceUrl": "https://github.com/MrDiamondBallz/relicade/blob/main/prototype/project_art.py",
+            "sha256": "53afe0027b3ac45e4b28e942f00dc3dc8dc9faed68c4b9cc21fa90901546930d",
+            "version": "1.0.0",
+            "pillowVersion": "12.3.0"
+          },
+          "fonts": [
+            {
+              "path": "brand/assets/fonts/barlow-700.ttf",
+              "sha256": "7dde307fa887fc65ff5830cfada77a7decc5dae8d3c816c9d39ba3f1af1c4ed7",
+              "license": "brand/assets/fonts/Barlow-OFL.txt"
+            },
+            {
+              "path": "brand/assets/fonts/manrope-600.ttf",
+              "sha256": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+              "license": "brand/assets/fonts/Manrope-OFL.txt"
+            }
+          ],
+          "dimensions": [
+            800,
+            1100
+          ],
+          "layoutVariant": 0,
+          "presentation": "Original editorial typography using factual project/game names, not their logos."
+        }
+      ]
+    }
+  ]
+}

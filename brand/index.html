@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111211">
+  <meta name="description" content="Relicade identity design prototype. Old legends. New life.">
+  <title>Relicade — Identity / Design prototype</title>
+  <link rel="icon" type="image/svg+xml" href="app-icon.svg">
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 60px; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 var(--font-body); -webkit-font-smoothing: antialiased; }
+    a { color: inherit; text-underline-offset: 5px; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    img { display: block; max-width: 100%; }
+    .wrap { width: min(1440px, 100%); margin-inline: auto; padding-inline: clamp(24px, 5vw, 80px); }
+    .eyebrow { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .13em; line-height: 1.5; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .skip { position: fixed; left: 16px; top: -100px; z-index: 20; background: var(--ivory); color: var(--graphite); padding: 12px 20px; }
+    .skip:focus { top: 16px; }
+    .prototype { position: sticky; z-index: 10; top: 0; padding: 8px clamp(24px, 5vw, 80px); background: var(--surface); color: var(--muted); border-bottom: 1px solid var(--border); font-size: 11px; line-height: 1.4; letter-spacing: .03em; text-align: right; }
+    .prototype strong { font-weight: 700; color: var(--ivory); }
+    .masthead { border-top: 4px solid var(--orange); }
+    .masthead-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 104px; border-bottom: 1px solid var(--border); }
+    .signature { display: flex; align-items: center; gap: 14px; }
+    .signature img { width: 32px; height: 32px; }
+    .signature span { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    nav { display: flex; align-items: center; gap: 26px; }
+    nav a { font-size: 12px; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+    nav a:hover { text-decoration: underline; }
+    .nav-action { color: var(--orange); }
+    .hero { padding-top: 42px; padding-bottom: 80px; }
+    .hero-meta { display: flex; justify-content: space-between; gap: 20px; }
+    .hero-wordmark { width: 100%; height: auto; margin-block: clamp(56px, 8vw, 116px) clamp(54px, 7vw, 102px); }
+    .hero-bottom { display: grid; grid-template-columns: 1.3fr 1fr; gap: 64px; align-items: end; }
+    h1 { font-family: var(--font-display); font-size: clamp(52px, 6.6vw, 96px); font-weight: 700; line-height: .98; letter-spacing: -.055em; margin: 0; }
+    h1 span { color: var(--orange); }
+    .hero-copy { max-width: 350px; margin: 0 0 4px auto; font-size: 18px; line-height: 1.55; color: var(--muted); }
+    .section-label { display: flex; align-items: baseline; gap: 28px; padding-block: 24px; border-top: 1px solid var(--border); }
+    .section-label span { color: var(--orange); font: 12px var(--font-mono); }
+    .section-label h2 { margin: 0; font-size: 11px; line-height: 1.5; font-weight: 700; text-transform: uppercase; letter-spacing: .13em; }
+    .mark-section { padding-bottom: 80px; }
+    .mark-composition { display: grid; grid-template-columns: 1fr 1fr; min-height: 450px; }
+    .mark-field { background: var(--orange); display: grid; place-items: center; padding: 56px; position: relative; }
+    .mark-field > img { width: min(280px, 85%); filter: brightness(0); }
+    .field-caption { position: absolute; bottom: 24px; left: 28px; color: var(--graphite); font-size: 11px; letter-spacing: .06em; }
+    .mark-story { padding: 48px 0 32px 64px; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
+    h3 { font-family: var(--font-display); font-size: clamp(32px, 3.3vw, 48px); line-height: 1.05; letter-spacing: -.035em; margin: 0 0 24px; }
+    .mark-story p { color: var(--muted); max-width: 360px; margin: 0; }
+    .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding-top: 28px; border-top: 1px solid var(--border); }
+    .rules strong { display: block; color: var(--ivory); font-size: 13px; margin-bottom: 6px; }
+    .rules p { font-size: 12px; }
+    .scale-row { display: flex; justify-content: space-between; align-items: center; gap: 32px; padding-top: 40px; }
+    .scale-intro { max-width: 250px; }
+    .scale-intro p { font-size: 13px; color: var(--muted); margin: 8px 0 0; }
+    .scales { display: flex; align-items: end; gap: 42px; }
+    .scale { margin: 0; display: grid; justify-items: center; align-items: end; gap: 14px; }
+    .scale figcaption { font: 11px var(--font-mono); color: var(--muted); }
+    .palette-section { padding-bottom: 80px; }
+    .palette { display: grid; grid-template-columns: 5fr 3fr 2fr; }
+    .swatch { min-height: 260px; padding: 28px; display: flex; flex-direction: column; justify-content: space-between; }
+    .swatch strong { font-family: var(--font-display); font-size: 26px; letter-spacing: -.02em; }
+    .swatch code { font: 12px var(--font-mono); }
+    .swatch small { display: block; font-size: 11px; margin-top: 8px; }
+    .graphite { background: var(--graphite); color: var(--ivory); border: 1px solid var(--border); }
+    .ivory { background: var(--ivory); color: var(--graphite); }
+    .orange { background: var(--orange); color: var(--graphite); }
+    .palette-note { max-width: 670px; color: var(--muted); font-size: 13px; margin: 24px 0 0; }
+    .type-section { background: var(--ivory); color: var(--graphite); padding-block: 48px 64px; }
+    .type-section .section-label { border-color: #B6B3A9; }
+    .type-section .section-label span { color: var(--graphite); }
+    .type-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 64px; padding-top: 40px; }
+    .type-display { font-family: var(--font-display); font-size: clamp(52px, 6.6vw, 96px); line-height: .96; font-weight: 700; letter-spacing: -.055em; margin: 0; }
+    .type-text { max-width: 360px; }
+    .type-text h3 { font: 700 24px/1.15 var(--font-body); letter-spacing: -.025em; }
+    .type-text p { font-size: 15px; line-height: 1.6; }
+    .type-caption { margin: 28px 0 0; font-size: 11px; letter-spacing: .05em; }
+    .application-section { padding-block: 64px 80px; }
+    .application { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 36px; border-block: 1px solid var(--border); padding-block: 44px; }
+    .application img { width: 80px; height: 80px; }
+    .application h3 { font-size: clamp(30px, 3.2vw, 46px); margin: 10px 0; }
+    .application p { color: var(--muted); font-size: 13px; margin: 0; }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 14px 22px; background: var(--orange); color: var(--graphite); font-size: 13px; font-weight: 700; text-decoration: none; transition: background-color var(--motion-fast) var(--ease-out); white-space: nowrap; }
+    .button:hover { background: var(--ivory); }
+    footer { padding-bottom: 100px; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 28px; border-top: 1px solid var(--border); padding-top: 28px; }
+    .footer-copy p { color: var(--muted); font-size: 12px; margin: 8px 0 0; }
+    .asset-links { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: start; }
+    .asset-links a { min-height: 44px; display: inline-flex; align-items: center; font-size: 12px; }
+    @media (min-width: 1600px) { .hero { padding-bottom: 100px; } }
+    @media (max-width: 900px) {
+      nav { gap: 18px; } .hero-bottom { gap: 32px; } .hero-copy { font-size: 16px; }
+      .mark-story { padding-left: 36px; } .mark-composition { min-height: 390px; }
+      .swatch { padding: 24px; } .swatch strong { font-size: 23px; }
+      .type-grid { gap: 32px; } .application { grid-template-columns: auto 1fr; gap: 24px; }
+      .application .button { grid-column: 2; justify-self: start; }
+    }
+    @media (max-width: 600px) {
+      .masthead-inner { min-height: 86px; } .signature span { max-width: 110px; font-size: 10px; }
+      nav a:not(.nav-action) { display: none; } nav { gap: 0; }
+      .hero { padding-top: 28px; padding-bottom: 52px; } .hero-meta .muted { max-width: 125px; text-align: right; }
+      .hero-wordmark { margin-block: 52px; } .hero-bottom { grid-template-columns: 1fr; gap: 28px; }
+      .hero-copy { margin: 0; max-width: 290px; } .mark-composition { grid-template-columns: 1fr; }
+      .mark-field { min-height: 330px; } .mark-field > img { width: 220px; }
+      .mark-story { padding: 36px 0 0; gap: 32px; } .mark-story p { max-width: none; }
+      .mark-section, .palette-section { padding-bottom: 52px; }
+      .scale-row { align-items: start; flex-direction: column; gap: 28px; } .scales { gap: 36px; }
+      .palette { grid-template-columns: 1fr; } .swatch { min-height: 170px; }
+      .type-section { padding-block: 24px 48px; } .type-grid { grid-template-columns: 1fr; padding-top: 20px; gap: 44px; }
+      .type-display { font-size: clamp(54px, 12vw, 76px); }
+      .application-section { padding-block: 40px 52px; } .application { gap: 22px; grid-template-columns: 1fr; padding-block: 32px; }
+      .application img { width: 64px; height: 64px; } .application .button { grid-column: 1; }
+      .footer-inner { flex-direction: column; gap: 20px; } .prototype { font-size: 10px; }
+    }
+    .lockup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 40px; }
+    .lockup-sample { margin: 0; padding: 30px 24px 20px; border: 1px solid var(--border); }
+    .lockup-sample img { width: 100%; height: 70px; }
+    .lockup-sample figcaption { margin-top: 20px; font-size: 10px; letter-spacing: .07em; }
+    .lockup-sample.light { background: var(--ivory); color: var(--graphite); }
+    .lockup-sample.mono { background: #242724; }
+    @media (max-width: 700px) { .lockup-grid { grid-template-columns: 1fr; } .lockup-sample img { height: 80px; } }
+    @media print {
+      .prototype { position: static; } .skip, nav { display: none; } body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      section { break-inside: avoid; } footer { padding-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#identity">Skip to identity</a>
+  <div class="prototype" role="note"><strong>Design prototype</strong> · Not a released product</div>
+  <header class="masthead wrap">
+    <div class="masthead-inner">
+      <div class="signature"><img src="symbol.svg" width="32" height="32" alt=""><span>Relicade<br>Identity system</span></div>
+      <nav aria-label="Brand board"><a href="#mark">The mark</a><a href="#application">In application</a><a class="nav-action" href="../prototype/">Open prototype&nbsp; ↗</a></nav>
+    </div>
+  </header>
+  <main id="identity">
+    <section class="hero wrap" aria-labelledby="tagline">
+      <div class="hero-meta"><p class="eyebrow">For the games<br>that stay with you.</p><p class="eyebrow muted">Original identity<br>Brand foundation</p></div>
+      <img class="hero-wordmark" src="wordmark.svg" width="718" height="104" alt="RELICADE">
+      <div class="hero-bottom">
+        <h1 id="tagline">Old legends.<br><span>New life.</span></h1>
+        <p class="hero-copy">A new home for community-built PC ports, recompilations and recreations. The games come first. So do the people bringing them back.</p>
+      </div>
+    </section>
+    <section id="mark" class="mark-section wrap" aria-labelledby="mark-heading">
+      <div class="section-label"><span>01</span><h2 id="mark-heading">A familiar letter. A new silhouette.</h2></div>
+      <div class="mark-composition">
+        <div class="mark-field"><img src="symbol.svg" width="280" height="280" alt="Relicade cut-R symbol, shown in graphite on molten orange"><span class="field-caption">THE CUT-R / ORIGINAL VECTOR</span></div>
+        <div class="mark-story">
+          <div><h3>Cut from the past.<br>Pointed forward.</h3><p>A solid R, opened at the counter. The diagonal leg gives it direction; the angular cut gives it room to breathe. No controller, cartridge or borrowed nostalgia required.</p></div>
+          <div class="rules"><div><strong>One shape.</strong><p>A single editable path. Recognizable without the name.</p></div><div><strong>No effects.</strong><p>Flat color. Clean edges. The silhouette does the work.</p></div></div>
+        </div>
+      </div>
+      <div class="lockup-grid" aria-label="Identity lockup variants">
+        <figure class="lockup-sample"><img src="lockup-dark.svg" width="450" height="88" alt="Orange and ivory Relicade lockup on graphite"><figcaption>DARK / CORE SIGNATURE</figcaption></figure>
+        <figure class="lockup-sample light"><img src="lockup-light.svg" width="450" height="88" alt="Graphite Relicade lockup on ivory"><figcaption>LIGHT / SINGLE INK</figcaption></figure>
+        <figure class="lockup-sample mono"><img src="lockup-monochrome.svg" width="450" height="88" alt="Ivory monochrome Relicade lockup"><figcaption>MONOCHROME / NO COMPROMISE</figcaption></figure>
+      </div>
+      <div class="scale-row">
+        <div class="scale-intro"><p class="eyebrow">Small. Still Relicade.</p><p>Use the symbol for navigation. Use the contained icon for app surfaces.</p></div>
+        <div class="scales" aria-label="Symbol and app icon at actual CSS pixel sizes">
+          <figure class="scale"><img src="symbol.svg" width="24" height="24" alt="24 pixel symbol"><figcaption>24 px</figcaption></figure>
+          <figure class="scale"><img src="symbol.svg" width="32" height="32" alt="32 pixel symbol"><figcaption>32 px</figcaption></figure>
+          <figure class="scale"><img src="app-icon.svg" width="48" height="48" alt="48 pixel app icon"><figcaption>48 px</figcaption></figure>
+          <figure class="scale"><img src="app-icon.svg" width="64" height="64" alt="64 pixel app icon"><figcaption>64 px</figcaption></figure>
+        </div>
+      </div>
+    </section>
+    <section class="palette-section wrap" aria-labelledby="palette-heading">
+      <div class="section-label"><span>02</span><h2 id="palette-heading">Quiet ground. Live signal.</h2></div>
+      <div class="palette">
+        <div class="swatch graphite"><strong>Graphite</strong><div><code>#111211</code><small>The foundation.</small></div></div>
+        <div class="swatch ivory"><strong>Ivory</strong><div><code>#F4F0E6</code><small>Room to read.</small></div></div>
+        <div class="swatch orange"><strong>Molten orange</strong><div><code>#FF663D</code><small>A deliberate signal.</small></div></div>
+      </div>
+      <p class="palette-note">Lead with graphite and ivory. Reserve orange for identity, focus of attention and primary actions. Put graphite text on orange—not ivory. Never rely on color alone to communicate status.</p>
+    </section>
+    <section class="type-section" aria-labelledby="type-heading">
+      <div class="wrap">
+        <div class="section-label"><span>03</span><h2 id="type-heading">Direct by design.</h2></div>
+        <div class="type-grid">
+          <div><p class="type-display">BUILT TO<br>PLAY AGAIN.</p><p class="type-caption">BARLOW CONDENSED / EDITORIAL DISPLAY</p></div>
+          <div class="type-text"><h3>The name has an edge.<br>The interface stays clear.</h3><p>The wordmark is drawn, not typeset. Forward-cut terminals and angular shoulders tie every letter back to the symbol.</p><p>Display type is condensed and confident. Body copy is Manrope: open, readable, out of the way.</p><p>Say what happens. Say what is missing. Give credit to the people doing the work.</p><p class="type-caption">MANROPE / BODY &amp; INTERFACE</p></div>
+        </div>
+      </div>
+    </section>
+    <section id="application" class="application-section wrap" aria-labelledby="application-heading">
+      <div class="section-label"><span>04</span><h2 id="application-heading">Identity, put to work.</h2></div>
+      <div class="application">
+        <img src="app-icon.svg" width="80" height="80" alt="Relicade app icon">
+        <div><p class="eyebrow">Browser design prototype</p><h3>Your next session starts here.</h3><p>Explore the catalog and library flow. No downloads or launches.</p></div>
+        <a class="button" href="../prototype/">Explore the launcher&nbsp; ↗</a>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap">
+    <div class="footer-inner">
+      <div class="footer-copy"><p class="eyebrow">Relicade / Old legends. New life.</p><p>Original identity foundation. Not a product release or a claim of game ownership.</p></div>
+      <div class="asset-links" aria-label="Brand source assets"><a href="symbol.svg" download>Symbol SVG</a><a href="wordmark.svg" download>Wordmark SVG</a><a href="app-icon.svg" download>App icon SVG</a><a href="lockup-dark.svg" download>Dark lockup</a><a href="lockup-light.svg" download>Light lockup</a><a href="lockup-monochrome.svg" download>Mono lockup</a><a href="BRAND.md">Brand guide</a></div>
+    </div>
+  </footer>
+</body>
+</html>

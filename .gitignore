@@ -1,0 +1,42 @@
+# Local configuration, credentials and user data
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*credentials*
+*secrets*
+settings.json
+apps.json
+saves/
+*.db
+*.sqlite*
+.private/
+
+# Build outputs and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+node_modules/
+.cache/
+.DS_Store
+Thumbs.db
+*.dll
+*.exe
+*.pdb
+*.nupkg
+
+# Never distribute original game data
+*.rom
+*.n64
+*.z64
+*.v64
+*.iso
+*.cue
+*.bin
+
+# Reproducible raw QA captures; curated documentation previews are tracked
+prototype/tests/*.png
+brand/qa-*.png
+brand/qa-report.json
+qa/local/

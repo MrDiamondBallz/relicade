@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "checks": [
+    "localStorage denial does not show saved success",
+    "native dialog keyboard containment",
+    "untrusted catalog text cannot inject HTML/script",
+    "javascript URLs are omitted",
+    "untrusted artwork URLs rejected",
+    "all runtime asset requests local",
+    "browser DPR 1/1.25/1.5/2 no overflow",
+    "brand variants and fonts rendered",
+    "brand desktop/mobile no overflow",
+    "all brand SVG XML valid"
+  ],
+  "dpiEmulation": [
+    {
+      "scale": 1,
+      "horizontalOverflow": false
+    },
+    {
+      "scale": 1.25,
+      "horizontalOverflow": false
+    },
+    {
+      "scale": 1.5,
+      "horizontalOverflow": false
+    },
+    {
+      "scale": 2,
+      "horizontalOverflow": false
+    }
+  ],
+  "pageErrors": [],
+  "nativeWindowsTested": false
+}
