@@ -18,6 +18,8 @@ public static class GameLaunchService
         try
         {
             var gamePath = game.GetInstallPath(gamesFolder);
+            var portableManifest = PortableInstallationRecovery.EnsureReadable(game, gamePath);
+            if (portableManifest != null) game.SelectedExecutable = PortableInstallationTransaction.SafePath(gamePath, portableManifest.SelectedExecutable);
 
             if (FlatpakService.HasReceipt(gamePath))
                 return await LaunchFlatpakAsync(game, gamePath);
@@ -98,6 +100,7 @@ public static class GameLaunchService
                 return false;
             }
 
+            using var portableLifetime = PortableInstallationLifetime.Begin(gamePath, portableManifest?.OperationId);
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                 !executablePath.EndsWith(".app") &&
                 !needsWine)
@@ -150,11 +153,17 @@ public static class GameLaunchService
                 : LaunchDebugReport.SnapshotStartInfoEnvironment(startInfo);
             var selectedExecutableFile = TryReadSelectedExecutableFile(gamePath);
 
-            game.UpdateLastPlayedTime(RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && executablePath.EndsWith(".app")
+            game.UpdateLastPlayedTime(game.IsManagedPortable || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && executablePath.EndsWith(".app")
                 ? gamePath
                 : (Path.GetDirectoryName(executablePath) ?? gamePath));
 
-            var gameProcess = HostGameSession.Start(startInfo);
+            System.Diagnostics.Process? gameProcess;
+            try
+            {
+                gameProcess = HostGameSession.Start(startInfo);
+                if (gameProcess != null) portableLifetime.Attach(gameProcess);
+            }
+            catch { portableLifetime.PreserveUncertain(); throw; }
             if (gameProcess == null)
             {
                 WriteLaunchReport(

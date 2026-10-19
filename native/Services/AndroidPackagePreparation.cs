@@ -14,8 +14,8 @@ public static class AndroidPackagePreparation
             throw new InvalidDataException("This Android download is neither an APK nor a supported archive containing an APK.");
 
         var payloadDirectory = Path.Combine(stagingDirectory, "android-payload");
-        await GameInstallationService.InstallOrUpdateGameAsync(downloadPath, payloadDirectory,
-            "payload" + archiveExtension, "", new GameInstallationOptions()).ConfigureAwait(false);
+        await GameInstallationService.ExtractPackageToStagingAsync(downloadPath, payloadDirectory,
+            "payload" + archiveExtension).ConfigureAwait(false);
         var packages = Directory.EnumerateFiles(payloadDirectory, "*", SearchOption.AllDirectories)
             .Where(GameInstallationService.IsAndroidPackageAsset).ToList();
         return packages.Count switch

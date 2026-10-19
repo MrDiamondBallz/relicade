@@ -145,7 +145,7 @@ public class GameDownloadInstallServiceTests
     }
 
     [Fact]
-    public async Task DownloadAndInstallAsync_into_a_located_appimage_folder_keeps_the_other_appimages()
+    public async Task DownloadAndInstallAsync_blocks_unadopted_located_folder_and_preserves_all_other_appimages()
     {
         var gamesFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         var sharedFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -185,8 +185,8 @@ public class GameDownloadInstallServiceTests
                 GameStatus.UpdateAvailable,
                 dialogs, releaseMode: ReleaseInstallMode.ExplicitRelease);
 
-            dialogs.LastError.Should().BeNull("install failed with: {0}", dialogs.LastError);
-            File.Exists(Path.Combine(sharedFolder, "Zelda64Recompiled-1.2.0.AppImage")).Should().BeTrue();
+            dialogs.LastError.Should().Contain("adoption/repair");
+            File.Exists(Path.Combine(sharedFolder, "Zelda64Recompiled-1.2.0.AppImage")).Should().BeFalse();
             others.Should().OnlyContain(file => File.Exists(file));
         }
         finally

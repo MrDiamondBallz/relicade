@@ -77,17 +77,17 @@ public sealed class IncompleteInstallationTests : IDisposable
     }
 
     [Fact]
-    public async Task Partial_extraction_stays_uninstalled_after_restart_and_retry_can_complete()
+    public async Task Unmanaged_obstruction_never_receives_partial_extraction_and_retry_can_choose_a_new_managed_root()
     {
-        // The first file extracts, then a conflicting path makes extraction fail.
+        // An unowned obstruction must block before any live extraction/metadata write.
         File.WriteAllText(Path.Combine(GamePath, "blocked"), "existing support file");
         var game = Game();
         var dialogs = new Dialogs();
         using (var client = Client(Zip((ExecutableName, "#!/bin/sh\nexit 0\n"), ("blocked/file.txt", "data"))))
             await Install(game, client, dialogs);
         dialogs.Error.Should().NotBeNull();
-        File.Exists(Path.Combine(GamePath, ExecutableName)).Should().BeTrue("this is a partial extraction, not just an empty folder");
-        File.Exists(IncompletePath).Should().BeTrue();
+        File.Exists(Path.Combine(GamePath, ExecutableName)).Should().BeFalse("payload extraction is staged, not merged into unowned files");
+        File.Exists(IncompletePath).Should().BeFalse();
         game.Status.Should().Be(GameStatus.NotInstalled);
         var restarted = Game();
         restarted.LatestVersion = "v2";
@@ -96,6 +96,11 @@ public sealed class IncompleteInstallationTests : IDisposable
         File.Exists(VersionPath).Should().BeFalse();
 
         dialogs = new Dialogs();
+        using (var client = Client(Zip((ExecutableName, "#!/bin/sh\nexit 0\n"))))
+            await Install(restarted, client, dialogs);
+        dialogs.Error.Should().Contain("adoption/repair");
+        restarted.IsInstalled.Should().BeFalse();
+        restarted.FolderName = "fresh-game"; dialogs = new Dialogs();
         using (var client = Client(Zip((ExecutableName, "#!/bin/sh\nexit 0\n"))))
             await Install(restarted, client, dialogs);
         dialogs.Error.Should().BeNull();
@@ -119,7 +124,7 @@ public sealed class IncompleteInstallationTests : IDisposable
         var restarted = Game();
         await Refresh(restarted);
         restarted.Status.Should().Be(GameStatus.NotInstalled);
-        File.ReadAllText(Path.Combine(GamePath, "save.dat")).Should().Be("save");
+        File.Exists(Path.Combine(GamePath, "save.dat")).Should().BeFalse("an invalid candidate remains in staging, never partly published");
     }
 
     [Fact]
@@ -159,6 +164,16 @@ public sealed class IncompleteInstallationTests : IDisposable
             ? Client([], HttpStatusCode.InternalServerError)
             : Client(Zip((ExecutableName, "#!/bin/sh\nexit 0\n")));
         await Install(game, client, dialogs);
+        if (!hasExecutable || incomplete)
+        {
+            dialogs.Error.Should().Contain("adoption/repair");
+            game.IsInstalled.Should().BeFalse();
+            File.ReadAllText(VersionPath).Should().Be("v2");
+            File.Exists(IncompletePath).Should().Be(incomplete);
+            File.Exists(Path.Combine(GamePath, ExecutableName)).Should().Be(hasExecutable);
+            var blockedRestart = Game(); await Refresh(blockedRestart); blockedRestart.IsInstalled.Should().BeFalse();
+            return;
+        }
         dialogs.Error.Should().BeNull();
         game.IsInstalled.Should().BeTrue();
         File.Exists(IncompletePath).Should().BeFalse();
