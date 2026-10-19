@@ -231,6 +231,12 @@ public class BrowseNavigationTests
             await Until(() => browse.Model.Items.Count == 3);
             window.UpdateLayout();
 
+            // Reapply initial highlight after cards have real bounds, and drain delayed
+            // BringIntoView work. Network/layout timing must not hide the controls on entry.
+            browse.Navigation.SelectInitial();
+            Dispatcher.UIThread.RunJobs();
+            window.UpdateLayout();
+
             // The title, search and filters start at the top of the scrolling area, above the cards.
             scroller.Offset.Y.Should().Be(0);
             Top(browse.BrowseToolbarPanel).Should().BeApproximately(0, 1);

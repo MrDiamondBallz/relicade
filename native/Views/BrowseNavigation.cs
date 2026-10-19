@@ -24,6 +24,7 @@ public sealed class BrowseNavigation(BrowseView view, IFeatureNavigationHost hos
     internal int CardIndex { get; private set; } = -1;
     // Browse opened before its cards arrived: move to the first card once they do, unless the player moved.
     private bool _selectFirstCardWhenLoaded;
+    private bool _bringFirstCardWhenLoadedIntoView;
 
     public bool Navigate(NavigationDirection direction)
     {
@@ -95,8 +96,8 @@ public sealed class BrowseNavigation(BrowseView view, IFeatureNavigationHost hos
         }
     }
 
-    /// <summary>Highlights the first card, or the search box while there are none.</summary>
-    public void SelectInitial(bool bringIntoView = true)
+    /// <summary>Highlights the first card without moving the entry viewport, or the search while there are none.</summary>
+    public void SelectInitial(bool bringIntoView = false)
     {
         if (!host.IsFocusActive)
         {
@@ -104,6 +105,7 @@ public sealed class BrowseNavigation(BrowseView view, IFeatureNavigationHost hos
             return;
         }
         _selectFirstCardWhenLoaded = Cards.Count == 0;
+        _bringFirstCardWhenLoadedIntoView = bringIntoView;
         if (Cards.Count == 0) ApplyFilterSelection(0, bringIntoView);
         else SelectCard(CardIndex < 0 ? 0 : CardIndex, bringIntoView: bringIntoView);
     }
@@ -115,7 +117,7 @@ public sealed class BrowseNavigation(BrowseView view, IFeatureNavigationHost hos
         if (_selectFirstCardWhenLoaded && Cards.Count > 0 && Service.ActiveZone == GamepadNavigationZone.BrowseFilters && !GamepadTextInput.IsEditing)
         {
             _selectFirstCardWhenLoaded = false;
-            SelectCard(0);
+            SelectCard(0, bringIntoView: _bringFirstCardWhenLoadedIntoView);
             return;
         }
         if (Service.ActiveZone != GamepadNavigationZone.BrowseGrid) return;
@@ -134,6 +136,7 @@ public sealed class BrowseNavigation(BrowseView view, IFeatureNavigationHost hos
     {
         if (Service.ActiveZone != GamepadNavigationZone.BrowseFilters || !host.IsFocusActive) return;
         _selectFirstCardWhenLoaded = true;
+        _bringFirstCardWhenLoadedIntoView = true;
         Dispatcher.UIThread.Post(() => ApplyFilterSelection(0), DispatcherPriority.Loaded);
     }
 
