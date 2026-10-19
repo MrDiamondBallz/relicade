@@ -9,10 +9,36 @@ public sealed record ModCommittedIdentity(string Provider, string SourceKey, str
     public override string ToString() => $"{Provider}/{SourceKey}/{PackageId} (file: {FileId ?? "package"})";
 }
 
+/// <summary>A secondary cleanup failure; the original operation error remains authoritative.</summary>
+public sealed record ModCleanupFailure(string RetainedPath, Exception Cause);
+
 /// <summary>Partial work is not a graph-wide rollback. Cancellation retains its original exception.</summary>
 public static class ModInstallOutcome
 {
     const string IdentityKey = "CommittedModIdentities";
+    const string CleanupKey = "ModCleanupFailures";
+
+    public static IReadOnlyList<ModCleanupFailure> GetCleanupFailures(Exception error) =>
+        error.Data[CleanupKey] is ModCleanupFailure[] failures ? Array.AsReadOnly(failures)
+        : error.InnerException != null ? GetCleanupFailures(error.InnerException) : [];
+
+    internal static void CleanupAfterFailure(Exception original, string path, Action cleanup)
+    {
+        try { cleanup(); }
+        catch (Exception secondary) when (secondary is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            // Keep cancellation/token and primary IO cause, plus secondary diagnostics.
+            // Never repair permissions or scavenge unrelated evidence in an error path.
+            original.Data[CleanupKey] = GetCleanupFailures(original).Append(new(path, secondary)).ToArray();
+        }
+    }
+
+    internal static string CleanupWarning(Exception error)
+    {
+        var failures = GetCleanupFailures(error);
+        return failures.Count == 0 ? "" : " Cleanup failed; retained operation evidence requires cleanup after repair: "
+            + string.Join("; ", failures.Select(f => $"{f.RetainedPath} ({f.Cause.Message})")) + ".";
+    }
 
     public static IReadOnlyList<ModCommittedIdentity> GetCommitted(Exception error) =>
         error.Data[IdentityKey] is ModCommittedIdentity[] identities ? Array.AsReadOnly(identities) : [];

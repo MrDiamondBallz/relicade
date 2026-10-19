@@ -113,7 +113,11 @@ internal static class ModInstallTransaction
             File.Move(temp, path, overwrite: true);
             SyncDirectory(Path.GetDirectoryName(path)!);
         }
-        finally { if (File.Exists(temp)) File.Delete(temp); }
+        catch (Exception original)
+        {
+            ModInstallOutcome.CleanupAfterFailure(original, temp, () => { if (File.Exists(temp)) File.Delete(temp); });
+            throw;
+        }
     }
     // fsync directory entries on Linux. Other hosts retain process-interruption recovery,
     // not a claim of portable power-loss atomicity or storage hardware guarantees.
@@ -154,11 +158,14 @@ internal static class ModInstallTransaction
             Directory.Move(source, target);
             Directory.Move(target, source);
         }
-        finally
+        catch (Exception original)
         {
-            if (Directory.Exists(source)) Directory.Delete(source);
-            if (Directory.Exists(target)) Directory.Delete(target);
+            ModInstallOutcome.CleanupAfterFailure(original, source, () => { if (Directory.Exists(source)) Directory.Delete(source); });
+            ModInstallOutcome.CleanupAfterFailure(original, target, () => { if (Directory.Exists(target)) Directory.Delete(target); });
+            throw;
         }
+        if (Directory.Exists(source)) Directory.Delete(source);
+        if (Directory.Exists(target)) Directory.Delete(target);
     }
 
     internal static void Commit(string root, string modsRelative, string dir, InstalledModsDocument document,
@@ -406,6 +413,14 @@ internal static class ModInstallTransaction
                 throw new JsonException("Recovery payload ownership/hash mismatch.");
         }
     }
+    internal static void CleanupUnpreparedAfterFailure(string dir, Exception original) =>
+        ModInstallOutcome.CleanupAfterFailure(original, dir, () =>
+        {
+            // Only this operation's unpublished staging is disposable. Prepared journals
+            // and unknown/linked recovery evidence must not be swept up by a failure catch.
+            if (Directory.Exists(dir) && !File.Exists(SafePath(dir, "journal.json"))) Cleanup(dir);
+        });
+
     internal static void Cleanup(string dir, Action<string>? boundary = null)
     {
         // Evidence is removed only after successful validation (or before Prepared/live writes).

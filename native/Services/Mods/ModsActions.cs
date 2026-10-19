@@ -205,18 +205,19 @@ public sealed class ModsActions(GameManager _gameManager, LauncherSession _sessi
                 : installationCompleted ? "Installation committed; a follow-up operation was cancelled."
                 : "Installation cancelled before replacement commit.";
             if (ex.Data["RecoveryError"] is Exception recovery) status += " " + recovery.Message;
-            RefreshAfterFailure(status);
+            RefreshAfterFailure(status + ModInstallOutcome.CleanupWarning(ex));
         }
         catch (Exception ex)
         {
-            RefreshAfterFailure(installationCompleted
+            var cleanupWarning = ModInstallOutcome.CleanupWarning(ex);
+            RefreshAfterFailure((installationCompleted
                 ? $"Installation committed; a follow-up operation failed: {ex.Message}"
-                : $"{actionLabel} failed: {ex.Message}");
+                : $"{actionLabel} failed: {ex.Message}") + cleanupWarning);
             var usage = ModUsage(game, item);
             usage["update"] = isUpdate;
             usage["reason"] = Telemetry.ReasonOf(ex);
             Telemetry.Current.Track("mod_install_failed", usage);
-            await ShowMessageBoxAsync($"Failed to install mod:\n{ex.Message}", "Mods");
+            await ShowMessageBoxAsync($"Failed to install mod:\n{ex.Message}{cleanupWarning}", "Mods");
         }
         finally
         {

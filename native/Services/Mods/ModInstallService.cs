@@ -89,10 +89,9 @@ public sealed class ModInstallService
             ModInstallTransaction.Commit(installRoot, Path.GetRelativePath(installRoot, modsDir).Replace('\\', '/'), operation, document, replaced, record, TransactionBoundary);
             return record;
         }
-        catch
+        catch (Exception original)
         {
-            if (Directory.Exists(operation) && !File.Exists(Path.Combine(operation, "journal.json")))
-                ModInstallTransaction.Cleanup(operation); // No Prepared journal means no live payload writes.
+            ModInstallTransaction.CleanupUnpreparedAfterFailure(operation, original);
             throw;
         }
     }
@@ -397,10 +396,9 @@ public sealed class ModInstallService
                 operation, document, records, null, TransactionBoundary);
             return true;
         }
-        catch
+        catch (Exception original)
         {
-            if (Directory.Exists(operation) && !File.Exists(Path.Combine(operation, "journal.json")))
-                ModInstallTransaction.Cleanup(operation);
+            ModInstallTransaction.CleanupUnpreparedAfterFailure(operation, original);
             throw;
         }
     }
