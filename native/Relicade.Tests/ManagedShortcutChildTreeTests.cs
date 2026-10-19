@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Relicade.Core.Services;
 using Relicade.Services;
 namespace Relicade.Tests;
@@ -39,6 +40,11 @@ public sealed class ManagedShortcutChildTreeTests : IDisposable
     async Task Run(string mode)
     {
         var info = Worker(mode, root); info.RedirectStandardOutput = info.RedirectStandardError = true;
+        if (mode == "clone-preexisting")
+        {
+            var wrapper = await CompileBenignCloneWrapper();
+            info.ArgumentList.Insert(0, info.FileName); info.FileName = wrapper;
+        }
         using var worker = Process.Start(info)!;
         var stdout = worker.StandardOutput.ReadToEndAsync(); var stderr = worker.StandardError.ReadToEndAsync();
         try
@@ -63,6 +69,46 @@ public sealed class ManagedShortcutChildTreeTests : IDisposable
     [Fact] public Task Production_completion_returns_false_for_observed_nonzero_exit() => Run("nonzero");
     [Fact] public Task Interrupted_observer_fault_preserves_uncertainty_in_production_completion() => Run("observer-fault");
     [Fact] public Task Unsupported_sandbox_refuses_before_any_native_spawn() => Run("sandbox");
+    [Fact] public Task Existing_non_SIGCHLD_clone_child_refuses_observer_before_spawn() => Run("clone-preexisting");
+
+    [DllImport("libc", SetLastError = true)]
+    static extern int waitpid(int pid, out int status, int options);
+
+    async Task<string> CompileBenignCloneWrapper()
+    {
+        // A tiny OWN-SOURCE lifecycle worker, not game bytes. Existing isolated
+        // gcc is used only for this Linux test, never installed/downloaded.
+        var source = Path.Combine(root, "own-clone-worker.c"); var binary = Path.Combine(root, "own-clone-worker");
+        File.WriteAllText(source, """
+            #define _GNU_SOURCE
+            #include <sched.h>
+            #include <unistd.h>
+            #include <stdlib.h>
+            #include <stdio.h>
+            static int child(void *arg) {
+                char ready[4096], release[4096];
+                snprintf(ready, sizeof(ready), "%s/clone-ready", (char *)arg);
+                snprintf(release, sizeof(release), "%s/clone-release", (char *)arg);
+                FILE *f = fopen(ready, "w"); if (!f) _exit(7); fputs("ready", f); fclose(f);
+                for (int i=0; i<3000 && access(release, F_OK); ++i) usleep(10000);
+                _exit(0);
+            }
+            int main(int argc, char **argv) {
+                char *root = getenv("RELICADE_SHORTCUT_TREE_ROOT");
+                if (!root || argc<2) return 2;
+                void *stack = malloc(1024*1024); if (!stack) return 3;
+                if (clone(child, (char *)stack+1024*1024, 0, root)<0) return 4;
+                execv(argv[1], argv+1); return 5;
+            }
+            """);
+        var info = new ProcessStartInfo("gcc") { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
+        foreach (var arg in new[] { "-Wall", "-Wextra", "-Werror", source, "-o", binary }) info.ArgumentList.Add(arg);
+        using var compiler = Process.Start(info)!;
+        var stdout = compiler.StandardOutput.ReadToEndAsync(); var stderr = compiler.StandardError.ReadToEndAsync();
+        await compiler.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(30));
+        Assert.True(compiler.ExitCode == 0, await stdout + await stderr);
+        return binary;
+    }
 
     [Fact]
     public async Task Killed_observer_keeps_receipt_blocking_even_after_orphan_exits()
@@ -143,6 +189,18 @@ public sealed class ManagedShortcutChildTreeTests : IDisposable
             Assert.Throws<IOException>(() => ManagedShortcutChildLifetime.Begin());
             await existing.WaitForExitAsync();
             using var available = ManagedShortcutChildLifetime.Begin(); return;
+        }
+        if (mode == "clone-preexisting")
+        {
+            await Until(Path.Combine(location, "clone-ready"));
+            try { Assert.Throws<IOException>(() => ManagedShortcutChildLifetime.Begin()); }
+            finally
+            {
+                File.WriteAllText(Path.Combine(location, "clone-release"), "release");
+                Assert.True(waitpid(-1, out var status, 0x40000000) > 0); Assert.Equal(0, status);
+            }
+            using var available = ManagedShortcutChildLifetime.Begin();
+            Console.WriteLine("actual non-SIGCHLD clone preflight refused before managed spawn; clone released and reaped with __WALL"); return;
         }
         if (mode == "unspawned")
         {

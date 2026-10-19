@@ -176,7 +176,7 @@ internal static class ManagedShortcutLaunch
 /// </summary>
 internal sealed class ManagedShortcutChildLifetime : IDisposable
 {
-    const int SetSubreaper = 36, GetSubreaper = 37, NoHang = 1, NoChild = 10, Interrupted = 4;
+    const int SetSubreaper = 36, GetSubreaper = 37, NoHang = 1, NoChild = 10, Interrupted = 4, AllChildren = 0x40000000;
     static int owned;
     bool spawnAttempted, observing, drained, disposed;
 
@@ -201,10 +201,12 @@ internal sealed class ManagedShortcutChildLifetime : IDisposable
         {
             if (Get(GetSubreaper, out var previous, 0, 0, 0) != 0 || previous != 0)
                 throw new NotSupportedException("Exclusive kernel child-tree observer ownership is unavailable.");
-            // WEXITED|WNOHANG|WNOWAIT, P_ALL. A successful call means children
+            // WEXITED|WNOHANG|WNOWAIT|__WALL, P_ALL (Linux >=4.7). Include
+            // non-SIGCHLD clone children, not merely ordinary fork children.
+            // A successful call means children
             // exist, even if no exit is ready; it never consumes their wait status.
             int result;
-            do { result = waitid(0, 0, new byte[128], 4 | 1 | 0x01000000); }
+            do { result = waitid(0, 0, new byte[128], 4 | NoHang | 0x01000000 | AllChildren); }
             while (result == -1 && Marshal.GetLastPInvokeError() == Interrupted);
             if (result != -1 || Marshal.GetLastPInvokeError() != NoChild)
                 throw new IOException("The dedicated shortcut launcher already has children; refusing ambiguous ownership before spawn.");
@@ -238,7 +240,7 @@ internal sealed class ManagedShortcutChildLifetime : IDisposable
         await (HostGameSession.ExitTask(process) ?? process.WaitForExitAsync()).ConfigureAwait(false);
         while (true)
         {
-            var pid = waitpid(-1, out _, NoHang);
+            var pid = waitpid(-1, out _, NoHang | AllChildren);
             if (pid > 0) continue; // Reap an adopted, exited descendant, not a live PID.
             if (pid == -1)
             {
