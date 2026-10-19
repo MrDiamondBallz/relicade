@@ -143,10 +143,16 @@ public sealed class PortableInstallationTransaction
     /// </summary>
     public IDisposable AcquireUnmanagedRemovalLease()
     {
-        var lease = AcquireLease();
+        // A selected/located directory is not necessarily an installation root.
+        // Establish existing ancestor authority BEFORE AcquireLease can create a
+        // child's history inside an owned generation (including its current data).
+        var ancestors = new List<IDisposable>();
         FileStream? modLease = null;
         try
         {
+            AcquireRemovalAncestorLeases(ancestors);
+            var lease = AcquireLease();
+            ancestors.Add(lease);
             foreach (var entry in Directory.EnumerateFileSystemEntries(operations))
             {
                 CheckLinks(entry);
@@ -182,9 +188,67 @@ public sealed class PortableInstallationTransaction
             try { modLease = new FileStream(SafePath(root, ModLock), FileMode.Open, FileAccess.ReadWrite, FileShare.None); }
             catch (FileNotFoundException) { }
             catch (DirectoryNotFoundException) { }
-            return new RemovalLease(lease, modLease);
+            return new RemovalLease(new RemovalAuthorityLeases(ancestors), modLease);
         }
-        catch { modLease?.Dispose(); lease.Dispose(); throw; }
+        catch
+        {
+            modLease?.Dispose();
+            foreach (var held in ancestors.AsEnumerable().Reverse()) held.Dispose();
+            throw;
+        }
+    }
+    const string RemovalRefusal = "Managed/recovery removal is not supported safely yet. Use Remove from Library to keep files, or explicitly repair the retained installation evidence.";
+    // Read-only discovery: never create ancestor/child history to establish that
+    // a selected folder lies inside a managed generation. A marker is authority
+    // even when corrupt; missing markers cannot revoke retained history. Existing
+    // ancestor writer identities are opened, not recreated, and held until the
+    // entire allowed callback/metadata mutation completes. No Recover is used.
+    void AcquireRemovalAncestorLeases(List<IDisposable> held)
+    {
+        var chain = new List<string>();
+        for (string? path = root; path != null; path = Path.GetDirectoryName(path))
+        {
+            CheckLinks(path);
+            if (Path.GetFileName(path).StartsWith(".relicade-", StringComparison.OrdinalIgnoreCase))
+                throw new IOException(RemovalRefusal); // transaction/staging tree, not an install
+            if (path != root) chain.Add(path);
+        }
+        foreach (var ancestor in chain.AsEnumerable().Reverse())
+        {
+            if (RemovalEntryExists(Path.Combine(ancestor, ManifestFileName)))
+                throw new IOException(RemovalRefusal);
+            var outside = Path.GetDirectoryName(ancestor);
+            if (outside == null) continue; // a volume root cannot own a portable install
+            var ancestorKey = Hash(Encoding.UTF8.GetBytes(OperatingSystem.IsWindows() ? ancestor.ToUpperInvariant() : ancestor));
+            var history = SafePath(outside, DirectoryName + "/" + ancestorKey);
+            if (RemovalEntryExists(history))
+            {
+                // Missing/unknown/unreadable writer identity is uncertainty, not
+                // authorization to manufacture a replacement inside a generation.
+                held.Add(new FileStream(SafePath(history, "writer.lock"), FileMode.Open, FileAccess.ReadWrite, FileShare.None));
+                foreach (var entry in Directory.EnumerateFileSystemEntries(history))
+                {
+                    CheckLinks(entry);
+                    if (Path.GetFileName(entry) != "writer.lock" ||
+                        (File.GetAttributes(entry) & FileAttributes.Directory) != 0)
+                        throw new IOException(RemovalRefusal);
+                }
+            }
+            var mod = SafePath(ancestor, ModLock);
+            if (RemovalEntryExists(mod))
+                held.Add(new FileStream(mod, FileMode.Open, FileAccess.ReadWrite, FileShare.None));
+        }
+    }
+    static bool RemovalEntryExists(string path)
+    {
+        CheckLinks(path);
+        try { _ = File.GetAttributes(path); return true; }
+        catch (FileNotFoundException) { return false; }
+        catch (DirectoryNotFoundException) { return false; }
+    }
+    sealed class RemovalAuthorityLeases(List<IDisposable> held) : IDisposable
+    {
+        public void Dispose() { foreach (var lease in held.AsEnumerable().Reverse()) lease.Dispose(); }
     }
     sealed class RemovalLease(IDisposable stable, IDisposable? mod) : IDisposable
     {
