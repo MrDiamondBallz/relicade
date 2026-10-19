@@ -70,7 +70,7 @@ public sealed class PortableWriterCoordinationTests : IDisposable
             Assert.ThrowsAny<IOException>(() => new InstalledModsStore().Save(live, new()));
             Assert.ThrowsAny<IOException>(() => new InstalledModsStore().Load(live));
             var service = new ModInstallService(new ModProviderRegistry(Array.Empty<IModProvider>()));
-            var package = new ModPackage { ProviderId = "synthetic", Id = "one", FullName = "synthetic/one" };
+            var package = new ModPackage { ProviderId = "synthetic", SourceKey = "synthetic", Owner = "synthetic", Name = "one", Id = "one", FullName = "synthetic/one" };
             Assert.ThrowsAny<IOException>(() => service.Uninstall(live, "mods", "synthetic", "one"));
             Assert.ThrowsAny<IOException>(() => service.UninstallMatching(live, "mods", package));
             Assert.ThrowsAny<IOException>(() => service.UninstallMatchingFile(live, "mods", package, "one"));
