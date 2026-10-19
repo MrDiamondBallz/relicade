@@ -25,9 +25,11 @@ Power belongs underneath a clear interface, not behind missing features. Release
 
 ## Development preview
 
-**Brand and browser-prototype stage. No native launcher release yet.**
+**Browser design preview and buildable native development foundation. No native launcher release yet.**
 
-The current preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. The preview does not install, update, verify or launch executables.
+The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. The browser preview does not install, update, verify or launch executables.
+
+The separate [native foundation](native/README.md) includes .NET 10/Avalonia source, local-library persistence and synthetic/headless regressions. Linux x64 self-contained publish and isolated startup, plus Windows x64 cross-publish, are development checks only. Real game compatibility, complete functional parity, native platform acceptance and production-safe installation remain unaccepted; see the [coverage contract](docs/FEATURE_COVERAGE.md). No packaged downloads are offered.
 
 ### Interface preview
 
@@ -77,6 +79,7 @@ The [roadmap](docs/ROADMAP.md) prioritizes real native library and readiness flo
 
 - `brand/` — original identity masters, usage guide, tokens and licensed fonts.
 - `prototype/` — browser preview, public metadata snapshot and original project tiles.
+- `native/` — shared native code, desktop/Android hosts, retained license notices and native tests; see its build instructions and limitations.
 - `docs/` — product requirements, architecture, roadmap and CI template.
 - `tools/` — local preview and browser QA utilities.
 - `tests/` — repeatable regression checks.
@@ -85,7 +88,7 @@ The [roadmap](docs/ROADMAP.md) prioritizes real native library and readiness flo
 
 Community projects, game names and external metadata belong to their respective creators and rights holders. Source links and exact provenance remain available; a catalog listing is not a download license or safety endorsement. This repository contains no ROMs, BIOS, commercial game data, user credentials or copied installed executables.
 
-See [NOTICE.md](NOTICE.md) for third-party credits and font licenses. No open-source license has been selected for original Relicade material; source visibility alone is not a reuse grant.
+See [NOTICE.md](NOTICE.md) for third-party credits and font licenses. Inherited native source retains its applicable MIT notices. No open-source license has been selected for separately owned original Relicade material; source visibility alone is not a reuse grant.
 
 ---
 

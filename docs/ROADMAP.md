@@ -34,6 +34,8 @@ Versions/pinning, manual entries/import/export, mods/dependencies/profiles, cont
 
 Each platform needs actual package/runtime/accessibility/recovery evidence. Unsupported hardware is an open test requirement, not an assumed pass.
 
+The [machine-readable coverage contract](FEATURE_COVERAGE.json) and [developer guide](FEATURE_COVERAGE.md) track 71 required feature rows, eight platform/package targets and 23 synthetic fixture scenarios. The validator and safe fixture generator are executable development tools, not native acceptance evidence; the native acceptance ledger remains empty.
+
 ## 5. Measurable quality improvements — pending
 
 Clearer setup, unified operations, staged mod replacement, reproducible profiles, stable offline-first library performance and accessible controller-first workflows. Claims of better performance or reliability need comparative task evidence.
