@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "scenarios": [
+    {
+      "id": "catalog-cases",
+      "kind": "catalog",
+      "mode": "definition",
+      "inputs": "Paginated results; stale requests; malformed detail/readme/reviews; custom local and HTTPS list; unknown fields; duplicate IDs; platform/type/console/AI/hide-added filters",
+      "expected": [
+        "No stale overwrite; preserve attribution and cached view; unsupported source has an actionable error"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "library-cases",
+      "kind": "library",
+      "mode": "generated",
+      "inputs": "Corrupt/truncated JSON; duplicate identity; legacy and future schemas",
+      "expected": [
+        "Read-only recovery on corruption; preview before migration; no empty-success replacement"
+      ],
+      "artifacts": [
+        "library-valid.json",
+        "library-corrupt.json",
+        "library-duplicate.json",
+        "library-legacy.json",
+        "library-future.json"
+      ]
+    },
+    {
+      "id": "library-scale",
+      "kind": "performance",
+      "mode": "generated",
+      "inputs": "1000 and 10000 synthetic entries with stable IDs and deterministic order",
+      "expected": [
+        "Measure native cold/warm/search/scroll/idle on actual documented device; no generated timings"
+      ],
+      "artifacts": [
+        "library-1000.json",
+        "library-10000.json"
+      ]
+    },
+    {
+      "id": "release-cases",
+      "kind": "release",
+      "mode": "definition",
+      "inputs": "Missing pin; prerelease/stable; rolling same-tag different digest; ambiguous assets; blocked release",
+      "expected": [
+        "Preserve exact identity; no silent pin fallback or blocked automatic update"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "valid-zip",
+      "kind": "zip",
+      "mode": "generated",
+      "inputs": "Small text-only ZIP with two payload files",
+      "expected": [
+        "Native contained install produces both expected bytes and a complete manifest"
+      ],
+      "artifacts": [
+        "valid.zip"
+      ]
+    },
+    {
+      "id": "unsafe-paths",
+      "kind": "path",
+      "mode": "generated",
+      "inputs": "Traversal; absolute drive; UNC/device/ADS; backslash; case and Unicode aliases",
+      "expected": [
+        "Reject before writes; no writes outside granted roots; collision policy explicit"
+      ],
+      "artifacts": [
+        "unsafe-paths.zip"
+      ]
+    },
+    {
+      "id": "link-cases",
+      "kind": "link",
+      "mode": "generated",
+      "inputs": "Archive symlink target escape; preexisting junction and symlink ancestor definitions",
+      "expected": [
+        "Reject unsafe links; resolve destination ownership before any writes"
+      ],
+      "artifacts": [
+        "links.zip",
+        "link-cases.json"
+      ]
+    },
+    {
+      "id": "corrupt-zip",
+      "kind": "zip",
+      "mode": "generated",
+      "inputs": "Truncated central directory and deliberately incorrect CRC",
+      "expected": [
+        "Reject without activating partial payload or deleting old payload"
+      ],
+      "artifacts": [
+        "truncated.zip",
+        "bad-crc.zip"
+      ]
+    },
+    {
+      "id": "archive-budget",
+      "kind": "zip",
+      "mode": "generated",
+      "inputs": "Tiny compressed payload exceeds deliberately low test expansion limit",
+      "expected": [
+        "Fail test budget without allocating an actual archive bomb; file-count and free-space cases remain adapter tests"
+      ],
+      "artifacts": [
+        "budget.zip"
+      ]
+    },
+    {
+      "id": "other-archives",
+      "kind": "path",
+      "mode": "definition",
+      "inputs": "Supported 7z/RAR/tar paths, hardlinks, special files, reserved names and executable ambiguity",
+      "expected": [
+        "Each supported extractor must independently enforce containment/budgets; unsupported formats fail explicitly"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "operation-failures",
+      "kind": "operation",
+      "mode": "generated",
+      "inputs": "Boundary schedule: download/verify/extract/journal/activate/metadata/cleanup x disk-full/access-denied/cancel/terminate",
+      "expected": [
+        "Restart yields old or new complete manifest; user data unchanged; cleanup never removes active payload"
+      ],
+      "artifacts": [
+        "operation-failures.json",
+        "sentinel-data.json"
+      ]
+    },
+    {
+      "id": "http-cases",
+      "kind": "http",
+      "mode": "definition",
+      "inputs": "200/206/416; unknown length; disconnect; 403/429/5xx; expired URL; redirect; ignored Range; changed ETag",
+      "expected": [
+        "Record real byte/stage transitions; restart safely on identity changes; never publish partial payload"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "queue-cases",
+      "kind": "operation",
+      "mode": "definition",
+      "inputs": "Restart at 25/75 percent and after verify; duplicate enqueue; reorder; two transfers; cancel one of two; same-game app/mod commit overlap",
+      "expected": [
+        "Durable jobs; one commit per game; bounded concurrency; cancel does not corrupt another job"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "trust-cases",
+      "kind": "security",
+      "mode": "definition",
+      "inputs": "Missing/wrong digest; unavailable verification; human review vs scan vs signature; altered/replayed feed; wrong product ID",
+      "expected": [
+        "Mismatch blocks; unknown stays unknown; authentication and digest evidence remain distinct"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "mod-cases",
+      "kind": "mods",
+      "mode": "generated",
+      "inputs": "A to B to C; conflicting B versions; A/B cycle; shared destination; flat/folder-per-mod; selected files",
+      "expected": [
+        "Resolve dependencies/collisions before mutation; failed replacement/removal preserves previous records and unrelated files"
+      ],
+      "artifacts": [
+        "mod-cases.json"
+      ]
+    },
+    {
+      "id": "readiness-cases",
+      "kind": "readiness",
+      "mode": "generated",
+      "inputs": "Synthetic matching/wrong-region/invalid/truncated files; missing/renamed/locked/link-changed definitions",
+      "expected": [
+        "No Ready for missing/unknown requirement; never modify originals; hashes do not prove legal ownership"
+      ],
+      "artifacts": [
+        "readiness-cases.json"
+      ]
+    },
+    {
+      "id": "input-cases",
+      "kind": "input",
+      "mode": "definition",
+      "inputs": "Keyboard/controller-only journeys; typing vs navigation; rebind/reset; unplug mid-modal; two controllers; held stick; exit focus; OSK",
+      "expected": [
+        "No focus trap or hidden failure; actual XInput and non-XInput hardware required; URI dispatch is not OSK acceptance"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "privacy-cases",
+      "kind": "privacy",
+      "mode": "generated",
+      "inputs": "Synthetic secret/path canaries and first-run/decline/opt-in/revoke/offline capture plan",
+      "expected": [
+        "No protected canary in export/diagnostics/requests; Offline emits zero application requests"
+      ],
+      "artifacts": [
+        "privacy-canaries.json"
+      ]
+    },
+    {
+      "id": "platform-cases",
+      "kind": "platform",
+      "mode": "definition",
+      "inputs": "Install/update/uninstall/launch/return on exact package and architecture; signing; permissions; sandbox; OS adapter cancellation",
+      "expected": [
+        "Native artifact and actual runtime/device evidence per target; shared build is insufficient"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "accessibility-cases",
+      "kind": "accessibility",
+      "mode": "definition",
+      "inputs": "Narrator/native equivalent; contrast; high contrast; reduced motion; 100/125/150/200 DPI; 200 percent text; mixed monitors",
+      "expected": [
+        "No unreachable/clipped actions; keyboard/semantic state announcements; browser emulation cannot accept native accessibility"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "shortcut-cases",
+      "kind": "platform",
+      "mode": "definition",
+      "inputs": "Quoted names/arguments; moved launcher; AppImage transient mount; Steam running/stopped; update survival",
+      "expected": [
+        "Stable identity and path; no shell injection or unrelated Steam changes; explicit approval for real OS writes"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "export-cases",
+      "kind": "library",
+      "mode": "definition",
+      "inputs": "Round-trip; duplicate/path-conflict preview; corrupt snapshot/settings/profile; simultaneous writers; legacy/future schema",
+      "expected": [
+        "No live mutation before confirm; atomic apply and snapshot; guided restore offline; secrets excluded"
+      ],
+      "artifacts": []
+    },
+    {
+      "id": "settings-cases",
+      "kind": "input",
+      "mode": "definition",
+      "inputs": "Grid/list; sorting/article preference; tags include/exclude any/all/pins; custom names/art; colors/scale/background; optional music/announcements",
+      "expected": [
+        "Persistent settings without loss of accessibility; no default audio/autoplay or mandatory network"
+      ],
+      "artifacts": []
+    }
+  ]
+}
