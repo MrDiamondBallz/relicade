@@ -259,6 +259,27 @@ namespace Relicade.Services
 
         internal Task LoadGamesForCliAsync() => LoadGamesCoreAsync(false, listScopeOverride: AppListScope.AllApps);
 
+        private byte[]? _managedShortcutLibrary;
+        internal async Task LoadGamesForManagedShortcutAsync()
+        {
+            _settingsStore.Load();
+            if (_settingsStore is ISettingsRecoveryState { IsReadOnly: true } recovery)
+                throw new InvalidOperationException(recovery.ReadError?.ToString() ?? "Settings recovery is required before shortcut launch.");
+            // Do not migrate or manufacture a library for this exact-identity command.
+            var bytes = await File.ReadAllBytesAsync(_catalogService.AppsConfigPath);
+            await _catalogService.LoadLocalAppsAsync(); // existing complete strict validation
+            ManagedShortcutLaunch.ValidateLocalIdentities(bytes);
+            _managedShortcutLibrary = bytes;
+            await LoadGamesCoreAsync(false, allowNetwork: false, listScopeOverride: AppListScope.AllApps, preserveSettings: true);
+            VerifyManagedShortcutLibrary();
+        }
+
+        internal void VerifyManagedShortcutLibrary()
+        {
+            if (_managedShortcutLibrary == null || !File.ReadAllBytes(_catalogService.AppsConfigPath).AsSpan().SequenceEqual(_managedShortcutLibrary))
+                throw new IOException("The local library changed while preparing the shortcut. Retry from the current library tile.");
+        }
+
         public Task LoadGamesAsync(bool forceUpdateCheck = false) =>
             LoadGamesCoreAsync(forceUpdateCheck);
 
@@ -287,7 +308,8 @@ namespace Relicade.Services
         private async Task LoadGamesCoreAsync(
             bool forceUpdateCheck,
             bool allowNetwork = true,
-            AppListScope? listScopeOverride = null)
+            AppListScope? listScopeOverride = null,
+            bool preserveSettings = false)
         {
             // Validate and back up the existing library without rewriting it. Keep
             // initialization within the caller's awaited load/session lifetime.
@@ -300,6 +322,8 @@ namespace Relicade.Services
             await initialization.ConfigureAwait(false);
 
             _settings = _settingsStore.Load();
+            if (preserveSettings)
+                _settings = System.Text.Json.JsonSerializer.Deserialize<AppSettings>(System.Text.Json.JsonSerializer.Serialize(_settings))!;
             _settings.EnsureInitialized();
 
             Games ??= [];

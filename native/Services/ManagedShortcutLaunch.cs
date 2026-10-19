@@ -1,0 +1,269 @@
+using System.Buffers.Binary;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using Relicade.Core.Services;
+using Relicade.Models;
+
+namespace Relicade.Services;
+
+/// <summary>Offline, exact tile dispatch. No name, repository, executable or root fallback.</summary>
+internal static class ManagedShortcutLaunch
+{
+    internal const string Command = "--launch-instance";
+    internal static bool IsRequest(IEnumerable<string> args) => args.Any(a => string.Equals(a, Command, StringComparison.OrdinalIgnoreCase) || a.StartsWith(Command + "=", StringComparison.OrdinalIgnoreCase));
+    internal static bool ValidArguments(string[] args) => args.Length == 2 && args[0] == Command &&
+        !string.IsNullOrWhiteSpace(args[1]) && !args[1].StartsWith('-') && !args[1].Any(char.IsControl);
+
+    // Program consumes --kiosk before dispatch. Check the original process arguments too,
+    // without changing ordinary --run or treating test-host arguments as launcher input.
+    internal static bool ValidOriginalArguments(string[] original, string[] dispatched) =>
+        !IsRequest(original.Skip(1)) || ValidArguments(original.Skip(1).ToArray()) && original.Skip(1).SequenceEqual(dispatched);
+
+    internal static GameInfo Resolve(IReadOnlyList<GameInfo> library, string key)
+    {
+        var matches = library.Where(g => string.Equals(g.InstanceKey, key, StringComparison.OrdinalIgnoreCase)).ToArray();
+        if (matches.Length != 1) throw new InvalidOperationException("The shortcut's exact library instance is missing or ambiguous. Recreate it from the intended library tile.");
+        return matches[0];
+    }
+
+    // The general library parser deduplicates rows for display. Shortcuts must not
+    // inherit its select-first behavior. Validate every raw identity before that load.
+    internal static void ValidateLocalIdentities(byte[] bytes)
+    {
+        using var doc = JsonDocument.Parse(bytes);
+        var rows = new List<JsonElement>();
+        if (doc.RootElement.ValueKind == JsonValueKind.Array) rows.AddRange(doc.RootElement.EnumerateArray());
+        else
+        {
+            var sections = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var p in doc.RootElement.EnumerateObject())
+            {
+                if (!sections.Add(p.Name)) throw new InvalidDataException("Ambiguous local library properties; repair the library first.");
+                if (p.Name is "apps" or "standard" or "experimental" or "custom") rows.AddRange(p.Value.EnumerateArray());
+            }
+        }
+        var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var row in rows)
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var p in row.EnumerateObject())
+                if (!names.Add(p.Name)) throw new InvalidDataException("Ambiguous local library properties; repair the library first.");
+            string? Value(string name) => row.TryGetProperty(name, out var p) ? p.GetString() : null;
+            var key = RepositorySourceHelper.GetInstanceKey(Value("repositorySource"), Value("repository"), Value("folderName"));
+            if (!keys.Add(key)) throw new InvalidDataException("Duplicate library instance identity; repair duplicate tiles before launching a shortcut.");
+        }
+    }
+
+    internal static string ValidateLauncher(string? path, string gamesFolder, string? installationRoot = null)
+    {
+        const string refusal = "A stable installed Relicade launcher is required for the running-game lease. Open an installed Relicade build and recreate this shortcut; no direct game shortcut was created.";
+        if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path) || !File.Exists(path)) throw new NotSupportedException(refusal);
+        var full = Path.GetFullPath(path);
+        var name = Path.GetFileName(full);
+        var supported = name.Equals("Relicade.Desktop", StringComparison.OrdinalIgnoreCase) || name.Equals("Relicade.Desktop.exe", StringComparison.OrdinalIgnoreCase) ||
+            name.Equals("Relicade", StringComparison.OrdinalIgnoreCase) || name.Equals("Relicade.exe", StringComparison.OrdinalIgnoreCase) ||
+            name.StartsWith("Relicade", StringComparison.OrdinalIgnoreCase) && name.EndsWith(".AppImage", StringComparison.OrdinalIgnoreCase);
+        var normalized = full.Replace('\\', '/');
+        var temp = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        var library = Path.GetFullPath(gamesFolder).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        var installation = installationRoot == null ? null : Path.GetFullPath(installationRoot).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        if (!supported || ShortcutHelper.IsAppImageMountPath(full) || normalized.Contains("/.mount_", StringComparison.OrdinalIgnoreCase) ||
+            full.StartsWith(temp, StringComparison.OrdinalIgnoreCase) || normalized.StartsWith("/tmp/", StringComparison.OrdinalIgnoreCase) ||
+            normalized.StartsWith("/var/tmp/", StringComparison.OrdinalIgnoreCase) || full.StartsWith(library, StringComparison.OrdinalIgnoreCase) ||
+            installation != null && full.StartsWith(installation, StringComparison.OrdinalIgnoreCase) ||
+            normalized.Split('/').Contains(PortableInstallationTransaction.DirectoryName, StringComparer.OrdinalIgnoreCase)) throw new NotSupportedException(refusal);
+        for (FileSystemInfo? item = new FileInfo(full); item != null; item = item is FileInfo f ? f.Directory : ((DirectoryInfo)item).Parent)
+            if ((item.Attributes & FileAttributes.ReparsePoint) != 0) throw new NotSupportedException(refusal);
+        return full;
+    }
+
+    internal static string? ResolveOwnLauncher() => ShortcutHelper.ResolveLauncherPath();
+
+    // Positive, bounded FORMAT gate only. A suffix (including .AppImage) never proves
+    // a direct native executable, and even ELF cannot prove absence of descendants.
+    // Production must establish kernel child-tree ownership BEFORE spawning. Format
+    // recognition alone never authorizes clearing a receipt on direct-PID exit.
+    internal static void EnsureSupportedLifetime(string target)
+    {
+        const string refusal = "This managed target has no supported native shortcut format/lifetime. Scripts, AppImage runtimes, compatibility runners and unknown formats are refused; open Relicade to resolve launch support.";
+        try
+        {
+            if (!OperatingSystem.IsLinux() || OperatingSystem.IsAndroid() || HostProcessEnvironment.IsSandboxed() ||
+                target.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) || target.EndsWith(".app", StringComparison.OrdinalIgnoreCase))
+                throw new NotSupportedException(refusal);
+            var machine = RuntimeInformation.ProcessArchitecture switch
+            {
+                Architecture.X64 => (ushort)62,
+                Architecture.Arm64 => (ushort)183,
+                _ => throw new NotSupportedException(refusal)
+            };
+            using var file = new FileStream(target, FileMode.Open, FileAccess.Read, FileShare.Read);
+            Span<byte> header = stackalloc byte[64]; file.ReadExactly(header);
+            if (!header[..7].SequenceEqual(new byte[] { 0x7f, (byte)'E', (byte)'L', (byte)'F', 2, 1, 1 }) ||
+                header[8] == (byte)'A' && header[9] == (byte)'I' ||
+                BinaryPrimitives.ReadUInt16LittleEndian(header[16..]) is not (2 or 3) ||
+                BinaryPrimitives.ReadUInt16LittleEndian(header[18..]) != machine ||
+                BinaryPrimitives.ReadUInt32LittleEndian(header[20..]) != 1 ||
+                BinaryPrimitives.ReadUInt16LittleEndian(header[52..]) != 64 ||
+                BinaryPrimitives.ReadUInt16LittleEndian(header[54..]) != 56)
+                throw new NotSupportedException(refusal);
+            var offset = BinaryPrimitives.ReadUInt64LittleEndian(header[32..]);
+            var count = BinaryPrimitives.ReadUInt16LittleEndian(header[56..]);
+            var length = (ulong)file.Length;
+            if (count is 0 or > 128 || offset < 64 || offset > length || (ulong)count * 56 > length - offset)
+                throw new NotSupportedException(refusal);
+            file.Position = (long)offset;
+            Span<byte> segment = stackalloc byte[56]; var executableLoad = false;
+            for (var i = 0; i < count; i++)
+            {
+                file.ReadExactly(segment);
+                if (BinaryPrimitives.ReadUInt32LittleEndian(segment) != 1) continue;
+                var start = BinaryPrimitives.ReadUInt64LittleEndian(segment[8..]);
+                var size = BinaryPrimitives.ReadUInt64LittleEndian(segment[32..]);
+                var memory = BinaryPrimitives.ReadUInt64LittleEndian(segment[40..]);
+                if (start > length || size > length - start || size > memory) throw new NotSupportedException(refusal);
+                executableLoad |= size > 0 && (BinaryPrimitives.ReadUInt32LittleEndian(segment[4..]) & 1) != 0;
+            }
+            if (!executableLoad) throw new NotSupportedException(refusal);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        { throw new NotSupportedException(refusal); }
+    }
+
+    internal static async Task ObserveUnestablishedExitAsync(Process process)
+    {
+        await (HostGameSession.ExitTask(process) ?? process.WaitForExitAsync());
+        throw new IOException("The directly observed process exited, but its descendant lifetime is not established. The launch receipt remains uncertain and blocks changes; confirm all game processes are stopped and use explicit recovery. No completed managed lifetime is claimed.");
+    }
+
+    internal static async Task<(bool Launched, Task? Lifetime)> LaunchAsync(GameInfo game, string gamesFolder, string operation)
+    {
+        // This command is a dedicated CLI lifetime, not a GUI-wide process tracker.
+        // Unsupported kernel/host/ownership refuses before GameLaunchService can spawn.
+        using var observer = ManagedShortcutChildLifetime.Begin();
+        var launched = await GameLaunchService.LaunchAsync(game, gamesFolder, operation, observer);
+        return launched ? (true, Task.CompletedTask) : (false, null);
+    }
+
+    internal static async Task<int> ExecuteAsync(GameManager manager, string key,
+        Func<GameInfo, string, Task<(bool Launched, Task? Lifetime)>>? launch = null)
+    {
+        await manager.LoadGamesForManagedShortcutAsync();
+        var game = Resolve(manager.LibraryApps, key);
+        var root = game.GetInstallPath(manager.GamesFolder);
+        var manifest = PortableInstallationRecovery.EnsureReadable(game, root) ?? throw new NotSupportedException("This tile is not a managed portable installation. Recreate its shortcut from Relicade.");
+        await GameStatusService.CheckStatusAsync(game, manager.HttpClient, manager.GamesFolder, checkRemoteVersion: false, applyCachedRelease: false);
+        if (game.PortableRecoveryError != null || !game.CanLaunch) throw new IOException("The exact installation is not launchable. Resolve local recovery/setup in Relicade first.");
+        var target = PortableInstallationTransaction.SafePath(root, manifest.SelectedExecutable);
+        EnsureSupportedLifetime(target);
+        if (!GameInstallationService.FindExecutableCandidates(root, SearchOption.AllDirectories, game.GetInstallationOptions(), out _).Contains(target))
+            throw new IOException("The committed executable is not launchable; no helper or other generation was substituted.");
+        manager.VerifyManagedShortcutLibrary();
+        var result = await (launch == null ? LaunchAsync(game, manager.GamesFolder, manifest.OperationId) : launch(game, manifest.OperationId));
+        if (!result.Launched || result.Lifetime == null) return 1;
+        await result.Lifetime;
+        return 0;
+    }
+}
+
+/// <summary>
+/// Dedicated Linux CLI child-tree observation. The kernel reparents orphaned
+/// descendants (even setsid/double-fork children) to this subreaper. ECHILD, not
+/// an ELF name, process group, proc snapshot or direct exit, is the completion
+/// boundary. External service launches, sandbox proxies and other OSes are NOT
+/// supported by this adapter. It is not native game/package acceptance.
+/// </summary>
+internal sealed class ManagedShortcutChildLifetime : IDisposable
+{
+    const int SetSubreaper = 36, GetSubreaper = 37, NoHang = 1, NoChild = 10, Interrupted = 4, AllChildren = 0x40000000;
+    static int owned;
+    bool spawnAttempted, observing, drained, disposed;
+
+    [DllImport("libc", SetLastError = true, EntryPoint = "prctl")]
+    static extern int Set(int option, ulong value, ulong unused1, ulong unused2, ulong unused3);
+    [DllImport("libc", SetLastError = true, EntryPoint = "prctl")]
+    static extern int Get(int option, out int value, ulong unused1, ulong unused2, ulong unused3);
+    [DllImport("libc", SetLastError = true)]
+    static extern int waitpid(int pid, out int status, int options);
+    [DllImport("libc", SetLastError = true)]
+    static extern int waitid(int type, uint id, [Out] byte[] info, int options);
+
+    internal static ManagedShortcutChildLifetime Begin()
+    {
+        if (!OperatingSystem.IsLinux() || OperatingSystem.IsAndroid() || HostProcessEnvironment.IsSandboxed() ||
+            RuntimeInformation.ProcessArchitecture is not (Architecture.X64 or Architecture.Arm64))
+            throw new NotSupportedException("Child-tree observation requires an unsandboxed Linux native launcher.");
+        if (Interlocked.CompareExchange(ref owned, 1, 0) != 0)
+            throw new IOException("Another managed shortcut child-tree observer is already active.");
+        var installed = false;
+        try
+        {
+            if (Get(GetSubreaper, out var previous, 0, 0, 0) != 0 || previous != 0)
+                throw new NotSupportedException("Exclusive kernel child-tree observer ownership is unavailable.");
+            // WEXITED|WNOHANG|WNOWAIT|__WALL, P_ALL (Linux >=4.7). Include
+            // non-SIGCHLD clone children, not merely ordinary fork children.
+            // A successful call means children
+            // exist, even if no exit is ready; it never consumes their wait status.
+            int result;
+            do { result = waitid(0, 0, new byte[128], 4 | NoHang | 0x01000000 | AllChildren); }
+            while (result == -1 && Marshal.GetLastPInvokeError() == Interrupted);
+            if (result != -1 || Marshal.GetLastPInvokeError() != NoChild)
+                throw new IOException("The dedicated shortcut launcher already has children; refusing ambiguous ownership before spawn.");
+            if (Set(SetSubreaper, 1, 0, 0, 0) != 0)
+                throw new NotSupportedException("The kernel could not establish child-tree observation before launch.");
+            installed = true;
+            if (Get(GetSubreaper, out var current, 0, 0, 0) != 0 || current != 1)
+                throw new NotSupportedException("Kernel child-tree observation could not be verified.");
+            return new ManagedShortcutChildLifetime();
+        }
+        catch
+        {
+            if (installed) Set(SetSubreaper, 0, 0, 0, 0);
+            Interlocked.Exchange(ref owned, 0);
+            throw;
+        }
+    }
+
+    internal Process? Start(ProcessStartInfo info)
+    {
+        if (disposed || spawnAttempted || observing || info.UseShellExecute || HostProcessEnvironment.IsSandboxed())
+            throw new IOException("A managed shortcut requires one directly observed native spawn under the owned observer.");
+        spawnAttempted = true; // BEFORE OS creation; exceptions are potentially uncertain.
+        return HostGameSession.Start(info);
+    }
+
+    internal async Task ObserveAsync(Process process)
+    {
+        if (disposed || observing) throw new IOException("Child-tree observation is no longer owned.");
+        observing = spawnAttempted = true;
+        await (HostGameSession.ExitTask(process) ?? process.WaitForExitAsync()).ConfigureAwait(false);
+        while (true)
+        {
+            var pid = waitpid(-1, out _, NoHang | AllChildren);
+            if (pid > 0) continue; // Reap an adopted, exited descendant, not a live PID.
+            if (pid == -1)
+            {
+                var error = Marshal.GetLastPInvokeError();
+                if (error == Interrupted) continue;
+                if (error != NoChild) throw new IOException("Kernel child-tree observation failed; retain the uncertain launch receipt.");
+                // Verify ownership again before accepting the kernel's empty tree.
+                if (Get(GetSubreaper, out var current, 0, 0, 0) != 0 || current != 1 || Set(SetSubreaper, 0, 0, 0, 0) != 0)
+                    throw new IOException("Kernel child-tree ownership changed; retain the uncertain launch receipt.");
+                drained = true;
+                return;
+            }
+            await Task.Delay(50).ConfigureAwait(false);
+        }
+    }
+
+    public void Dispose()
+    {
+        if (disposed) return;
+        disposed = true;
+        // On interruption AFTER spawn do not disable adoption or claim completion.
+        // The owning service preserves Launching; this dedicated CLI then exits.
+        if (!spawnAttempted && !drained) Set(SetSubreaper, 0, 0, 0, 0);
+        Interlocked.Exchange(ref owned, 0);
+    }
+}

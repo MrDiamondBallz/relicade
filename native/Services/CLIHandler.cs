@@ -26,6 +26,10 @@ namespace Relicade
         private string _currentVersion = "Unknown";
         private readonly LauncherUpdateService _launcherUpdateService;
         private readonly VelopackUpdateService _velopackUpdateService;
+        private readonly Func<GameInfo, string, Task<(bool Launched, Task? Lifetime)>>? _managedShortcutLaunch;
+
+        internal CLIHandler(GameManager gameManager, Func<GameInfo, string, Task<(bool Launched, Task? Lifetime)>> launch)
+            : this(gameManager) => _managedShortcutLaunch = launch;
 
         public CLIHandler(GameManager? gameManager = null, LauncherUpdateService? launcherUpdateService = null)
         {
@@ -36,6 +40,22 @@ namespace Relicade
 
         public async Task<int> Execute(string[] args)
         {
+            if (ManagedShortcutLaunch.IsRequest(args))
+            {
+                try
+                {
+                    if (!ManagedShortcutLaunch.ValidArguments(args) ||
+                        !ManagedShortcutLaunch.ValidOriginalArguments(Environment.GetCommandLineArgs(), args))
+                        return PrintError("Use exactly --launch-instance <InstanceKey>, with no additional flags or arguments.");
+                    _gameManager ??= new GameManager();
+                    return await ManagedShortcutLaunch.ExecuteAsync(_gameManager, args[1], _managedShortcutLaunch);
+                }
+                catch (Exception)
+                {
+                    return PrintError("The exact managed instance could not be launched. Open Relicade to resolve local library, recovery, executable or supported-lifetime requirements and recreate the shortcut. Nothing was downloaded or updated.");
+                }
+                finally { _gameManager?.Dispose(); }
+            }
             if (args.Length == 0)
             {
                 ClearTerminal();
@@ -51,7 +71,12 @@ namespace Relicade
                 switch (command)
                 {
                     case "--add-steam-shortcut":
-                        await InitializeGameManager();
+                        if (args.Contains("--app-instance"))
+                        {
+                            _gameManager ??= new GameManager();
+                            await _gameManager.LoadGamesForManagedShortcutAsync();
+                        }
+                        else await InitializeGameManager();
                         return await AddSteamShortcutCommand(args);
 
                     case "-h":
@@ -215,6 +240,7 @@ namespace Relicade
             PrintHelpItem("--update-launcher", "Self-update unavailable in this development build");
             PrintHelpItem("-d, --download <name>", "Download and install a game");
             PrintHelpItem("-r, --run <name>", "Run a game (auto-updates if needed)");
+            PrintHelpItem("--launch-instance <InstanceKey>", "Launch one exact managed instance offline (no update)");
             PrintHelpItem("-x, --uninstall <name>", "Uninstall a game");
             Console.WriteLine();
             WriteColor("Examples:", ColorMuted);
@@ -238,6 +264,16 @@ namespace Relicade
                 return PrintError("No game name was provided for --add-steam-shortcut.");
 
             var identityIndex = Array.FindIndex(args, arg => arg == "--app-identity");
+            var instanceIndex = Array.FindIndex(args, arg => arg == "--app-instance");
+            if (instanceIndex >= 0)
+            {
+                if (args.Length != 5 || instanceIndex != 2 || args[4] != "--wait-for-steam-exit" || identityIndex >= 0)
+                    return PrintError("Invalid managed Steam worker arguments.");
+                var exact = ManagedShortcutLaunch.Resolve(_gameManager.LibraryApps, args[3]);
+                _gameManager.VerifyManagedShortcutLibrary();
+                await ShortcutHelper.AddGameToSteamFromCliAsync(exact, _gameManager.GamesFolder, AppSettings.Load(), _gameManager.CacheFolder, true);
+                return 0;
+            }
             if (identityIndex >= 0 && identityIndex + 1 >= args.Length)
                 return PrintError("No app identity was provided for --app-identity.");
             var game = _gameManager.Games.FirstOrDefault(g => identityIndex >= 0

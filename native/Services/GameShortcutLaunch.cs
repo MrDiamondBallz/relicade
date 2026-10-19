@@ -8,13 +8,20 @@ public sealed record GameShortcutTarget(string FileName, IReadOnlyList<string> A
 /// <summary>Resolve shortcuts without launching Relicade, updating, or starting the game.</summary>
 public static class GameShortcutLaunch
 {
-    public static async Task<GameShortcutTarget?> PrepareAsync(GameInfo game, string gamesFolder, AppSettings settings,
-        Func<IReadOnlyList<string>, Task<string?>>? chooseExecutable = null, CancellationToken cancellationToken = default)
+    public static Task<GameShortcutTarget?> PrepareAsync(GameInfo game, string gamesFolder, AppSettings settings,
+        Func<IReadOnlyList<string>, Task<string?>>? chooseExecutable = null, CancellationToken cancellationToken = default) =>
+        PrepareAsync(game, gamesFolder, settings, chooseExecutable, cancellationToken, ManagedShortcutLaunch.ResolveOwnLauncher);
+
+    internal static async Task<GameShortcutTarget?> PrepareAsync(GameInfo game, string gamesFolder, AppSettings settings,
+        Func<IReadOnlyList<string>, Task<string?>>? chooseExecutable, CancellationToken cancellationToken, Func<string?> launcherResolver)
     {
         await game.CatalogPreparation.WaitAsync(cancellationToken);
         var gamePath = game.GetInstallPath(gamesFolder);
         if (PortableInstallationRecovery.EnsureReadable(game, gamePath) != null)
-            throw new NotSupportedException("Direct portable shortcuts bypass Relicade's running-game lease. Launch this managed installation through Relicade until launcher-managed shortcuts are supported; its payload and selection have not been changed.");
+        {
+            var launcher = ManagedShortcutLaunch.ValidateLauncher(launcherResolver(), gamesFolder, gamePath);
+            return new(launcher, [ManagedShortcutLaunch.Command, game.InstanceKey], Path.GetDirectoryName(launcher)!);
+        }
         if (WindowsInstallerService.HasReceipt(gamePath))
         {
             if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("This installation requires Windows desktop.");

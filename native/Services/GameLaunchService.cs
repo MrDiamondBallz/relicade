@@ -7,7 +7,11 @@ namespace Relicade.Services;
 
 public static class GameLaunchService
 {
-    public static async Task<bool> LaunchAsync(GameInfo game, string gamesFolder)
+    public static Task<bool> LaunchAsync(GameInfo game, string gamesFolder) => LaunchAsync(game, gamesFolder, null);
+
+    // Shortcut dispatch binds the generation it validated before entering this service.
+    internal static async Task<bool> LaunchAsync(GameInfo game, string gamesFolder, string? expectedOperationId,
+        ManagedShortcutChildLifetime? shortcutObserver = null)
     {
         if (string.IsNullOrEmpty(game.FolderName))
         {
@@ -19,7 +23,12 @@ public static class GameLaunchService
         {
             var gamePath = game.GetInstallPath(gamesFolder);
             var portableManifest = PortableInstallationRecovery.EnsureReadable(game, gamePath);
+            if (expectedOperationId != null && portableManifest?.OperationId != expectedOperationId)
+                throw new IOException("The managed generation changed before launch. Refresh and retry.");
             if (portableManifest != null) game.SelectedExecutable = PortableInstallationTransaction.SafePath(gamePath, portableManifest.SelectedExecutable);
+            if (expectedOperationId != null) ManagedShortcutLaunch.EnsureSupportedLifetime(game.SelectedExecutable!);
+            if (expectedOperationId != null && shortcutObserver == null)
+                throw new NotSupportedException("Managed shortcut child-tree observation must be established before launch.");
 
             if (FlatpakService.HasReceipt(gamePath))
                 return await LaunchFlatpakAsync(game, gamePath);
@@ -33,7 +42,7 @@ public static class GameLaunchService
                 return false;
             }
 
-            GameInstallationService.EnsureExecutableAtRoot(gamePath, game.GetInstallationOptions());
+            if (expectedOperationId == null) GameInstallationService.EnsureExecutableAtRoot(gamePath, game.GetInstallationOptions());
 
             var executables = GameInstallationService.FindExecutableCandidates(
                 gamePath,
@@ -106,7 +115,7 @@ public static class GameLaunchService
                 return false;
             }
 
-            using var portableLifetime = PortableInstallationLifetime.Begin(gamePath, portableManifest?.OperationId);
+            using var portableLifetime = PortableInstallationLifetime.Begin(gamePath, expectedOperationId ?? portableManifest?.OperationId);
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                 !executablePath.EndsWith(".app") &&
                 !needsWine)
@@ -166,8 +175,8 @@ public static class GameLaunchService
             System.Diagnostics.Process? gameProcess;
             try
             {
-                gameProcess = HostGameSession.Start(startInfo);
-                if (gameProcess != null) portableLifetime.Attach(gameProcess);
+                gameProcess = shortcutObserver == null ? HostGameSession.Start(startInfo) : shortcutObserver.Start(startInfo);
+                if (gameProcess != null && shortcutObserver == null) TrackStartedProcess(portableLifetime, gameProcess, false);
             }
             catch { portableLifetime.PreserveUncertain(); throw; }
             if (gameProcess == null)
@@ -189,40 +198,54 @@ public static class GameLaunchService
                 return false;
             }
 
-            var liveProcEnviron = OperatingSystem.IsLinux()
-                ? LaunchDebugReport.TryReadProcEnviron(gameProcess.Id)
-                : null;
+            try
+            {
+                var liveProcEnviron = OperatingSystem.IsLinux()
+                    ? LaunchDebugReport.TryReadProcEnviron(gameProcess.Id)
+                    : null;
 
-            WriteLaunchReport(
-                gameName,
-                gamePath,
-                executablePath,
-                executables,
-                selectedExecutableFile,
-                startInfo,
-                processEnvBefore,
-                startInfoEnvAfter,
-                gameProcess.Id,
-                liveProcEnviron);
+                WriteLaunchReport(
+                    gameName,
+                    gamePath,
+                    executablePath,
+                    executables,
+                    selectedExecutableFile,
+                    startInfo,
+                    processEnvBefore,
+                    startInfoEnvAfter,
+                    gameProcess.Id,
+                    liveProcEnviron);
 
-            ScheduleLaunchExitFollowUp(
-                gameName,
-                gamePath,
-                executablePath,
-                executables,
-                selectedExecutableFile,
-                startInfo,
-                processEnvBefore,
-                startInfoEnvAfter,
-                gameProcess,
-                liveProcEnviron);
+                ScheduleLaunchExitFollowUp(
+                    gameName,
+                    gamePath,
+                    executablePath,
+                    executables,
+                    selectedExecutableFile,
+                    startInfo,
+                    processEnvBefore,
+                    startInfoEnvAfter,
+                    gameProcess,
+                    liveProcEnviron);
 
-            game.RaiseGameProcessStarted(gameProcess);
+                game.RaiseGameProcessStarted(gameProcess);
 
-            if (game.GameManager != null && Avalonia.Application.Current != null)
-                game.GameManager.OnPropertyChanged(nameof(GameManager.Games));
+                if (game.GameManager != null && Avalonia.Application.Current != null)
+                    game.GameManager.OnPropertyChanged(nameof(GameManager.Games));
 
-            return true;
+                // Keep the existing writer lease and Launching receipt owned by this
+                // stack until the kernel proves the entire owned child tree is gone.
+                // NEVER Attach the direct PID on this path: stale-PID cleanup could
+                // otherwise unlock an orphaned/daemonized descendant after a crash.
+                if (shortcutObserver != null)
+                    return await CompleteManagedShortcutAsync(portableLifetime, gameProcess, shortcutObserver);
+                return true;
+            }
+            catch
+            {
+                if (shortcutObserver != null) portableLifetime.PreserveUncertain();
+                throw;
+            }
         }
         catch (Exception ex)
         {
@@ -232,6 +255,27 @@ public static class GameLaunchService
 
             return false;
         }
+    }
+
+    // Shared production completion boundary, exercised with benign OWN test
+    // workers rather than executing any installed/synthetic game payload.
+    internal static async Task<bool> CompleteManagedShortcutAsync(PortableInstallationLifetime lifetime,
+        Process process, ManagedShortcutChildLifetime observer)
+    {
+        try
+        {
+            await observer.ObserveAsync(process);
+            return process.ExitCode == 0;
+        }
+        catch { lifetime.PreserveUncertain(); throw; }
+    }
+
+    // Without an owned child-tree observer, a native file format is not authority.
+    // This conservative helper also remains the unchanged ordinary UI Attach path.
+    internal static void TrackStartedProcess(PortableInstallationLifetime lifetime, Process process, bool managedShortcut)
+    {
+        if (managedShortcut) lifetime.PreserveUncertain();
+        else lifetime.Attach(process);
     }
 
     private static async Task<bool> LaunchWindowsInstallerAppAsync(GameInfo game, string gamePath)
