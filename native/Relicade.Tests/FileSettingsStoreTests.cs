@@ -8,6 +8,7 @@ public class FileSettingsStoreTests : IDisposable
 {
     private readonly string _tempDirectory;
     private readonly string _settingsPath;
+    private readonly CredentialVaultTestScope _vault = new();
 
     public FileSettingsStoreTests()
     {
@@ -18,6 +19,7 @@ public class FileSettingsStoreTests : IDisposable
 
     public void Dispose()
     {
+        _vault.Dispose();
         if (Directory.Exists(_tempDirectory))
             Directory.Delete(_tempDirectory, recursive: true);
     }
@@ -61,10 +63,13 @@ public class FileSettingsStoreTests : IDisposable
 
         store.Save(settings);
 
-        var reloaded = new FileSettingsStore(_settingsPath).Load();
-        reloaded.GitHubApiToken.Should().Be("test-token");
-        reloaded.GitLabApiToken.Should().Be("gitlab-token");
-        reloaded.CodebergApiToken.Should().Be("codeberg-token");
+        // A fresh runtime without a vault must not recover credentials from general settings.
+        var reloaded = new FileSettingsStore(_settingsPath, new Relicade.Services.Credentials.CredentialSession(
+            new Relicade.Services.Credentials.UnavailableCredentialVault())).Load();
+        reloaded.GitHubApiToken.Should().BeEmpty();
+        reloaded.GitLabApiToken.Should().BeEmpty();
+        reloaded.CodebergApiToken.Should().BeEmpty();
+        File.ReadAllText(_settingsPath).Should().NotContain("test-token").And.NotContain("gitlab-token").And.NotContain("codeberg-token");
         reloaded.SortBy.Should().Be("Name");
         reloaded.MouseWheelScrollSpeed.Should().Be(3);
         reloaded.TruncateLibraryCardTitles.Should().BeFalse();

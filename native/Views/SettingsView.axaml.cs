@@ -8,6 +8,7 @@ using Relicade.Models;
 using Relicade.Core.Services;
 using Relicade.Services;
 using Relicade.ViewModels;
+using Relicade.Services.Credentials;
 
 namespace Relicade.Views;
 public partial class SettingsView : UserControl
@@ -455,11 +456,14 @@ public partial class SettingsView : UserControl
         var token = draft?.Trim() ?? string.Empty;
         if (!string.IsNullOrEmpty(token))
         {
+            try { CredentialIdentity.ValidateToken(token); }
+            catch (CredentialVaultUnavailableException) { await _host.ShowMessageBoxAsync("Token format is not supported. Use a single-line provider token.", "Token not saved"); return; }
             var validation = await ReleaseTokenValidator.ValidateAsync(_gameManager.HttpClient, provider, token, _session.Token);
             // Only a token the provider refused is kept out; one that couldn't be checked (offline) is saved.
             if (validation.Rejected) { await _host.ShowMessageBoxAsync($"{validation.ErrorMessage}\n\nThe saved {RepositorySourceHelper.DisplayName(provider)} token was left unchanged.", "Token validation failed"); return; }
         }
-        Model.SaveApiToken(provider, token); UpdateTokenButton(provider); RefreshApiRateLimits();
+        if (!await Model.SaveApiTokenAsync(provider, token, _session.Token)) return;
+        UpdateTokenButton(provider); RefreshApiRateLimits();
         if (provider == "github") _host.ApplyTopBanner();
     }
     internal async void SaveGitHubToken_Click(object? sender, RoutedEventArgs e) { if (_context != null && !_suppressSettingsUiEvents) await _session.RunAsync(() => SaveApiTokenAsync("github", GitHubTokenTextBox.Text)); }
@@ -553,18 +557,19 @@ public partial class SettingsView : UserControl
         }
     }
 
-    internal void ClearGitHubToken_Click(object sender, RoutedEventArgs e)
+    internal async void ClearGitHubToken_Click(object sender, RoutedEventArgs e) => await ClearApiTokenAsync("github");
+
+    private async Task ClearApiTokenAsync(string provider)
     {
-        if (_context != null)
+        if (_context == null || _suppressSettingsUiEvents) return;
+        await _session.RunAsync(async () =>
         {
-            Model.SaveApiToken("github", "");
-            if (GitHubTokenTextBox != null)
-                GitHubTokenTextBox.Text = string.Empty;
-            UpdateTokenButton("github");
+            if (!await Model.SaveApiTokenAsync(provider, "", _session.Token)) return;
+            var box = provider switch { "github" => GitHubTokenTextBox, "gitlab" => GitLabTokenTextBox, _ => CodebergTokenTextBox };
+            box.Text = string.Empty;
             RefreshApiRateLimits();
-            OnSettingChanged();
-            _host.ApplyTopBanner();
-        }
+            if (provider == "github") _host.ApplyTopBanner();
+        });
     }
 
     internal void CreateGitLabToken_Click(object sender, RoutedEventArgs e)
@@ -580,26 +585,10 @@ public partial class SettingsView : UserControl
         }
     }
 
-    internal void ClearGitLabToken_Click(object sender, RoutedEventArgs e)
-    {
-        if (_context != null)
-        {
-            Model.SaveApiToken("gitlab", "");
-            if (GitLabTokenTextBox != null)
-                GitLabTokenTextBox.Text = string.Empty;
-            UpdateTokenButton("gitlab");
-            OnSettingChanged();
-        }
-    }
+    internal async void ClearGitLabToken_Click(object sender, RoutedEventArgs e) => await ClearApiTokenAsync("gitlab");
 
     internal void CreateCodebergToken_Click(object sender, RoutedEventArgs e) => _host.OpenUrl("https://codeberg.org/user/settings/applications/tokens/new");
-    internal void ClearCodebergToken_Click(object sender, RoutedEventArgs e)
-    {
-        if (_context == null) return;
-        Model.SaveApiToken("codeberg", "");
-        CodebergTokenTextBox.Text = string.Empty;
-        UpdateTokenButton("codeberg");
-    }
+    internal async void ClearCodebergToken_Click(object sender, RoutedEventArgs e) => await ClearApiTokenAsync("codeberg");
 
     internal async void ClearIconCache_Click(object sender, RoutedEventArgs e)
     {

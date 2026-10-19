@@ -98,6 +98,27 @@ public sealed class ReleaseEndpointCache
 
     public RateLimitEntry? GetRateLimit(string key) { lock (_gate) return _rateLimits.GetValueOrDefault(key); }
 
+    public void RemoveCredentialContext(string context)
+    {
+        lock (_gate)
+        {
+            foreach (var key in _validators.Keys.Where(k => k.StartsWith(context + ":", StringComparison.Ordinal)).ToArray())
+            {
+                _validators.Remove(key);
+                _bodies.Remove(key);
+                if (_directory != null)
+                {
+                    try { File.Delete(BodyPath(key)); }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                    { System.Diagnostics.Debug.WriteLine("Removed credential cache payload could not be cleaned up."); }
+                }
+            }
+            _rateLimits.Remove(context);
+            SaveIndex();
+            SaveRateLimits();
+        }
+    }
+
     public void SetRateLimit(string key, RateLimitEntry entry)
     {
         lock (_gate)

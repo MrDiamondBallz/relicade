@@ -945,6 +945,9 @@
 								<TabItem Header="Advanced"><ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
 									<StackPanel Margin="16,12,16,16" Spacing="4">
 
+                                        <TextBlock Text="{Binding CredentialStorageMessage}" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource ThemeText}" AutomationProperties.LiveSetting="Polite" Margin="0,0,0,12"/>
+
 										<!-- GitHub API Token -->
 										<TextBlock Text="GITHUB API TOKEN"
 												   FontSize="10" FontWeight="Bold"

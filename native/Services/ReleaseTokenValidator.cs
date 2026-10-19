@@ -55,7 +55,7 @@ public static class ReleaseTokenValidator
             var reason = response.StatusCode switch
             {
                 HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => "The token was rejected or does not have access.",
-                _ => $"The provider returned {(int)response.StatusCode} ({response.ReasonPhrase}).",
+                _ => $"The provider returned HTTP {(int)response.StatusCode}.",
             };
             // GitHub also answers 403 when the hourly quota is used up; that says nothing about the token.
             var rejected = response.StatusCode == HttpStatusCode.Unauthorized ||
@@ -68,9 +68,9 @@ public static class ReleaseTokenValidator
         {
             return new(false, "The validation request timed out.");
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
-            return new(false, $"Could not reach the provider: {ex.Message}");
+            return new(false, "Could not reach the provider. Retry when the connection is available.");
         }
     }
 }

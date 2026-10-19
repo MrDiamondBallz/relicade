@@ -47,6 +47,7 @@ public class BrowseTests : IDisposable
     [InlineData(false, "")]
     public void Settings_from_3_4_keep_the_players_own_list_and_stop_writing_catalog_sources(bool hasOwnList, string expectedList)
     {
+        using var vault = new CredentialVaultTestScope();
         Directory.CreateDirectory(_directory);
         var path = Path.Combine(_directory, "settings.json");
         var ownList = hasOwnList
@@ -72,10 +73,19 @@ public class BrowseTests : IDisposable
             """);
 
         var store = new FileSettingsStore(path);
-        store.Current.GitHubApiToken.Should().Be("test-token");
+        store.Current.GitHubApiToken.Should().BeEmpty("legacy plaintext is never silently used");
+        store.HasLegacyCredentials.Should().BeTrue();
         store.Current.SortBy.Should().Be("Name");
         store.Current.CustomAppListLocation.Should().Be(expectedList);
 
+        var original = File.ReadAllText(path);
+        Assert.Throws<Relicade.Services.Credentials.LegacyCredentialCleanupRequiredException>(() => store.Save(store.Current));
+        File.ReadAllText(path).Should().Be(original);
+        // Explicit synthetic fixture repair, not an implicit product migration.
+        var repaired = System.Text.Json.Nodes.JsonNode.Parse(original)!;
+        repaired.AsObject().Remove("GitHubApiToken");
+        File.WriteAllText(path, repaired.ToJsonString());
+        store.Load();
         store.Save(store.Current);
         File.ReadAllText(path).Should().NotContain("AppCatalogSources");
         new FileSettingsStore(path).Current.CustomAppListLocation.Should().Be(expectedList);

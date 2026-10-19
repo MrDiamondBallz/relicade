@@ -90,9 +90,36 @@ namespace Relicade
         public List<string> HiddenApps { get; set; } = new List<string>();
         public List<string> ManuallyHiddenApps { get; set; } = new List<string>();
         public string AppsPath { get; set; } = string.Empty;
-        public string GitHubApiToken { get; set; } = string.Empty;
-        public string GitLabApiToken { get; set; } = string.Empty;
-        public string CodebergApiToken { get; set; } = string.Empty;
+        private string _gitHubApiToken = string.Empty, _gitLabApiToken = string.Empty, _codebergApiToken = string.Empty;
+        private Relicade.Services.Credentials.CredentialSession? _credentialContext;
+        internal Relicade.Services.Credentials.CredentialSession? CredentialContext
+        {
+            get => _credentialContext;
+            set
+            {
+                _credentialContext = value;
+                if (value != null) _gitHubApiToken = _gitLabApiToken = _codebergApiToken = string.Empty;
+            }
+        }
+        // Compatibility for provider consumers: runtime-only caches, never a settings/import/export field.
+        [JsonIgnore]
+        public string GitHubApiToken
+        {
+            get => CredentialContext?.Get(Relicade.Services.Credentials.CredentialProvider.GitHub) ?? _gitHubApiToken;
+            set { if (CredentialContext is { } context) context.SetTransient(Relicade.Services.Credentials.CredentialProvider.GitHub, value); else _gitHubApiToken = value; }
+        }
+        [JsonIgnore]
+        public string GitLabApiToken
+        {
+            get => CredentialContext?.Get(Relicade.Services.Credentials.CredentialProvider.GitLab) ?? _gitLabApiToken;
+            set { if (CredentialContext is { } context) context.SetTransient(Relicade.Services.Credentials.CredentialProvider.GitLab, value); else _gitLabApiToken = value; }
+        }
+        [JsonIgnore]
+        public string CodebergApiToken
+        {
+            get => CredentialContext?.Get(Relicade.Services.Credentials.CredentialProvider.Codeberg) ?? _codebergApiToken;
+            set { if (CredentialContext is { } context) context.SetTransient(Relicade.Services.Credentials.CredentialProvider.Codeberg, value); else _codebergApiToken = value; }
+        }
         public string SortBy { get; set; } = "LastPlayed";
         /// <summary>The player's own app list for Browse: a local JSON file or a URL, in the apps.json format.</summary>
         public string CustomAppListLocation { get; set; } = string.Empty;

@@ -94,6 +94,28 @@ public sealed class ReleaseRequestCoordinator
             lock (_gate) _validatedTokens.Remove(provider + ":" + CredentialKey(token));
     }
 
+    /// <summary>Forget a removed/replaced credential context in every live HTTP session. Does not undo already sent requests.</summary>
+    public static void InvalidateCredentialForAll(string provider, string? token)
+    {
+        if (string.IsNullOrWhiteSpace(token)) return; // Never evict the anonymous/offline context.
+        var context = provider + ":" + CredentialKey(token);
+        foreach (var entry in Instances)
+        {
+            var coordinator = entry.Value;
+            lock (coordinator._gate)
+            {
+                coordinator._validatedTokens.Remove(context);
+                coordinator._cooldowns.Remove(context);
+                coordinator._secondaryFailures.Remove(context);
+                foreach (var key in coordinator._redirects.Keys.Where(k => k.StartsWith(context + ":", StringComparison.Ordinal)).ToArray())
+                    coordinator._redirects.Remove(key);
+                foreach (var flight in coordinator._flights.Where(p => p.Key.StartsWith(context + ":", StringComparison.Ordinal)).Select(p => p.Value))
+                    flight.Cancellation.Cancel();
+                coordinator._cache.RemoveCredentialContext(context);
+            }
+        }
+    }
+
     private sealed class Flight
     {
         public readonly CancellationTokenSource Cancellation = new();
@@ -221,6 +243,13 @@ public sealed class ReleaseRequestCoordinator
                 if (provider == "github" && response.RequestMessage?.RequestUri is { } final && final != url)
                     throw new HttpRequestException("GitHub API client followed a redirect without preserving authentication.");
                 var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                // A broken/malicious provider must not echo a request secret into a persisted response/validator.
+                if (!string.IsNullOrEmpty(token) && (body.Contains(token, StringComparison.Ordinal) ||
+                    response.Headers.ETag?.ToString().Contains(token, StringComparison.Ordinal) == true))
+                    throw new HttpRequestException("Provider response contained credential material and was not cached.");
+                lock (_gate)
+                {
+                ct.ThrowIfCancellationRequested(); // A removed credential cannot repopulate session/cache state.
                 var result = Describe(response, provider, !string.IsNullOrWhiteSpace(token), body, context);
                 UpdateRateLimit(context, result);
                 if (result.IsAuthenticated && response.IsSuccessStatusCode)
@@ -249,6 +278,7 @@ public sealed class ReleaseRequestCoordinator
                 else _cache.Set(key, new(body, etag, Clock.GetUtcNow()));
                 lock (_gate) { _cooldowns.Remove(context); _secondaryFailures.Remove(context); }
                 return result with { Releases = releases, ETag = etag };
+                }
             }
         }
         finally { semaphore.Release(); }

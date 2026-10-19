@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Relicade.Models;
 using Relicade.Services;
 using Relicade.Core.Models;
+using Relicade.Services.Credentials;
 
 namespace Relicade.ViewModels;
 
@@ -14,20 +15,40 @@ public class SettingsViewModel : ObservableViewModel
     public event Action<SettingsChange>? Changed;
     public event Action<Exception>? SaveFailed;
     public event Action<string>? CredentialsChanged;
+    public CredentialSession Credentials { get; }
+    public string CredentialStorageMessage => HasLegacyCredentials
+        ? new LegacyCredentialCleanupRequiredException().Message
+        : "Tokens are optional and saved only in the OS credential vault. No file fallback. " +
+          string.Join(" · ", Enum.GetValues<CredentialProvider>().Select(p => $"{p}: {Credentials.Status(p)}"));
+    public bool HasLegacyCredentials => (_settingsStore as ICredentialSettingsStore)?.HasLegacyCredentials == true;
     public void SaveApiToken(string provider, string? draft)
     {
-        var value = draft?.Trim() ?? "";
-        var previous = provider switch { "github" => Current.GitHubApiToken, "gitlab" => Current.GitLabApiToken, "codeberg" => Current.CodebergApiToken, _ => throw new ArgumentOutOfRangeException(nameof(provider)) };
-        if (previous == value) return;
-        switch (provider) { case "github": Current.GitHubApiToken = value; break; case "gitlab": Current.GitLabApiToken = value; break; case "codeberg": Current.CodebergApiToken = value; break; }
-        try { Save(Current); }
+        // Compatibility for synchronous callers. All adapter/session awaits are context-free.
+        var identity = CredentialIdentity.Parse(provider);
+        try { Credentials.SaveAsync(identity, draft).GetAwaiter().GetResult(); }
         catch (Exception ex)
         {
-            switch (provider) { case "github": Current.GitHubApiToken = previous; break; case "gitlab": Current.GitLabApiToken = previous; break; case "codeberg": Current.CodebergApiToken = previous; break; }
-            SaveFailed?.Invoke(ex);
+            SaveFailed?.Invoke(CredentialSession.Sanitize(ex));
             return;
         }
+        Credentials.Attach(Current);
+        Refresh();
         CredentialsChanged?.Invoke(provider);
+    }
+
+    public async Task<bool> SaveApiTokenAsync(string provider, string? draft, CancellationToken cancellationToken = default)
+    {
+        var identity = CredentialIdentity.Parse(provider);
+        try { await Credentials.SaveAsync(identity, draft, cancellationToken); }
+        catch (Exception ex)
+        {
+            SaveFailed?.Invoke(CredentialSession.Sanitize(ex));
+            return false;
+        }
+        Credentials.Attach(Current);
+        Refresh();
+        CredentialsChanged?.Invoke(provider);
+        return true;
     }
 
     /// <summary>Saves the player's own app list location; true when it changed.</summary>
@@ -111,9 +132,12 @@ public class SettingsViewModel : ObservableViewModel
         }
     }
 
-    public SettingsViewModel(ISettingsStore? settingsStore = null)
+    public SettingsViewModel(ISettingsStore? settingsStore = null, CredentialSession? credentials = null)
     {
         _settingsStore = settingsStore ?? SettingsStoreProvider.Default;
+        Credentials = credentials ?? (_settingsStore as ICredentialSettingsStore)?.Credentials ?? CredentialVaultProvider.Session;
+        Credentials.InitializeAsync().GetAwaiter().GetResult();
+        Credentials.Attach(_settingsStore.Current);
         _kioskSession = new KioskSession(KioskLaunch.IsStartupLocked(_settingsStore.Current));
     }
 
@@ -145,7 +169,7 @@ public class SettingsViewModel : ObservableViewModel
     }
 
     public bool IsReadOnly => (_settingsStore as ISettingsRecoveryState)?.IsReadOnly == true;
-    public string? RecoveryMessage => IsReadOnly
+    public string? RecoveryMessage => HasLegacyCredentials ? new LegacyCredentialCleanupRequiredException().Message : IsReadOnly
         ? "Settings require recovery and are read-only. Existing settings have not been replaced. Close Relicade and repair or restore the settings file, then reopen Relicade or retry loading."
         : null;
 
@@ -192,6 +216,7 @@ public class SettingsViewModel : ObservableViewModel
     public AppSettings Load()
     {
         var settings = _settingsStore.Load();
+        Credentials.Attach(settings);
         settings.ListRowHeight = Math.Clamp(settings.ListRowHeight ?? (settings.UseGridView ? 96 : settings.SlotSize), 72, 400);
         _fallbackSettings = null;
         Refresh();

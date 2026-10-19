@@ -54,27 +54,7 @@ public sealed class MarkdownRenderer
                 {
                     if (inCodeBlock)
                     {
-                        if (codeBlockLines.Count > 0)
-                        {
-                            var codeBlock = new Border
-                            {
-                                Background = new SolidColorBrush(ThemeColor("ThemeDarker", Color.Parse("#1e1e1e"))),
-                                BorderBrush = new SolidColorBrush(ThemeColor("ThemeBorder", Color.Parse("#2d2d30"))),
-                                BorderThickness = new Thickness(1),
-                                CornerRadius = new CornerRadius(4),
-                                Padding = new Thickness(12),
-                                Margin = new Thickness(0, 8, 0, 8)
-                            };
-                            codeBlock.Child = new SelectableTextBlock
-                            {
-                                Text = string.Join("\n", codeBlockLines),
-                                FontFamily = new FontFamily("Consolas,Courier New,monospace"),
-                                FontSize = 13,
-                                Foreground = new SolidColorBrush(ThemeColor("ThemeTextSecondary", Color.Parse("#d4d4d4")))
-                            };
-                            controls.Add(codeBlock);
-                            codeBlockLines.Clear();
-                        }
+                        FlushCodeBlock(controls, codeBlockLines, includeEmpty: false);
                         inCodeBlock = false;
                     }
                     else
@@ -267,8 +247,32 @@ public sealed class MarkdownRenderer
                 }
             }
 
+            // EOF is also a code-block boundary. Never send accumulated code through inline/HTML parsing.
+            if (inCodeBlock) FlushCodeBlock(controls, codeBlockLines, includeEmpty: true);
             FlushListItems(controls, listItems, imageBaseUrl);
             return controls;
+        }
+
+        private void FlushCodeBlock(List<Control> controls, List<string> lines, bool includeEmpty)
+        {
+            if (lines.Count == 0 && !includeEmpty) return;
+            controls.Add(new Border
+            {
+                Background = new SolidColorBrush(ThemeColor("ThemeDarker", Color.Parse("#1e1e1e"))),
+                BorderBrush = new SolidColorBrush(ThemeColor("ThemeBorder", Color.Parse("#2d2d30"))),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(4),
+                Padding = new Thickness(12),
+                Margin = new Thickness(0, 8, 0, 8),
+                Child = new SelectableTextBlock
+                {
+                    Text = string.Join("\n", lines),
+                    FontFamily = new FontFamily("Consolas,Courier New,monospace"),
+                    FontSize = 13,
+                    Foreground = new SolidColorBrush(ThemeColor("ThemeTextSecondary", Color.Parse("#d4d4d4")))
+                }
+            });
+            lines.Clear();
         }
 
         private Control CreateMarkdownQuote(List<string> quoteLines, string? alertType, string? imageBaseUrl)
