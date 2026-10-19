@@ -173,20 +173,25 @@ public sealed class AppEntryService(GameManager manager, SettingsViewModel setti
                         _settingsModel.ReplaceCurrent(originalSettings);
                         if (recoveryErrors.Count > 0)
                         {
-                            // Preserve concrete recovery evidence locally; no settings/credentials are serialized.
+                            // Preserve affected identity maps locally, never credentials or the full settings document.
                             var evidence = Path.Combine(Path.GetDirectoryName(_gameManager.CatalogService.AppsConfigPath)!,
                                 "entry-recovery-" + Guid.NewGuid().ToString("N") + ".json");
+                            var recoveryRecord = $"Recovery record: {evidence}.";
                             try
                             {
                                 await File.WriteAllTextAsync(evidence, System.Text.Json.JsonSerializer.Serialize(new
                                 {
                                     oldFolderName, folderName, oldIdentityKey, identityKey,
+                                    originalSettings.UserAppTags, originalSettings.UserAppDisplayNames,
                                     operationError = error.GetType().Name,
                                     recoveryErrors = recoveryErrors.Select(e => e.GetType().Name).ToArray()
                                 }));
                             }
-                            catch (Exception evidenceError) { recoveryErrors.Add(evidenceError); }
-                            Notify($"The entry update failed and recovery is incomplete. Do not move or delete either folder. Recovery record: {evidence}. {error.Message}", "Entry Recovery Required");
+                            catch (Exception)
+                            {
+                                recoveryRecord = "A recovery record could not be written. Keep both folders and repair the library and settings before retrying.";
+                            }
+                            Notify($"The entry update failed and recovery is incomplete. Do not move or delete either folder. {recoveryRecord} {error.Message}", "Entry Recovery Required");
                         }
                         else Notify($"The entry update failed. The original entry and folder were preserved. {error.Message}", "Entry Update Failed");
                         return false;
