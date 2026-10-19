@@ -19,7 +19,7 @@ public static class GameShortcutLaunch
         var gamePath = game.GetInstallPath(gamesFolder);
         if (PortableInstallationRecovery.EnsureReadable(game, gamePath) != null)
         {
-            var launcher = ManagedShortcutLaunch.ValidateLauncher(launcherResolver(), gamesFolder);
+            var launcher = ManagedShortcutLaunch.ValidateLauncher(launcherResolver(), gamesFolder, gamePath);
             return new(launcher, [ManagedShortcutLaunch.Command, game.InstanceKey], Path.GetDirectoryName(launcher)!);
         }
         if (WindowsInstallerService.HasReceipt(gamePath))

@@ -158,6 +158,19 @@ public sealed class ManagedShortcutTests : IDisposable
         Assert.False(File.Exists(Path.Combine(game.GetInstallPath(Apps), "selected_executable.txt")));
     }
     [Fact]
+    public void Relocated_payload_staging_and_retained_generations_are_not_launcher_destinations()
+    {
+        var relocated = Directory.CreateDirectory(Path.Combine(root, "relocated")).FullName;
+        var payload = Path.Combine(relocated, "Relicade.Desktop"); File.WriteAllText(payload, "NONEXECUTED");
+        Assert.Throws<NotSupportedException>(() => ManagedShortcutLaunch.ValidateLauncher(payload, Apps, relocated));
+        foreach (var generation in new[] { "staging", "previous" })
+        {
+            var path = Path.Combine(Directory.CreateDirectory(Path.Combine(root, PortableInstallationTransaction.DirectoryName, "fixture-key", generation)).FullName, "Relicade.Desktop");
+            File.WriteAllText(path, "NONEXECUTED");
+            Assert.Throws<NotSupportedException>(() => ManagedShortcutLaunch.ValidateLauncher(path, Apps, relocated));
+        }
+    }
+    [Fact]
     public async Task Stable_launcher_and_all_generated_fixture_representations_retain_exact_identity()
     {
         var game = Game("Ω % quote space ' $ `"); game.Repository = "fixture/quote \" Ω % ' $ `"; await Install(game);

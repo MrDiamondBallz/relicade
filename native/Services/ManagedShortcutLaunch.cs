@@ -53,7 +53,7 @@ internal static class ManagedShortcutLaunch
         }
     }
 
-    internal static string ValidateLauncher(string? path, string gamesFolder)
+    internal static string ValidateLauncher(string? path, string gamesFolder, string? installationRoot = null)
     {
         const string refusal = "A stable installed Relicade launcher is required for the running-game lease. Open an installed Relicade build and recreate this shortcut; no direct game shortcut was created.";
         if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path) || !File.Exists(path)) throw new NotSupportedException(refusal);
@@ -65,9 +65,12 @@ internal static class ManagedShortcutLaunch
         var normalized = full.Replace('\\', '/');
         var temp = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         var library = Path.GetFullPath(gamesFolder).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        var installation = installationRoot == null ? null : Path.GetFullPath(installationRoot).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         if (!supported || ShortcutHelper.IsAppImageMountPath(full) || normalized.Contains("/.mount_", StringComparison.OrdinalIgnoreCase) ||
             full.StartsWith(temp, StringComparison.OrdinalIgnoreCase) || normalized.StartsWith("/tmp/", StringComparison.OrdinalIgnoreCase) ||
-            normalized.StartsWith("/var/tmp/", StringComparison.OrdinalIgnoreCase) || full.StartsWith(library, StringComparison.OrdinalIgnoreCase)) throw new NotSupportedException(refusal);
+            normalized.StartsWith("/var/tmp/", StringComparison.OrdinalIgnoreCase) || full.StartsWith(library, StringComparison.OrdinalIgnoreCase) ||
+            installation != null && full.StartsWith(installation, StringComparison.OrdinalIgnoreCase) ||
+            normalized.Split('/').Contains(PortableInstallationTransaction.DirectoryName, StringComparer.OrdinalIgnoreCase)) throw new NotSupportedException(refusal);
         for (FileSystemInfo? item = new FileInfo(full); item != null; item = item is FileInfo f ? f.Directory : ((DirectoryInfo)item).Parent)
             if ((item.Attributes & FileAttributes.ReparsePoint) != 0) throw new NotSupportedException(refusal);
         return full;
