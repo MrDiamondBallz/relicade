@@ -19,7 +19,10 @@ public sealed record LibraryCheckResult(IReadOnlyList<AppCheckResult> Apps, IRea
     public int Failed => Apps.Count(a => a.Outcome == AppCheckOutcome.Failed);
     public int Cancelled => Apps.Count(a => a.Outcome == AppCheckOutcome.Cancelled);
     public int RateLimited => Apps.Count(a => a.Outcome == AppCheckOutcome.RateLimited);
-    public bool Complete => Successful == Apps.Count;
+    public IReadOnlySet<string>? ExpectedIdentityKeys { get; init; }
+    public bool Complete => Successful == Apps.Count &&
+        Apps.Select(a => a.IdentityKey).Distinct(StringComparer.OrdinalIgnoreCase).Count() == Apps.Count &&
+        (ExpectedIdentityKeys == null || ExpectedIdentityKeys.SetEquals(Apps.Select(a => a.IdentityKey)));
     public static LibraryCheckResult Empty { get; } = new([]);
 }
 
@@ -45,7 +48,8 @@ public sealed class LibraryUpdateChecker(HttpClient client, AppSettings settings
     public async Task<LibraryCheckResult> CheckAsync(IEnumerable<GameInfo> apps, bool force,
         TimeSpan cacheAge, IProgress<AppCheckProgress>? progress, CancellationToken token, bool preservePreferredVersion = false)
     {
-        var targets = apps.Where(a => !a.IsManuallyManaged && !string.IsNullOrWhiteSpace(a.Repository)).ToArray();
+        var targets = apps.Where(a => !a.IsManuallyManaged && !string.IsNullOrWhiteSpace(a.Repository))
+            .DistinctBy(a => a.InstanceKey, StringComparer.OrdinalIgnoreCase).ToArray();
         var results = new AppCheckResult[targets.Length];
         var pass = new ReleasePass(client);
         using var cacheScope = force ? null : ReleaseRequestCoordinator.AllowCachedMetadata(cacheAge);
@@ -121,7 +125,10 @@ public sealed class LibraryUpdateChecker(HttpClient client, AppSettings settings
             if (validation.Rejected) invalidProviders.Add(credential.Provider);
         }
         Trace.WriteLine($"Update check: apps={targets.Length}, successful={results.Count(r => r.Outcome == AppCheckOutcome.Successful)}, requests={coordinator.RequestCount - startRequests}, elapsedMs={watch.ElapsedMilliseconds}");
-        return new(results, invalidProviders.ToArray());
+        return new(results, invalidProviders.ToArray())
+        {
+            ExpectedIdentityKeys = targets.Select(a => a.InstanceKey).ToHashSet(StringComparer.OrdinalIgnoreCase)
+        };
     }
 
     private static bool IsTransient(Exception error) => error switch

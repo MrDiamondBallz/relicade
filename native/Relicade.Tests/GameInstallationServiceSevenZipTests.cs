@@ -8,6 +8,14 @@ namespace Relicade.Tests;
 
 public class GameInstallationServiceSevenZipTests
 {
+    // Progress<T> posts asynchronously to a captured context. A synchronous, serialized test observer
+    // makes completion a barrier for every report, rather than racing a mutable List against queued posts.
+    private sealed class ObservedProgress(Action<double> report) : IProgress<double>
+    {
+        private readonly object gate = new();
+        public void Report(double value) { lock (gate) report(value); }
+    }
+
     private static string FixturePath(string fileName) =>
         Path.Combine(AppContext.BaseDirectory, "Fixtures", fileName);
 
@@ -96,7 +104,7 @@ public class GameInstallationServiceSevenZipTests
                 "v3.0.0",
                 new GameInstallationOptions
                 {
-                    ExtractProgress = new Progress<double>(p => progress.Add(p)),
+                    ExtractProgress = new ObservedProgress(p => progress.Add(p)),
                 });
 
             (await File.ReadAllTextAsync(Path.Combine(gamePath, "game.exe"))).Should().StartWith("solid-binary-");

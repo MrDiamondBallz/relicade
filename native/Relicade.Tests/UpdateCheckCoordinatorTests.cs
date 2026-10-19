@@ -25,7 +25,7 @@ public class UpdateCheckCoordinatorTests
             Selections.Add(appKeys);
             Calls.Add("apps"); progress.Report(new(0, Targets?.Count ?? 20, Targets: Targets));
             await AppsGate.WaitAsync(token);
-            return AppResults;
+            return AppResults with { ExpectedIdentityKeys = AppResults.Apps.Select(a => a.IdentityKey).ToHashSet(StringComparer.OrdinalIgnoreCase) };
         }
         public void ApplyCheckResult(UpdateCheckResult result, DateTime time) { Result = result; Calls.Add("result"); }
         public void QueuePostCheckWork(UpdateCheckResult result, bool retry = false) { Retries.Add(retry); Calls.Add("background"); }
@@ -57,7 +57,9 @@ public class UpdateCheckCoordinatorTests
         second.Should().BeSameAs(first);
         check.Cancel(); await first.WaitAsync(TimeSpan.FromSeconds(2));
         workflow.Result!.Complete.Should().BeFalse();
-        workflow.Result.Apps.Cancelled.Should().Be(20);
+        // This workflow has not discovered identities yet. Never fabricate unchecked-N rows from Total.
+        workflow.Result.Apps.Apps.Should().BeEmpty();
+        workflow.Result.Apps.ExpectedIdentityKeys.Should().BeNull();
         workflow.Calls.Should().NotContain("prompt").And.NotContain("background");
         check.IsChecking.Should().BeFalse();
         workflow.AppsGate = Task.CompletedTask;

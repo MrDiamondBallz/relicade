@@ -4,115 +4,123 @@ using System.Text.Json;
 
 namespace Relicade.Services;
 
-public class FileSettingsStore : ISettingsStore
+public class FileSettingsStore : ISettingsStore, ISettingsRecoveryState
 {
-    private static readonly ConcurrentDictionary<string, object> PathLocks = new(StringComparer.OrdinalIgnoreCase);
-
+    private static readonly ConcurrentDictionary<string, object> PathLocks = new(
+        OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
     private readonly string _settingsPath;
+    private readonly object _gate;
     private AppSettings _current;
+    private bool _hasSeenDocument;
+    public bool IsReadOnly => ReadError != null;
+    public Exception? ReadError { get; private set; }
 
     public FileSettingsStore(string? settingsPath = null)
     {
-        _settingsPath = settingsPath ?? RelicadePaths.SettingsJsonPath;
-        _current = ReadFromDisk();
+        _settingsPath = Path.GetFullPath(settingsPath ?? RelicadePaths.SettingsJsonPath);
+        _gate = PathLocks.GetOrAdd(_settingsPath, _ => new object());
+        _current = CreateDefault();
+        Load();
     }
 
     public AppSettings Current => _current;
 
     public AppSettings Load()
     {
-        var loaded = ReadFromDisk();
-        _current = loaded;
-        return _current;
+        lock (_gate)
+        {
+            try
+            {
+                _current = ReadFromDisk();
+                ReadError = null;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or NotSupportedException)
+            {
+                // Defaults are only a read-only display fallback. Never discard the last good in-memory document.
+                ReadError = ex;
+            }
+            return _current;
+        }
     }
 
     public void Save(AppSettings settings)
     {
-        settings.EnsureInitialized();
-        var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-
-        var pathLock = PathLocks.GetOrAdd(_settingsPath, _ => new object());
-        lock (pathLock)
+        ArgumentNullException.ThrowIfNull(settings);
+        lock (_gate)
         {
-            WriteWithRetry(json);
+            if (ReadError is { } unresolved) throw new SettingsRecoveryRequiredException(unresolved);
+            var directory = Path.GetDirectoryName(_settingsPath)!;
+            // Validate before creating anything, and again inside the interprocess writer lease.
+            ValidateExisting();
+            Directory.CreateDirectory(directory);
+            using var lease = AcquireWriteLease();
+            ValidateExisting();
+            settings.EnsureInitialized();
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(settings, new JsonSerializerOptions { WriteIndented = true });
+            WriteAtomic(bytes);
+            _hasSeenDocument = true;
             _current = settings;
         }
     }
 
-    private void WriteWithRetry(string json)
+    private void ValidateExisting()
     {
-        var directory = Path.GetDirectoryName(_settingsPath);
-        if (!string.IsNullOrEmpty(directory))
-            Directory.CreateDirectory(directory);
-
-        var tempPath = _settingsPath + ".tmp";
-        Exception? lastError = null;
-
-        for (var attempt = 0; attempt < 5; attempt++)
+        try { _ = ReadFromDisk(); }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or NotSupportedException)
         {
-            try
-            {
-                File.WriteAllText(tempPath, json, Encoding.UTF8);
-                if (File.Exists(_settingsPath))
-                    File.Replace(tempPath, _settingsPath, null);
-                else
-                    File.Move(tempPath, _settingsPath);
-
-                return;
-            }
-            catch (IOException ex)
-            {
-                lastError = ex;
-                TryDeleteTempFile(tempPath);
-                Thread.Sleep(40 * (attempt + 1));
-            }
+            ReadError = ex;
+            throw new SettingsRecoveryRequiredException(ex);
         }
-
-        throw new IOException(
-            $"Could not save settings to '{_settingsPath}'. Close any other running Relicade instances and try again.",
-            lastError);
     }
 
-    private static void TryDeleteTempFile(string tempPath)
+    private FileStream AcquireWriteLease()
     {
+        // Never remove the lock file: every cooperating process must lock the same inode.
+        for (var attempt = 0; ; attempt++)
+        {
+            try { return new FileStream(_settingsPath + ".lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
+            catch (IOException) when (attempt < 50) { Thread.Sleep(40); }
+        }
+    }
+
+    private void WriteAtomic(byte[] bytes)
+    {
+        var temporary = _settingsPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
-            if (File.Exists(tempPath))
-                File.Delete(tempPath);
+            using (var stream = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                stream.Write(bytes);
+                stream.Flush(flushToDisk: true);
+            }
+            if (File.Exists(_settingsPath)) File.Replace(temporary, _settingsPath, null);
+            else File.Move(temporary, _settingsPath);
         }
-        catch
+        finally
         {
-            // Best effort cleanup only.
+            // Only our own temporary file; never remove another writer's work or the original.
+            try { File.Delete(temporary); }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
         }
     }
 
     private AppSettings ReadFromDisk()
     {
+        string json;
         try
         {
-            if (!File.Exists(_settingsPath))
-                return CreateDefault();
-
-            var json = ReadAllTextShared(_settingsPath);
-            if (string.IsNullOrWhiteSpace(json))
-                return CreateDefault();
-
-            var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? CreateDefault();
-            settings.EnsureInitialized();
-            return settings;
+            using var stream = new FileStream(_settingsPath, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete);
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            json = reader.ReadToEnd();
+            _hasSeenDocument = true;
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Failed to load settings: {ex.Message}");
-            return CreateDefault();
-        }
-    }
-
-    private static string ReadAllTextShared(string path)
-    {
-        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
-        using var reader = new StreamReader(stream, Encoding.UTF8);
-        return reader.ReadToEnd();
+        catch (FileNotFoundException) when (!_hasSeenDocument && ReadError == null) { return CreateDefault(); }
+        catch (DirectoryNotFoundException) when (!_hasSeenDocument && ReadError == null) { return CreateDefault(); }
+        if (string.IsNullOrWhiteSpace(json)) throw new JsonException("The existing settings document is empty.");
+        var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? throw new JsonException("The existing settings document is null.");
+        settings.EnsureInitialized();
+        return settings;
     }
 
     private static AppSettings CreateDefault()

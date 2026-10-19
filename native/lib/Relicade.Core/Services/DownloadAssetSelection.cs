@@ -30,12 +30,15 @@ public static class DownloadAssetPolicy
         var all = GitHubReleaseService.GetDownloadableAssets(release);
         var filtered = GitHubReleaseService.GetDownloadableAssets(release, filter);
         var linux = platform.StartsWith("Linux", StringComparison.OrdinalIgnoreCase);
-        var eligible = filtered.Where(a => PlatformAssetMatcher.MatchesPlatform(a.name, platform) ||
+        var processor = machine ?? (platform.Equals("Linux-ARM64", StringComparison.OrdinalIgnoreCase) ? Architecture.Arm64
+            : platform.Equals("Linux-ARM", StringComparison.OrdinalIgnoreCase) ? Architecture.Arm
+            : platform.Equals("Linux-X86", StringComparison.OrdinalIgnoreCase) ? Architecture.X86
+            : platform.Equals("Linux-X64", StringComparison.OrdinalIgnoreCase) ? Architecture.X64 : DefaultProcessor(platform));
+        var compatible = ForProcessor(filtered, processor);
+        var eligible = compatible.Where(a => PlatformAssetMatcher.MatchesPlatform(a.name, platform) ||
             linux && PlatformAssetMatcher.IsWindowsAsset(a.name))
             .OrderByDescending(a => PlatformAssetMatcher.MatchesPlatform(a.name, platform)).ToList();
-        if (!linux)
-            eligible = ForProcessor(eligible, machine ?? DefaultProcessor(platform));
-        var uncertain = filtered.Where(a => !HasKnownPlatform(a.name)).ToList();
+        var uncertain = compatible.Where(a => !HasKnownPlatform(a.name)).ToList();
         var reason = eligible.Count > 0 ? null : all.Count == 0 ? "This release has no installable download files." :
             filtered.Count == 0 ? $"No download files match the release asset filter \"{filter}\"." :
             $"This release has no recognized download for {platform}.";
@@ -79,31 +82,31 @@ public static class DownloadAssetPolicy
         return DottedVersion.Replace(name, VersionMark);
     }
 
-    /// <summary>
-    /// Windows and Mac releases often ship an ARM64 build next to the x64 one, and the ARM64 one won't start on an
-    /// x64 computer ("not a valid application for this OS platform", "Bad CPU type"). Keeps the builds made for
-    /// <paramref name="machine"/>, plus those that don't say, whenever there are any; otherwise leaves the list alone.
-    /// Linux's own platforms already tell ARM64 apart.
-    /// </summary>
-    internal static List<GitHubAsset> ForProcessor(List<GitHubAsset> assets, Architecture machine)
+    /// <summary>Exclude known incompatible processors. An absent/universal marker is not a known mismatch.
+    /// Emulation requires a separate deliberate runner choice, never a sole-asset fallback.</summary>
+    internal static List<GitHubAsset> ForProcessor(IEnumerable<GitHubAsset> assets, Architecture machine)
     {
-        // An ARM64 computer can run x64 builds through emulation, so they stay when there is no ARM64 one.
-        var wanted = machine is Architecture.Arm64 or Architecture.Arm ? Architecture.Arm64 : Architecture.X64;
-        var fits = assets.Where(a => ProcessorOf(a.name) is not { } processor || processor == wanted).ToList();
-        return fits.Count > 0 ? fits : assets;
+        return assets.Where(a => ProcessorOf(a.name) is not { } processor || processor == machine).ToList();
     }
 
-    private static readonly Regex ArmName = new(@"(?:^|[^a-z0-9])(?:arm64|aarch64|armv8|arm)(?:$|[^a-z0-9])",
+    private static readonly Regex ArmName = new(@"(?:^|[^a-z0-9])(?:arm64|aarch64|armv8)(?:$|[^a-z0-9])",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-    private static readonly Regex X64Name = new(@"(?:^|[^a-z0-9])(?:x64|x86[_-]64|amd64|win64|x86|i386|i686)(?:$|[^a-z0-9])",
+    private static readonly Regex Arm32Name = new(@"(?:^|[^a-z0-9])(?:arm|arm32|armv7[al]?|armhf)(?:$|[^a-z0-9])",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex X64Name = new(@"(?:^|[^a-z0-9])(?:x64|x86[_-]64|amd64|win64)(?:$|[^a-z0-9])",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex X86Name = new(@"(?:^|[^a-z0-9])(?:x86(?![_-]64)|i386|i586|i686)(?:$|[^a-z0-9])",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    /// <summary>Arm64 for an ARM build, X64 for an Intel/AMD one (32-bit included), null when the name doesn't say or says both.</summary>
+    /// <summary>Explicit CPU identity; null when unspecified or the name declares multiple architectures.</summary>
     internal static Architecture? ProcessorOf(string name)
     {
-        var armBuild = ArmName.IsMatch(name);
-        var intelBuild = X64Name.IsMatch(name);
-        return armBuild == intelBuild ? null : armBuild ? Architecture.Arm64 : Architecture.X64;
+        var processors = new List<Architecture>();
+        if (ArmName.IsMatch(name)) processors.Add(Architecture.Arm64);
+        if (Arm32Name.IsMatch(name)) processors.Add(Architecture.Arm);
+        if (X64Name.IsMatch(name)) processors.Add(Architecture.X64);
+        if (X86Name.IsMatch(name)) processors.Add(Architecture.X86);
+        return processors.Count == 1 ? processors[0] : null;
     }
 
     /// <summary>

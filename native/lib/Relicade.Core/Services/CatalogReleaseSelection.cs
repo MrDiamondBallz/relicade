@@ -39,9 +39,8 @@ public static class CatalogReleaseSelection
 
         if (!string.IsNullOrWhiteSpace(preferredVersion))
         {
-            var pinned = FindByTag(releases, preferredVersion);
-            if (pinned != null)
-                return pinned;
+            // An explicit pin is authoritative even when upstream no longer lists it.
+            return FindByTag(releases, preferredVersion);
         }
 
         if (!string.IsNullOrWhiteSpace(githubLatestTag))

@@ -119,12 +119,13 @@ public class DownloadAssetPolicyTests
     public void Nautilus_ios_zip_does_not_prevent_automatic_windows_selection()
     {
         var release = Release("Nautilus-Alfa-iOS.zip", "Nautilus-Alfa-Win64.zip");
-        foreach (var platform in new[] { "Windows", "Linux-X64", "Linux-ARM64" })
+        foreach (var platform in new[] { "Windows", "Linux-X64" })
         {
-            var choices = DownloadAssetPolicy.Select(release, platform);
+            var choices = DownloadAssetPolicy.Select(release, platform, machine: Architecture.X64);
             choices.Automatic!.name.Should().Be("Nautilus-Alfa-Win64.zip");
             choices.Uncertain.Should().BeEmpty();
         }
+        DownloadAssetPolicy.Select(release, "Linux-ARM64", machine: Architecture.Arm64).Eligible.Should().BeEmpty();
     }
 
     [Theory]
@@ -369,10 +370,11 @@ public class DownloadAssetPolicyTests
     }
 
     [Fact]
-    public void An_arm64_computer_keeps_x64_builds_when_there_is_no_arm64_one()
+    public void An_arm64_computer_does_not_infer_x64_emulation_from_the_only_asset()
     {
         var choices = DownloadAssetPolicy.Select(Release("Game-windows-x64.zip"), "Windows", machine: Architecture.Arm64);
-        choices.Automatic!.name.Should().Be("Game-windows-x64.zip");
+        choices.Eligible.Should().BeEmpty();
+        choices.Automatic.Should().BeNull();
     }
 
     [Fact]
@@ -384,10 +386,12 @@ public class DownloadAssetPolicyTests
     }
 
     [Fact]
-    public void A_release_with_only_an_arm64_build_still_offers_it()
+    public void A_release_with_only_an_incompatible_arm64_build_never_becomes_automatic()
     {
         var choices = DownloadAssetPolicy.Select(Release("Game-windows-arm64.zip"), "Windows", machine: Architecture.X64);
-        choices.Automatic!.name.Should().Be("Game-windows-arm64.zip");
+        choices.Eligible.Should().BeEmpty();
+        choices.Uncertain.Should().BeEmpty();
+        choices.Automatic.Should().BeNull();
     }
 
     [Theory]
@@ -395,7 +399,7 @@ public class DownloadAssetPolicyTests
     [InlineData("Game-aarch64-macos.zip", Architecture.Arm64)]
     [InlineData("Game-win32-x86_64.zip", Architecture.X64)]
     [InlineData("Game-win64.zip", Architecture.X64)]
-    [InlineData("Game-x86-setup.exe", Architecture.X64)]
+    [InlineData("Game-x86-setup.exe", Architecture.X86)]
     [InlineData("Game-windows.zip", null)]
     [InlineData("Harmony-windows.zip", null)]
     [InlineData("Game-macos-universal.zip", null)]

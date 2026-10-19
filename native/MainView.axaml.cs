@@ -329,7 +329,7 @@ namespace Relicade
             UpdateThemeColors();
             _settings.EnsureInitialized();
             StartUsageData();
-            if (_settings.FirstStartup)
+            if (_settings.FirstStartup && !_settingsViewModel.IsReadOnly)
             {
                 _settingsViewModel.ApplyCardLayout(CardLayoutPreset.Square, persist: false);
                 _settings.FirstStartup = false;
@@ -364,6 +364,11 @@ namespace Relicade
             _gameManager.PropertyChanged += OnGameManagerPropertyChanged;
             DataContext = this;
             _mobileLayout.ApplyMobileShell();
+            if (_settingsViewModel.IsReadOnly)
+            {
+                Shell.SettingsOpen = true;
+                _ = _session.RunAsync(() => ShowMessageBoxAsync(_settingsViewModel.RecoveryMessage!, "Settings Recovery Required"));
+            }
         }
 
         /// <summary>Usage data follows the saved choice from the start; the start itself is sent once the player has said yes.</summary>

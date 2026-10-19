@@ -25,13 +25,14 @@ public static class ManualAppFolderService
         return string.IsNullOrWhiteSpace(path) ? null : path;
     }
 
-    public static bool EnsurePrepared(GameInfo game, string appsFolder)
+    public static bool EnsurePrepared(GameInfo game, string appsFolder, bool throwOnFailure = false)
     {
         var installPath = GetInstallPath(game, appsFolder);
         if (installPath == null)
             return false;
 
         Directory.CreateDirectory(installPath);
+        if (throwOnFailure) _ = Directory.EnumerateFileSystemEntries(installPath).ToArray();
 
         if (!HasLaunchableFiles(game, appsFolder))
         {
@@ -42,14 +43,14 @@ public static class ManualAppFolderService
                 {
                     File.WriteAllText(instructionPath, InstructionContents);
                 }
-                catch
+                catch when (!throwOnFailure)
                 {
                     // Best-effort placeholder; the folder itself is the drop target.
                 }
             }
         }
 
-        AppFilesToAddService.SyncForGame(game, appsFolder);
+        AppFilesToAddService.SyncForGame(game, appsFolder, throwOnFailure: throwOnFailure);
         return true;
     }
 

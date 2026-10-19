@@ -65,8 +65,9 @@ public class NonAppArchiveTests
     {
         var release = Release(KartPadAssets);
         GitHubReleaseService.GetDownloadableAssets(release).Select(a => a.name).Should().Equal(KartPadAssets.Take(3));
-        DownloadAssetPolicy.Select(release, "Android").Automatic!.name.Should().Be(KartPadAssets[0]);
-        DownloadAssetPolicy.Select(release, "macOS").Automatic!.name.Should().Be(KartPadAssets[2]);
+        DownloadAssetPolicy.Select(release, "Android", machine: System.Runtime.InteropServices.Architecture.Arm64).Automatic!.name.Should().Be(KartPadAssets[0]);
+        DownloadAssetPolicy.Select(release, "macOS", machine: System.Runtime.InteropServices.Architecture.Arm64).Automatic!.name.Should().Be(KartPadAssets[2]);
+        DownloadAssetPolicy.Select(release, "macOS", machine: System.Runtime.InteropServices.Architecture.X64).Automatic.Should().BeNull();
         foreach (var platform in new[] { "Windows", "Linux-X64", "Linux-ARM64" })
         {
             var choices = DownloadAssetPolicy.Select(release, platform);

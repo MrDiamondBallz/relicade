@@ -138,16 +138,12 @@ namespace Relicade
             if (_gameManager == null)
             {
                 _gameManager = new GameManager();
-                var settings = AppSettings.Load();
-                settings.EnsureInitialized();
-                var originalScope = settings.ListScope;
-                settings.ListScope = AppListScope.AllApps;
-                AppSettings.Save(settings);
-
-                await _gameManager.LoadGamesAsync();
-
-                settings.ListScope = originalScope;
-                AppSettings.Save(settings);
+                // Refuse mutation-oriented CLI commands while persisted settings need recovery.
+                AppSettings.Load();
+                if (SettingsStoreProvider.Default is ISettingsRecoveryState { IsReadOnly: true } recovery)
+                    throw new SettingsRecoveryRequiredException(recovery.ReadError!);
+                // The CLI needs all rows for this session, not a persisted settings change.
+                await _gameManager.LoadGamesForCliAsync();
             }
         }
 

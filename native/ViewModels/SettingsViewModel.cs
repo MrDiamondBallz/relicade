@@ -144,6 +144,11 @@ public class SettingsViewModel : ObservableViewModel
         Notify(nameof(HasKioskPin));
     }
 
+    public bool IsReadOnly => (_settingsStore as ISettingsRecoveryState)?.IsReadOnly == true;
+    public string? RecoveryMessage => IsReadOnly
+        ? "Settings require recovery and are read-only. Existing settings have not been replaced. Close Relicade and repair or restore the settings file, then reopen Relicade or retry loading."
+        : null;
+
     public AppSettings Current => _fallbackSettings ?? _settingsStore.Current;
     public AppSettings Settings => Current;
 
@@ -189,17 +194,34 @@ public class SettingsViewModel : ObservableViewModel
         var settings = _settingsStore.Load();
         settings.ListRowHeight = Math.Clamp(settings.ListRowHeight ?? (settings.UseGridView ? 96 : settings.SlotSize), 72, 400);
         _fallbackSettings = null;
+        Refresh();
         return settings;
     }
 
     public void Save(AppSettings settings)
     {
-        _settingsStore.Save(settings);
-        _fallbackSettings = null;
-        Refresh();
+        try
+        {
+            _settingsStore.Save(settings);
+            _fallbackSettings = null;
+        }
+        finally { Refresh(); }
     }
 
     public void Refresh() => Notify(null);
+
+    // An entry edit commits two stores. Keep settings bindings on the old snapshot until the library commits.
+    internal void PersistEntrySettings(AppSettings candidate)
+    {
+        _fallbackSettings = Current;
+        _settingsStore.Save(candidate);
+    }
+
+    internal void PublishEntrySettings()
+    {
+        _fallbackSettings = null;
+        Refresh();
+    }
 
     public void SaveCurrent() => Save(Current);
 

@@ -59,7 +59,7 @@ public static class AppFilesToAddService
         return true;
     }
 
-    public static void Sync(string? installPath, IEnumerable<string>? previous, IEnumerable<string>? next)
+    public static void Sync(string? installPath, IEnumerable<string>? previous, IEnumerable<string>? next, bool throwOnFailure = false)
     {
         if (string.IsNullOrWhiteSpace(installPath) || !Directory.Exists(installPath))
             return;
@@ -77,7 +77,7 @@ public static class AppFilesToAddService
                 if (File.Exists(path))
                     File.Delete(path);
             }
-            catch
+            catch when (!throwOnFailure)
             {
                 // Best-effort cleanup; leave the file if locked or inaccessible.
             }
@@ -91,20 +91,20 @@ public static class AppFilesToAddService
                 if (!File.Exists(path))
                     File.WriteAllText(path, string.Empty);
             }
-            catch
+            catch when (!throwOnFailure)
             {
                 // Best-effort create; skip if the path cannot be written.
             }
         }
     }
 
-    public static void SyncForGame(GameInfo game, string appsFolder, IEnumerable<string>? previous = null)
+    public static void SyncForGame(GameInfo game, string appsFolder, IEnumerable<string>? previous = null, bool throwOnFailure = false)
     {
         if (string.IsNullOrWhiteSpace(appsFolder) && string.IsNullOrWhiteSpace(game.InstallPath))
             return;
 
         var installPath = game.GetInstallPath(appsFolder);
         if (WindowsInstallerService.HasReceipt(installPath)) return;
-        Sync(installPath, previous, game.FilesToAdd);
+        Sync(installPath, previous, game.FilesToAdd, throwOnFailure);
     }
 }

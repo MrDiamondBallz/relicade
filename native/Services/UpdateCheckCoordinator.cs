@@ -36,6 +36,7 @@ public sealed class UpdateCheckCoordinator(IUpdateCheckWorkflow workflow, TimeSp
     private Task? _active;
     private CancellationTokenSource? _cancel;
     private UpdateCheckResult? _lastResult;
+    private long _generation;
     public bool IsChecking { get; private set; }
     public AppCheckProgress Progress { get; private set; } = new(0, 0);
     public event Action? CheckingChanged;
@@ -51,11 +52,11 @@ public sealed class UpdateCheckCoordinator(IUpdateCheckWorkflow workflow, TimeSp
         {
             if (_active is { IsCompleted: false }) return _active;
             if (cancellationToken.IsCancellationRequested) return Task.CompletedTask;
-            return _active = RunAsync(promptForReview, manual, cancellationToken, retry ? _lastResult : null);
+            return _active = RunAsync(promptForReview, manual, cancellationToken, retry ? _lastResult : null, ++_generation);
         }
     }
 
-    private async Task RunAsync(bool prompt, bool manual, CancellationToken lifetime, UpdateCheckResult? previous)
+    private async Task RunAsync(bool prompt, bool manual, CancellationToken lifetime, UpdateCheckResult? previous, long generation)
     {
         using var cancel = CancellationTokenSource.CreateLinkedTokenSource(lifetime);
         _cancel = cancel;
@@ -70,26 +71,67 @@ public sealed class UpdateCheckCoordinator(IUpdateCheckWorkflow workflow, TimeSp
         var launcher = previous?.Launcher ?? new ManualLauncherCheckResult { CheckSucceeded = false };
         var apps = LibraryCheckResult.Empty;
         var interrupted = false;
-        var completedApps = new List<AppCheckResult>();
-        IReadOnlyList<AppCheckResult>? targets = previous?.Apps.Apps.Where(a => a.Outcome != AppCheckOutcome.Successful).ToArray();
-        var appKeys = targets?.Select(a => a.IdentityKey).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var accepting = true;
+        var malformed = false;
+        var completed = new Dictionary<string, AppCheckResult>(StringComparer.OrdinalIgnoreCase);
+        var expected = (previous?.Apps.Apps.Where(a => a.Outcome != AppCheckOutcome.Successful) ?? [])
+            .DistinctBy(a => a.IdentityKey, StringComparer.OrdinalIgnoreCase).ToDictionary(a => a.IdentityKey, StringComparer.OrdinalIgnoreCase);
+        var targetsKnown = previous?.Apps.ExpectedIdentityKeys != null || expected.Count > 0;
+        // If cancellation preceded discovery, retry discovery; never invent unchecked-N identities.
+        var appKeys = previous == null || previous.Interrupted && !targetsKnown ? null : expected.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase);
         try
         {
             var launcherTask = previous?.Launcher.CheckSucceeded == true
                 ? Task.FromResult(previous.Launcher) : workflow.CheckLauncherAsync(manual, token);
             var appsTask = appKeys is { Count: 0 } ? Task.FromResult(LibraryCheckResult.Empty) : workflow.CheckAppsAsync(manual, new InlineProgress(value =>
             {
-                if (token.IsCancellationRequested || !IsChecking) return;
-                Progress = value;
-                if (value.Targets != null) targets = value.Targets;
-                if (value.Result != null) completedApps.Add(value.Result);
+                lock (_gate)
+                {
+                    if (!accepting || generation != _generation || token.IsCancellationRequested) return;
+                    if (value.Targets != null)
+                    {
+                        targetsKnown = true;
+                        expected.Clear();
+                        foreach (var target in value.Targets)
+                            if (!expected.TryAdd(target.IdentityKey, target)) malformed = true;
+                    }
+                    if (value.Result is { } row)
+                    {
+                        if ((targetsKnown && !expected.ContainsKey(row.IdentityKey)) || !completed.TryAdd(row.IdentityKey, row)) malformed = true;
+                    }
+                    Progress = new(completed.Count, targetsKnown ? expected.Count : value.Total, value.Result, value.Targets);
+                }
                 ProgressChanged?.Invoke();
             }), token, appKeys);
             try { await Task.WhenAll(launcherTask, appsTask).WaitAsync(token); }
             finally
             {
-                if (launcherTask.IsCompletedSuccessfully) launcher = launcherTask.Result;
-                if (appsTask.IsCompletedSuccessfully) apps = appsTask.Result;
+                // Fence callbacks before taking a synchronized snapshot, including transports ignoring cancellation.
+                lock (_gate)
+                {
+                    accepting = false;
+                    if (launcherTask.IsCompletedSuccessfully) launcher = launcherTask.Result;
+                    if (appsTask.IsCompletedSuccessfully)
+                    {
+                        apps = appsTask.Result;
+                        if (apps.ExpectedIdentityKeys is { } keys)
+                        {
+                            targetsKnown = true;
+                            expected = keys.ToDictionary(key => key, key => new AppCheckResult(key, AppCheckOutcome.Cancelled), StringComparer.OrdinalIgnoreCase);
+                        }
+                        if (!targetsKnown)
+                        {
+                            targetsKnown = true;
+                            foreach (var row in apps.Apps) expected.TryAdd(row.IdentityKey, row);
+                        }
+                        var finalRows = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        foreach (var row in apps.Apps)
+                        {
+                            if (!expected.ContainsKey(row.IdentityKey) || !finalRows.Add(row.IdentityKey)) malformed = true;
+                            else completed[row.IdentityKey] = row;
+                        }
+                    }
+                }
                 _ = launcherTask.ContinueWith(t => { _ = t.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
                 _ = appsTask.ContinueWith(t => { _ = t.Exception; }, TaskContinuationOptions.OnlyOnFaulted);
             }
@@ -103,24 +145,32 @@ public sealed class UpdateCheckCoordinator(IUpdateCheckWorkflow workflow, TimeSp
         }
         finally
         {
-            lock (_gate) _cancel = null;
-            IsChecking = false;
+            lock (_gate)
+            {
+                accepting = false;
+                _cancel = null;
+                IsChecking = false;
+            }
             CheckingChanged?.Invoke();
             Trace.WriteLine($"Foreground update check: elapsedMs={watch.ElapsedMilliseconds}, completed={Progress.Completed}, total={Progress.Total}");
         }
         if (lifetime.IsCancellationRequested) return;
-        if (interrupted && apps.Apps.Count == 0)
-            apps = new(completedApps.Concat(targets?.Skip(completedApps.Count) ??
-                Enumerable.Range(completedApps.Count, Math.Max(0, Progress.Total - completedApps.Count))
-                    .Select(i => new AppCheckResult($"unchecked-{i}", AppCheckOutcome.Cancelled, "Unchecked app"))).ToArray());
+        // Expected minus completed by identity, never by completion order or positional Skip.
+        var rows = expected.Values.Select(target => completed.GetValueOrDefault(target.IdentityKey) ??
+            target with { Outcome = AppCheckOutcome.Cancelled, Reason = target.Reason ?? "The update check did not finish for this app." })
+            .ToDictionary(row => row.IdentityKey, StringComparer.OrdinalIgnoreCase);
         if (previous != null)
-            apps = new(previous.Apps.Apps.Where(a => a.Outcome == AppCheckOutcome.Successful).Concat(apps.Apps).ToArray());
-        var result = new UpdateCheckResult(launcher, apps, interrupted);
+            foreach (var row in previous.Apps.Apps.Where(a => a.Outcome == AppCheckOutcome.Successful)) rows.TryAdd(row.IdentityKey, row);
+        apps = new(rows.Values.ToArray(), (previous?.Apps.InvalidTokenProviders ?? []).Concat(apps.InvalidTokenProviders ?? []).Distinct(StringComparer.OrdinalIgnoreCase).ToArray())
+        {
+            ExpectedIdentityKeys = targetsKnown ? rows.Keys.ToHashSet(StringComparer.OrdinalIgnoreCase) : null
+        };
+        var result = new UpdateCheckResult(launcher, apps, interrupted || malformed || !targetsKnown);
         _lastResult = result;
         workflow.ApplyCheckResult(result, DateTime.Now);
         priority.Dispose();
-        if (!interrupted) workflow.QueuePostCheckWork(result, retry: previous != null);
-        if (prompt && !interrupted && workflow.CanPresentResults)
+        if (!result.Interrupted) workflow.QueuePostCheckWork(result, retry: previous != null);
+        if (prompt && !result.Interrupted && workflow.CanPresentResults)
             await workflow.PresentCheckResultAsync(launcher, 0, manual);
     }
 

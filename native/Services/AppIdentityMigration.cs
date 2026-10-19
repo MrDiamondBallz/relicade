@@ -32,7 +32,8 @@ public static class AppIdentityMigration
         string? newRepositorySource,
         string? newRepository,
         string? oldFolderName = null,
-        string? newFolderName = null)
+        string? newFolderName = null,
+        bool clearVersionCache = true)
     {
         if (!HasIdentityChanged(
                 oldRepositorySource,
@@ -57,7 +58,7 @@ public static class AppIdentityMigration
             settingsChanged |= MigrateUserAppDisplayNames(settings, oldRepo, newRepo);
         }
 
-        if (!string.IsNullOrWhiteSpace(oldRepo))
+        if (clearVersionCache && !string.IsNullOrWhiteSpace(oldRepo))
             GitHubApiCache.RemoveCache(oldRepositorySource, oldRepo);
 
         return settingsChanged;

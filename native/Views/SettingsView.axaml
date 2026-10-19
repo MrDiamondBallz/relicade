@@ -19,7 +19,7 @@
 						IsVisible="True"
 						Opacity="0.97"
 						ZIndex="10">
-					<Grid x:Name="SettingsContent" RowDefinitions="Auto,*">
+					<Grid x:Name="SettingsContent" RowDefinitions="Auto,Auto,*">
 
 							<!-- Settings Header -->
 							<Border Background="{DynamicResource ThemeBase}"
@@ -52,7 +52,11 @@
 							</Border>
 
 							<!-- Tab Control -->
-							<TabControl Grid.Row="1" x:Name="SettingsTabControl"
+							<Border Grid.Row="1" IsVisible="{Binding IsReadOnly}" Padding="20,12">
+                            <TextBlock x:Name="SettingsRecoveryMessage" Text="{Binding RecoveryMessage}" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource ThemeText}" AutomationProperties.LiveSetting="Assertive"/>
+                        </Border>
+                        <TabControl Grid.Row="2" IsEnabled="{Binding !IsReadOnly}" x:Name="SettingsTabControl"
 										Background="Transparent"
 										Foreground="{DynamicResource ThemeText}"
 										Padding="4,4,4,0"

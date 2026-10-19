@@ -151,6 +151,10 @@ namespace Relicade.Services
             IProgress<AppCheckProgress>? progress, CancellationToken token, IReadOnlySet<string>? appKeys = null)
         {
             var apps = LibraryApps.Where(app => appKeys == null || appKeys.Contains(app.InstanceKey)).ToArray();
+            var expected = apps.Where(a => a.IsInstalled && !a.IsManuallyManaged && !string.IsNullOrWhiteSpace(a.Repository))
+                .DistinctBy(a => a.InstanceKey, StringComparer.OrdinalIgnoreCase).Select(a =>
+                    new AppCheckResult(a.InstanceKey, AppCheckOutcome.Cancelled, a.DisplayName, "The update check did not finish for this app.")).ToArray();
+            progress?.Report(new(0, expected.Length, Targets: expected));
             await CatalogReleases.RefreshAsync(apps, token);
             await SyncCatalogDetailsAsync(apps, token);
             foreach (var app in apps)
@@ -253,6 +257,8 @@ namespace Relicade.Services
             return Games.FirstOrDefault(g => string.Equals(g.FolderName, folderName, StringComparison.OrdinalIgnoreCase));
         }
 
+        internal Task LoadGamesForCliAsync() => LoadGamesCoreAsync(false, listScopeOverride: AppListScope.AllApps);
+
         public Task LoadGamesAsync(bool forceUpdateCheck = false) =>
             LoadGamesCoreAsync(forceUpdateCheck);
 
@@ -280,7 +286,8 @@ namespace Relicade.Services
 
         private async Task LoadGamesCoreAsync(
             bool forceUpdateCheck,
-            bool allowNetwork = true)
+            bool allowNetwork = true,
+            AppListScope? listScopeOverride = null)
         {
             // Validate and back up the existing library without rewriting it. Keep
             // initialization within the caller's awaited load/session lifetime.
@@ -330,7 +337,14 @@ namespace Relicade.Services
                 }));
             }
 
-            await RebuildVisibleGamesAsync(_settings);
+            var displaySettings = _settings;
+            if (listScopeOverride is { } scope)
+            {
+                displaySettings = System.Text.Json.JsonSerializer.Deserialize<AppSettings>(
+                    System.Text.Json.JsonSerializer.Serialize(_settings))!;
+                displaySettings.ListScope = scope;
+            }
+            await RebuildVisibleGamesAsync(displaySettings);
 
             // The local collection is ready; artwork and online metadata must not extend startup loading UI.
             await RunOnUiThreadAsync(() =>

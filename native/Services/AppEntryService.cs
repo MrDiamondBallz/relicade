@@ -86,23 +86,18 @@ public sealed class AppEntryService(GameManager manager, SettingsViewModel setti
                         return false;
                     }
 
-                    if (appToUpdate.FolderName != folderName && !string.IsNullOrEmpty(appToUpdate.FolderName))
-                    {
-                        var oldPath = Path.Combine(_settings.AppsPath, appToUpdate.FolderName);
-                        var newPath = Path.Combine(_settings.AppsPath, folderName);
-
-                        if (Directory.Exists(oldPath))
-                        {
-                            try
-                            {
-                                Directory.Move(oldPath, newPath);
-                            }
-                            catch (Exception ex)
-                            {
-                                Notify($"Failed to rename folder {appToUpdate.FolderName}", ex.Message);
-                            }
-                        }
-                    }
+                    // Work only on staged metadata and a deep settings copy until both stores commit.
+                    var originalSettings = _settings;
+                    var stagedSettings = System.Text.Json.JsonSerializer.Deserialize<AppSettings>(
+                        System.Text.Json.JsonSerializer.Serialize(originalSettings))!;
+                    stagedSettings.EnsureInitialized();
+                    var index = games.IndexOf(appToUpdate);
+                    appToUpdate = _gameManager.CatalogService.ParseAppsFromJson(
+                        System.Text.Json.JsonSerializer.Serialize(new { apps = new[] { AppCatalogService.SerializeApp(appToUpdate) } })).Single();
+                    games[index] = appToUpdate;
+                    var oldPath = Path.Combine(originalSettings.AppsPath, oldFolderName);
+                    var newPath = Path.Combine(originalSettings.AppsPath, folderName);
+                    var renamed = false;
 
                     var wasManual = appToUpdate.IsManuallyManaged;
                     var previousFilesToAdd = AppFilesToAddService.Normalize(appToUpdate.FilesToAdd);
@@ -139,29 +134,80 @@ public sealed class AppEntryService(GameManager manager, SettingsViewModel setti
                     }
 
                     if (!string.IsNullOrWhiteSpace(appToUpdate.Repository))
-                        _settings.UserAppDisplayNames.Remove(appToUpdate.Repository);
-
-                    if (AppIdentityMigration.MigrateIdentity(
-                            _settings,
-                            oldRepositorySource,
-                            oldRepository,
-                            appToUpdate.RepositorySource,
-                            appToUpdate.Repository,
-                            oldFolderName,
-                            appToUpdate.FolderName))
+                        stagedSettings.UserAppDisplayNames.Remove(appToUpdate.Repository);
+                    AppIdentityMigration.MigrateIdentity(stagedSettings, oldRepositorySource, oldRepository,
+                        appToUpdate.RepositorySource, appToUpdate.Repository, oldFolderName, folderName, clearVersionCache: false);
+                    token.ThrowIfCancellationRequested();
+                    var settingsCommitted = false;
+                    try
                     {
-                        _settingsModel.Save(_settings);
+                        if (oldFolderName != folderName && !string.IsNullOrEmpty(oldFolderName))
+                        {
+                            // Refuse an occupied target even when the source directory is missing.
+                            if (Directory.Exists(newPath) || File.Exists(newPath))
+                                throw new IOException("The destination folder already exists and has not been changed.");
+                            if (Directory.Exists(oldPath))
+                            {
+                                Directory.Move(oldPath, newPath);
+                                renamed = true;
+                            }
+                        }
+                        // Commit/compensation is deliberately noninterruptible; never claim cancellation undid it.
+                        _settingsModel.PersistEntrySettings(stagedSettings);
+                        settingsCommitted = true;
+                        await SaveGamesToJsonAsync(games);
                     }
-                    else
+                    catch (Exception error)
                     {
-                        _settingsModel.Save(_settings);
+                        var recoveryErrors = new List<Exception>();
+                        if (settingsCommitted)
+                        {
+                            try { _settingsModel.PersistEntrySettings(originalSettings); }
+                            catch (Exception restoreError) { recoveryErrors.Add(restoreError); }
+                        }
+                        if (renamed)
+                        {
+                            try { Directory.Move(newPath, oldPath); }
+                            catch (Exception restoreError) { recoveryErrors.Add(restoreError); }
+                        }
+                        _settingsModel.ReplaceCurrent(originalSettings);
+                        if (recoveryErrors.Count > 0)
+                        {
+                            // Preserve concrete recovery evidence locally; no settings/credentials are serialized.
+                            var evidence = Path.Combine(Path.GetDirectoryName(_gameManager.CatalogService.AppsConfigPath)!,
+                                "entry-recovery-" + Guid.NewGuid().ToString("N") + ".json");
+                            try
+                            {
+                                await File.WriteAllTextAsync(evidence, System.Text.Json.JsonSerializer.Serialize(new
+                                {
+                                    oldFolderName, folderName, oldIdentityKey, identityKey,
+                                    operationError = error.GetType().Name,
+                                    recoveryErrors = recoveryErrors.Select(e => e.GetType().Name).ToArray()
+                                }));
+                            }
+                            catch (Exception evidenceError) { recoveryErrors.Add(evidenceError); }
+                            Notify($"The entry update failed and recovery is incomplete. Do not move or delete either folder. Recovery record: {evidence}. {error.Message}", "Entry Recovery Required");
+                        }
+                        else Notify($"The entry update failed. The original entry and folder were preserved. {error.Message}", "Entry Update Failed");
+                        return false;
                     }
-
-                    await SaveGamesToJsonAsync(games);
-                    if (appToUpdate.IsManuallyManaged)
-                        ManualAppFolderService.EnsurePrepared(appToUpdate, _gameManager.GamesFolder);
-                    else
-                        AppFilesToAddService.SyncForGame(appToUpdate, _gameManager.GamesFolder, previousFilesToAdd);
+                    _settingsModel.PublishEntrySettings();
+                    if (AppIdentityMigration.HasIdentityChanged(oldRepositorySource, oldRepository,
+                            appToUpdate.RepositorySource, appToUpdate.Repository, oldFolderName, folderName) &&
+                        !string.IsNullOrWhiteSpace(oldRepository))
+                        GitHubApiCache.RemoveCache(oldRepositorySource, oldRepository);
+                    try
+                    {
+                        if (appToUpdate.IsManuallyManaged)
+                            ManualAppFolderService.EnsurePrepared(appToUpdate, _gameManager.GamesFolder, throwOnFailure: true);
+                        else
+                            AppFilesToAddService.SyncForGame(appToUpdate, _gameManager.GamesFolder, previousFilesToAdd, throwOnFailure: true);
+                    }
+                    catch (Exception error)
+                    {
+                        Notify($"The entry was saved, but follow-up file preparation failed. Retry preparation; the saved entry uses the new folder. {error.Message}", "Entry Saved · Preparation Failed");
+                        return false;
+                    }
                     Notify("App entry updated successfully", "App Updated");
                 }
                 else
