@@ -70,7 +70,33 @@ public partial class SettingsView : UserControl
         DataContext = Model;
     }
 
-    private void ReportSaveFailure(Exception ex) => _ = _session.RunAsync(() => _host.ShowMessageBoxAsync($"Failed to save settings: {ex.Message}", "Save Error"));
+    private bool _credentialMigrationBusy;
+    private async void PreviewCredentialMigration_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_context == null || _session.IsClosed || _credentialMigrationBusy) return;
+        _credentialMigrationBusy = true;
+        try
+        {
+            var preview = Model.PreviewLegacyCredentialMigration();
+            if (!preview.CanMigrate)
+            {
+                await _host.ShowMessageBoxAsync(preview.Message, "Credential migration");
+                return;
+            }
+            var confirmed = await _host.ShowMessageBoxAsync(preview.Message + "\nProviders: " + string.Join(", ", preview.Providers) + "\nMigrate now? Cancel leaves everything unchanged.", "Confirm own-settings migration", true);
+            var result = await Model.MigrateLegacyCredentialsAsync(preview.PreviewId, confirmed, _session.Token);
+            if (result.Success && !_session.IsClosed) UpdateSettingsUI();
+            if (!_session.IsClosed && confirmed) await _host.ShowMessageBoxAsync(result.Message, "Credential migration");
+        }
+        finally { _credentialMigrationBusy = false; }
+    }
+
+    private void ReportSaveFailure(Exception ex)
+    {
+        // The migration interaction presents its own outcome once, including partial-write guidance.
+        if (!_credentialMigrationBusy)
+            _ = _session.RunAsync(() => _host.ShowMessageBoxAsync($"Failed to save settings: {ex.Message}", "Save Error"));
+    }
     private void ApplyChange(SettingsChange change)
     {
         if (_context == null || _session.IsClosed)

@@ -5,7 +5,7 @@ using Relicade.Services.Credentials;
 
 namespace Relicade.Services;
 
-public class FileSettingsStore : ISettingsStore, ISettingsRecoveryState, ICredentialSettingsStore
+public partial class FileSettingsStore : ISettingsStore, ISettingsRecoveryState, ICredentialSettingsStore, ILegacyCredentialMigrationStore
 {
     private static readonly ConcurrentDictionary<string, object> PathLocks = new(
         OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
@@ -95,16 +95,26 @@ public class FileSettingsStore : ISettingsStore, ISettingsRecoveryState, ICreden
         }
     }
 
-    private void WriteAtomic(byte[] bytes)
+    private void WriteAtomic(byte[] bytes, Action? beforeReplace = null)
     {
         var temporary = _settingsPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
-            using (var stream = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var stream = new FileStream(temporary, new FileStreamOptions
+            {
+                Mode = FileMode.CreateNew, Access = FileAccess.Write, Share = FileShare.None,
+                UnixCreateMode = OperatingSystem.IsWindows() ? null : UnixFileMode.UserRead | UnixFileMode.UserWrite
+            }))
             {
                 stream.Write(bytes);
                 stream.Flush(flushToDisk: true);
             }
+            if (!OperatingSystem.IsWindows() && File.Exists(_settingsPath))
+                // Never expand a newly created inode's ACL mask/group access to match a
+                // legacy file. Retain owner read/write restrictions; replacement may tighten
+                // permissions, but cannot grant inherited group/other access to settings.
+                File.SetUnixFileMode(temporary, File.GetUnixFileMode(_settingsPath) & (UnixFileMode.UserRead | UnixFileMode.UserWrite));
+            beforeReplace?.Invoke();
             if (File.Exists(_settingsPath)) File.Replace(temporary, _settingsPath, null);
             else File.Move(temporary, _settingsPath);
         }
@@ -119,21 +129,18 @@ public class FileSettingsStore : ISettingsStore, ISettingsRecoveryState, ICreden
 
     private AppSettings ReadFromDisk()
     {
-        string json;
+        byte[] bytes;
         try
         {
-            using var stream = new FileStream(_settingsPath, FileMode.Open, FileAccess.Read, FileShare.Read | FileShare.Delete);
-            using var reader = new StreamReader(stream, Encoding.UTF8);
-            json = reader.ReadToEnd();
+            bytes = ReadBoundedSettingsBytes();
             _hasSeenDocument = true;
         }
         catch (FileNotFoundException) when (!_hasSeenDocument && ReadError == null) { return CreateDefault(); }
         catch (DirectoryNotFoundException) when (!_hasSeenDocument && ReadError == null) { return CreateDefault(); }
-        if (string.IsNullOrWhiteSpace(json)) throw new JsonException("The existing settings document is empty.");
-        var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? throw new JsonException("The existing settings document is null.");
-        using var document = JsonDocument.Parse(json);
+        using var document = LegacyCredentialDocument.ParseStrict(bytes);
+        var settings = JsonSerializer.Deserialize<AppSettings>(bytes)!;
         // Inspect names/presence only. Never hydrate, import, print, back up or silently scrub a legacy secret.
-        HasLegacyCredentials = LegacyCredentialDocument.HasCredentials(document.RootElement);
+        HasLegacyCredentials = document.RootElement.EnumerateObject().Any(property => LegacyCredentialDocument.IsCredentialName(property.Name));
         settings.EnsureInitialized();
         return settings;
     }

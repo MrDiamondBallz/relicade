@@ -69,6 +69,25 @@ public sealed class CredentialSession(ICredentialVault vault)
         finally { _gate.Release(); }
     }
 
+    // Lock order: settings path monitor -> stable settings writer lease -> session semaphore.
+    // Session operations never acquire a settings lock. Migration publishes only after disk commit/reload.
+    internal async Task<T> WithMigrationLeaseAsync<T>(Func<ICredentialVault, Task<T>> operation, CancellationToken token)
+    {
+        await _gate.WaitAsync(token).ConfigureAwait(false);
+        try { return await operation(vault).ConfigureAwait(false); }
+        finally { _gate.Release(); }
+    }
+
+    internal void PublishMigrated(IReadOnlyDictionary<CredentialProvider, string> values)
+    {
+        foreach (var (provider, value) in values)
+        {
+            var old = Get(provider);
+            Volatile.Write(ref _states[(int)provider], new(value, CredentialStatus.Available));
+            if (old != value) ReleaseRequestCoordinator.InvalidateCredentialForAll(CredentialIdentity.Account(provider), old);
+        }
+    }
+
     public static CredentialVaultUnavailableException Sanitize(Exception exception) =>
         new(exception is CredentialVaultUnavailableException failure ? failure.Failure : CredentialVaultFailure.Unavailable);
     private static CredentialStatus ToStatus(CredentialVaultFailure failure) => failure switch

@@ -78,5 +78,5 @@ public interface ICredentialSettingsStore
 
 public sealed class LegacyCredentialCleanupRequiredException : InvalidOperationException
 {
-    public LegacyCredentialCleanupRequiredException() : base("Sensitive legacy plaintext provider credentials remain in this Relicade settings file. They were not used, imported or removed. Settings are read-only until you explicitly repair the file. Vault migration/cleanup is not implemented; keep sensitive originals private.") { }
+    public LegacyCredentialCleanupRequiredException() : base("Sensitive legacy plaintext provider credentials remain in this Relicade settings file. They were not used, imported or removed. Settings are read-only until you explicitly preview and confirm own-settings vault migration, or repair the file privately. " + LegacyCredentialMigrationMessages.Warning) { }
 }

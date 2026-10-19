@@ -19,8 +19,41 @@ public class SettingsViewModel : ObservableViewModel
     public string CredentialStorageMessage => HasLegacyCredentials
         ? new LegacyCredentialCleanupRequiredException().Message
         : "Tokens are optional and saved only in the OS credential vault. No file fallback. " +
-          string.Join(" · ", Enum.GetValues<CredentialProvider>().Select(p => $"{p}: {Credentials.Status(p)}"));
+          string.Join(" · ", Enum.GetValues<CredentialProvider>().Select(p => $"{p}: {Credentials.Status(p)}")) + " " + LegacyCredentialMigrationMessages.Warning;
     public bool HasLegacyCredentials => (_settingsStore as ICredentialSettingsStore)?.HasLegacyCredentials == true;
+    public bool CanPreviewCredentialMigration => !KioskLocked && _settingsStore is ILegacyCredentialMigrationStore &&
+        (_settingsStore as ISettingsRecoveryState)?.ReadError == null && HasLegacyCredentials;
+    public string? CredentialMigrationMessage { get; private set; }
+    public LegacyCredentialMigrationPreview PreviewLegacyCredentialMigration()
+    {
+        var preview = CanPreviewCredentialMigration
+            ? ((ILegacyCredentialMigrationStore)_settingsStore).PreviewLegacyCredentialMigration()
+            : new LegacyCredentialMigrationPreview("", Array.Empty<string>(), 0, false, "Migration unavailable: unlock kiosk or repair/reload settings first. No changes were made.");
+        CredentialMigrationMessage = preview.Message;
+        Notify(nameof(CredentialMigrationMessage));
+        return preview;
+    }
+
+    public async Task<LegacyCredentialMigrationResult> MigrateLegacyCredentialsAsync(string previewId, bool confirmed, CancellationToken cancellationToken = default)
+    {
+        var result = CanPreviewCredentialMigration
+            ? await ((ILegacyCredentialMigrationStore)_settingsStore).MigrateLegacyCredentialsAsync(previewId, confirmed, cancellationToken)
+            : new LegacyCredentialMigrationResult(false, false, false, "Migration unavailable: unlock kiosk or repair/reload settings first. No changes were made.");
+        CredentialMigrationMessage = result.Message;
+        Notify(nameof(CredentialMigrationMessage));
+        if (result.Success)
+        {
+            _fallbackSettings = null;
+            Credentials.Attach(Current);
+            Refresh();
+            Notify(nameof(IsReadOnly)); Notify(nameof(HasLegacyCredentials)); Notify(nameof(RecoveryMessage));
+            Notify(nameof(CredentialStorageMessage)); Notify(nameof(CanPreviewCredentialMigration));
+            foreach (var provider in Enum.GetValues<CredentialProvider>()) CredentialsChanged?.Invoke(CredentialIdentity.Account(provider));
+        }
+        else if (confirmed) SaveFailed?.Invoke(new InvalidOperationException(result.Message));
+        return result;
+    }
+
     public void SaveApiToken(string provider, string? draft)
     {
         // Compatibility for synchronous callers. All adapter/session awaits are context-free.
@@ -149,6 +182,7 @@ public class SettingsViewModel : ObservableViewModel
             return;
         _kioskSession.Unlock();
         Notify(nameof(KioskLocked));
+        Notify(nameof(CanPreviewCredentialMigration));
     }
 
     public void LockKioskSession()
@@ -157,6 +191,7 @@ public class SettingsViewModel : ObservableViewModel
             return;
         _kioskSession.Lock();
         Notify(nameof(KioskLocked));
+        Notify(nameof(CanPreviewCredentialMigration));
     }
 
     public bool HasKioskPin => KioskLock.HasPin(Current);

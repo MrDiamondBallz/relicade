@@ -53,8 +53,14 @@
 
 							<!-- Tab Control -->
 							<Border Grid.Row="1" IsVisible="{Binding IsReadOnly}" Padding="20,12">
-                            <TextBlock x:Name="SettingsRecoveryMessage" Text="{Binding RecoveryMessage}" TextWrapping="Wrap"
-                                       Foreground="{DynamicResource ThemeText}" AutomationProperties.LiveSetting="Assertive"/>
+                            <StackPanel Spacing="8">
+                                <TextBlock x:Name="SettingsRecoveryMessage" Text="{Binding RecoveryMessage}" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource ThemeText}" AutomationProperties.LiveSetting="Assertive"/>
+                                <Button x:Name="PreviewCredentialMigrationButton" Content="Preview own-settings credential migration"
+                                        MinHeight="44" IsEnabled="{Binding CanPreviewCredentialMigration}" Click="PreviewCredentialMigration_Click"/>
+                                <TextBlock x:Name="CredentialMigrationStatus" Text="{Binding CredentialMigrationMessage}" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource ThemeText}" AutomationProperties.LiveSetting="Assertive"/>
+                            </StackPanel>
                         </Border>
                         <TabControl Grid.Row="2" IsEnabled="{Binding !IsReadOnly}" x:Name="SettingsTabControl"
 										Background="Transparent"
