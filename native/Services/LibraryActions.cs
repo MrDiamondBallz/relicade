@@ -203,17 +203,7 @@ public sealed class LibraryActions
     {
         if (!RemovalPaths(game).SequenceEqual(expected, StringComparer.Ordinal))
             throw new IOException("The installation location changed while confirming removal. Refresh and try again.");
-        var leases = new List<IDisposable>();
-        try
-        {
-            foreach (var path in expected) leases.Add(new PortableInstallationTransaction(path).AcquireUnmanagedRemovalLease());
-            return new RemovalLeases(leases);
-        }
-        catch { foreach (var lease in leases.AsEnumerable().Reverse()) lease.Dispose(); throw; }
-    }
-    private sealed class RemovalLeases(List<IDisposable> leases) : IDisposable
-    {
-        public void Dispose() { foreach (var lease in leases.AsEnumerable().Reverse()) lease.Dispose(); }
+        return PortableInstallationTransaction.AcquireUnmanagedRemovalLeases(expected);
     }
 
     public async Task UninstallAsync(GameInfo? game)
