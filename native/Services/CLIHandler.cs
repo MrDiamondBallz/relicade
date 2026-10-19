@@ -904,8 +904,7 @@ namespace Relicade
                 bool flatpak;
                 try
                 {
-                    foreach (var path in paths)
-                        leases.Add(new PortableInstallationTransaction(path).AcquireUnmanagedRemovalLease());
+                    leases.Add(PortableInstallationTransaction.AcquireUnmanagedRemovalLeases(paths));
                     if (Path.GetFullPath(game.GetInstallPath(_gameManager.GamesFolder)) != gamePath ||
                         Path.GetFullPath(Path.Combine(_gameManager.GamesFolder, game.FolderName)) != defaultPath)
                         throw new IOException("The installation location changed. Refresh and try again.");
