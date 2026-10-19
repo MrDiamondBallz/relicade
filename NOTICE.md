@@ -16,7 +16,7 @@ Relicade does not claim to own, operate, independently verify or be affiliated w
 
 Bundled project tiles are original Relicade typographic/geometric presentation art. They are not screenshots, gameplay, official game artwork or an endorsement. Their renderer and local hashes are recorded in the snapshot's artwork provenance.
 
-Third-party artwork may be displayed through credited external source links, including the Ocarina of Time image in the README. Those image files are not bundled in the source snapshot. The images remain the work of their respective creators and rights holders, not original Relicade art. A public URL, source link or attribution is not an artwork-license grant or an endorsement; rehosting or bundling external artwork requires an established rights basis.
+The README's interface design preview includes third-party game artwork as displayed in the browser-rendered interface, including the [Ocarina of Time hero source](https://cdn2.steamgriddb.com/hero/b63d7ec7840735552cb77df807d944ef.png). Other source references remain in the catalog's `referenceArtSources`. This illustrative screenshot is not gameplay or native-readiness evidence. Embedded game artwork remains the work of its respective creators and rights holders, not original Relicade art, and is not licensed by any software license for this project. A public URL, source link or attribution is not an artwork-license grant or endorsement.
 
 ## Fonts and source license
 

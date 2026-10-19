@@ -20,8 +20,8 @@ spec.loader.exec_module(preview)
 server = preview.make_server(ROOT, 0)
 threading.Thread(target=server.serve_forever, daemon=True).start()
 base = f'http://127.0.0.1:{server.server_port}'
-assets = ROOT/'docs/assets'
-assets.mkdir(exist_ok=True)
+assets = Path(os.environ.get('RELICADE_QA_OUTPUT_DIR', str(ROOT/'qa/local/preview'))).resolve()
+assets.mkdir(parents=True, exist_ok=True)
 errors, blocked, requests, checks = [], [], [], []
 try:
     with sync_playwright() as p:
