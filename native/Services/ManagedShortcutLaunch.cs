@@ -82,8 +82,8 @@ internal static class ManagedShortcutLaunch
 
     // Positive, bounded FORMAT gate only. A suffix (including .AppImage) never proves
     // a direct native executable, and even ELF cannot prove absence of descendants.
-    // Production therefore retains an uncertain receipt and never reports lifetime
-    // completion from the direct PID alone (see ObserveUnestablishedExitAsync).
+    // Production must establish kernel child-tree ownership BEFORE spawning. Format
+    // recognition alone never authorizes clearing a receipt on direct-PID exit.
     internal static void EnsureSupportedLifetime(string target)
     {
         const string refusal = "This managed target has no supported native shortcut format/lifetime. Scripts, AppImage runtimes, compatibility runners and unknown formats are refused; open Relicade to resolve launch support.";
@@ -139,16 +139,11 @@ internal static class ManagedShortcutLaunch
 
     internal static async Task<(bool Launched, Task? Lifetime)> LaunchAsync(GameInfo game, string gamesFolder, string operation)
     {
-        Process? process = null;
-        void Started(Process? value) => process = value;
-        game.GameProcessStarted += Started;
-        try
-        {
-            var launched = await GameLaunchService.LaunchAsync(game, gamesFolder, operation);
-            if (!launched || process == null) return (false, null);
-            return (true, ObserveUnestablishedExitAsync(process));
-        }
-        finally { game.GameProcessStarted -= Started; }
+        // This command is a dedicated CLI lifetime, not a GUI-wide process tracker.
+        // Unsupported kernel/host/ownership refuses before GameLaunchService can spawn.
+        using var observer = ManagedShortcutChildLifetime.Begin();
+        var launched = await GameLaunchService.LaunchAsync(game, gamesFolder, operation, observer);
+        return launched ? (true, Task.CompletedTask) : (false, null);
     }
 
     internal static async Task<int> ExecuteAsync(GameManager manager, string key,
@@ -169,5 +164,104 @@ internal static class ManagedShortcutLaunch
         if (!result.Launched || result.Lifetime == null) return 1;
         await result.Lifetime;
         return 0;
+    }
+}
+
+/// <summary>
+/// Dedicated Linux CLI child-tree observation. The kernel reparents orphaned
+/// descendants (even setsid/double-fork children) to this subreaper. ECHILD, not
+/// an ELF name, process group, proc snapshot or direct exit, is the completion
+/// boundary. External service launches, sandbox proxies and other OSes are NOT
+/// supported by this adapter. It is not native game/package acceptance.
+/// </summary>
+internal sealed class ManagedShortcutChildLifetime : IDisposable
+{
+    const int SetSubreaper = 36, GetSubreaper = 37, NoHang = 1, NoChild = 10, Interrupted = 4;
+    static int owned;
+    bool spawnAttempted, observing, drained, disposed;
+
+    [DllImport("libc", SetLastError = true, EntryPoint = "prctl")]
+    static extern int Set(int option, ulong value, ulong unused1, ulong unused2, ulong unused3);
+    [DllImport("libc", SetLastError = true, EntryPoint = "prctl")]
+    static extern int Get(int option, out int value, ulong unused1, ulong unused2, ulong unused3);
+    [DllImport("libc", SetLastError = true)]
+    static extern int waitpid(int pid, out int status, int options);
+    [DllImport("libc", SetLastError = true)]
+    static extern int waitid(int type, uint id, [Out] byte[] info, int options);
+
+    internal static ManagedShortcutChildLifetime Begin()
+    {
+        if (!OperatingSystem.IsLinux() || OperatingSystem.IsAndroid() || HostProcessEnvironment.IsSandboxed() ||
+            RuntimeInformation.ProcessArchitecture is not (Architecture.X64 or Architecture.Arm64))
+            throw new NotSupportedException("Child-tree observation requires an unsandboxed Linux native launcher.");
+        if (Interlocked.CompareExchange(ref owned, 1, 0) != 0)
+            throw new IOException("Another managed shortcut child-tree observer is already active.");
+        var installed = false;
+        try
+        {
+            if (Get(GetSubreaper, out var previous, 0, 0, 0) != 0 || previous != 0)
+                throw new NotSupportedException("Exclusive kernel child-tree observer ownership is unavailable.");
+            // WEXITED|WNOHANG|WNOWAIT, P_ALL. A successful call means children
+            // exist, even if no exit is ready; it never consumes their wait status.
+            int result;
+            do { result = waitid(0, 0, new byte[128], 4 | 1 | 0x01000000); }
+            while (result == -1 && Marshal.GetLastPInvokeError() == Interrupted);
+            if (result != -1 || Marshal.GetLastPInvokeError() != NoChild)
+                throw new IOException("The dedicated shortcut launcher already has children; refusing ambiguous ownership before spawn.");
+            if (Set(SetSubreaper, 1, 0, 0, 0) != 0)
+                throw new NotSupportedException("The kernel could not establish child-tree observation before launch.");
+            installed = true;
+            if (Get(GetSubreaper, out var current, 0, 0, 0) != 0 || current != 1)
+                throw new NotSupportedException("Kernel child-tree observation could not be verified.");
+            return new ManagedShortcutChildLifetime();
+        }
+        catch
+        {
+            if (installed) Set(SetSubreaper, 0, 0, 0, 0);
+            Interlocked.Exchange(ref owned, 0);
+            throw;
+        }
+    }
+
+    internal Process? Start(ProcessStartInfo info)
+    {
+        if (disposed || spawnAttempted || observing || info.UseShellExecute || HostProcessEnvironment.IsSandboxed())
+            throw new IOException("A managed shortcut requires one directly observed native spawn under the owned observer.");
+        spawnAttempted = true; // BEFORE OS creation; exceptions are potentially uncertain.
+        return HostGameSession.Start(info);
+    }
+
+    internal async Task ObserveAsync(Process process)
+    {
+        if (disposed || observing) throw new IOException("Child-tree observation is no longer owned.");
+        observing = spawnAttempted = true;
+        await (HostGameSession.ExitTask(process) ?? process.WaitForExitAsync()).ConfigureAwait(false);
+        while (true)
+        {
+            var pid = waitpid(-1, out _, NoHang);
+            if (pid > 0) continue; // Reap an adopted, exited descendant, not a live PID.
+            if (pid == -1)
+            {
+                var error = Marshal.GetLastPInvokeError();
+                if (error == Interrupted) continue;
+                if (error != NoChild) throw new IOException("Kernel child-tree observation failed; retain the uncertain launch receipt.");
+                // Verify ownership again before accepting the kernel's empty tree.
+                if (Get(GetSubreaper, out var current, 0, 0, 0) != 0 || current != 1 || Set(SetSubreaper, 0, 0, 0, 0) != 0)
+                    throw new IOException("Kernel child-tree ownership changed; retain the uncertain launch receipt.");
+                drained = true;
+                return;
+            }
+            await Task.Delay(50).ConfigureAwait(false);
+        }
+    }
+
+    public void Dispose()
+    {
+        if (disposed) return;
+        disposed = true;
+        // On interruption AFTER spawn do not disable adoption or claim completion.
+        // The owning service preserves Launching; this dedicated CLI then exits.
+        if (!spawnAttempted && !drained) Set(SetSubreaper, 0, 0, 0, 0);
+        Interlocked.Exchange(ref owned, 0);
     }
 }
