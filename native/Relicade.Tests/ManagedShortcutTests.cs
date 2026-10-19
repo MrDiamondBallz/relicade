@@ -19,7 +19,9 @@ public sealed class ManagedShortcutTests : IDisposable
     static GameInfo Game(string folder = "one", bool manual = false) => new() { Name = "same name", FolderName = folder, Repository = manual ? "" : "fixture/same", AutoUpdate = true };
     async Task Install(GameInfo game, string file = "fixture.AppImage", string version = "v1")
     {
-        var source = Path.Combine(root, file); File.WriteAllText(source, "NONEXECUTABLE SYNTHETIC GAME " + version);
+        var source = Path.Combine(root, file); var bytes = ManagedShortcutLifetimeTests.NativeShape();
+        // Version changes remain observable without ever executing these format-only bytes.
+        bytes[^1] = (byte)version[^1]; File.WriteAllBytes(source, bytes);
         await GameInstallationService.InstallOrUpdateGameAsync(source, game.GetInstallPath(Apps), file, version);
     }
     async Task WriteLibrary(params GameInfo[] games)

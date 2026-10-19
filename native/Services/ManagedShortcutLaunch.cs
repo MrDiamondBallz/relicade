@@ -1,4 +1,6 @@
+using System.Buffers.Binary;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using Relicade.Core.Services;
 using Relicade.Models;
@@ -78,11 +80,61 @@ internal static class ManagedShortcutLaunch
 
     internal static string? ResolveOwnLauncher() => ShortcutHelper.ResolveLauncherPath();
 
+    // Positive, bounded FORMAT gate only. A suffix (including .AppImage) never proves
+    // a direct native executable, and even ELF cannot prove absence of descendants.
+    // Production therefore retains an uncertain receipt and never reports lifetime
+    // completion from the direct PID alone (see ObserveUnestablishedExitAsync).
     internal static void EnsureSupportedLifetime(string target)
     {
-        if (!OperatingSystem.IsLinux() || OperatingSystem.IsAndroid() || HostProcessEnvironment.IsSandboxed() ||
-            target.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) || target.EndsWith(".app", StringComparison.OrdinalIgnoreCase))
-            throw new NotSupportedException("Managed shortcuts currently require a directly tracked Linux native process outside a sandbox. Runner, external-start and other native package lifetimes are not established; use Relicade's supported interface instead.");
+        const string refusal = "This managed target has no supported native shortcut format/lifetime. Scripts, AppImage runtimes, compatibility runners and unknown formats are refused; open Relicade to resolve launch support.";
+        try
+        {
+            if (!OperatingSystem.IsLinux() || OperatingSystem.IsAndroid() || HostProcessEnvironment.IsSandboxed() ||
+                target.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) || target.EndsWith(".app", StringComparison.OrdinalIgnoreCase))
+                throw new NotSupportedException(refusal);
+            var machine = RuntimeInformation.ProcessArchitecture switch
+            {
+                Architecture.X64 => (ushort)62,
+                Architecture.Arm64 => (ushort)183,
+                _ => throw new NotSupportedException(refusal)
+            };
+            using var file = new FileStream(target, FileMode.Open, FileAccess.Read, FileShare.Read);
+            Span<byte> header = stackalloc byte[64]; file.ReadExactly(header);
+            if (!header[..7].SequenceEqual(new byte[] { 0x7f, (byte)'E', (byte)'L', (byte)'F', 2, 1, 1 }) ||
+                header[8] == (byte)'A' && header[9] == (byte)'I' ||
+                BinaryPrimitives.ReadUInt16LittleEndian(header[16..]) is not (2 or 3) ||
+                BinaryPrimitives.ReadUInt16LittleEndian(header[18..]) != machine ||
+                BinaryPrimitives.ReadUInt32LittleEndian(header[20..]) != 1 ||
+                BinaryPrimitives.ReadUInt16LittleEndian(header[52..]) != 64 ||
+                BinaryPrimitives.ReadUInt16LittleEndian(header[54..]) != 56)
+                throw new NotSupportedException(refusal);
+            var offset = BinaryPrimitives.ReadUInt64LittleEndian(header[32..]);
+            var count = BinaryPrimitives.ReadUInt16LittleEndian(header[56..]);
+            var length = (ulong)file.Length;
+            if (count is 0 or > 128 || offset < 64 || offset > length || (ulong)count * 56 > length - offset)
+                throw new NotSupportedException(refusal);
+            file.Position = (long)offset;
+            Span<byte> segment = stackalloc byte[56]; var executableLoad = false;
+            for (var i = 0; i < count; i++)
+            {
+                file.ReadExactly(segment);
+                if (BinaryPrimitives.ReadUInt32LittleEndian(segment) != 1) continue;
+                var start = BinaryPrimitives.ReadUInt64LittleEndian(segment[8..]);
+                var size = BinaryPrimitives.ReadUInt64LittleEndian(segment[32..]);
+                var memory = BinaryPrimitives.ReadUInt64LittleEndian(segment[40..]);
+                if (start > length || size > length - start || size > memory) throw new NotSupportedException(refusal);
+                executableLoad |= size > 0 && (BinaryPrimitives.ReadUInt32LittleEndian(segment[4..]) & 1) != 0;
+            }
+            if (!executableLoad) throw new NotSupportedException(refusal);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        { throw new NotSupportedException(refusal); }
+    }
+
+    internal static async Task ObserveUnestablishedExitAsync(Process process)
+    {
+        await (HostGameSession.ExitTask(process) ?? process.WaitForExitAsync());
+        throw new IOException("The directly observed process exited, but its descendant lifetime is not established. The launch receipt remains uncertain and blocks changes; confirm all game processes are stopped and use explicit recovery. No completed managed lifetime is claimed.");
     }
 
     internal static async Task<(bool Launched, Task? Lifetime)> LaunchAsync(GameInfo game, string gamesFolder, string operation)
@@ -94,7 +146,7 @@ internal static class ManagedShortcutLaunch
         {
             var launched = await GameLaunchService.LaunchAsync(game, gamesFolder, operation);
             if (!launched || process == null) return (false, null);
-            return (true, HostGameSession.ExitTask(process) ?? process.WaitForExitAsync());
+            return (true, ObserveUnestablishedExitAsync(process));
         }
         finally { game.GameProcessStarted -= Started; }
     }

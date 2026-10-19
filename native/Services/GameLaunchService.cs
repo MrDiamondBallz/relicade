@@ -173,7 +173,7 @@ public static class GameLaunchService
             try
             {
                 gameProcess = HostGameSession.Start(startInfo);
-                if (gameProcess != null) portableLifetime.Attach(gameProcess);
+                if (gameProcess != null) TrackStartedProcess(portableLifetime, gameProcess, expectedOperationId != null);
             }
             catch { portableLifetime.PreserveUncertain(); throw; }
             if (gameProcess == null)
@@ -238,6 +238,16 @@ public static class GameLaunchService
 
             return false;
         }
+    }
+
+    // A native file format is not descendant-lifetime authority. Never turn an
+    // unestablished managed-shortcut start into an auto-clearing direct-PID receipt.
+    // The existing Launching state blocks cooperating writers across launcher exit,
+    // process exit, crashes and reopen until explicit recovery; no Core schema change.
+    internal static void TrackStartedProcess(PortableInstallationLifetime lifetime, Process process, bool managedShortcut)
+    {
+        if (managedShortcut) lifetime.PreserveUncertain();
+        else lifetime.Attach(process);
     }
 
     private static async Task<bool> LaunchWindowsInstallerAppAsync(GameInfo game, string gamePath)

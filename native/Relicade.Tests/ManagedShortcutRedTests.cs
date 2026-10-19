@@ -14,7 +14,7 @@ public sealed class ManagedShortcutRedTests : IDisposable
     [Fact]
     public async Task Managed_generation_prepares_launcher_route_not_direct_payload()
     {
-        var source = Path.Combine(root, "fixture.AppImage"); File.WriteAllText(source, "NONEXECUTABLE synthetic payload");
+        var source = Path.Combine(root, "fixture.AppImage"); File.WriteAllBytes(source, ManagedShortcutLifetimeTests.NativeShape());
         await GameInstallationService.InstallOrUpdateGameAsync(source, Path.Combine(root, "tile"), "fixture.AppImage", "v1");
         var launcher = Path.Combine(Directory.CreateDirectory(root + "-launcher").FullName, "Relicade.Desktop"); File.WriteAllText(launcher, "OWN fixture launcher; never executed");
         var game = new GameInfo { Name = "same name", FolderName = "tile", Repository = "fixture/same" };
@@ -29,7 +29,7 @@ public sealed class ManagedShortcutRedTests : IDisposable
     public async Task Exact_instance_CLI_dispatches_offline_and_propagates_observed_lifetime()
     {
         var game = new GameInfo { Name = "same name", FolderName = "tile", Repository = "fixture/same" };
-        var source = Path.Combine(root, "fixture.AppImage"); File.WriteAllText(source, "NONEXECUTABLE synthetic payload");
+        var source = Path.Combine(root, "fixture.AppImage"); File.WriteAllBytes(source, ManagedShortcutLifetimeTests.NativeShape());
         await GameInstallationService.InstallOrUpdateGameAsync(source, Path.Combine(root, "tile"), "fixture.AppImage", "v1");
         var catalog = new AppCatalogService(dataDirectory: root);
         await catalog.SaveLocalAppsAsync([game]);
