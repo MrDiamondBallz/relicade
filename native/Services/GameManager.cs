@@ -257,6 +257,95 @@ namespace Relicade.Services
             return Games.FirstOrDefault(g => string.Equals(g.FolderName, folderName, StringComparison.OrdinalIgnoreCase));
         }
 
+        // Removal-only loading intentionally bypasses LibraryFileStore.ReadAsync:
+        // even its validated read creates/prunes backups and can migrate games.json.
+        // Reuse only the existing pure strict parser; never run status or recovery.
+        private byte[]? _removalLibrary;
+        internal static string ValidateRemovalAppsPath(AppSettings settings)
+        {
+            var path = string.IsNullOrEmpty(settings.AppsPath) ? RelicadePaths.DefaultAppsDirectory : settings.AppsPath;
+            ValidateRemovalAbsolutePath(path);
+            // An absent library base is not permission to recreate a lost generation
+            // via the unchanged GameManager constructor. Removal needs an existing base.
+            if ((File.GetAttributes(path) & FileAttributes.Directory) == 0)
+                throw new IOException("The configured apps directory is unavailable; no files were removed.");
+            return Path.TrimEndingDirectorySeparator(Path.GetFullPath(path));
+        }
+
+        private static void ValidateRemovalAbsolutePath(string path)
+        {
+            if (!Path.IsPathFullyQualified(path) || path.Any(char.IsControl) ||
+                path.Replace('\\', '/').Split('/').Any(p => p is "." or ".." ||
+                    p.Equals(PortableInstallationTransaction.DirectoryName, StringComparison.OrdinalIgnoreCase)) ||
+                Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(path)) == null)
+                throw new IOException("Unsafe or ambiguous local removal path. Repair the library first.");
+            for (var item = new DirectoryInfo(path); item != null; item = item.Parent)
+            {
+                try
+                {
+                    if ((File.GetAttributes(item.FullName) & FileAttributes.ReparsePoint) != 0)
+                        throw new IOException("Linked removal paths require explicit repair; no files were removed.");
+                }
+                catch (FileNotFoundException) { }
+                catch (DirectoryNotFoundException) { }
+            }
+        }
+
+        internal async Task LoadGamesForRemovalAsync()
+        {
+            var settings = _settingsStore.Load();
+            if (_settingsStore is ISettingsRecoveryState { IsReadOnly: true } recovery)
+                throw new SettingsRecoveryRequiredException(recovery.ReadError ?? new IOException("Settings recovery is required before removal."));
+            if (!string.Equals(ValidateRemovalAppsPath(settings), Path.TrimEndingDirectorySeparator(Path.GetFullPath(_appsFolder)),
+                OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+                throw new IOException("The configured apps directory changed. Reopen before removal.");
+            ValidateRemovalAbsolutePath(_catalogService.AppsConfigPath);
+            var bytes = await File.ReadAllBytesAsync(_catalogService.AppsConfigPath);
+            ManagedShortcutLaunch.ValidateLocalIdentities(bytes);
+            using var doc = System.Text.Json.JsonDocument.Parse(bytes);
+            var sections = new Dictionary<string, System.Text.Json.JsonElement>();
+            if (doc.RootElement.ValueKind == System.Text.Json.JsonValueKind.Array)
+                sections.Add("apps", doc.RootElement);
+            else
+                foreach (var field in doc.RootElement.EnumerateObject())
+                {
+                    if (field.Name is not ("apps" or "standard" or "experimental" or "custom"))
+                        throw new IOException("Unknown local library format; repair before removal.");
+                    sections.Add(field.Name, field.Value);
+                }
+            var apps = _catalogService.ParseAppsFromDictionary(sections);
+            foreach (var app in apps)
+            {
+                if (string.IsNullOrWhiteSpace(app.Name) || string.IsNullOrWhiteSpace(app.FolderName))
+                    throw new IOException("Incomplete local removal identity; repair the library first.");
+                PortableInstallationTransaction.ValidateRelative(app.FolderName);
+                ValidateRemovalAbsolutePath(Path.Combine(_appsFolder, app.FolderName));
+                if (app.InstallPath != null) ValidateRemovalAbsolutePath(app.InstallPath);
+                app.GameManager = this;
+                app.IsInLocalAppsJson = true;
+            }
+            _removalLibrary = bytes;
+            VerifyRemovalLibrary();
+            // In-memory lookup data only; do not project installed/recovery status,
+            // read artwork, create snapshots, normalize settings or save anything.
+            _catalogApps = apps;
+            Games = new ObservableCollection<GameInfo>(apps);
+        }
+
+        internal void VerifyRemovalLibrary()
+        {
+            // Direct internal method tests predate the public command loader. Public
+            // removal always sets this snapshot and revalidates it under the leases.
+            if (_removalLibrary == null) return;
+            if (!File.ReadAllBytes(_catalogService.AppsConfigPath).AsSpan().SequenceEqual(_removalLibrary))
+                throw new IOException("The local library changed while preparing removal. Retry; no files were removed.");
+            var settings = _settingsStore.Load();
+            if (_settingsStore is ISettingsRecoveryState { IsReadOnly: true } ||
+                !string.Equals(ValidateRemovalAppsPath(settings), Path.TrimEndingDirectorySeparator(Path.GetFullPath(_appsFolder)),
+                    OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+                throw new IOException("Settings changed or need recovery; no files were removed.");
+        }
+
         internal Task LoadGamesForCliAsync() => LoadGamesCoreAsync(false, listScopeOverride: AppListScope.AllApps);
 
         private byte[]? _managedShortcutLibrary;

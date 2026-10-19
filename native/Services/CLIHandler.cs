@@ -125,9 +125,9 @@ namespace Relicade
 
                     case "-x":
                     case "--uninstall":
-                        ClearTerminal();
-                        await PrintHeader();
-                        await InitializeGameManager();
+                        // Removal must not run the header's updater or the general
+                        // catalog/status/recovery initialization before disk authority.
+                        await InitializeRemovalGameManager();
                         return await UninstallGame(GetGameNameFromArgs(args));
 
                     default:
@@ -173,6 +173,23 @@ namespace Relicade
                 // The CLI needs all rows for this session, not a persisted settings change.
                 await _gameManager.LoadGamesForCliAsync();
             }
+        }
+
+        // Transport-only test seam: production still constructs and uses the real
+        // manager and the same strictly local removal loader, not a fake routing path.
+        internal HttpClient? RemovalHttpClient { get; init; }
+
+        private async Task InitializeRemovalGameManager()
+        {
+            var settings = AppSettings.Load();
+            if (SettingsStoreProvider.Default is ISettingsRecoveryState { IsReadOnly: true } recovery)
+                throw new SettingsRecoveryRequiredException(recovery.ReadError ?? new IOException("Settings recovery is required before removal."));
+            if (_gameManager == null)
+            {
+                GameManager.ValidateRemovalAppsPath(settings);
+                _gameManager = new GameManager(httpClient: RemovalHttpClient);
+            }
+            await _gameManager.LoadGamesForRemovalAsync();
         }
 
         private string GetGameNameFromArgs(string[] args)
@@ -855,7 +872,12 @@ namespace Relicade
                 return PrintError("App name required.");
             }
 
-            var game = FindGame(gameName);
+            var matches = _gameManager?.Games.Where(g =>
+                string.Equals(g.Name, gameName, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(g.FolderName, gameName, StringComparison.OrdinalIgnoreCase)).ToArray() ?? [];
+            if (matches.Length > 1)
+                return PrintError("The removal name matches multiple local apps. Use a unique folder name; no files were removed.");
+            var game = matches.SingleOrDefault();
             if (game == null)
             {
                 Console.WriteLine();
@@ -887,6 +909,7 @@ namespace Relicade
                     if (Path.GetFullPath(game.GetInstallPath(_gameManager.GamesFolder)) != gamePath ||
                         Path.GetFullPath(Path.Combine(_gameManager.GamesFolder, game.FolderName)) != defaultPath)
                         throw new IOException("The installation location changed. Refresh and try again.");
+                    _gameManager.VerifyRemovalLibrary();
                     if (WindowsInstallerService.HasReceipt(gamePath))
                         return PrintError("Uninstall this application in Windows Settings → Apps → Installed apps. Relicade does not delete Windows Installer application folders.");
                     flatpak = FlatpakService.HasReceipt(gamePath);
