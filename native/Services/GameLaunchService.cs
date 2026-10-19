@@ -37,7 +37,10 @@ public static class GameLaunchService
 
             var executables = GameInstallationService.FindExecutableCandidates(
                 gamePath,
-                SearchOption.TopDirectoryOnly,
+                // A committed generation's validated target may be nested even when
+                // root-level helper executables exist. Never discard it or substitute
+                // a helper merely because legacy discovery prefers the root.
+                portableManifest != null ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly,
                 game.GetInstallationOptions(),
                 out var needsWine);
 
@@ -49,6 +52,9 @@ public static class GameLaunchService
                     game.GetInstallationOptions(),
                     out needsWine);
             }
+
+            if (portableManifest != null && !executables.Contains(game.SelectedExecutable!))
+                throw new IOException("The committed executable target is not launchable with the current platform/options. Repair or explicitly select a new target; no helper was substituted.");
 
             if (executables.Count == 0)
             {

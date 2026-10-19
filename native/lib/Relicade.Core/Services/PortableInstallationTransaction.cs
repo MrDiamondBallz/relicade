@@ -92,6 +92,41 @@ public sealed class PortableInstallationTransaction
         try { Sync(operations); Sync(Path.GetDirectoryName(operations)!); Sync(parent); return stream; }
         catch { stream.Dispose(); throw; }
     }
+    /// <summary>
+    /// G05 must take the same stable, outside-generation lease BEFORE creating its
+    /// root or taking its legacy in-generation lock. Refuse unresolved recovery;
+    /// only the game recovery path may decide which complete generation is live.
+    /// The returned lease spans the entire mod read/write/commit operation.
+    /// </summary>
+    public IDisposable AcquireModWriterLease()
+    {
+        var lease = AcquireLease();
+        try
+        {
+            PortableInstallationLifetime.EnsureNotRunning(operations);
+            foreach (var dir in Directory.GetDirectories(operations))
+            {
+                CheckLinks(dir);
+                if (!Guid.TryParseExact(Path.GetFileName(dir), "N", out _))
+                    throw new InvalidDataException("Unknown portable recovery operation directory.");
+                var journal = SafePath(dir, "journal.json");
+                // Use actual reads, not File.Exists: access denial is not absence.
+                if (Optional(journal) == null)
+                {
+                    if (Directory.Exists(SafePath(dir, "previous")))
+                        throw new IOException("Portable recovery journal is missing; recover/repair before managing mods.");
+                    continue; // pre-Prepared staging has never mutated live
+                }
+                var j = ReadJournal(dir);
+                if (j.Phase != "Committed" && j.Resolution != "Old")
+                    throw new IOException("Portable installation recovery is needed before managing mods. Evidence retained; reopen/repair the game installation first.");
+            }
+            var manifest = Optional(SafePath(root, ManifestFileName));
+            if (manifest != null) ValidateCommittedIdentity(Parse<Manifest>(manifest));
+            return lease;
+        }
+        catch { lease.Dispose(); throw; }
+    }
     static FileStream AcquireModLease(string path)
     {
         Directory.CreateDirectory(path);

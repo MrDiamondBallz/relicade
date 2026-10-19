@@ -123,7 +123,10 @@ public sealed class PortableInstallationNegativeTests : IDisposable
         var ex = await Assert.ThrowsAsync<IOException>(() => GameInstallationService.InstallOrUpdateGameAsync(Source, Live, "fixture.zip", "v2", new() { TransactionBoundary = p =>
         {
             if (p != "PreviousRenamed") return;
-            using (ModInstallTransaction.Acquire(Live)) File.WriteAllText(Path.Combine(Live, "external-mod.txt"), "external synthetic mod");
+            // Deliberately noncooperative external software ignores both launcher
+            // locks. Cooperative G05 refusal is covered separately.
+            Directory.CreateDirectory(Live);
+            File.WriteAllText(Path.Combine(Live, "external-mod.txt"), "external synthetic mod");
         } }));
         Assert.Contains("recovery is needed", ex.Message); Assert.Equal("external synthetic mod", File.ReadAllText(Path.Combine(Live, "external-mod.txt")));
         Assert.Throws<IOException>(() => new PortableInstallationTransaction(Live).ReadCommitted());
