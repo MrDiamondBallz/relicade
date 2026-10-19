@@ -196,7 +196,6 @@ public class SettingsTextInputTests
     [InlineData(true)]
     public async Task Token_draft_is_saved_only_by_explicit_keyboard_or_gamepad_action(bool gamepad)
     {
-        using var vault = new CredentialVaultTestScope();
         var store = new Store();
         // Saving a token asks the provider to confirm it; this one accepts it.
         using var http = new HttpClient(new TokenAccepted());
@@ -350,7 +349,6 @@ public class SettingsTextInputTests
     [AvaloniaFact]
     public async Task GitHub_token_remains_editable_after_tab_switches_and_reopening_settings()
     {
-        using var vault = new CredentialVaultTestScope();
         var store = new Store();
         // Saving a token asks the provider to confirm it; this one accepts it.
         using var http = new HttpClient(new TokenAccepted());
@@ -506,8 +504,10 @@ public class SettingsTextInputTests
             Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK) { Content = new StringContent("{}") });
     }
 
-    private sealed class Store : ISettingsStore
+    private sealed class Store : ISettingsStore, Relicade.Services.Credentials.ICredentialSettingsStore
     {
+        public Relicade.Services.Credentials.CredentialSession Credentials { get; } = new(new ControlledCredentialVault());
+        public bool HasLegacyCredentials => false;
         public AppSettings Current { get; } = new()
         {
             FirstStartup = false, EnableGamepadInput = true,
