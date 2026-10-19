@@ -155,8 +155,11 @@ public sealed class ModsPreservationRecoveryTests : IDisposable
     }
     static Process Child(string target, string point)
     {
-        var psi = new ProcessStartInfo(Environment.ProcessPath!) { RedirectStandardOutput = true, RedirectStandardError = true };
-        psi.ArgumentList.Add(typeof(ModsPreservationRecoveryTests).Assembly.Location);
+        var executable = Environment.ProcessPath!;
+        var psi = new ProcessStartInfo(executable) { RedirectStandardOutput = true, RedirectStandardError = true };
+        // dotnet <assembly> and the generated apphost are both used by supported test runners.
+        if (string.Equals(Path.GetFileNameWithoutExtension(executable), "dotnet", StringComparison.OrdinalIgnoreCase))
+            psi.ArgumentList.Add(typeof(ModsPreservationRecoveryTests).Assembly.Location);
         foreach (var arg in new[] { "-noLogo", "-noColor", "-parallel", "none", "-method", "Relicade.Tests.ModsPreservationRecoveryTests.Transaction_child_control" }) psi.ArgumentList.Add(arg);
         psi.Environment["RELICADE_MOD_TEST_ROOT"] = target; psi.Environment["RELICADE_MOD_TEST_POINT"] = point;
         return Process.Start(psi)!;
