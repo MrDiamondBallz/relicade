@@ -180,6 +180,10 @@ public sealed class PortableWriterCoordinationTests : IDisposable
         Assert.NotNull(Record.Exception(() => new InstalledModsStore().Save(Live, new())));
         var game = new GameInfo { Name = "synthetic", FolderName = "live", SelectedExecutable = selected };
         Assert.False(await GameLaunchService.LaunchAsync(game, root));
+        Assert.NotNull(game.PortableRecoveryError); Assert.False(game.CanLaunch);
+        Assert.NotNull(Record.Exception(() => new PortableInstallationTransaction(Live).ReadCommitted()));
+        Assert.NotNull(Record.Exception(() => PortableInstallationLifetime.Begin(Live)));
+        Assert.False(File.Exists(Path.Combine(new PortableInstallationTransaction(Live).OperationsPath, "launch.json")));
         Assert.DoesNotContain(game.SelectedExecutable, new[] { Path.Combine(Live, "tool-a.exe"), Path.Combine(Live, "tool-b.exe") });
         Assert.False(File.Exists(Path.Combine(Live, "LastPlayed.txt")));
         Assert.Equal(before.OrderBy(e => e.Key), Snapshot(root).OrderBy(e => e.Key));

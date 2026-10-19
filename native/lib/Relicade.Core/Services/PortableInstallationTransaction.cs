@@ -79,8 +79,9 @@ public sealed class PortableInstallationTransaction
     {
         if (string.IsNullOrWhiteSpace(path)) return false;
         var tx = new PortableInstallationTransaction(path);
-        return File.Exists(SafePath(tx.root, ManifestFileName)) || Directory.Exists(tx.operations) &&
-            Directory.GetDirectories(tx.operations).Any(d => File.Exists(SafePath(d, "journal.json")) || Directory.Exists(SafePath(d, "previous")));
+        // Access denial is evidence uncertainty, not proof of an unmanaged root.
+        return Optional(SafePath(tx.root, ManifestFileName)) != null || Directory.Exists(tx.operations) &&
+            Directory.GetDirectories(tx.operations).Any(d => Optional(SafePath(d, "journal.json")) != null || Directory.Exists(SafePath(d, "previous")));
     }
     // The lock is outside the swappable generation and is never removed. FileShare.None
     // is an OS cross-process lock; no delete-and-recreate lock identity.
@@ -104,7 +105,6 @@ public sealed class PortableInstallationTransaction
         try
         {
             PortableInstallationLifetime.EnsureNotRunning(operations);
-            var hasCommittedGeneration = false;
             foreach (var dir in Directory.GetDirectories(operations))
             {
                 CheckLinks(dir);
@@ -119,14 +119,12 @@ public sealed class PortableInstallationTransaction
                     continue; // pre-Prepared staging has never mutated live
                 }
                 var j = ReadJournal(dir);
-                hasCommittedGeneration |= j.Phase == "Committed";
                 if (j.Phase != "Committed" && j.Resolution != "Old")
                     throw new IOException("Portable installation recovery is needed before managing mods. Evidence retained; reopen/repair the game installation first.");
             }
             var manifest = ReadManifest(root, allowDataChanges: true);
             ValidateCommittedIdentity(manifest);
-            if (manifest == null && hasCommittedGeneration)
-                throw new IOException("The committed portable manifest is missing; explicit repair is required before managing mods.");
+
             // G05 mutates payload/sidecars in-place. Until an explicit compatible
             // game/mod data policy exists, even a healthy managed generation must
             // refuse BEFORE G05 creates locks, staging, downloads or metadata in live.
@@ -145,6 +143,7 @@ public sealed class PortableInstallationTransaction
     {
         using var lease = AcquireLease();
         RecoverLocked();
+        ValidateCommittedIdentity(ReadManifest(root, allowDataChanges: true));
     }
     public Manifest? ReadCommitted()
     {
@@ -154,7 +153,29 @@ public sealed class PortableInstallationTransaction
     }
     internal void ValidateCommittedIdentity(Manifest? m)
     {
-        if (m == null) return;
+        if (m == null)
+        {
+            // All callers hold the stable outside-generation lease. A missing live
+            // manifest must not revoke durable ownership and turn an owned game into
+            // an unmanaged launch/write path. Pre-Prepared staging and a resolved
+            // failed FIRST install have never committed ownership and remain distinct.
+            foreach (var operation in Directory.GetDirectories(operations))
+            {
+                CheckLinks(operation);
+                if (!Guid.TryParseExact(Path.GetFileName(operation), "N", out _))
+                    throw new InvalidDataException("Unknown portable recovery operation directory.");
+                if (Optional(SafePath(operation, "journal.json")) == null)
+                {
+                    if (Directory.Exists(SafePath(operation, "previous")))
+                        throw new IOException("Portable recovery journal is missing; generations retained for explicit repair.");
+                    continue;
+                }
+                var journal = ReadJournal(operation);
+                if (journal.Phase == "Committed" || journal.OldManifestHash != null)
+                    throw new IOException("The owned portable manifest is missing; recovery/repair is required. Retained generations and journals must not be removed.");
+            }
+            return;
+        }
         var dir = SafePath(operations, m.OperationId);
         if (!File.Exists(SafePath(dir, "journal.json"))) throw new IOException("The portable ownership commit is missing; explicit adoption/repair is required.");
         var j = ReadJournal(dir);
@@ -342,7 +363,7 @@ public sealed class PortableInstallationTransaction
             CheckLinks(dir);
             if (!Guid.TryParseExact(Path.GetFileName(dir), "N", out _)) throw new InvalidDataException("Unknown portable recovery operation directory.");
             var path = SafePath(dir, "journal.json");
-            if (!File.Exists(path))
+            if (Optional(path) == null)
             {
                 if (Directory.Exists(SafePath(dir, "previous"))) throw new IOException("Portable recovery journal is missing; generations retained for explicit repair.");
                 continue; // pre-Prepared staging: no live mutation, retained for explicit cleanup
