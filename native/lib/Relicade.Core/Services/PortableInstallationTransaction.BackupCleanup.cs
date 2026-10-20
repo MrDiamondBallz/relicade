@@ -154,6 +154,7 @@ public sealed partial class PortableInstallationTransaction
         var held = new Dictionary<string, IDisposable>(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
         try
         {
+            ValidateCleanupOutsideAuthority();
             AcquireRemovalAncestorLeases(held);
             // A cleanup cannot manufacture a lost installation, history or mod lock.
             RequireCleanupKind(root, true); RequireCleanupKind(operations, true);
@@ -178,6 +179,43 @@ public sealed partial class PortableInstallationTransaction
             return new RemovalAuthorityLeases(held.Values.ToList());
         }
         catch { foreach (var lease in held.Values.Reverse()) lease.Dispose(); throw; }
+    }
+
+    void ValidateCleanupOutsideAuthority()
+    {
+        // The reused removal exclusion intentionally has a different remit. Its
+        // lock opens must not let cleanup accept a FIFO/device or a case-aliased
+        // OUTSIDE authority that the selected generation snapshot cannot see.
+        for (string? path = root; path != null; path = Path.GetDirectoryName(path))
+        {
+            CheckLinks(path);
+            var outside = Path.GetDirectoryName(path);
+            if (outside != null)
+            {
+                var historyParent = SafePath(outside, DirectoryName);
+                var identity = Hash(System.Text.Encoding.UTF8.GetBytes(OperatingSystem.IsWindows() ? path.ToUpperInvariant() : path));
+                if (RemovalEntryExists(historyParent))
+                {
+                    RequireCleanupKind(historyParent, true);
+                    foreach (var entry in Directory.EnumerateFileSystemEntries(historyParent))
+                        if (string.Equals(Path.GetFileName(entry), identity, StringComparison.OrdinalIgnoreCase) && Path.GetFileName(entry) != identity)
+                            throw new IOException("Case-aliased portable authority requires repair before cleanup.");
+                    var history = SafePath(historyParent, identity);
+                    if (RemovalEntryExists(history))
+                    {
+                        RequireCleanupKind(history, true);
+                        var writer = SafePath(history, "writer.lock"); RequireCleanupKind(writer, false);
+                        if (new FileInfo(writer).Length != 0) throw new IOException("Unknown outside writer lock contents.");
+                    }
+                }
+            }
+            var mod = SafePath(path, ModLock);
+            if (RemovalEntryExists(mod))
+            {
+                RequireCleanupKind(mod, false);
+                if (new FileInfo(mod).Length != 0) throw new IOException("Unknown ancestor mod lock contents.");
+            }
+        }
     }
 
     CleanupState InspectCleanup()
