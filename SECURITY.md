@@ -15,6 +15,16 @@ Do not include credentials, personal data, private screenshots or exploit payloa
 - Metadata refresh remains an explicit metadata-only developer operation with network-boundary tests; it does not download game art.
 - Project tiles are original presentation art. No ROMs, BIOS or commercial game files are supplied.
 
+## Merged native source boundary
+
+The native development source now includes staged portable installation and journaled generation recovery, OS-vault credential sessions with explicit legacy migration, offline instance shortcuts/lifetime handling and managed-removal loss-prevention guards. These are bounded source changes, not full runtime/security acceptance. Removal refuses managed/recovery trees rather than implementing managed uninstall; managed game/mod activation is not universally supported. No packaged launcher release or complete platform acceptance is claimed. [Native limitations](native/README.md) remain important.
+
+Vault failures are explicit and have no general-settings plaintext fallback. Legacy plaintext credentials require an informed preview/confirmation flow and sensitive backup cleanup; the existence of migration code does not mean every previous copy has been scrubbed. Backup-cleanup work remains a separate draft until merged. Never put credentials or migration diagnostics into public docs/status inputs.
+
+Future emulation requires separate emulator/core licensing and user-supplied data/BIOS handling; no unlicensed ROMs, BIOS or keys will be distributed. An emulator/core is an additional execution trust boundary, not a sandbox claim or an implemented capability.
+
+Source changes affecting security must trigger the [documentation review gate](docs/DOCUMENTATION.md), not automatic semantic approval.
+
 ## Native release requirements
 
 Download, extraction, update, launch and mod operations require trust, signature/digest, path/link containment, transactional recovery, permissions and fault-injection tests. Executed games run with user authority unless a separately tested sandbox explicitly says otherwise.

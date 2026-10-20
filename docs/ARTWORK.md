@@ -157,6 +157,14 @@ The live checker exits nonzero if any expected project/kind/source is missing,
 duplicated, substituted, fallback-only or lacks positive decoded dimensions; its
 private report records availability separately from row count.
 
+## Documentation maintenance
+
+This guide's transport/cache requirements remain source-sensitive and are
+registered in the [documentation review map](DOC_STATUS.md). Regenerating
+repository facts does not certify artwork rights, live-provider availability,
+native byte-bound enforcement or emulation support. The broader retro/emulation
+vision remains future work with separate licensing and user-data requirements.
+
 ## Native adapter contract — requirements, not implemented here
 
 Align with coverage IDs `library.presentation`, `library.offline-start`,

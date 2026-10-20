@@ -145,6 +145,19 @@ identity. Split a broad row into additional stable sub-IDs if necessary without
 removing the mandatory parent acceptance. Unsupported formats stay explicitly
 unsupported, not optimistic fallbacks. No protected game data is needed.
 
+## Broader vision and maintenance boundary
+
+Community-revived classics, retro games and emulation belong to the long-term
+vision alongside native ports/recompilations/recreations. Emulation is not
+implemented or silently added to this existing acceptance matrix; future
+emulator/core licensing and user-supplied game/BIOS handling need separate
+requirements and evidence. No existing native requirement is waived.
+
+The [documentation updater](DOCUMENTATION.md) derives bounded feature/target and
+fixture counts from the real contracts. It does not modify acceptance cells,
+produce evidence, accept platforms or auto-review prose. Source-sensitive changes
+to this guide require explicit review through the registered responsibility map.
+
 ## Scope and remaining unknowns
 
 The matrix's `inspected_sources` pins selected actual upstream settings,

@@ -49,7 +49,17 @@ The product's target architecture still requires the following completed boundar
 
 Crossing from frontend to native execution must require typed operations, scoped filesystem roots, truthful effective state and safe cancellation. Remote metadata must never become arbitrary shell commands, HTML or destructive paths.
 
-The foundation owns Relicade application/package/data/shortcut identities and does not adopt another executable's settings sidecar. Inherited self-update hooks/destinations, telemetry, announcement delivery and automatic download reports are disabled. External metadata/image endpoints retain their actual identity; their reported verdicts are not independent Relicade verification. Real game-art loading and caching remain primary, with explicit unavailable/offline fallbacks and no bundled unlicensed game pixels. The retained installation engine is not yet journaled/transactional; product-wide offline enforcement, vault-backed tokens and complete functional/platform reconciliation remain acceptance work.
+The foundation owns Relicade application/package/data/shortcut identities and does not silently adopt another executable's settings sidecar. Inherited self-update hooks/destinations, telemetry, announcement delivery and automatic download reports are disabled. External metadata/image endpoints retain their actual identity; their reported verdicts are not independent Relicade verification. Real game-art loading and caching remain primary, with explicit unavailable/offline fallbacks and no bundled unlicensed game pixels.
+
+Merged source now includes contained portable staging, manifests and journaled generation replacement/recovery. The two activation renames are not an atomic pair; platform-specific power-loss guarantees are not certified. Credential sessions use OS-vault adapters with no plaintext fallback; explicit legacy credential migration requires a preview and confirmation. Managed offline instance shortcuts enter the recovery/lifetime gate before launch. Removal composes authority for unmanaged targets and refuses managed/recovery trees; it is not managed uninstall. Mod writes into managed portable generations are currently refused, not advertised as integrated game/mod rollback. See the [native guide](../native/README.md). Backup cleanup remains separate draft work. Product-wide network-disabled enforcement, complete functional reconciliation and all package/runtime platform gates remain open.
+
+## Staged broader architecture — not implemented
+
+The long-term discovery/library model spans community-revived classics, retro games and emulation as well as native ports, recompilations and recreations. Future project types need explicit execution kind, emulator/core identity and license, compatible versions, user-supplied game/BIOS prerequisites, controller/keyboard setup and recoverable version/mod state. No emulator host/core manager or ROM/BIOS/key distribution is implemented or authorized by this architecture. Local/offline use remains account-optional. This design direction does not add or waive current native acceptance cells.
+
+## Documentation boundary
+
+[Documentation maintenance](DOCUMENTATION.md) maps source responsibilities to each active document. Generated facts do not infer semantic truth; architecture claims require review of the actual source diff and independent review before adoption.
 
 ## Acceptance
 

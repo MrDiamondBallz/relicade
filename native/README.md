@@ -101,9 +101,17 @@ and image requests are operational traffic. The external catalog endpoints retai
 their true identity. `RELICADE_CATALOG_API` can explicitly select a catalog API;
 there is no fictitious Relicade backend. A catalog's verification/scan claims are
 external reports, not independent Relicade authentication or a safety guarantee.
-Provider tokens are optional; the inherited settings store currently serializes
-them locally, so OS-vault storage remains a release gate. Do not use sensitive
-tokens during development.
+Provider tokens are optional and are now handled by OS-vault credential adapters
+(Windows Credential Manager, macOS Keychain and Linux Secret Service, subject to
+platform availability). There is no general-settings plaintext fallback. A
+locked/unavailable vault is not reported as a missing credential or a successful
+save. These adapters and synthetic fault fixtures do not certify every platform's
+credential deployment; do not use sensitive tokens during development.
+
+Legacy plaintext token fields require explicit preview and confirmation before
+vault migration; source conflicts, stale previews and failed readback preserve
+an error/recovery state. No silent startup import is performed. Sensitive copies
+in backups need separate cleanup: the backup-cleanup draft is not merged here.
 
 Real game imagery remains the normal path: catalog/project artwork URLs are
 loaded and cached at runtime, including original-source fallback when a resized
@@ -132,9 +140,42 @@ or a successful game launch. No downloaded game package is executed in this
 milestone. Existing advanced services remain available in source rather than
 being rewritten away, but source presence is not functional parity acceptance.
 
-Known release work includes owned-game-data prerequisites, journaled/transactional
-payload and mod activation, durable queue/cancellation, OS-vault secrets,
-contained filesystem fault/security acceptance, independent update trust,
-complete behavior reconciliation and all platform gates. Inherited portable
-updates can overwrite live payloads and mod replacement is not transactional.
-Do not treat this foundation as a production-safe installer or full readiness.
+## Merged safety milestones and remaining work
+
+Contained portable staging, persisted manifests, journaled generation replacement
+and restart recovery are implemented in development source. Activation uses two
+renames, not one atomic pair; power-loss guarantees remain platform-specific and
+unaccepted beyond the tested boundary. Recovery refuses unknown ownership or
+external changes rather than deleting them. Managed instance shortcuts can use
+local metadata offline and preserve launch lifetime/child-tree authority; this is
+not blanket game compatibility. The managed instance command currently restricts
+supported lifetime ownership to native Linux ELF targets and refuses scripts,
+AppImage runtimes, compatibility runners, unknown formats and other platforms;
+this does not establish portable shortcut/runtime acceptance.
+
+Removal guards compose explicit authority across unmanaged targets and refuse
+managed generations, retained recovery history and uncertain launch receipts.
+“Remove from library” keeps files; these safeguards are not managed uninstall.
+Mod writes into managed portable generations are currently refused pending an
+explicit compatible data/mod policy. Source-level staged mod replacement does
+not establish complete game/mod rollback integration or all provider journeys.
+
+Known release work includes owned-game-data prerequisites, complete queue and
+cancellation journeys, guided retained-version recovery, compatible mod profiles,
+credential/cleanup deployment checks, contained filesystem fault/security
+acceptance, independent update trust, complete behavior reconciliation and every
+platform/package gate. The backup-cleanup PR is separate draft work, not merged.
+Do not treat this source as a production-safe installer or full readiness.
+
+## Broader vision and documentation
+
+Relicade aims to unite community-revived classics, retro games and emulation,
+including native ports, recompilations and recreations, in coherent discovery,
+setup, library, versions/mods/recovery and controller/keyboard journeys. Local
+and offline use must remain account-optional. Emulation is future scope, not
+implemented: emulator/core licensing, compatibility and user-supplied game/BIOS
+requirements need explicit adapters and evidence. No unlicensed ROMs, BIOS or
+keys are supplied, and existing native acceptance gates are unchanged.
+
+Source-sensitive guides are subject to [documentation maintenance](../docs/DOCUMENTATION.md)
+and independent review. Generated repository counts are not runtime acceptance.

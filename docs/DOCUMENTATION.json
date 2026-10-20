@@ -1,0 +1,295 @@
+{
+  "version": 1,
+  "source_groups": {
+    "native": [
+      "native"
+    ],
+    "preview": [
+      "prototype"
+    ],
+    "presentation": [
+      "brand",
+      "docs/assets"
+    ],
+    "tooling": [
+      "tools",
+      "tests",
+      ".github",
+      "requirements-dev.txt",
+      ".gitignore",
+      ".gitattributes"
+    ],
+    "contracts": [
+      "docs/FEATURE_COVERAGE.json",
+      "docs/ci"
+    ]
+  },
+  "documents": {
+    ".github/pull_request_template.md": {
+      "policy": "review",
+      "sources": [
+        "tooling",
+        "contracts"
+      ],
+      "reviewed": {
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "CHANGELOG.md": {
+      "policy": "protected",
+      "sha256": "b3aea48a4a3bfd6f6a7f336373daf7e9c099359b4a710305983321f40f0dd93b"
+    },
+    "CONTRIBUTING.md": {
+      "policy": "review",
+      "sources": [
+        "native",
+        "preview",
+        "presentation",
+        "tooling",
+        "contracts"
+      ],
+      "reviewed": {
+        "native": "36960a1eb4ce885215c7b11111641d69aa519c3dfae2d6c031064544f2260a72",
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "presentation": "e95f3b51abf76187fd4dee4338e438393efa856b3d16a2acb9fe249c152282f9",
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "NOTICE.md": {
+      "policy": "protected",
+      "sha256": "b6f35f4c523cd1be232820937a4d5c466f2ecca7c4d0ebd5bbe2a77b2aa99f22"
+    },
+    "README.md": {
+      "policy": "review",
+      "sources": [
+        "native",
+        "preview",
+        "presentation",
+        "tooling",
+        "contracts"
+      ],
+      "reviewed": {
+        "native": "36960a1eb4ce885215c7b11111641d69aa519c3dfae2d6c031064544f2260a72",
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "presentation": "e95f3b51abf76187fd4dee4338e438393efa856b3d16a2acb9fe249c152282f9",
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "SECURITY.md": {
+      "policy": "review",
+      "sources": [
+        "native",
+        "preview",
+        "presentation",
+        "tooling",
+        "contracts"
+      ],
+      "reviewed": {
+        "native": "36960a1eb4ce885215c7b11111641d69aa519c3dfae2d6c031064544f2260a72",
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "presentation": "e95f3b51abf76187fd4dee4338e438393efa856b3d16a2acb9fe249c152282f9",
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "brand/BRAND.md": {
+      "policy": "review",
+      "sources": [
+        "presentation",
+        "preview"
+      ],
+      "reviewed": {
+        "presentation": "e95f3b51abf76187fd4dee4338e438393efa856b3d16a2acb9fe249c152282f9",
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "brand/assets/fonts/Barlow-OFL.txt": {
+      "policy": "protected",
+      "sha256": "186d750eb496a4c17a76385f82be6aea2ac1cf2de074a811d63786cf374ea73f"
+    },
+    "brand/assets/fonts/Manrope-OFL.txt": {
+      "policy": "protected",
+      "sha256": "58172e0c0fac2cda8a37b348164bb55e44b0e69051e557e92b1d3f6910141f7b"
+    },
+    "docs/ARCHITECTURE.md": {
+      "policy": "review",
+      "sources": [
+        "native",
+        "preview",
+        "presentation",
+        "tooling",
+        "contracts"
+      ],
+      "reviewed": {
+        "native": "36960a1eb4ce885215c7b11111641d69aa519c3dfae2d6c031064544f2260a72",
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "presentation": "e95f3b51abf76187fd4dee4338e438393efa856b3d16a2acb9fe249c152282f9",
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "docs/ARTWORK.md": {
+      "policy": "review",
+      "sources": [
+        "preview",
+        "presentation",
+        "native"
+      ],
+      "reviewed": {
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "presentation": "e95f3b51abf76187fd4dee4338e438393efa856b3d16a2acb9fe249c152282f9",
+        "native": "36960a1eb4ce885215c7b11111641d69aa519c3dfae2d6c031064544f2260a72",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "docs/CI.md": {
+      "policy": "review",
+      "sources": [
+        "tooling",
+        "preview",
+        "contracts"
+      ],
+      "reviewed": {
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "docs/DOCUMENTATION.md": {
+      "policy": "review",
+      "sources": [
+        "tooling",
+        "contracts"
+      ],
+      "reviewed": {
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "docs/DOC_STATUS.md": {
+      "policy": "generated"
+    },
+    "docs/FEATURE_COVERAGE.md": {
+      "policy": "review",
+      "sources": [
+        "contracts",
+        "tooling",
+        "native"
+      ],
+      "reviewed": {
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "native": "36960a1eb4ce885215c7b11111641d69aa519c3dfae2d6c031064544f2260a72",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "docs/PRODUCT_REQUIREMENTS.md": {
+      "policy": "review",
+      "sources": [
+        "native",
+        "preview",
+        "presentation",
+        "tooling",
+        "contracts"
+      ],
+      "reviewed": {
+        "native": "36960a1eb4ce885215c7b11111641d69aa519c3dfae2d6c031064544f2260a72",
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "presentation": "e95f3b51abf76187fd4dee4338e438393efa856b3d16a2acb9fe249c152282f9",
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "docs/ROADMAP.md": {
+      "policy": "review",
+      "sources": [
+        "native",
+        "preview",
+        "presentation",
+        "tooling",
+        "contracts"
+      ],
+      "reviewed": {
+        "native": "36960a1eb4ce885215c7b11111641d69aa519c3dfae2d6c031064544f2260a72",
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "presentation": "e95f3b51abf76187fd4dee4338e438393efa856b3d16a2acb9fe249c152282f9",
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "native/LICENSE": {
+      "policy": "protected",
+      "sha256": "d3748a36713acedb9c393e793eee575b1a4905f603a24c0e72b687870b7efe6e"
+    },
+    "native/README.md": {
+      "policy": "review",
+      "sources": [
+        "native",
+        "contracts",
+        "tooling"
+      ],
+      "reviewed": {
+        "native": "36960a1eb4ce885215c7b11111641d69aa519c3dfae2d6c031064544f2260a72",
+        "contracts": "fb5844626124385c55ccf33fb24c39fbe00cb35a6a1ef4fdaac3f536e2a1767f",
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "native/THIRD_PARTY_NOTICES.md": {
+      "policy": "protected",
+      "sha256": "57ce6a05a7e53b336383d5f81b1f3748da49bd01ee08a097ce3ee3bbc2e15868"
+    },
+    "native/TRADEMARKS.md": {
+      "policy": "protected",
+      "sha256": "497e6c9d849fb37d550aac0ac6c6caa2d3d0566e46ab7454277eb89eace93c3a"
+    },
+    "native/lib/Relicade.Core/LICENSE": {
+      "policy": "protected",
+      "sha256": "95a49cff5deed4da75df25f12527e54be7ddcb5af82e0bc6f2b28f570bc1544c"
+    },
+    "prototype/README.md": {
+      "policy": "review",
+      "sources": [
+        "preview",
+        "presentation",
+        "tooling"
+      ],
+      "reviewed": {
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "presentation": "e95f3b51abf76187fd4dee4338e438393efa856b3d16a2acb9fe249c152282f9",
+        "tooling": "40ac0df75470bb91bae17ce6a6e0b81d6c3127a3f4be171de7913e0a7774323c",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    },
+    "prototype/assets/art/README.md": {
+      "policy": "review",
+      "sources": [
+        "preview",
+        "presentation"
+      ],
+      "reviewed": {
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "presentation": "e95f3b51abf76187fd4dee4338e438393efa856b3d16a2acb9fe249c152282f9",
+        "status": "76a17693a532e941b6084ee5a228ea597eed6df32ed02e7867e116d3a4ac53b2"
+      }
+    }
+  },
+  "protected_files": {
+    "docs/PREVIEW_QA.json": "e29f752b399c6658229e7e5f25e5e092e26de11e47ac894d8d112613921208c3",
+    "prototype/tests/results.json": "e67ebe4ef786f97c477a64ca7f5fdfb1f635b920b8f972a5acacc679136f5ef7",
+    "prototype/tests/safety-results.json": "1e231cc4e7696e17c8a1729cef9ab887e937d3a82a596d74e8db1800bbf4a705"
+  }
+}

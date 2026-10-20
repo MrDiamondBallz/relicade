@@ -2,7 +2,7 @@
 
 **Old legends. New life.**
 
-An original game-first discovery and saved-library preview, not a native launcher. Identity masters and the brand presentation live in [`../brand/`](../brand/).
+An original game-first discovery and saved-library preview, not a native launcher. It is one design surface for the wider vision: community-revived classics, retro games and future emulation alongside native ports, recompilations and recreations. Emulation is not implemented here; no emulator/core or game/BIOS distribution is provided. Identity masters and the brand presentation live in [`../brand/`](../brand/).
 
 ## Run
 

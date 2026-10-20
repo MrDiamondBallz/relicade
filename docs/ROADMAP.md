@@ -18,11 +18,13 @@ Hosted CI remains pending activation. No native launcher release is implied.
 
 A buildable .NET 10/Avalonia source foundation now retains the shared native capability baseline, with independent application/data identities, local-library persistence/headless fixtures, real runtime artwork loading/cache and disabled inherited self-update/telemetry/reporting channels. Linux self-contained startup and Windows cross-publish are development checks, not complete native/platform acceptance; see [native status](../native/README.md).
 
-Next gates remain complete reference-behavior reconciliation, project requirements/owned-data setup, truthful Ready/Needs setup/Repair states, real install/launch/recovery and independent functional/platform acceptance. Local launch must not require a catalog account or network round trip. Keep real available game imagery, including Ocarina, with accurate credits and explicit offline/error fallbacks; do not bundle unlicensed third-party pixels or replace normal available artwork with generic brand tiles.
+Next gates remain complete reference-behavior reconciliation, project requirements/owned-data setup, truthful Ready/Needs setup/Repair states, complete install/launch/recovery journeys and independent functional/platform acceptance. Local launch must not require a catalog account or network round trip. Keep real available game imagery, including Ocarina, with accurate credits and explicit offline/error fallbacks; do not bundle unlicensed third-party pixels or replace normal available artwork with generic brand tiles.
 
-## 3. Installation, downloads and recovery — pending
+## 3. Installation, credentials and recovery — bounded source progress
 
-Implement verified release ingestion, a durable cancellable queue, contained extraction, recoverable activation and retained-payload rollback. Preserve original game data, saves and configuration. Test interrupted transfers, crashes, locked files and disk exhaustion.
+Merged source includes staged portable installation, manifests/journaled generation replacement and recovery; explicit vault-backed credential migration; offline per-instance shortcuts/lifetime handling; and managed-removal loss-prevention safeguards. These are reviewed development-source milestones, not complete packaged journeys or universal crash/power-loss safety. Managed uninstall and game/mod integration remain limited; see the [native guide](../native/README.md). [Backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) remains a separate draft until actually merged.
+
+Complete durable queues/cancellation, retained-version recovery journeys, provider trust and independent fault/security/platform acceptance still need work. Preserve original game data, saves and configuration. Test interrupted transfers, crashes, locked files and disk exhaustion.
 
 ## 4. Full functionality and platform coverage — mandatory, pending
 
@@ -40,5 +42,15 @@ The [machine-readable coverage contract](FEATURE_COVERAGE.json) and [developer g
 ## 5. Measurable quality improvements — pending
 
 Clearer setup, unified operations, staged mod replacement, reproducible profiles, stable offline-first library performance and accessible controller-first workflows. Claims of better performance or reliability need comparative task evidence.
+
+## 6. Broader discovery, retro games and emulation — future scope
+
+The north star is one coherent home for community-revived classics, retro games and emulation, including native ports, recompilations and recreations. Discovery should explain the project, compatibility and setup; library, versions, mods, recovery and controller/keyboard play should remain understandable and local/offline-account-optional.
+
+Emulation is not implemented. Future adapters need emulator/core license review, explicit compatibility and lawfully user-supplied game data/BIOS; no unlicensed ROM/BIOS/key distribution. This staged direction does not add or waive existing native release gates or imply a hosted service.
+
+## Documentation upkeep
+
+[Generated facts and the source-review map](DOC_STATUS.md) are maintained with [the documentation tool](DOCUMENTATION.md). Narrative progress needs explicit source-diff review, not an automatically bumped date. Periodic reconciliation rollout is still pending independently reviewed publication.
 
 See [PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md) for detailed acceptance criteria. Public source availability is not an installable release, production service or universal compatibility claim.

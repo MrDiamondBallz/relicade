@@ -10,7 +10,7 @@ A graphite stage, an ivory voice, one molten-orange signal. The silhouette and t
 
 **Visual spine:** an oversized custom wordmark establishes the name; the cut-R carries recognition into compact product surfaces; orange identifies the next deliberate action.
 
-Relicade is a new home for community-built PC ports, recompilations and recreations. Speak to players without hiding the people doing the work. Do not imply every project is official, complete, legally cleared, installed or playable.
+Relicade's vision is a coherent home for community-revived classics, retro games and emulation, including native ports, recompilations and recreations. Emulation is future scope, not a current capability. Speak to players without hiding the people doing the work. Do not imply every project is official, complete, legally cleared, installed or playable.
 
 ## Source assets
 

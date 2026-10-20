@@ -2,13 +2,21 @@
 
 **Status: acceptance specification, not completed native readiness.** The current product includes a brand/browser preview and a buildable native development foundation. Native shared services and local/headless fixtures are not full functional, behavior-reconciliation or platform acceptance. Real installs, game launches, mod management, owned-data readiness and rollback remain requirements until their executable tests and per-platform evidence accept them. A design screenshot or cross-publish cannot accept a backend requirement. See [native build/status](../native/README.md).
 
-**Position:** Old legends. New life. A confident home for community-built PC ports, recompilations and recreations. Premium means players can understand what will happen, recover from mistakes and get back to a game—not inflated engagement metrics or visual effects. Follow [brand/BRAND.md](../brand/BRAND.md); retain community/project attribution and distinguish original games from the ports/projects that run them.
+**Position:** Old legends. New life. One coherent home for community-revived classics, retro games and emulation, including native ports, recompilations and recreations. Premium means players can understand what will happen, recover from mistakes and get back to a game—not inflated engagement metrics or visual effects. Follow [brand/BRAND.md](../brand/BRAND.md); retain community/project attribution and distinguish original games from the ports/projects that run them.
 
 Release verification/checksums, durable library snapshots, version management, mod dependencies, controller input, kiosk mode and recoverable updates are baseline requirements—not novelty claims.
 
 **Final-product contract:** complete applicable launcher functionality plus measurable improvements across Windows x64; Linux x64/ARM64 (AppImage and Flatpak packaging); macOS Intel/Apple Silicon; and Android APK. Every target needs independent package and runtime validation. No native platform release is delivered by the browser preview.
 
 The phases sequence implementation, not permanent omissions. Baseline capabilities deferred to a later phase remain mandatory for the final product. Backend access, external licensing and unavailable hardware remain explicit unresolved dependencies rather than silently removed requirements.
+
+## Staged broader vision — not a release-gate change
+
+Discovery, setup and library journeys should eventually cover community-revived classics and retro games through native ports/recompilations/recreations and explicitly emulated project types. Future emulation requires compatible emulator/core identity, separate license review, transparent setup and lawfully user-supplied game data/BIOS. No ROM, BIOS or key distribution is implied. Account-optional offline use and controller/keyboard-complete journeys remain the direction.
+
+Emulation is not implemented, accepted or added as an automatic condition of the existing native release gate. Define its own adapters and evidence before claiming support. The current feature matrix and all existing native acceptance requirements remain unchanged.
+
+Merged development source includes bounded staged-installation/recovery, explicit vault-backed credential migration, offline instance shortcut/lifetime and managed-removal safeguards. Those milestones do not accept all R1–R10 journeys or any packaged/native platform release. [Documentation maintenance](DOCUMENTATION.md) keeps facts separate from semantic and release review.
 
 ## 1. Scope and milestones
 

@@ -17,17 +17,31 @@
 
 ## The vision
 
-Relicade is a gamer-first launcher project for community-built PC ports, recompilations and recreations. Discover the project behind a favourite game, understand what it needs, and keep the experience together—from discovery to your library.
+Relicade is becoming one coherent home for **community-revived classics, retro games and emulation**—including native ports, recompilations and recreations. Discover the community project behind a favourite game, understand its setup and compatibility, and keep discovery, library and play together.
 
-Power belongs underneath a clear interface, not behind missing features. Release verification, library recovery, version management, mods, controller navigation and offline access are baseline expectations. Improvements must be measurable and tested.
+The goal is a clear path from “What can I play?” to the right version, game files, mods and recovery options. Controller-first and keyboard-complete journeys should make power features accessible, not remove them. Local and offline library use must remain possible without a required account.
 
-## Development preview
+Emulation is **future scope, not yet implemented**. Each emulator/core needs its own licensing and compatibility review; players must supply any required game data or BIOS lawfully. Relicade will not distribute unlicensed ROMs, BIOS or keys. This direction does not waive or silently expand the existing native release gates.
 
-**Browser design preview and buildable native development foundation. No native launcher release yet.**
+## Current progress
 
-The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. The browser preview does not install, update, verify or launch executables.
+**No packaged launcher release.** This is development source and a browser design preview, not full functional parity or accepted native platform support.
 
-The separate [native foundation](native/README.md) includes .NET 10/Avalonia source, local-library persistence and synthetic/headless regressions. Linux x64 self-contained publish and isolated startup, plus Windows x64 cross-publish, are development checks only. Real game compatibility, complete functional parity, native platform acceptance and production-safe installation remain unaccepted; see the [coverage contract](docs/FEATURE_COVERAGE.md). No packaged downloads are offered.
+- **Merged development source:** reviewed staged installation and recovery, explicit vault-backed credential migration, offline instance shortcuts and process lifetime handling, and managed-removal safeguards. These are bounded source milestones, not a production-safe installer or a promise of compatibility with every game. See [the merged source milestone](https://github.com/MrDiamondBallz/relicade/pull/1) and the [native guide](native/README.md).
+- **In progress:** [backup-cleanup work](https://github.com/MrDiamondBallz/relicade/pull/3) is a separate draft, not merged functionality. Full behavior reconciliation, packaged installation, security/rights checks and real platform/controller/accessibility acceptance remain open.
+- **Longer term:** the broader retro-game and emulation experience is not yet implemented. Versions, mods, owned-data setup and recovery need complete tested player journeys, not just service code.
+
+The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. It does not install, update, verify or launch executables.
+
+The [native development source](native/README.md) uses .NET 10/Avalonia. Linux x64 self-contained publish and isolated startup, plus Windows x64 cross-publish, are development checks only. The [coverage contract](docs/FEATURE_COVERAGE.md) keeps native/package acceptance separate.
+
+<!-- docs-sync:begin facts -->
+Repository facts (not acceptance results): **12 catalog projects**, **71 required feature rows**, **8 platform/package targets** and **23 synthetic fixture scenarios**. Counts describe repository inputs, not working games or passing tests.
+
+Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/1); [backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) remains a draft, not merged functionality. No packaged release, full-parity acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.
+<!-- docs-sync:end facts -->
+
+[How documentation stays current](docs/DOCUMENTATION.md): generated facts are checked mechanically; source-sensitive prose needs explicit review. Periodic reconciliation rollout is pending publication and independent review, not running from this branch.
 
 ### Interface preview
 

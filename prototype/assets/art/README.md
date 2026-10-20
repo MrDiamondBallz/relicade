@@ -34,6 +34,14 @@ actual output hashes/dimensions, renderer source hash/version/Pillow version, an
 font paths/hashes/license paths for each output. Keep provenance in sync by
 regenerating whenever the renderer changes.
 
+## Maintenance boundary
+
+This renderer guide remains a source-reviewed document under
+[documentation maintenance](../../../docs/DOCUMENTATION.md); facts refresh does
+not rewrite provenance, grant artwork rights or acknowledge renderer changes.
+The wider retro-game/emulation vision is future scope, not something these tiles
+or their count implement.
+
 ## Rights and attribution boundary
 
 Barlow and Manrope remain subject to their bundled SIL Open Font Licenses:
