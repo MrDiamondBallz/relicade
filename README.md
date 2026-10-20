@@ -1,10 +1,8 @@
 <div align="center">
 
-# RELICADE
-
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="brand/lockup-dark.svg">
-  <img src="brand/lockup-light.svg" alt="Relicade" width="420">
+  <source media="(prefers-color-scheme: dark)" srcset="brand/readme-lockup-dark.svg">
+  <img src="brand/readme-lockup-light.svg" alt="Relicade" width="420">
 </picture>
 
 ### Old legends. New life.
