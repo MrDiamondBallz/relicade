@@ -31,4 +31,5 @@ public enum LibraryActionKind
     ShowReadme,
     SkipUpdate,
     UpdateNowMenu,
+    CleanPortableBackups,
 }

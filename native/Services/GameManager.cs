@@ -15,6 +15,14 @@ namespace Relicade.Services
         private static readonly RelicadeProfile Profile = RelicadeProfile.Instance;
         private readonly ISettingsStore _settingsStore;
         internal AppSettings CurrentSettings => _settingsStore.Current;
+
+        // Cleanup-only: inspect THIS session's injected store without loading,
+        // saving, exposing it or replacing the live library collection.
+        internal void VerifyBackupCleanupSettingsRecovery()
+        {
+            if (_settingsStore is ISettingsRecoveryState { IsReadOnly: true })
+                throw new IOException("This library session's settings are in recovery; repair and reopen before backup cleanup.");
+        }
         public AppSettings _settings = new();
         private readonly HttpClient _httpClient;
         private readonly AppCatalogService _catalogService;

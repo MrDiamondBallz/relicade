@@ -21,6 +21,18 @@ The native development source now includes staged portable installation and jour
 
 Vault failures are explicit and have no general-settings plaintext fallback. Legacy plaintext credentials require an informed preview/confirmation flow; the existence of migration code does not mean every previous copy has been scrubbed. Sensitive old originals/backups/rescue files and filesystem/OS remnants remain a separate privacy/retention problem. The redundant portable backup cleanup source only removes explicitly previewed/hash-confirmed duplicate immutable payload files from older committed operations, retaining all previous generations, data snapshots, journals and current-operation backups. It does not erase credentials, securely erase files, implement general history pruning or provide managed uninstall. Its durable local approval is not publisher authentication; hostile OS writers and native/power-loss guarantees remain unaccepted. Never put credentials or migration diagnostics into public docs/status inputs.
 
+The native library cleanup dialog in this branch (not yet merged or packaged)
+confirms only the displayed plan hash, defaults to Cancel and does not
+implicitly confirm a changed plan or automatically resume. The shared typed
+service checks persisted library/settings context and the session manager's own
+injected recovery state again under Core authority and on explicit resume.
+That read-only recovery query does not prove arbitrary injected-store persistence
+or cross-store atomicity. Closing a session cancels UI participation and drains
+work; it cannot undo already deleted redundant copies or promise immediate
+hashing cancellation. Cleanup's own operations add no network/save/general
+initialization calls. Existing library-menu release prefetch is separate; this
+does not certify product-wide offline privacy or native/hardware acceptance.
+
 Future emulation requires separate emulator/core licensing and user-supplied data/BIOS handling; no unlicensed ROMs, BIOS or keys will be distributed. An emulator/core is an additional execution trust boundary, not a sandbox claim or an implemented capability.
 
 Source changes affecting security must trigger the [documentation review gate](docs/DOCUMENTATION.md), not automatic semantic approval.

@@ -53,6 +53,19 @@ The foundation owns Relicade application/package/data/shortcut identities and do
 
 Merged source now includes contained portable staging, manifests and journaled generation replacement/recovery. The two activation renames are not an atomic pair; platform-specific power-loss guarantees are not certified. Credential sessions use OS-vault adapters with no plaintext fallback; explicit legacy credential migration requires a preview and confirmation. Managed offline instance shortcuts enter the recovery/lifetime gate before launch. Removal composes authority for unmanaged targets and refuses managed/recovery trees; it is not managed uninstall. Mod writes into managed portable generations are currently refused, not advertised as integrated game/mod rollback. See the [native guide](../native/README.md). Explicit redundant-backup payload cleanup previews and hash-confirms only older committed operations' duplicate immutable backup files, preserving all previous generations, data snapshots, journals and current-operation backups. It acquires writer/mod/ancestor authority, binds library/settings and retained-file evidence, writes a durable local approval before deletion and requires explicit resume after interruption. This is not credential erasure, general history pruning or managed uninstall; hostile OS writers and physical power-loss/native-filesystem guarantees remain unaccepted. Product-wide network-disabled enforcement, complete functional reconciliation and all package/runtime platform gates remain open.
 
+The cleanup-only typed `PortableBackupCleanupService` now composes that same
+Core authority and canonical context for CLI and the native library dialog. The
+UI addition in this branch is not yet merged or packaged. A session-owned flow
+captures the exact InstanceKey, prevents duplicate dialogs, hashes/applies off
+the dispatcher and drains cancellation before dependencies are released. The
+dialog confirms only its displayed hash; stale errors require a new preview and
+confirmation, and interrupted results require explicit same-hash resume. It
+reads persisted identities without replacing the live Games collection. Its
+cleanup-only manager check reads the injected settings recovery flag without
+loading/saving that store; it does not establish arbitrary cross-store atomicity.
+Existing library-menu release prefetch remains separate from these network-silent
+cleanup operations. No Core deletion, receipt or lease algorithm is changed.
+
 ## Staged broader architecture — not implemented
 
 The long-term discovery/library model spans community-revived classics, retro games and emulation as well as native ports, recompilations and recreations. Future project types need explicit execution kind, emulator/core identity and license, compatible versions, user-supplied game/BIOS prerequisites, controller/keyboard setup and recoverable version/mod state. No emulator host/core manager or ROM/BIOS/key distribution is implemented or authorized by this architecture. Local/offline use remains account-optional. This design direction does not add or waive current native acceptance cells.

@@ -31,6 +31,8 @@ public partial class LibraryView : UserControl
     private LibraryCustomizationService _customization = null!;
     private Func<GameInfo, Task> _autoUpdate = null!;
     private Func<string, string, Task> _message = null!;
+    private Func<GameInfo?, Control?, Task> _cleanPortableBackups = (_, _) => Task.CompletedTask;
+    internal void ConfigureBackupCleanup(Func<GameInfo?, Control?, Task> open) => _cleanPortableBackups = open;
     public void ConfigureActions(LibraryActions actions, LibraryCustomizationService customization, Func<GameInfo, Task> autoUpdate, Func<string, string, Task> message)
     {
         _actions = actions;
@@ -123,7 +125,11 @@ public partial class LibraryView : UserControl
     private void LibraryCardMenu_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
     {
         if (sender is ContextMenu menu && Model != null)
+        {
             LibraryKioskMenu.Apply(menu, Model.Settings.KioskLocked);
+            foreach (var item in menu.Items.OfType<MenuItem>().Where(i => i.Name == "CleanPortableBackupsMenu"))
+                item.IsVisible = !Model.Settings.KioskLocked && !Model.Settings.IsReadOnly;
+        }
         // Versions → Change Version is a couple of clicks away: have its releases ready by then.
         if (sender is ContextMenu { DataContext: GameInfo game } && Model?.Settings.KioskLocked != true)
             game.PrefetchCatalogReleases();
@@ -141,6 +147,10 @@ public partial class LibraryView : UserControl
             var anchor = game == null ? null : ResolveDownloadMenuAnchor(game, FindGameMenuAnchor(game));
             switch (action)
             {
+                case LibraryActionKind.CleanPortableBackups:
+                    if (!Model.Settings.IsReadOnly)
+                        await _cleanPortableBackups(game, anchor);
+                    break;
                 case LibraryActionKind.AddToSteam:
                     await _actions.AddToSteamAsync(game);
                     break;
@@ -235,6 +245,7 @@ public partial class LibraryView : UserControl
     private void ConfigureWindowsRunner_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.ConfigureWindowsRunner);
     private void CreateShortcut_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.CreateShortcut);
     private void DeleteGameFromLibrary_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.DeleteGameFromLibrary);
+    private void CleanPortableBackups_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.CleanPortableBackups);
     private void EditCustomDisplayNameMenu_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.EditCustomDisplayNameMenu);
     private void EditGameEntry_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.EditGameEntry);
     private void EditTagsMenu_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.EditTagsMenu);

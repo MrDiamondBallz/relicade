@@ -18,6 +18,10 @@ Emulation is not implemented, accepted or added as an automatic condition of the
 
 Merged development source includes bounded staged-installation/recovery, explicit vault-backed credential migration, offline instance shortcut/lifetime, managed-removal safeguards and explicit preview/hash-confirmed cleanup of older committed redundant immutable backup payload files. Cleanup preserves all previous generations, data snapshots and current-operation backups; it is not credential erasure, general retention or managed uninstall. Those milestones do not accept all R1–R10 journeys or any packaged/native platform release. [Documentation maintenance](DOCUMENTATION.md) keeps facts separate from semantic and release review.
 
+The native library cleanup UI in this branch adds displayed-plan confirmation,
+cancel and explicit same-plan resume over that bounded service; it is not yet
+merged or packaged. It accepts no additional R1–R10 or platform cells.
+
 ## 1. Scope and milestones
 
 | Milestone | Deliverable | Claim permitted only after acceptance |

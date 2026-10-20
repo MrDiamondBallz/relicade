@@ -24,6 +24,11 @@ Next gates remain complete reference-behavior reconciliation, project requiremen
 
 Merged source includes staged portable installation, manifests/journaled generation replacement and recovery; explicit vault-backed credential migration; offline per-instance shortcuts/lifetime handling; and managed-removal loss-prevention safeguards. These are reviewed development-source milestones, not complete packaged journeys or universal crash/power-loss safety. Managed uninstall and game/mod integration remain limited; see the [native guide](../native/README.md). [Redundant-backup payload cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) adds explicit preview/hash-confirmation and interruption/resume for older committed duplicate immutable files only. All previous generations, data snapshots and the current operation's backup remain; this is not credential erasure, general retention or managed uninstall, which remain open work.
 
+This branch adds the native library's **Clean redundant backups…** journey:
+complete preview, explicit displayed-hash confirmation, cancel, invocation-local
+results and explicit same-hash resume. The UI addition is not yet merged or
+packaged; it does not complete general retention or managed uninstall.
+
 Complete durable queues/cancellation, retained-version recovery journeys, provider trust and independent fault/security/platform acceptance still need work. Preserve original game data, saves and configuration. Test interrupted transfers, crashes, locked files and disk exhaustion.
 
 ## 4. Full functionality and platform coverage — mandatory, pending

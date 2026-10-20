@@ -180,6 +180,34 @@ and unknown/changed evidence are not cleanup candidates. This is not managed
 uninstall, deletion of previous generations, general retention or credential
 erasure, and does not certify any native platform.
 
+### Native library preview and confirmation
+
+In this source, open a library tile's context menu in list, grid or compact grid
+and choose **Clean redundant backups…**. This UI addition is not yet merged or
+packaged. It captures that exact instance, hashes off the UI thread, and shows
+every eligible relative backup/retained path, file length, total bytes and full
+plan SHA-256. Cancel has initial/default focus; an empty plan cannot be applied.
+Only **Clean displayed plan** confirms that displayed hash. A changed plan,
+library, settings or authority requires **Preview again** and a fresh confirmation.
+
+While applying, Cancel requests a stop at a safe boundary; it is not rollback
+or an immediate hashing/cancellation guarantee. An interrupted result displays
+actual files/bytes removed **this invocation**, not planned totals. Resolve the
+cause, then explicitly choose **Resume approved plan** for the same hash; resume
+revalidates recovery, kiosk, library and filesystem authority. Nothing resumes
+automatically. Closing or replacing the session revokes UI participation while
+registered work drains before dependencies are released.
+
+Locked kiosk and settings-recovery sessions cannot start cleanup; the service
+also checks the manager's own injected recovery state, not only menu visibility.
+Unsupported/manual/package/ambiguous instances show refusal, not uninstall.
+Cleanup adds no catalog/update/save/network operation. The existing library-menu
+release prefetch is separate and may already contact a provider: this is not a
+product-wide no-network claim. Desktop/headless tests do not accept Android,
+real controllers, native accessibility or other platform/runtime behavior.
+
+### Local command-line route
+
 Use the exact case-sensitive library `InstanceKey`, not a display name or
 repository name. With your own development build (not an available release):
 
