@@ -18,6 +18,9 @@ The writer only refreshes bounded facts; source-sensitive prose remains blocked
 until explicit review acknowledgements and independent review. See
 [documentation maintenance](DOCUMENTATION.md) and the PR checklist. Neither these
 commands nor this guide activates Actions or a new scheduled service. Periodic
-reconciliation is pending independently reviewed publication and operator rollout.
+maintainer reconciliation uses the same read-only audit/check gates alongside
+contribution-time checks; factual refreshes and semantic changes follow the
+isolated-branch review workflow. A repository clone installs no timer. This
+maintainer workflow is separate from hosted CI and native/package acceptance.
 
 Before activation, verify the repository's workflow permissions and run the template on the exact proposed commit. Record the actual hosted run/result; a YAML file, local test pass, queued job or successful source push is not hosted-CI success. Browser checks do not certify native platform compatibility.

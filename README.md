@@ -41,7 +41,7 @@ Repository facts (not acceptance results): **12 catalog projects**, **71 require
 Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/1); [backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) remains a draft, not merged functionality. No packaged release, full-parity acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.
 <!-- docs-sync:end facts -->
 
-[How documentation stays current](docs/DOCUMENTATION.md): generated facts are checked mechanically; source-sensitive prose needs explicit review. Periodic reconciliation rollout is pending publication and independent review, not running from this branch.
+[How documentation stays current](docs/DOCUMENTATION.md): contribution-time checks and periodic maintainer reconciliation keep generated facts and source-sensitive prose under review. The tool checks facts mechanically; it does not approve prose. Cloning the repository does not install a timer or service.
 
 ### Interface preview
 

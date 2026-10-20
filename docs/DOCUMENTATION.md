@@ -1,10 +1,12 @@
 # Documentation maintenance
 
 Relicade maintains generated repository facts and source-sensitive narrative
-separately. This is a working local tool, not a claim of uninterrupted autonomous
-upkeep. Periodic reconciliation rollout remains pending independently reviewed
-publication and operator verification. No cron, hosted workflow or service is
-activated by these commands.
+separately through contribution-time checks and periodic maintainer reconciliation.
+The existing maintainer workflow has been verified to run read-only audit/check
+commands; that is not a guarantee of uninterrupted autonomous upkeep. Cloning the
+repository or running these commands does not install a timer, activate a hosted
+workflow or start a service. The tool does not approve prose: semantic changes
+still need explicit source-diff review and independent review before adoption.
 
 ## Commands and exit status
 
@@ -141,9 +143,11 @@ current merely by regenerating facts. There are no timestamps in the registry.
    review; the tool detects stale bytes, not reviewer honesty or semantic truth.
 
 No new polling workflow is needed. Existing feature/integration/operations work
-can invoke these commands, regenerate factual drift on an isolated branch and
-route semantic changes through the same review gates. Publication and periodic
-job wiring are operator follow-up, not a side effect of this implementation.
+uses the same commands at source closeout and during periodic maintainer
+reconciliation. Keep periodic checks read-only on the canonical checkout;
+regenerate factual drift on an isolated branch and route semantic changes through
+the same review gates before publication. Scheduling and continued execution are
+maintainer responsibilities, not side effects of a repository clone or script run.
 
 ## Safety and tests
 
