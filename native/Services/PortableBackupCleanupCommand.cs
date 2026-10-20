@@ -18,7 +18,10 @@ internal static class PortableBackupCleanupCommand
         !IsRequest(original.Skip(1)) || ValidArguments(original.Skip(1).ToArray()) && original.Skip(1).SequenceEqual(dispatched);
     static bool ValidHash(string hash) => hash.Length == 64 && hash.All(c => c is >= '0' and <= '9' or >= 'a' and <= 'f');
     static string Digest(byte[] bytes) => Convert.ToHexStringLower(SHA256.HashData(bytes));
-    static bool Same(string a, string b) => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+    // Match the Core writer-authority identity: case-sensitive outside Windows.
+    // In particular, Linux default live and located LIVE must not share a lease.
+    static StringComparer RootComparer => OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
+    static bool Same(string a, string b) => RootComparer.Equals(a, b);
     static string Full(string p) => Path.TrimEndingDirectorySeparator(Path.GetFullPath(p));
     static bool Exists(string p)
     {
@@ -41,7 +44,7 @@ internal static class PortableBackupCleanupCommand
             if (Full(selected.GetInstallPath(manager.GamesFolder)) != effective || Full(Path.Combine(manager.GamesFolder, selected.FolderName!)) != defaultRoot)
                 throw new IOException("The selected installation location changed.");
             if (!Same(defaultRoot, effective) && Exists(defaultRoot)) throw new IOException("Distinct default and located roots are ambiguous; no cleanup is permitted.");
-            foreach (var root in new[] { defaultRoot, effective }.Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (var root in new[] { defaultRoot, effective }.Distinct(RootComparer))
                 if (Exists(Path.Combine(root, WindowsInstallerService.ReceiptFileName)) || Exists(Path.Combine(root, FlatpakService.ReceiptFileName)))
                     throw new IOException("Conflicting OS package evidence blocks portable cleanup.");
             foreach (var other in manager.Games.Where(g => !ReferenceEquals(g, selected)))
