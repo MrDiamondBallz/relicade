@@ -927,7 +927,7 @@ namespace Relicade
         /// (Android refuses), so it gets the scale last read on the UI thread.</remarks>
         private double ArtworkDisplayScale()
         {
-            if (!Dispatcher.UIThread.CheckAccess())
+            if (!this.Dispatcher.CheckAccess())
                 return _artworkDisplayScale;
             var topLevel = TopLevel.GetTopLevel(this);
             var screen = topLevel?.Screens?.All.Select(s => s.Scaling).DefaultIfEmpty(1).Max() ?? 1;

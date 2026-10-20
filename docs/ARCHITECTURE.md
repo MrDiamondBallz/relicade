@@ -75,6 +75,15 @@ algorithms are unchanged.
 Existing library-menu release prefetch remains separate from these network-silent
 cleanup operations. No Core deletion, receipt or lease algorithm is changed.
 
+## Artwork dispatcher ownership
+
+A view's display-scale callback checks that view's existing instance dispatcher,
+not the global lazy UI dispatcher. Pending artwork decoding can finish after its
+host has closed; off-owner completion still uses the last UI-read scale without
+reading windows/screens or claiming another application's dispatcher. This narrow
+ownership boundary does not change artwork loading, cancellation or cache policy,
+and does not establish general application-lifetime or native-platform acceptance.
+
 ## Library selection layout
 
 A queued library selection is bound to the latest request and the exact card at
