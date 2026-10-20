@@ -75,6 +75,16 @@ algorithms are unchanged.
 Existing library-menu release prefetch remains separate from these network-silent
 cleanup operations. No Core deletion, receipt or lease algorithm is changed.
 
+## Library selection layout
+
+A queued library selection is bound to the latest request and the exact card at
+its captured index. Superseded, filtered/reordered, overlay-blocked or closed-session
+requests do not scroll. Destination lazy content can change measured heights from
+an earlier library's cached placeholders: selection first materializes the destination
+viewport, completes that layout, then aligns the actual card. This bounded operation
+adds no timer, recurring scroll subscription or change to general navigation/modal
+algorithms; it is not native hardware, accessibility or performance acceptance.
+
 ## Explicit retained portable-payload rollback — source-stage journey
 
 The additive `PortableRollbackService` composes a distinct versioned rollback

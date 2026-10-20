@@ -209,8 +209,11 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
             game.IsGamepadFocused = false;
     }
 
+    private long _selectionScrollRequest;
+
     internal void ApplyLibraryGamepadSelection(int index, bool stealFocus = true, bool bringIntoView = true)
     {
+        var request = ++_selectionScrollRequest;
         // Overlays sit above the library; never steal zone/focus while they are open.
         if (_session.IsClosed || !_canSelect())
         {
@@ -237,8 +240,20 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
         var selected = games[index];
         Dispatcher.UIThread.Post(() =>
         {
-            if (!_session.IsClosed && _canSelect() && selected.IsGamepadFocused)
-                _view.FindGameCardRoot(selected)?.BringIntoView();
+            bool IsCurrentRequest() => request == _selectionScrollRequest && !_session.IsClosed && _canSelect()
+                && selected.IsGamepadFocused && _gamepadNavigation.LibrarySelectedIndex == index
+                && index < Games.Count && ReferenceEquals(Games[index], selected);
+            if (!IsCurrentRequest()) return;
+            var card = _view.FindGameCardRoot(selected);
+            if (card == null) return;
+            // The first scroll materializes lazy content near the destination. Its measured
+            // height can replace a placeholder learned from an earlier library/layout, moving
+            // the destination after that scroll. Complete this layout before aligning the
+            // actual card; this is one bounded materialization/alignment operation, not a timer
+            // or a dispatcher retry. No subscription remains after the request completes.
+            card.BringIntoView();
+            _view.UpdateLayout();
+            if (IsCurrentRequest()) _view.FindGameCardRoot(selected)?.BringIntoView();
         }, DispatcherPriority.Loaded);
     }
 
