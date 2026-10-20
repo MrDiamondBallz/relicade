@@ -111,7 +111,7 @@ public sealed class PortableBackupCleanupUiTests
         var first = Path.Combine(s.Tx.OperationsPath, plan.Files[0].OperationId, plan.Files[0].BackupRelativePath);
         var signalled = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         using var continueWorker = new ManualResetEventSlim(); bool triggered = false;
-        var hook = new HookStore(s.Store.Current, () =>
+        var hook = new HookStore(s.Store, () =>
         {
             if (triggered || File.Exists(first)) return;
             triggered = true; signalled.TrySetResult(); continueWorker.Wait();
@@ -256,7 +256,7 @@ public sealed class PortableBackupCleanupUiTests
         var reached = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         using var release = new ManualResetEventSlim(); bool held = false; bool disposed = false; int changes = 0;
         var original = SettingsStoreProvider.Default;
-        SettingsStoreProvider.Default = new HookStore(s.Store.Current, () => { if (!held && !File.Exists(first)) { held = true; reached.TrySetResult(); release.Wait(); } });
+        SettingsStoreProvider.Default = new HookStore(s.Store, () => { if (!held && !File.Exists(first)) { held = true; reached.TrySetResult(); release.Wait(); } });
         var model = new PortableBackupCleanupViewModel(session, manager, s.Game.InstanceKey);
         var dialog = new PortableBackupCleanupDialog(model);
         using var lifetime = new LauncherDialogLifetime(session.Token, a => Dispatcher.UIThread.Post(a)); lifetime.Track(dialog);
@@ -280,8 +280,14 @@ public sealed class PortableBackupCleanupUiTests
     }
 
     static void Settle(Window window) { Dispatcher.UIThread.RunJobs();window.UpdateLayout();Dispatcher.UIThread.RunJobs(); }
-    sealed class HookStore(AppSettings current,Action onLoad):ISettingsStore
-    { public AppSettings Current=>current;public AppSettings Load(){onLoad();return current;}public void Save(AppSettings settings)=>throw new Exception("Unexpected settings save"); }
+    sealed class HookStore(FileSettingsStore store,Action onLoad):ISettingsStore,IPortableBackupCleanupSettingsEvidence
+    {
+        public AppSettings Current=>store.Current;
+        public AppSettings Load()=>throw new Exception("Unexpected settings Load");
+        public (AppSettings Settings,string Path,string RawSha256) ReadBackupCleanupSettings()
+        { onLoad();return ((IPortableBackupCleanupSettingsEvidence)store).ReadBackupCleanupSettings(); }
+        public void Save(AppSettings settings)=>throw new Exception("Unexpected settings save");
+    }
     sealed class MemoryStore:ISettingsStore,ISettingsRecoveryState
     {
         public AppSettings Current{get;}=new(){FirstStartup=false,AppsPath=Path.Combine(Path.GetTempPath(),"cleanup-ui-menu-"+Guid.NewGuid().ToString("N"))};

@@ -35,8 +35,18 @@ internal sealed class PortableBackupCleanupDialog : Window
         AutomationProperties.SetName(this, Title);
         var layout = new Grid { RowDefinitions = new("Auto,*,Auto"), Margin = new Thickness(20), RowSpacing = 16 };
         layout.Children.Add(Text("Clean redundant backups", 22));
-        Files.ItemTemplate = new FuncDataTemplate<BackupCleanupFile>((file, _) => Text(
-            $"{file!.OperationId}/{file.BackupRelativePath}\nRetained: {file.OperationId}/{file.RetainedRelativePath}\n{file.Length} bytes · SHA256 {file.Sha256}"));
+        Files.ItemTemplate = new FuncDataTemplate<BackupCleanupFile>((file, _) =>
+        {
+            // Inspection targets participate in the existing modal navigation.
+            // They are deliberately inert: Confirm on a row never authorizes cleanup.
+            var row = new Button { HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                Content = Text($"{file!.OperationId}/{file.BackupRelativePath}\nRetained: {file.OperationId}/{file.RetainedRelativePath}\n{file.Length} bytes · SHA256 {file.Sha256}") };
+            row.SetValue(GamepadModalDialogNavigation.KeepDialogOpenProperty, true);
+            AutomationProperties.SetName(row, $"Inspect {file.OperationId}/{file.BackupRelativePath}, retained {file.RetainedRelativePath}, {file.Length} bytes, SHA256 {file.Sha256}");
+            row.GotFocus += (_, _) => row.BringIntoView();
+            return row;
+        });
         var detail = new StackPanel { Spacing = 12, Children = {
             Text("Selected InstanceKey: " + model.InstanceKey), Text(RetentionNotice), Status, Summary, Hash, Files } };
         var scroll = new ScrollViewer { Content = detail, HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,

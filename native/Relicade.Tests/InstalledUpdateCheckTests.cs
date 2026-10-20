@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
@@ -13,9 +14,9 @@ namespace Relicade.Tests;
 
 public class InstalledUpdateCheckTests
 {
-    private sealed class Handler : HttpMessageHandler
+    internal sealed class Handler : HttpMessageHandler
     {
-        public List<string> Requests = [];
+        public ConcurrentBag<string> Requests = [];
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
         {
             // These apps are not in the quiverlauncher.com catalog.

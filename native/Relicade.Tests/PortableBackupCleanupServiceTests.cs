@@ -159,14 +159,14 @@ public sealed class PortableBackupCleanupServiceTests(ITestOutputHelper output)
         {
             if (boundary == "resume")
             {
-                SettingsStoreProvider.Default = new LoadHook(s.Store.Current, () => { if (!File.Exists(first)) cts.Cancel(); });
+                SettingsStoreProvider.Default = new LoadHook(s.Store, () => { if (!File.Exists(first)) cts.Cancel(); });
                 var interrupted = Assert.Throws<BackupCleanupInterruptedException>(() => PortableBackupCleanupService.Apply(manager, s.Game.InstanceKey, plan.PlanSha256, cts.Token));
                 Assert.InRange(interrupted.Result.DeletedFiles, 1, plan.Files.Count - 1);
                 Assert.False(interrupted.Result.Completed); Assert.Equal(plan.PlanSha256, interrupted.Result.PlanSha256);
                 SettingsStoreProvider.Default = original;
             }
             if (boundary == "under-authority")
-                SettingsStoreProvider.Default = new LoadHook(s.Store.Current, () => { if (++loads == 2) store.ReadOnly = true; });
+                SettingsStoreProvider.Default = new LoadHook(s.Store, () => { if (++loads == 2) store.ReadOnly = true; });
             else store.ReadOnly = true;
             var snapshot = s.Snapshot(); var managerLoads = store.Loads;
             var error = Assert.Throws<IOException>(() => PortableBackupCleanupService.Apply(manager, s.Game.InstanceKey, plan.PlanSha256));
@@ -190,7 +190,7 @@ public sealed class PortableBackupCleanupServiceTests(ITestOutputHelper output)
         using var manager = Manager(s); var plan = PortableBackupCleanupService.Preview(manager, s.Game.InstanceKey);
         var original = SettingsStoreProvider.Default; int loads = 0;
         var before = s.Snapshot();
-        SettingsStoreProvider.Default = new LoadHook(s.Store.Current, () =>
+        SettingsStoreProvider.Default = new LoadHook(s.Store, () =>
         {
             if (++loads != 2) return;
             switch (change)
@@ -221,10 +221,14 @@ public sealed class PortableBackupCleanupServiceTests(ITestOutputHelper output)
         public bool IsReadOnly => ReadOnly;
         public Exception? ReadError => ReadOnly ? new IOException("Synthetic injected recovery") : null;
     }
-    sealed class LoadHook(AppSettings current, Action onLoad) : ISettingsStore
+    // The same deterministic boundary, now a detached evidence read rather than
+    // a mutating Load. All authority/partial/resume assertions above are retained.
+    sealed class LoadHook(FileSettingsStore store, Action onLoad) : ISettingsStore, IPortableBackupCleanupSettingsEvidence
     {
-        public AppSettings Current => current;
-        public AppSettings Load() { onLoad(); return current; }
+        public AppSettings Current => store.Current;
+        public AppSettings Load() => throw new Exception("Unexpected global Load");
+        public (AppSettings Settings, string Path, string RawSha256) ReadBackupCleanupSettings()
+        { onLoad(); return ((IPortableBackupCleanupSettingsEvidence)store).ReadBackupCleanupSettings(); }
         public void Save(AppSettings settings) => throw new Exception("Unexpected global save");
     }
 

@@ -62,7 +62,13 @@ dialog confirms only its displayed hash; stale errors require a new preview and
 confirmation, and interrupted results require explicit same-hash resume. It
 reads persisted identities without replacing the live Games collection. Its
 cleanup-only manager check reads the injected settings recovery flag without
-loading/saving that store; it does not establish arbitrary cross-store atomicity.
+loading/saving that store. Detached bounded strict settings evidence never
+replaces Current, mutates recovery flags or initializes credentials. A cleanup-only
+optional evidence capability fails closed for uninitialized/unsupported stores;
+the provider query itself is noninitializing. Live and persisted policy stay
+distinct; these reads do not establish arbitrary cross-store atomicity. Inert
+focusable inspection rows expose the entire plan through existing modal navigation
+without approving it or changing general modal algorithms.
 Existing library-menu release prefetch remains separate from these network-silent
 cleanup operations. No Core deletion, receipt or lease algorithm is changed.
 

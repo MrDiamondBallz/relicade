@@ -26,6 +26,10 @@ confirms only the displayed plan hash, defaults to Cancel and does not
 implicitly confirm a changed plan or automatically resume. The shared typed
 service checks persisted library/settings context and the session manager's own
 injected recovery state again under Core authority and on explicit resume.
+Detached persisted reads preserve the live settings object and effective values,
+refuse malformed/missing-after-seen/legacy input and never initialize credentials.
+Unsupported or uninitialized evidence providers fail closed without a Load fallback.
+Inspection-row navigation and confirmation cannot authorize deletion.
 That read-only recovery query does not prove arbitrary injected-store persistence
 or cross-store atomicity. Closing a session cancels UI participation and drains
 work; it cannot undo already deleted redundant copies or promise immediate

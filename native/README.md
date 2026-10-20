@@ -187,6 +187,8 @@ and choose **Clean redundant backups…**. This UI addition is not yet merged or
 packaged. It captures that exact instance, hashes off the UI thread, and shows
 every eligible relative backup/retained path, file length, total bytes and full
 plan SHA-256. Cancel has initial/default focus; an empty plan cannot be applied.
+Use keyboard/controller navigation to inspect every file row, including long
+plans. Confirming an inspection row is inert: it neither cleans nor closes.
 Only **Clean displayed plan** confirms that displayed hash. A changed plan,
 library, settings or authority requires **Preview again** and a fresh confirmation.
 
@@ -201,6 +203,10 @@ registered work drains before dependencies are released.
 Locked kiosk and settings-recovery sessions cannot start cleanup; the service
 also checks the manager's own injected recovery state, not only menu visibility.
 Unsupported/manual/package/ambiguous instances show refusal, not uninstall.
+Persisted settings are read into a detached nonsecret object without replacing
+live settings or initializing credentials. An uninitialized store or custom store
+without safe persisted-evidence support refuses cleanup; no mutating Load fallback
+is attempted. Effective values and persisted recovery/kiosk policy remain distinct.
 Cleanup adds no catalog/update/save/network operation. The existing library-menu
 release prefetch is separate and may already contact a provider: this is not a
 product-wide no-network claim. Desktop/headless tests do not accept Android,

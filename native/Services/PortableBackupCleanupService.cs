@@ -130,20 +130,23 @@ internal static class PortableBackupCleanupService
         byte[] SettingsEvidence()
         {
             manager.VerifyBackupCleanupSettingsRecovery();
-            // Refuse effective UI policy BEFORE a default-store reload can
-            // replace a shared store's Current object with persisted values.
+            // Live effective policy and detached persisted policy are distinct.
+            // Reading evidence must not replace Current or initialize credentials.
             if (KioskLaunch.IsStartupLocked(manager.CurrentSettings) ||
                 !Same(GameManager.ValidateRemovalAppsPath(manager.CurrentSettings), Full(manager.GamesFolder)))
                 throw new IOException("Effective kiosk policy or changed apps directory blocks cleanup. Reopen the library.");
-            var global = SettingsStoreProvider.Default.Load();
+            var store = SettingsStoreProvider.BackupCleanupCurrent;
+            if (store is ISettingsRecoveryState { IsReadOnly: true })
+                throw new IOException("Settings recovery blocks backup cleanup.");
+            if (store is not IPortableBackupCleanupSettingsEvidence evidence)
+                throw new IOException("Backup cleanup requires an initialized settings store with safe read-only persisted evidence. Reopen the library with file settings.");
+            var (global, path, raw) = evidence.ReadBackupCleanupSettings();
             manager.VerifyBackupCleanupSettingsRecovery();
-            if (SettingsStoreProvider.Default is ISettingsRecoveryState { IsReadOnly: true } || KioskLaunch.IsStartupLocked(global) || KioskLaunch.IsStartupLocked(manager.CurrentSettings))
+            if (!ReferenceEquals(store, SettingsStoreProvider.BackupCleanupCurrent) ||
+                store is ISettingsRecoveryState { IsReadOnly: true } || KioskLaunch.IsStartupLocked(global) || KioskLaunch.IsStartupLocked(manager.CurrentSettings))
                 throw new IOException("Settings recovery or kiosk policy blocks backup cleanup.");
             if (!Same(GameManager.ValidateRemovalAppsPath(manager.CurrentSettings), Full(manager.GamesFolder)))
                 throw new IOException("The configured apps directory changed. Reopen before cleanup.");
-            var path = RelicadePaths.SettingsJsonPath;
-            PortableInstallationTransaction.CheckLinks(path);
-            var raw = Exists(path) ? Digest(File.ReadAllBytes(path)) : "absent";
             return JsonSerializer.SerializeToUtf8Bytes(new { global, manager = manager.CurrentSettings, path, raw });
         }
         var settings = SettingsEvidence();
