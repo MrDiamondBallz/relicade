@@ -74,13 +74,31 @@ public sealed class PortableInstallationLifetime : IDisposable
         File.Move(temp, ReceiptPath(operations), true); PortableInstallationTransaction.Sync(operations);
     }
     /// <summary>Transfers the lease to an independently opened native process handle.</summary>
-    public void Attach(Process process)
+    public void Attach(Process process) => Attach(process, null);
+    // Instance-local scheduling boundary for real owned-process exit regression tests.
+    internal void Attach(Process process, Action? beforeIdentity)
     {
         if (process.HasExited) { Dispose(); return; }
         Process tracked;
         try { tracked = Process.GetProcessById(process.Id); }
         catch (ArgumentException) when (process.HasExited) { Dispose(); return; }
-        try { Write(new() { State = "Running", ProcessId = tracked.Id, StartIdentity = Identity(tracked) }); }
+        try
+        {
+            beforeIdentity?.Invoke();
+            string identity;
+            try { identity = Identity(tracked); }
+            catch (FileNotFoundException) when (process.HasExited)
+            {
+                tracked.Dispose(); Dispose(); return;
+            }
+            catch (DirectoryNotFoundException) when (process.HasExited)
+            {
+                tracked.Dispose(); Dispose(); return;
+            }
+            // Only the ORIGINAL owned process can prove completion. Missing identity
+            // is not authority to suppress a live/unknown launch or a receipt IO error.
+            Write(new() { State = "Running", ProcessId = tracked.Id, StartIdentity = identity });
+        }
         catch { tracked.Dispose(); throw; }
         transferred = true;
         _ = RetainUntilExit(tracked);
