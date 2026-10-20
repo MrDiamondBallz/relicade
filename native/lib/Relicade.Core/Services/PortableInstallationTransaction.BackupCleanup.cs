@@ -69,10 +69,10 @@ public sealed partial class PortableInstallationTransaction
 
     // Cleanup-only composition: bind read-only library/settings evidence into the
     // SAME canonical plan, and revalidate it while Core holds all authority.
-    internal BackupCleanupPreview PreviewRedundantBackups(string contextSha256, Action validateContext)
+    internal BackupCleanupPreview PreviewRedundantBackups(string contextSha256, Action validateContext, string? alternativeRoot = null)
     {
         if (!ValidHash(contextSha256)) throw new ArgumentException("Invalid cleanup context digest.");
-        using var authority = AcquireCleanupAuthority();
+        using var authority = AcquireCleanupAuthority(alternativeRoot);
         validateContext();
         var state = InspectCleanup();
         // An approval interrupted before/among deletes must resume its original
@@ -88,11 +88,11 @@ public sealed partial class PortableInstallationTransaction
     }
 
     internal BackupCleanupResult CleanupRedundantBackups(string expectedPlanSha256, string contextSha256,
-        Action validateContext, CancellationToken cancellationToken = default)
+        Action validateContext, CancellationToken cancellationToken = default, string? alternativeRoot = null)
     {
         if (!ValidHash(expectedPlanSha256) || !ValidHash(contextSha256)) throw new ArgumentException("Expected an exact lower-case SHA256 cleanup plan.");
         cancellationToken.ThrowIfCancellationRequested();
-        using var authority = AcquireCleanupAuthority();
+        using var authority = AcquireCleanupAuthority(alternativeRoot);
         validateContext();
         var state = InspectCleanup();
         var approval = state.Approvals.SingleOrDefault(a => a.PlanSha256 == expectedPlanSha256);
@@ -148,13 +148,25 @@ public sealed partial class PortableInstallationTransaction
         catch (Exception ex) { throw new BackupCleanupInterruptedException(new(expectedPlanSha256, deleted, reclaimed, false), ex); }
     }
 
-    IDisposable AcquireCleanupAuthority()
+    IDisposable AcquireCleanupAuthority(string? alternativeRoot)
     {
         if (options.IsSharedFolder) throw new IOException("Shared installations cannot authorize portable backup cleanup.");
-        var held = new Dictionary<string, IDisposable>(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+        var comparer = OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
+        // ONE invocation owns every canonical target/ancestor/mod identity. Never
+        // borrow an ambient lease or recursively open a second authority scope.
+        var held = new Dictionary<string, IDisposable>(comparer);
         try
         {
             ValidateCleanupOutsideAuthority();
+            if (alternativeRoot != null)
+            {
+                var alternative = new PortableInstallationTransaction(alternativeRoot);
+                if (!comparer.Equals(root, alternative.root))
+                {
+                    alternative.ValidateCleanupOutsideAuthority();
+                    alternative.AcquireRemovalAuthority(held);
+                }
+            }
             AcquireRemovalAncestorLeases(held);
             // A cleanup cannot manufacture a lost installation, history or mod lock.
             RequireCleanupKind(root, true); RequireCleanupKind(operations, true);
@@ -179,15 +191,6 @@ public sealed partial class PortableInstallationTransaction
             return new RemovalAuthorityLeases(held.Values.ToList());
         }
         catch { foreach (var lease in held.Values.Reverse()) lease.Dispose(); throw; }
-    }
-
-    internal IDisposable AcquireCleanupUnmanagedAlternativeAuthority()
-    {
-        // The CLI's absent default slot is part of this cleanup's authority too.
-        // Do not let the unchanged general removal helper accept special/aliased
-        // lock evidence there merely because the selected located root is healthy.
-        ValidateCleanupOutsideAuthority();
-        return AcquireUnmanagedRemovalLease();
     }
 
     void ValidateCleanupOutsideAuthority()

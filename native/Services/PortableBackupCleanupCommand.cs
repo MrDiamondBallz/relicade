@@ -56,9 +56,8 @@ internal static class PortableBackupCleanupCommand
                 }
         }
         ValidateRoots();
-        // If a located instance has no default occupant, still exclude a concurrent
-        // writer at that alternate authority for this whole explicit invocation.
-        using var defaultAuthority = Same(defaultRoot, effective) ? null : new PortableInstallationTransaction(defaultRoot).AcquireCleanupUnmanagedAlternativeAuthority();
+        // Core owns one invocation-local collection spanning both roots and their
+        // common ancestors; a separate outer lease would conflict with itself.
         var libraryPath = manager.CatalogService.AppsConfigPath;
         PortableInstallationTransaction.CheckLinks(libraryPath);
         var library = File.ReadAllBytes(libraryPath);
@@ -87,14 +86,14 @@ internal static class PortableBackupCleanupCommand
         var tx = new PortableInstallationTransaction(effective);
         if (args[0] == Preview)
         {
-            var plan = tx.PreviewRedundantBackups(context, Validate);
+            var plan = tx.PreviewRedundantBackups(context, Validate, alternativeRoot: defaultRoot);
             Console.WriteLine("Plan SHA256: " + plan.PlanSha256);
             foreach (var f in plan.Files) Console.WriteLine($"{f.OperationId}/{f.BackupRelativePath} -> retained {f.OperationId}/{f.RetainedRelativePath} | {f.Length} bytes | SHA256 {f.Sha256}");
             Console.WriteLine($"Reclaimable bytes: {plan.ReclaimableBytes}; duplicate payload files: {plan.Files.Count}.");
             Console.WriteLine("ALL previous generations, data snapshots, journals, current saves and the entire current-operation backup remain. This is not uninstall, history pruning or secure erasure.");
             return 0;
         }
-        var result = tx.CleanupRedundantBackups(args[3], context, Validate);
+        var result = tx.CleanupRedundantBackups(args[3], context, Validate, alternativeRoot: defaultRoot);
         Console.WriteLine($"Plan SHA256: {result.PlanSha256}; removed THIS invocation: {result.DeletedFiles} files / {result.ReclaimedBytes} bytes; completed: {result.Completed}.");
         Console.WriteLine("All retained previous generations, declared data and current-operation backups remain; redundant copies are not rolled back or securely erased.");
         return result.Completed ? 0 : 1;
