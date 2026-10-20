@@ -55,7 +55,7 @@ Merged source now includes contained portable staging, manifests and journaled g
 
 The cleanup-only typed `PortableBackupCleanupService` now composes that same
 Core authority and canonical context for CLI and the native library dialog. The
-UI addition in this branch is not yet merged or packaged. A session-owned flow
+UI is included in this source, not packaged or native-platform accepted. A session-owned flow
 captures the exact InstanceKey, prevents duplicate dialogs, hashes/applies off
 the dispatcher and drains cancellation before dependencies are released. The
 dialog confirms only its displayed hash; stale errors require a new preview and

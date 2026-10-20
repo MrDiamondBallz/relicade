@@ -183,8 +183,8 @@ erasure, and does not certify any native platform.
 ### Native library preview and confirmation
 
 In this source, open a library tile's context menu in list, grid or compact grid
-and choose **Clean redundant backups…**. This UI addition is not yet merged or
-packaged. It captures that exact instance, hashes off the UI thread, and shows
+and choose **Clean redundant backups…**. This UI is included in this source, not
+packaged or native-platform accepted. It captures that exact instance, hashes off the UI thread, and shows
 every eligible relative backup/retained path, file length, total bytes and full
 plan SHA-256. Cancel has initial/default focus; an empty plan cannot be applied.
 Use keyboard/controller navigation to inspect every file row, including long
