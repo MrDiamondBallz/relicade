@@ -35,8 +35,9 @@ The source now includes **Restore previous portable version…** in the native
 library: exact immediate-retained-payload preview, explicit displayed-hash
 confirmation, cancel/drain and observed-commit results. CURRENT declared data is
 retained, not older saves; compatibility and external data remain unsupported
-without project adapters. No automatic repair/resume, download or general history
-restore is implied. Complete R3 and native-platform/package acceptance remain open.
+without project adapters. Preview/reopen starts no repair, resume or retry; the
+existing confirmed transaction can attempt internal recovery on failure. No
+download or general history restore is implied. Complete R3 and native-platform/package acceptance remain open.
 
 ## 4. Full functionality and platform coverage — mandatory, pending
 

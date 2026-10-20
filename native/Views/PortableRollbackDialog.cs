@@ -12,7 +12,7 @@ namespace Relicade.Views;
 
 internal sealed class PortableRollbackDialog : Window
 {
-    internal const string Limits = "Payload only; current saves/data retained; compatibility not guaranteed; external/undeclared data not covered. No previous-save restore. Only the immediate complete retained portable generation; no downloads, general history restore, uninstall or automatic recovery.";
+    internal const string Limits = "Payload only; current saves/data retained; compatibility not guaranteed; external/undeclared data not covered. No previous-save restore. Only the immediate complete retained portable generation; no downloads, general history restore, uninstall or preview/reopen repair.";
     internal PortableRollbackViewModel Model { get; }
     internal Button CancelButton { get; } = new() { Content = "Cancel", IsDefault = true, IsCancel = true, MinHeight = 44, MinWidth = 96 };
     internal Button ApplyButton { get; } = new() { Content = "Restore displayed plan", MinHeight = 44 };

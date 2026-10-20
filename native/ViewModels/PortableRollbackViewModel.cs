@@ -68,7 +68,7 @@ internal sealed class PortableRollbackViewModel : ObservableViewModel
                 {
                     Result = result; State = result.Completed ? PortableRollbackUiState.Completed : PortableRollbackUiState.Error;
                     Message = result.Completed ? $"Confirmed committed: {result.ActualVersion} · operation {result.ActualOperationId}. Current declared data retained; save compatibility is not guaranteed." :
-                        "Incomplete or unknown outcome. Inspect transaction evidence. No automatic recovery, resume or retry.";
+                        "Incomplete or unknown outcome. Transaction-internal recovery may already have run; inspect transaction evidence. No new repair, resume or retry is initiated by this dialog.";
                 });
             }
             catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }
@@ -101,6 +101,6 @@ internal sealed class PortableRollbackViewModel : ObservableViewModel
     }
     internal void DisposeAfterDrain() => participation.Dispose();
     Task UpdateAsync(Action action) => Dispatcher.UIThread.InvokeAsync(() => { if (!IsClosed) { action(); Changed(); } }).GetTask();
-    void Fail(Exception ex) { State = PortableRollbackUiState.Error; Message = ex.Message + " No completion is claimed. Inspect any interrupted evidence; a new valid preview AND fresh explicit confirmation are required. No automatic repair or resume."; }
+    void Fail(Exception ex) { State = PortableRollbackUiState.Error; Message = ex.Message + " No completion is claimed. Inspect any interrupted evidence; a new valid preview AND fresh explicit confirmation are required. No new repair, resume or retry is initiated by this dialog."; }
     void Changed() => Notify(null);
 }

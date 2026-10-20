@@ -94,6 +94,8 @@ declared saves/data and never restores previous saves. Compatibility, external
 data adapters, compatible mod activation and all native/package acceptance remain
 open. Unknown/interrupted history requires separate inspection/recovery; preview
 does not repair it and this journey does not implicitly resume transactions.
+The existing commit primitive may attempt internal recovery during a failed
+confirmed operation; errors do not certify unchanged state or safe retry.
 
 ### R4 — Safer mods today, reproducible profiles next (P0/P1)
 

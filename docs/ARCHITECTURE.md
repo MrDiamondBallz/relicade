@@ -95,8 +95,11 @@ bounded inspection targets using existing keyboard/controller modal routing.
 Stale consent needs a new preview and fresh explicit action. Close/shutdown
 revokes participation and drains registered work. Unlike redundant-copy cleanup,
 rollback has no same-hash resume: interrupted transaction evidence refuses without
-implicit repair. Completion is an observed committed manifest; incomplete/unknown
-outcomes never claim cancellation left the old generation unchanged. This source
+preview/reopen repair. The unchanged Commit primitive may already have attempted
+transaction-internal recovery during a failed confirmed operation. Outcome
+observation does not initiate recovery or retry. Completion is an observed
+committed manifest; incomplete/unknown outcomes never claim cancellation left the
+old generation unchanged or that retry is safe. This source
 journey does not establish package/native/hardware accessibility acceptance.
 
 ## Staged broader architecture — not implemented

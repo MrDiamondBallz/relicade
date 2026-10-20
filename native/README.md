@@ -192,8 +192,10 @@ immediate SLA; activation after durable Applying finishes noninterruptibly.
 Closing a session revokes UI participation and drains work before dependencies
 dispose. Success means an actual complete committed manifest was observed, even
 if completion reporting raced an error/cancel. Otherwise the result is incomplete
-or unknown and requires inspection; reopening never automatically retries,
-recovers or resumes. This is included source, not a packaged/native-platform,
+or unknown and requires inspection. The existing transaction can attempt internal
+recovery during the confirmed operation; errors do not certify unchanged state
+or safe retry. Preview, result observation and reopening initiate no new recovery,
+repair, retry or resume. This is included source, not a packaged/native-platform,
 power-loss, hardware controller or accessibility acceptance claim. Existing
 library-menu prefetch is separate from the rollback operation's network silence.
 

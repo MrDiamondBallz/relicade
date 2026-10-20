@@ -57,7 +57,8 @@ public sealed partial class PortableInstallationTransaction
         var state = InspectRollback(contextSha256);
         if (state.Hash != expectedPlanSha256) throw new IOException("The rollback preview is stale. Preview again and explicitly confirm the new displayed hash.");
         validateContext(); cancellationToken.ThrowIfCancellationRequested();
-        // No Recover: interrupted history must be separately inspected/repaired.
+        // No proactive Recover before staging: existing interrupted history refuses.
+        // Commit retains its existing transaction-internal recovery on failure.
         var id = Guid.NewGuid().ToString("N"); var dir = SafePath(operations, id);
         var candidate = SafePath(dir, "candidate");
         Directory.CreateDirectory(candidate); Sync(operations);
@@ -104,9 +105,10 @@ public sealed partial class PortableInstallationTransaction
         catch (Exception error)
         {
             // Existing Commit may throw AFTER durable Committed. Observe exactly
-            // this invocation, under the same authority; never recover or retry.
+            // this invocation, under the same authority. Commit may already have
+            // attempted recovery; observation itself never starts recovery or retry.
             try { return ObserveRollbackResult(expectedPlanSha256, id, prior.SelectedVersion); }
-            catch { throw new IOException("Rollback did not return a confirmed committed result. Outcome may be incomplete or unknown; inspect retained transaction evidence before any new attempt. No automatic recovery or retry was performed.", error); }
+            catch { throw new IOException("Rollback did not return a confirmed committed result. Outcome may be incomplete or unknown. Transaction-internal recovery may already have run; inspect retained transaction evidence before any new attempt. This outcome check starts no new recovery or retry.", error); }
         }
         return ObserveRollbackResult(expectedPlanSha256, id, prior.SelectedVersion);
     }

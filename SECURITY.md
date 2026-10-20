@@ -48,7 +48,11 @@ or uncertain launch/mod evidence refuses. Current declared data is copied, never
 previous saves; external/undeclared data and save compatibility are not covered.
 After durable Applying, activation finishes safely rather than promising an
 immediate stop. Only an observed complete committed manifest is success; other
-outcomes require inspection, with no automatic retry or recovery. These bounded
+outcomes require inspection. The existing commit primitive can attempt internal
+recovery during a failed confirmed operation, including restoring the old live
+generation; an error does not certify unchanged state or safe retry. Preview,
+outcome observation and dialog reopen initiate no new recovery, repair, resume or
+retry. These bounded
 local-source checks are not native-filesystem, hostile-writer or power-loss certification.
 
 Source changes affecting security must trigger the [documentation review gate](docs/DOCUMENTATION.md), not automatic semantic approval.

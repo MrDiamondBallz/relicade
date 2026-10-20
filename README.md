@@ -35,7 +35,9 @@ The library also includes **Restore previous portable version…**: an offline,
 explicitly hash-confirmed preview of the immediate retained payload. Current
 declared saves/data stay current; older saves are not restored and save-format
 compatibility is not guaranteed. Interrupted or uncertain history requires
-inspection, not automatic repair/resume. This is source-stage functionality,
+inspection, not preview/reopen repair or resume. A confirmed operation can attempt
+transaction-internal recovery on failure; an error is not an unchanged-state or
+safe-retry assurance. This is source-stage functionality,
 not a packaged or native-platform acceptance claim; see the [native guide](native/README.md).
 
 The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. It does not install, update, verify or launch executables.
