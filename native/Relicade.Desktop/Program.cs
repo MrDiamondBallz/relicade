@@ -20,6 +20,12 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        // Cleanup must see ORIGINAL args before kiosk stripping, data-root setup
+        // or any normal desktop initialization. Non-cleanup dispatch is unchanged.
+        if (args.Any(a => a.StartsWith("--preview-portable-backups", StringComparison.OrdinalIgnoreCase) ||
+            a.StartsWith("--cleanup-portable-backups", StringComparison.OrdinalIgnoreCase)))
+            return PortableBackupCleanupConsole.Run(() => RunCli(args));
+
         AppInstallLaunch.Current = new DesktopAppInstallLaunchService();
 
         // Unpackaged foundation: never initialize inherited updater hooks, auto-apply,

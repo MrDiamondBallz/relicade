@@ -43,6 +43,19 @@ namespace Relicade
 
         public async Task<int> Execute(string[] args)
         {
+            if (PortableBackupCleanupCommand.IsRequest(args))
+            {
+                try
+                {
+                    if (!PortableBackupCleanupCommand.ValidArguments(args) ||
+                        !PortableBackupCleanupCommand.ValidOriginalArguments(Environment.GetCommandLineArgs(), args))
+                        return PrintError("Use exactly --preview-portable-backups <InstanceKey> or --cleanup-portable-backups <InstanceKey> --confirm <lower-case planSha256>, without additional arguments.");
+                    await InitializeRemovalGameManager();
+                    return PortableBackupCleanupCommand.Execute(_gameManager!, args);
+                }
+                catch (Exception ex) { return PrintError(ex.Message); }
+                finally { _gameManager?.Dispose(); }
+            }
             if (ManagedShortcutLaunch.IsRequest(args))
             {
                 try

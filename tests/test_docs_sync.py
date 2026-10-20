@@ -126,9 +126,13 @@ class DocsSyncTests(unittest.TestCase):
         self.assertEqual(before, self.snapshot())
 
     def test_reviewed_status_input_changes_facts_but_never_acks_prose(self):
-        self.green()
         path = self.root / 'docs/SOURCE_STATUS.json'
         data = json.loads(path.read_text())
+        # This fixture must exercise a real draft -> merged transition even when
+        # the repository's reviewed source-stage input already records merged.
+        data['cleanup_state'] = 'draft'
+        path.write_text(json.dumps(data))
+        self.green()
         data['cleanup_state'] = 'merged'
         path.write_text(json.dumps(data))
         result, report = self.run_tool('--check')

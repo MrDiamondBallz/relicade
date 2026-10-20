@@ -27,8 +27,8 @@ Emulation is **future scope, not yet implemented**. Each emulator/core needs its
 
 **No packaged launcher release.** This is development source and a browser design preview, not full functional parity or accepted native platform support.
 
-- **Merged development source:** reviewed staged installation and recovery, explicit vault-backed credential migration, offline instance shortcuts and process lifetime handling, and managed-removal safeguards. These are bounded source milestones, not a production-safe installer or a promise of compatibility with every game. See [the merged source milestone](https://github.com/MrDiamondBallz/relicade/pull/1) and the [native guide](native/README.md).
-- **In progress:** [backup-cleanup work](https://github.com/MrDiamondBallz/relicade/pull/3) is a separate draft, not merged functionality. Full behavior reconciliation, packaged installation, security/rights checks and real platform/controller/accessibility acceptance remain open.
+- **Merged development source:** reviewed staged installation and recovery, explicit vault-backed credential migration, offline instance shortcuts and process lifetime handling, managed-removal safeguards, and [previewed, hash-confirmed redundant-backup payload cleanup](https://github.com/MrDiamondBallz/relicade/pull/3). Cleanup retains all previous generations, data snapshots and the current operation's entire backup; it is not credential erasure, general history pruning or managed uninstall. These are bounded source milestones, not a production-safe installer or a promise of compatibility with every game. See [the earlier source milestone](https://github.com/MrDiamondBallz/relicade/pull/1) and the [native guide](native/README.md).
+- **In progress:** full behavior reconciliation, packaged installation, security/rights checks and real platform/controller/accessibility acceptance remain open.
 - **Longer term:** the broader retro-game and emulation experience is not yet implemented. Versions, mods, owned-data setup and recovery need complete tested player journeys, not just service code.
 
 The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. It does not install, update, verify or launch executables.
@@ -38,7 +38,7 @@ The [native development source](native/README.md) uses .NET 10/Avalonia. Linux x
 <!-- docs-sync:begin facts -->
 Repository facts (not acceptance results): **12 catalog projects**, **71 required feature rows**, **8 platform/package targets** and **23 synthetic fixture scenarios**. Counts describe repository inputs, not working games or passing tests.
 
-Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/1); [backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) remains a draft, not merged functionality. No packaged release, full-parity acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.
+Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/3); [backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) is recorded as merged development source, not release acceptance. No packaged release, full-parity acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.
 <!-- docs-sync:end facts -->
 
 [How documentation stays current](docs/DOCUMENTATION.md): contribution-time checks and periodic maintainer reconciliation keep generated facts and source-sensitive prose under review. The tool checks facts mechanically; it does not approve prose. Cloning the repository does not install a timer or service.

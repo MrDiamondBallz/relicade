@@ -35,7 +35,7 @@ This inventory is generated from the explicit maintenance registry. Semantic rev
 
 Repository facts (not acceptance results): **12 catalog projects**, **71 required feature rows**, **8 platform/package targets** and **23 synthetic fixture scenarios**. Counts describe repository inputs, not working games or passing tests.
 
-Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/1); [backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) remains a draft, not merged functionality. No packaged release, full-parity acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.
+Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/3); [backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) is recorded as merged development source, not release acceptance. No packaged release, full-parity acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.
 
 Source responsibilities:
 

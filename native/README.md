@@ -111,7 +111,9 @@ credential deployment; do not use sensitive tokens during development.
 Legacy plaintext token fields require explicit preview and confirmation before
 vault migration; source conflicts, stale previews and failed readback preserve
 an error/recovery state. No silent startup import is performed. Sensitive copies
-in backups need separate cleanup: the backup-cleanup draft is not merged here.
+in old originals, backups, rescue files and filesystem/OS remnants remain
+sensitive: redundant portable payload cleanup does not scrub credentials or
+provide secure erasure. Their separate privacy/retention work remains open.
 
 Real game imagery remains the normal path: catalog/project artwork URLs are
 loaded and cached at runtime, including original-source fallback when a resized
@@ -164,8 +166,44 @@ Known release work includes owned-game-data prerequisites, complete queue and
 cancellation journeys, guided retained-version recovery, compatible mod profiles,
 credential/cleanup deployment checks, contained filesystem fault/security
 acceptance, independent update trust, complete behavior reconciliation and every
-platform/package gate. The backup-cleanup PR is separate draft work, not merged.
+platform/package gate. Redundant payload cleanup does not close those gates.
 Do not treat this source as a production-safe installer or full readiness.
+
+## Explicit redundant-backup payload cleanup — bounded development source
+
+The source includes opt-in cleanup of duplicate regular immutable payload files
+from older terminal committed portable operations' `backup/` directories, only
+after verifying identical retained files in the same operations' `previous/`
+generations. All previous generations, data snapshots, journals and the current
+operation's entire backup remain. Declared data, saves/configuration, metadata
+and unknown/changed evidence are not cleanup candidates. This is not managed
+uninstall, deletion of previous generations, general retention or credential
+erasure, and does not certify any native platform.
+
+Use the exact case-sensitive library `InstanceKey`, not a display name or
+repository name. With your own development build (not an available release):
+
+```sh
+dotnet Relicade.Desktop/bin/Release/net10.0/Relicade.Desktop.dll --preview-portable-backups <InstanceKey>
+dotnet Relicade.Desktop/bin/Release/net10.0/Relicade.Desktop.dll --cleanup-portable-backups <InstanceKey> --confirm <planSha256>
+```
+
+Replace the placeholders; `planSha256` is the exact lower-case SHA-256 printed by
+the preview, not an authentication signature. Inspect its relative file list and
+reclaimable bytes before confirming. A stale preview, ambiguous root, changed
+library/settings, pending recovery, running/unknown launch evidence, unavailable
+writer authority or invalid file evidence refuses cleanup rather than recovering
+or guessing. The cleanup-only route bypasses normal header/catalog/update/status
+initialization; duplicate, mixed or extra arguments are errors.
+
+A durable local approval receipt precedes deletion. After interruption, resolve
+the reported problem and explicitly resume the same approved plan; there is no
+automatic startup cleanup. Completion requires preserved-state readback and all
+approved targets absent. Results count actual files/bytes removed this invocation,
+not previously absent copies. Deleted redundant copies are not rolled back.
+Arbitrary hostile OS writers, physical power loss/disk exhaustion, native Windows
+console/handle behavior and other platform/runtime guarantees remain unaccepted;
+Linux/headless fixtures and injected console tests do not replace those checks.
 
 ## Broader vision and documentation
 

@@ -16,7 +16,7 @@ Discovery, setup and library journeys should eventually cover community-revived 
 
 Emulation is not implemented, accepted or added as an automatic condition of the existing native release gate. Define its own adapters and evidence before claiming support. The current feature matrix and all existing native acceptance requirements remain unchanged.
 
-Merged development source includes bounded staged-installation/recovery, explicit vault-backed credential migration, offline instance shortcut/lifetime and managed-removal safeguards. Those milestones do not accept all R1–R10 journeys or any packaged/native platform release. [Documentation maintenance](DOCUMENTATION.md) keeps facts separate from semantic and release review.
+Merged development source includes bounded staged-installation/recovery, explicit vault-backed credential migration, offline instance shortcut/lifetime, managed-removal safeguards and explicit preview/hash-confirmed cleanup of older committed redundant immutable backup payload files. Cleanup preserves all previous generations, data snapshots and current-operation backups; it is not credential erasure, general retention or managed uninstall. Those milestones do not accept all R1–R10 journeys or any packaged/native platform release. [Documentation maintenance](DOCUMENTATION.md) keeps facts separate from semantic and release review.
 
 ## 1. Scope and milestones
 

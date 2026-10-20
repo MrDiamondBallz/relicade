@@ -12,7 +12,7 @@ namespace Relicade.Core.Services;
 /// platforms provide process-interruption recovery, not certified power-loss safety.
 /// Unknown ownership, links and concurrent external changes require repair, never deletion.
 /// </summary>
-public sealed class PortableInstallationTransaction
+public sealed partial class PortableInstallationTransaction
 {
     public const string ManifestFileName = ".relicade-portable.json";
     public const string DirectoryName = ".relicade-game-transactions";

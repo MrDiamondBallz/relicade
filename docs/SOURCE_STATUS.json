@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "source_stage": "development",
-  "merged_source_pr": 1,
+  "merged_source_pr": 3,
   "cleanup_pr": 3,
-  "cleanup_state": "draft",
+  "cleanup_state": "merged",
   "packaged_release": false,
   "full_parity": false,
   "native_platform_acceptance": false,
