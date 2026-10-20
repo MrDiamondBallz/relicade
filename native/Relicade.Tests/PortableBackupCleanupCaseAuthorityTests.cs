@@ -44,9 +44,11 @@ public sealed class PortableBackupCleanupCaseAuthorityTests
         {
             var result = await s.Execute(injected, ["--cleanup-portable-backups", s.Game.InstanceKey, "--confirm", hash]);
             Assert.NotEqual(0, result.Code);
-            Assert.Equal(before, s.Snapshot());
             Assert.Empty(Directory.GetFiles(tx.OperationsPath, "backup-cleanup-*.json"));
         }
+        // Snapshot after releasing FileShare.None; reading the held writer.lock
+        // itself is deliberately forbidden, independently of cleanup behavior.
+        Assert.Equal(before, s.Snapshot());
         Assert.Equal(0, s.Network.Calls); Assert.False(Directory.Exists(s.Live));
         // Releasing the actual alternate authority permits the same confirmed
         // plan, proving this is exclusion rather than a blanket located no-op.
