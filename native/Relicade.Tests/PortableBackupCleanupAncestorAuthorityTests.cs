@@ -21,6 +21,9 @@ public sealed class PortableBackupCleanupAncestorAuthorityTests(ITestOutputHelpe
         var created = File.GetCreationTimeUtc(stableWriter);
         var mod = Path.Combine(s.Root, ".relicade-mod-writer.lock"); File.WriteAllBytes(mod, []);
         var plan = tx.PreviewRedundantBackups(); Assert.Single(plan.Files);
+        // Preview may establish the documented alternate stable writer identity.
+        // Establish it before the full snapshot so equality still covers ALL bytes.
+        using (s.Tx.AcquireLease()) { }
         var before = s.Snapshot();
         var result = await s.Execute(injected, approvedFirst
             ? ["--cleanup-portable-backups", s.Game.InstanceKey, "--confirm", hash!]
