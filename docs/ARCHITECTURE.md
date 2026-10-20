@@ -75,6 +75,30 @@ algorithms are unchanged.
 Existing library-menu release prefetch remains separate from these network-silent
 cleanup operations. No Core deletion, receipt or lease algorithm is changed.
 
+## Explicit retained portable-payload rollback — source-stage journey
+
+The additive `PortableRollbackService` composes a distinct versioned rollback
+context from the exact library instance/root, persisted library digest, live
+effective settings and detached strict persisted evidence. It does not load or
+replace live settings/library objects, initialize credentials or reuse cleanup
+consent. `PreviewRollback` and `RollbackConfirmed` independently derive the same
+versioned, ordinally ordered SHA-256 under owned composed authority. The immediate
+complete `previous/` of the current committed operation is the only target.
+The confirmed path reuses unchanged private journal/commit primitives; existing
+context-free Rollback and cleanup schemas/algorithms remain unchanged. Current
+declared data is staged with retained immutable payload, not an older save snapshot.
+
+A session-owned rollback flow/model/dialog captures the key before awaits,
+performs hash/copy work off the dispatcher, defaults to Cancel and applies only
+the displayed immutable digest. All identity/path/hash/limit text has inert,
+bounded inspection targets using existing keyboard/controller modal routing.
+Stale consent needs a new preview and fresh explicit action. Close/shutdown
+revokes participation and drains registered work. Unlike redundant-copy cleanup,
+rollback has no same-hash resume: interrupted transaction evidence refuses without
+implicit repair. Completion is an observed committed manifest; incomplete/unknown
+outcomes never claim cancellation left the old generation unchanged. This source
+journey does not establish package/native/hardware accessibility acceptance.
+
 ## Staged broader architecture — not implemented
 
 The long-term discovery/library model spans community-revived classics, retro games and emulation as well as native ports, recompilations and recreations. Future project types need explicit execution kind, emulator/core identity and license, compatible versions, user-supplied game/BIOS prerequisites, controller/keyboard setup and recoverable version/mod state. No emulator host/core manager or ROM/BIOS/key distribution is implemented or authorized by this architecture. Local/offline use remains account-optional. This design direction does not add or waive current native acceptance cells.

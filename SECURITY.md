@@ -39,6 +39,18 @@ does not certify product-wide offline privacy or native/hardware acceptance.
 
 Future emulation requires separate emulator/core licensing and user-supplied data/BIOS handling; no unlicensed ROMs, BIOS or keys will be distributed. An emulator/core is an additional execution trust boundary, not a sandbox claim or an implemented capability.
 
+Explicit portable-version rollback binds the immediate validated retained
+payload, current declared-data inventory and live/detached persisted application
+context to a displayed SHA-256. Apply independently revalidates under its own
+composed writer/ancestor/mod authority, including before durable activation.
+Preview never repairs history. Unknown, pending, linked, shared, package-owned
+or uncertain launch/mod evidence refuses. Current declared data is copied, never
+previous saves; external/undeclared data and save compatibility are not covered.
+After durable Applying, activation finishes safely rather than promising an
+immediate stop. Only an observed complete committed manifest is success; other
+outcomes require inspection, with no automatic retry or recovery. These bounded
+local-source checks are not native-filesystem, hostile-writer or power-loss certification.
+
 Source changes affecting security must trigger the [documentation review gate](docs/DOCUMENTATION.md), not automatic semantic approval.
 
 ## Native release requirements

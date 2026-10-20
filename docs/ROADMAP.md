@@ -31,6 +31,13 @@ accepted; it does not complete general retention or managed uninstall.
 
 Complete durable queues/cancellation, retained-version recovery journeys, provider trust and independent fault/security/platform acceptance still need work. Preserve original game data, saves and configuration. Test interrupted transfers, crashes, locked files and disk exhaustion.
 
+The source now includes **Restore previous portable version…** in the native
+library: exact immediate-retained-payload preview, explicit displayed-hash
+confirmation, cancel/drain and observed-commit results. CURRENT declared data is
+retained, not older saves; compatibility and external data remain unsupported
+without project adapters. No automatic repair/resume, download or general history
+restore is implied. Complete R3 and native-platform/package acceptance remain open.
+
 ## 4. Full functionality and platform coverage — mandatory, pending
 
 Versions/pinning, manual entries/import/export, mods/dependencies/profiles, controller/keyboard navigation, kiosk/fullscreen, storage/recovery and platform package adapters remain required.

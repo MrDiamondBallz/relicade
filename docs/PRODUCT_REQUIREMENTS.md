@@ -87,6 +87,14 @@ Download/verify/extract into isolated staging; build a manifest and validate lau
 - Refuse incompatible/running-game upgrades; pending update can wait for exit. A disk-full, access-denied, antivirus lock, crash or power loss must recover to the previous or new complete manifest—not a mixed manifest.
 - **Accept:** inject failure/terminate at each journal boundary and during extraction/activation/metadata save; restart and verify manifest/files, selected version and user data. Rollback succeeds offline for retained portable payload. Before/after hashes of synthetic ROM/save/config fixtures must match unless an explicitly confirmed data migration is under test. MSI/OS package rollback is adapter-specific P1 and must not inherit portable guarantees.
 
+Bounded R3 source progress includes the native library's **Restore previous
+portable version…** preview/hash-confirmation/cancel/result journey. It selects
+only the immediate complete retained portable payload offline, preserves CURRENT
+declared saves/data and never restores previous saves. Compatibility, external
+data adapters, compatible mod activation and all native/package acceptance remain
+open. Unknown/interrupted history requires separate inspection/recovery; preview
+does not repair it and this journey does not implicitly resume transactions.
+
 ### R4 — Safer mods today, reproducible profiles next (P0/P1)
 
 - P0 resolve dependencies before mutation; stage replacement before removing a working mod; preserve installed records on network/parse failure; store manifest changes atomically. Present package/file/provider/version and permissions/trust boundary. Never label mods “safe” merely because the game release is verified.

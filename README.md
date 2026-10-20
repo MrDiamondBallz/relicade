@@ -31,6 +31,13 @@ Emulation is **future scope, not yet implemented**. Each emulator/core needs its
 - **Included in this source:** the native library context menu exposes a redundant-backup preview, explicit displayed-plan confirmation, cancellation, truthful results and explicit same-plan resume. This UI is not packaged or native-platform accepted. **In progress:** full behavior reconciliation, packaged installation, security/rights checks and real platform/controller/accessibility acceptance remain open.
 - **Longer term:** the broader retro-game and emulation experience is not yet implemented. Versions, mods, owned-data setup and recovery need complete tested player journeys, not just service code.
 
+The library also includes **Restore previous portable version…**: an offline,
+explicitly hash-confirmed preview of the immediate retained payload. Current
+declared saves/data stay current; older saves are not restored and save-format
+compatibility is not guaranteed. Interrupted or uncertain history requires
+inspection, not automatic repair/resume. This is source-stage functionality,
+not a packaged or native-platform acceptance claim; see the [native guide](native/README.md).
+
 The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. It does not install, update, verify or launch executables.
 
 The [native development source](native/README.md) uses .NET 10/Avalonia. Linux x64 self-contained publish and isolated startup, plus Windows x64 cross-publish, are development checks only. The [coverage contract](docs/FEATURE_COVERAGE.md) keeps native/package acceptance separate.

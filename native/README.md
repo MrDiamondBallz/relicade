@@ -169,6 +169,34 @@ acceptance, independent update trust, complete behavior reconciliation and every
 platform/package gate. Redundant payload cleanup does not close those gates.
 Do not treat this source as a production-safe installer or full readiness.
 
+## Restore previous portable version — bounded development source
+
+Open a library tile's context menu in list, grid or compact grid and choose
+**Restore previous portable version…**. The dialog captures the exact instance,
+shows current and retained version/operation identities, target executable,
+CURRENT declared data paths, limits and full plan SHA-256. Cancel is the initial
+and default answer. Use keyboard/controller inspection targets to reach all text;
+Confirm on an inspection target is inert. **Restore displayed plan** is a separate
+explicit action; stale state needs a fresh preview AND new confirmation.
+
+This works offline only for the immediate complete validated previous portable
+generation. Payload only; current saves/data retained; compatibility not guaranteed;
+external/undeclared data not covered. Previous saves are never restored. No
+download, arbitrary-version fallback, package rollback, compatible mod activation,
+uninstall or general retention is provided. Unknown/pending/corrupt/linked/shared
+or uncertain launch/mod history refuses without repair. Settings/library evidence
+is read without Load/Save, credential initialization or live object replacement.
+
+Hashing/copying runs off the UI thread. Cancel requests a safe stop, not an
+immediate SLA; activation after durable Applying finishes noninterruptibly.
+Closing a session revokes UI participation and drains work before dependencies
+dispose. Success means an actual complete committed manifest was observed, even
+if completion reporting raced an error/cancel. Otherwise the result is incomplete
+or unknown and requires inspection; reopening never automatically retries,
+recovers or resumes. This is included source, not a packaged/native-platform,
+power-loss, hardware controller or accessibility acceptance claim. Existing
+library-menu prefetch is separate from the rollback operation's network silence.
+
 ## Explicit redundant-backup payload cleanup — bounded development source
 
 The source includes opt-in cleanup of duplicate regular immutable payload files
