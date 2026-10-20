@@ -51,6 +51,6 @@ Emulation is not implemented. Future adapters need emulator/core license review,
 
 ## Documentation upkeep
 
-[Generated facts and the source-review map](DOC_STATUS.md) are maintained with [the documentation tool](DOCUMENTATION.md). Narrative progress needs explicit source-diff review, not an automatically bumped date. Periodic reconciliation rollout is still pending independently reviewed publication.
+[Generated facts and the source-review map](DOC_STATUS.md) are maintained with [the documentation tool](DOCUMENTATION.md) through contribution-time checks and periodic maintainer reconciliation. Narrative progress needs explicit source-diff review and independent review before adoption, not an automatically bumped date; the tool does not approve prose. Cloning the repository does not install a timer or service.
 
 See [PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md) for detailed acceptance criteria. Public source availability is not an installable release, production service or universal compatibility claim.
