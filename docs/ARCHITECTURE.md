@@ -67,8 +67,11 @@ replaces Current, mutates recovery flags or initializes credentials. A cleanup-o
 optional evidence capability fails closed for uninitialized/unsupported stores;
 the provider query itself is noninitializing. Live and persisted policy stay
 distinct; these reads do not establish arbitrary cross-store atomicity. Inert
-focusable inspection rows expose the entire plan through existing modal navigation
-without approving it or changing general modal algorithms.
+focusable inspection rows expose the entire plan through existing modal navigation.
+Long descriptions are divided losslessly into bounded continuation subtargets,
+so navigation can expose the middle of a path taller than the viewport, not just
+its first/last edge. Confirm on an inspection target is inert; general modal
+algorithms are unchanged.
 Existing library-menu release prefetch remains separate from these network-silent
 cleanup operations. No Core deletion, receipt or lease algorithm is changed.
 

@@ -37,15 +37,20 @@ internal sealed class PortableBackupCleanupDialog : Window
         layout.Children.Add(Text("Clean redundant backups", 22));
         Files.ItemTemplate = new FuncDataTemplate<BackupCleanupFile>((file, _) =>
         {
-            // Inspection targets participate in the existing modal navigation.
-            // They are deliberately inert: Confirm on a row never authorizes cleanup.
-            var row = new Button { HorizontalAlignment = HorizontalAlignment.Stretch,
-                HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                Content = Text($"{file!.OperationId}/{file.BackupRelativePath}\nRetained: {file.OperationId}/{file.RetainedRelativePath}\n{file.Length} bytes · SHA256 {file.Sha256}") };
-            row.SetValue(GamepadModalDialogNavigation.KeepDialogOpenProperty, true);
-            AutomationProperties.SetName(row, $"Inspect {file.OperationId}/{file.BackupRelativePath}, retained {file.RetainedRelativePath}, {file.Length} bytes, SHA256 {file.Sha256}");
-            row.GotFocus += (_, _) => row.BringIntoView();
-            return row;
+            var description = $"{file!.OperationId}/{file.BackupRelativePath}\nRetained: {file.OperationId}/{file.RetainedRelativePath}\n{file.Length} bytes · SHA256 {file.Sha256}";
+            // Keep ordinary rows compact. Long paths get bounded, independently
+            // focusable continuation targets, not one rectangle taller than the
+            // viewport. Existing modal Up/Down can expose every part; no input
+            // interception, horizontal clipping, ellipsis or approval on Confirm.
+            if (description.Length <= 192) return InspectionTarget(description);
+            var parts = new StackPanel { Spacing = 2 };
+            var boundaries = System.Globalization.StringInfo.ParseCombiningCharacters(description);
+            for (int start = 0; start < boundaries.Length; start += 64)
+            {
+                int end = start + 64 < boundaries.Length ? boundaries[start + 64] : description.Length;
+                parts.Children.Add(InspectionTarget(description[boundaries[start]..end]));
+            }
+            return parts;
         });
         var detail = new StackPanel { Spacing = 12, Children = {
             Text("Selected InstanceKey: " + model.InstanceKey), Text(RetentionNotice), Status, Summary, Hash, Files } };
@@ -90,6 +95,15 @@ internal sealed class PortableBackupCleanupDialog : Window
         PreviewButton.IsVisible = Model.CanPreview;
         CancelButton.Content = Model.State == PortableBackupCleanupUiState.Completed ? "Close" : "Cancel";
         GamepadModalDialogNavigation.Instance.RefreshDialogButtons();
+    }
+    static Button InspectionTarget(string description)
+    {
+        var target = new Button { HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch, Content = Text(description) };
+        target.SetValue(GamepadModalDialogNavigation.KeepDialogOpenProperty, true);
+        AutomationProperties.SetName(target, "Inspect " + description);
+        target.GotFocus += (_, _) => target.BringIntoView();
+        return target;
     }
     static TextBlock Text(string text, double size = 14) => new() { Text = text, FontSize = size, TextWrapping = TextWrapping.Wrap };
 }

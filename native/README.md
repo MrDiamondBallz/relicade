@@ -188,7 +188,10 @@ packaged. It captures that exact instance, hashes off the UI thread, and shows
 every eligible relative backup/retained path, file length, total bytes and full
 plan SHA-256. Cancel has initial/default focus; an empty plan cannot be applied.
 Use keyboard/controller navigation to inspect every file row, including long
-plans. Confirming an inspection row is inert: it neither cleans nor closes.
+plans. Long file descriptions have separately focusable continuation parts;
+Up/Down exposes each part even when the complete path exceeds one viewport.
+No path characters are omitted or replaced with ellipsis. Confirming an
+inspection part is inert: it neither cleans nor closes.
 Only **Clean displayed plan** confirms that displayed hash. A changed plan,
 library, settings or authority requires **Preview again** and a fresh confirmation.
 
