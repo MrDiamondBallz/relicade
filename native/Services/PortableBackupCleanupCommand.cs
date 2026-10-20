@@ -55,7 +55,7 @@ internal static class PortableBackupCleanupCommand
         ValidateRoots();
         // If a located instance has no default occupant, still exclude a concurrent
         // writer at that alternate authority for this whole explicit invocation.
-        using var defaultAuthority = Same(defaultRoot, effective) ? null : new PortableInstallationTransaction(defaultRoot).AcquireUnmanagedRemovalLease();
+        using var defaultAuthority = Same(defaultRoot, effective) ? null : new PortableInstallationTransaction(defaultRoot).AcquireCleanupUnmanagedAlternativeAuthority();
         var libraryPath = manager.CatalogService.AppsConfigPath;
         PortableInstallationTransaction.CheckLinks(libraryPath);
         var library = File.ReadAllBytes(libraryPath);

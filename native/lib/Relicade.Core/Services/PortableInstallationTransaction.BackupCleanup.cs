@@ -181,6 +181,15 @@ public sealed partial class PortableInstallationTransaction
         catch { foreach (var lease in held.Values.Reverse()) lease.Dispose(); throw; }
     }
 
+    internal IDisposable AcquireCleanupUnmanagedAlternativeAuthority()
+    {
+        // The CLI's absent default slot is part of this cleanup's authority too.
+        // Do not let the unchanged general removal helper accept special/aliased
+        // lock evidence there merely because the selected located root is healthy.
+        ValidateCleanupOutsideAuthority();
+        return AcquireUnmanagedRemovalLease();
+    }
+
     void ValidateCleanupOutsideAuthority()
     {
         // The reused removal exclusion intentionally has a different remit. Its
