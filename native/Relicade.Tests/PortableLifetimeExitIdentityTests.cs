@@ -33,6 +33,25 @@ public sealed class PortableLifetimeExitIdentityTests
         Assert.True(child.HasExited);
     }
     static string Receipt(ManagedRemovalFixture f) => Path.Combine(f.Tx.OperationsPath, "launch.json");
+    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "open", SetLastError = true)]
+    static extern int OpenLock(string path, int flags);
+    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "flock", SetLastError = true)]
+    static extern int WaitLock(int fd, int operation);
+    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "close", SetLastError = true)]
+    static extern int CloseLock(int fd);
+    static async Task WaitForWriterRelease(ManagedRemovalFixture f)
+    {
+        // Receipt deletion precedes RetainUntilExit's lease-disposing finally.
+        // Block on the actual kernel lock-release event, not a sleep/retry or receipt oracle.
+        if (!OperatingSystem.IsLinux()) throw new PlatformNotSupportedException("Linux flock completion fixture");
+        await Task.Run(() =>
+        {
+            var fd = OpenLock(Path.Combine(f.Tx.OperationsPath, "writer.lock"), 2 /* O_RDWR */);
+            Assert.True(fd >= 0);
+            try { Assert.Equal(0, WaitLock(fd, 2 /* LOCK_EX, blocking */)); }
+            finally { Assert.Equal(0, CloseLock(fd)); }
+        }).WaitAsync(TimeSpan.FromSeconds(10));
+    }
     static void Released(ManagedRemovalFixture f) { using var lease = f.Tx.AcquireLease(); }
     static void Held(ManagedRemovalFixture f) => Assert.ThrowsAny<IOException>(() => f.Tx.AcquireLease());
     static void Evidence(string name, Process child, string? receipt, Exception? failure)
@@ -94,7 +113,8 @@ public sealed class PortableLifetimeExitIdentityTests
         {
             var timer = Stopwatch.StartNew();
             while (File.Exists(Receipt(f)) && timer.Elapsed < TimeSpan.FromSeconds(10)) await Task.Delay(10);
-            Assert.False(File.Exists(Receipt(f))); Released(f);
+            Assert.False(File.Exists(Receipt(f)));
+            await WaitForWriterRelease(f); Released(f);
         }
     }
     [Theory]
