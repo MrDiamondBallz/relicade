@@ -78,7 +78,28 @@ public sealed partial class PortableInstallationTransaction
             var observed = CaptureRollbackSnapshot(id);
             if (!observed.SequenceEqual(state.Snapshot)) throw new IOException("Rollback evidence changed during staging; no activation is authorized.");
             validateContext();
-            Commit(dir, prior, state.Current, state.Before, cancellationToken);
+            // Adapt only the diagnostic callback for the existing private Commit
+            // primitive. No public entry, lease reacquisition, ambient cache or
+            // release-and-call: THIS scope still owns every composed authority.
+            // Existing Rollback/Commit bodies and their sequencing stay exact.
+            var committing = new PortableInstallationTransaction(root, new GameInstallationOptions
+            {
+                MaximumExpandedBytes = options.MaximumExpandedBytes,
+                MaximumFileCount = options.MaximumFileCount,
+                TransactionBoundary = boundary =>
+                {
+                    options.TransactionBoundary?.Invoke(boundary);
+                    if (boundary is "BackedUp" or "BeforePrepared" or "Prepared" or "BeforeApplying")
+                    {
+                        validateContext();
+                        AssertInventory(root, state.Before);
+                        // Recheck immutable retained witness while activation is
+                        // still interruptible, not after durable Applying.
+                        AssertInventory(state.Previous, ReadJournal(SafePath(operations, state.Current.OperationId)).OldFiles);
+                    }
+                }
+            });
+            committing.Commit(dir, prior, state.Current, state.Before, cancellationToken);
         }
         catch (Exception error)
         {

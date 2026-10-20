@@ -148,7 +148,7 @@ internal static class PortableRollbackService
             if (!Same(GameManager.ValidateRemovalAppsPath(manager.CurrentSettings), Full(manager.GamesFolder)) ||
                 !Same(GameManager.ValidateRemovalAppsPath(global), Full(manager.GamesFolder)))
                 throw new IOException("The configured apps directory changed. Reopen before rollback.");
-            return JsonSerializer.SerializeToUtf8Bytes(new { global, manager = manager.CurrentSettings, path, raw });
+            return CanonicalSettings(JsonSerializer.SerializeToUtf8Bytes(new { global, manager = manager.CurrentSettings, path, raw }));
         }
         var settings = SettingsEvidence();
         // Rollback-specific schema1 application context; cleanup canonicalization is unchanged.
@@ -167,5 +167,32 @@ internal static class PortableRollbackService
                 throw new IOException("Library/settings changed after preview; no newly expanded rollback is authorized.");
         }
         return (new PortableInstallationTransaction(effective), context, Validate, defaultRoot);
+    }
+
+    // Schema1 settings evidence sorts every object/dictionary key ordinally.
+    // Arrays retain semantic order. No culture, display label or dictionary
+    // insertion order can silently change the authorization envelope.
+    static byte[] CanonicalSettings(byte[] bytes)
+    {
+        using var document = JsonDocument.Parse(bytes);
+        using var stream = new MemoryStream();
+        using (var writer = new Utf8JsonWriter(stream))
+        {
+            void Write(JsonElement value)
+            {
+                if (value.ValueKind == JsonValueKind.Object)
+                {
+                    writer.WriteStartObject();
+                    foreach (var property in value.EnumerateObject().OrderBy(p => p.Name, StringComparer.Ordinal))
+                    { writer.WritePropertyName(property.Name); Write(property.Value); }
+                    writer.WriteEndObject();
+                }
+                else if (value.ValueKind == JsonValueKind.Array)
+                { writer.WriteStartArray(); foreach (var item in value.EnumerateArray()) Write(item); writer.WriteEndArray(); }
+                else value.WriteTo(writer);
+            }
+            Write(document.RootElement);
+        }
+        return stream.ToArray();
     }
 }
