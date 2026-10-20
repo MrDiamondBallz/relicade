@@ -18,6 +18,12 @@ namespace Relicade.Services
 
         // Cleanup-only: inspect THIS session's injected store without loading,
         // saving, exposing it or replacing the live library collection.
+        internal void VerifyRollbackSettingsRecovery()
+        {
+            if (_settingsStore is ISettingsRecoveryState { IsReadOnly: true })
+                throw new IOException("This library session's settings are in recovery; repair and reopen before portable rollback.");
+        }
+
         internal void VerifyBackupCleanupSettingsRecovery()
         {
             if (_settingsStore is ISettingsRecoveryState { IsReadOnly: true })

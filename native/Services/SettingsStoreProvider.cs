@@ -6,6 +6,7 @@ public static class SettingsStoreProvider
 
     // Cleanup must never construct a store (which initializes credentials).
     internal static ISettingsStore? BackupCleanupCurrent => _default;
+    internal static ISettingsStore? RollbackCurrent => _default;
 
     public static ISettingsStore Default
     {

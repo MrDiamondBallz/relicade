@@ -32,4 +32,5 @@ public enum LibraryActionKind
     SkipUpdate,
     UpdateNowMenu,
     CleanPortableBackups,
+    RollbackPortableVersion,
 }

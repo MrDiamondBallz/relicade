@@ -256,6 +256,8 @@ namespace Relicade
             LibraryPanel.Configure(Library, _session, _libraryLaunch, _menus.Open);
             var backupCleanup = new PortableBackupCleanupFlow(_gameManager, _settingsViewModel, _session, _dialogs);
             LibraryPanel.ConfigureBackupCleanup(backupCleanup.OpenAsync);
+            var portableRollback = new PortableRollbackFlow(_gameManager, _settingsViewModel, _session, _dialogs);
+            LibraryPanel.ConfigurePortableRollback(portableRollback.OpenAsync);
             LibraryPanel.Navigation = new Views.LibraryNavigation(LibraryPanel, this, _session, () => Shell.Mode == MainViewMode.Library && !Shell.AppUpdatesOpen && !Shell.ModsOpen, () => !_session.IsClosed && !Shell.SettingsOpen && !Shell.EntryEditorOpen && !Shell.TagEditorOpen && !IsDisplayFilterOverlayOpen, ShouldKeepLibraryChromeFocus, steal =>
             {
                 _chromeNavigation.ClearSidebarGamepadFocus(steal);
