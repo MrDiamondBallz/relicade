@@ -52,7 +52,7 @@ public sealed class PortableRollbackOutcomeTests(ITestOutputHelper output)
             output.WriteLine("RAW_OUTCOME_BEFORE_ANY_REOPEN=" + raw.GetRawText());
             output.WriteLine("ACTUAL_BOUNDARIES=" + JsonSerializer.Serialize(boundaries));
             output.WriteLine("PLAYER_MESSAGE=" + model.Message);
-            if (boundary == "Committed")
+            if (boundary == "Committed" || boundary == "CandidateRenamed" && cancel)
             {
                 Assert.Equal("Committed", raw.GetProperty("phase").GetString());
                 Assert.Null(raw.GetProperty("resolution").GetString());
@@ -84,7 +84,9 @@ public sealed class PortableRollbackOutcomeTests(ITestOutputHelper output)
                 Assert.DoesNotContain("No automatic repair or resume", model.Message);
                 Assert.Contains("No new repair, resume or retry is initiated", model.Message);
             }
-            var expectedVersion = boundary == "Committed" ? "v2" : "v3";
+            // Cancellation after durable Applying is not an exception: Commit finishes.
+            var committed = boundary == "Committed" || boundary == "CandidateRenamed" && cancel;
+            var expectedVersion = committed ? "v2" : "v3";
             Assert.Equal(expectedVersion, File.ReadAllText(Path.Combine(s.Live, "version.txt")));
             Assert.Equal(PortableInstallationFixtures.NativePayload(expectedVersion), File.ReadAllBytes(Path.Combine(s.Live, "fixture.AppImage")));
             Assert.Equal("CURRENT_OUTCOME_NOT_PREVIOUS_SAVE", File.ReadAllText(Path.Combine(s.Live, "LastPlayed.txt")));
@@ -92,7 +94,7 @@ public sealed class PortableRollbackOutcomeTests(ITestOutputHelper output)
             foreach (var row in before.Where(r => !r.Key.StartsWith("Apps/live/", StringComparison.Ordinal))) Assert.Equal(row.Value, after[row.Key]);
             var calls = boundaries.Count;
             await model.ConfirmAsync(); Assert.Equal(1, applies); Assert.Equal(after, s.Snapshot());
-            if (boundary != "Committed")
+            if (!committed)
             {
                 // A newly opened flow only inspects; it must refuse without resolving or retrying.
                 var reopened = new PortableRollbackViewModel(session, s.Game.InstanceKey,
@@ -110,7 +112,7 @@ public sealed class PortableRollbackOutcomeTests(ITestOutputHelper output)
             await s.Install("future"); s.Tx.SelectExecutable("fixture.AppImage");
             Assert.Equal("future", s.Tx.ReadCommitted()!.SelectedVersion);
             var future = s.Snapshot();
-            if (boundary == "Committed")
+            if (boundary == "Committed" || boundary == "CandidateRenamed" && cancel)
             {
                 var next = PortableBackupCleanupService.Preview(manager, s.Game.InstanceKey);
                 Assert.True(PortableBackupCleanupService.Apply(manager, s.Game.InstanceKey, next.PlanSha256).Completed);
