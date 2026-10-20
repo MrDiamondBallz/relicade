@@ -20,7 +20,6 @@ STATUS = 'docs/SOURCE_STATUS.json'
 OUTPUTS = ('README.md', 'docs/DOC_STATUS.md')
 BEGIN = '<!-- docs-sync:begin facts -->'
 END = '<!-- docs-sync:end facts -->'
-BUILD_DIRS = {'.git', '__pycache__', 'bin', 'obj', 'artifacts', 'node_modules', '.venv', 'venv', 'qa'}
 EVIDENCE = {'docs/PREVIEW_QA.json', 'prototype/tests/results.json', 'prototype/tests/safety-results.json'}
 HASH = re.compile(r'[0-9a-f]{64}\Z')
 
@@ -122,7 +121,7 @@ def manifest(root, paths):
         require(isinstance(roots, list) and 0 < len(roots) <= 128 and len(roots) == len(set(roots)), 'Invalid source roots')
         for source in roots:
             safe(root, source, file=False)
-            require(source != MANIFEST and source != STATUS and not is_document(source) and not any(x in BUILD_DIRS for x in PurePosixPath(source).parts), 'Recursive/document/build source root: ' + source)
+            require(source != MANIFEST and source != STATUS and not is_document(source) and '.git' not in PurePosixPath(source).parts, 'Recursive/document/Git source root: ' + source)
     require(isinstance(docs, dict) and 0 < len(docs) <= 256, 'Missing/excessive document policies')
     for path, entry in docs.items():
         safe(root, path)
@@ -190,8 +189,7 @@ def source_digests(root, paths, groups):
     result = {}
     for group, roots in groups.items():
         selected = [p for p in paths if any(p == r or p.startswith(r + '/') for r in roots)
-                    and not is_document(p) and p not in EVIDENCE | {MANIFEST, STATUS}
-                    and not any(x in BUILD_DIRS for x in PurePosixPath(p).parts)]
+                    and not is_document(p) and p not in EVIDENCE | {MANIFEST, STATUS}]
         require(selected, 'Source group has no eligible inputs: ' + group)
         require(sum(safe(root, p).stat().st_size for p in selected) <= 128 * 1024 * 1024, 'Source group byte budget exceeded: ' + group)
         result[group] = digest(canonical([[p, digest(read(root, p))] for p in selected]))
@@ -224,10 +222,16 @@ def anchors(text):
     return found
 
 
-def validate_links(root, docs):
+def validate_links(root, docs, outputs=None):
+    # Validate the prospective document set, including unchanged manual wrappers.
+    # Obsolete generated links may disappear in this refresh; links to anchors
+    # removed by a refresh must not be validated against old on-disk content.
+    outputs = outputs or {}
+    def content(path):
+        return outputs[path] if path in outputs else read(root, path, 2 * 1024 * 1024)
     errors = []
     for path in docs:
-        text = clean_markup(read(root, path, 2 * 1024 * 1024).decode('utf-8'))
+        text = clean_markup(content(path).decode('utf-8'))
         html = References()
         html.feed(text)
         # Inline Markdown, reference-style definitions, autolinks and raw HTML.
@@ -256,7 +260,7 @@ def validate_links(root, docs):
                     cursor = cursor.parent
                 require(target.exists(), 'Missing local link')
                 if url.fragment and target.is_file() and target.suffix.lower() == '.md':
-                    require(unquote(url.fragment) in anchors(read(root, rel).decode('utf-8')), 'Missing local anchor')
+                    require(unquote(url.fragment) in anchors(content(rel).decode('utf-8')), 'Missing local anchor')
             except (Invalid, ValueError, OSError) as exc:
                 errors.append(path + ': ' + link + ' (' + str(exc) + ')')
     return errors
@@ -343,18 +347,19 @@ def run(root, mode):
         require(root.exists() and not root.is_symlink() and root.absolute() == root.resolve(), 'Root/ancestors must not be symlinks')
         paths = listed(root)
         data = manifest(root, paths)
-        discovered = {p for p in paths if is_document(p) and not any(x in BUILD_DIRS for x in PurePosixPath(p).parts)}
+        # Git omits ignored untracked outputs, never tracked/nonignored authored
+        # inputs. A directory's basename is not proof that its contents are junk.
+        discovered = {p for p in paths if is_document(p)}
         report['unregistered'] = sorted(discovered - data['documents'].keys())
         require(not report['unregistered'], 'Unregistered documentation requires a maintenance policy')
         counts, report['status_digest'] = facts(root)
-        eligible = [p for p in paths if not is_document(p) and p not in EVIDENCE | {MANIFEST, STATUS}
-                    and not any(x in BUILD_DIRS for x in PurePosixPath(p).parts)]
+        eligible = [p for p in paths if not is_document(p) and p not in EVIDENCE | {MANIFEST, STATUS}]
         roots = [r for group in data['source_groups'].values() for r in group]
         unassigned = [p for p in eligible if not any(p == r or p.startswith(r + '/') for r in roots)]
         require(not unassigned, 'Unmapped source inputs require responsibility classification: ' + ', '.join(unassigned))
         report['source_digests'] = source_digests(root, paths, data['source_groups'])
-        report['errors'].extend(validate_links(root, data['documents']))
         outputs = generated(root, data, counts)
+        report['errors'].extend(validate_links(root, data['documents'], outputs))
         # Validate every output inode before allowing any write. Generated links
         # are constructed only from the already validated registry paths.
         for path in OUTPUTS:

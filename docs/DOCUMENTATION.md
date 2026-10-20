@@ -36,6 +36,10 @@ returning 1 for pending semantic review; it NEVER changes review digests or sour
 status. Invalid manifests/facts, broken local links, unknown docs, malformed
 markers, symlinks and protected-content mismatches prevent ALL output writes.
 A repeated write on unchanged inputs is byte-identical, without date stamps.
+Link validation uses the prospective generated blocks plus unchanged manual and
+protected text, including target anchors. Renaming/removing a registered guide
+can therefore refresh obsolete generated inventory links without manual surgery;
+any genuinely broken manual reference still prevents every output write.
 
 `--root PATH` selects an exact existing Git worktree, primarily for isolated
 regression fixtures; paths and ancestors cannot be symlinks. It is not a way to
@@ -48,8 +52,11 @@ registry; [DOC_STATUS.md](DOC_STATUS.md) renders its document inventory/map.
 Every current tracked or nonignored untracked Markdown, reStructuredText,
 plain-text guide, LICENSE/COPYING/NOTICE file must be classified. The pinned
 `requirements-dev.txt` is a dependency specification, not a guide, and is hashed
-as tooling source. New unregistered documents fail before writes. Build/cache/QA
-output directories are excluded, not legitimate locations for authored guides.
+as tooling source. New unregistered documents fail before writes. Git ignores
+untracked generated outputs using the repository's ignore rules, not guessed
+directory basenames. Every tracked or nonignored guide is discovered, even under
+`qa`, `bin`, `obj` or other output-like names; force-tracked ignored guides also
+require classification. Do not put authored guides in ignored output locations.
 
 Each document has exactly one policy:
 
@@ -102,7 +109,9 @@ fails until assigned a responsibility. Relevant JSON/data, assets, native and
 browser source, dependencies, test and tooling changes are real inputs.
 
 Authored docs, the registry, source-status metadata (hashed separately), Git
-metadata and known build/cache directories are excluded. Historical browser QA
+metadata and Git-ignored untracked build/cache outputs are excluded. Tracked or
+nonignored source files remain inputs regardless of directory names; generated
+outputs should follow the repository's explicit ignore rules. Historical browser QA
 reports are excluded source inputs and pinned protected evidence, not fresh pass
 stamps. This avoids generated-doc/self-hash/Git/build recursion. A manual prose
 clarification need not churn source hashes; a real source change cannot be made
@@ -154,6 +163,7 @@ python -m unittest discover -s tests -v
 The updater tests use real temporary Git repositories and real source/fact edits:
 stale check, fact refresh, still-pending semantic review, explicit acknowledgement
 and a passing check. They cover no-write invalid inputs, protected/manual/history
-preservation, new-document discovery, local references and idempotence. Existing
+preservation, tracked guide rename/removal, output-like directory discovery,
+prospective local references/anchors and idempotence. Existing
 preview/branding/safety suites remain required for their own surfaces, not native
 runtime or full parity. See [Contributing](../CONTRIBUTING.md).

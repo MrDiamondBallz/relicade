@@ -184,6 +184,124 @@ class DocsSyncTests(unittest.TestCase):
         result, _ = self.run_tool('--check')
         self.assertEqual(result.returncode, 0, result.stdout)
 
+    def test_registered_guide_rename_and_removal_refresh_generated_links(self):
+        self.green()
+        old, new = 'docs/old-guide.md', 'docs/new-guide.md'
+        (self.root / old).write_text('# Guide\n[Overview](../README.md)\n')
+        self.manifest['documents'][old] = {'policy': 'review', 'sources': ['app'], 'reviewed': {}}
+        self.save()
+        self.green()
+        self.assertIn('old-guide.md', (self.root / 'docs/DOC_STATUS.md').read_text())
+        subprocess.run(['git', '-C', str(self.root), 'add', '.'], check=True)
+        subprocess.run(['git', '-C', str(self.root), 'mv', old, new], check=True)
+        self.manifest['documents'][new] = self.manifest['documents'].pop(old)
+        self.save()
+        for action in ['rename', 'remove']:
+            with self.subTest(action=action):
+                if action == 'remove':
+                    subprocess.run(['git', '-C', str(self.root), 'rm', '-q', '-f', new], check=True)
+                    del self.manifest['documents'][new]
+                    self.save()
+                before = self.snapshot()
+                for mode in ['--check', '--audit']:
+                    result, report = self.run_tool(mode)
+                    self.assertEqual(result.returncode, 1, result.stdout)
+                    self.assertIn('docs/DOC_STATUS.md', report['generated_stale'])
+                    self.assertEqual(before, self.snapshot(), mode + ' mutated files')
+                result, report = self.run_tool('--write')
+                self.assertEqual(result.returncode, 0, result.stdout)
+                self.assertEqual(report['written'], ['docs/DOC_STATUS.md'])
+                text = (self.root / 'docs/DOC_STATUS.md').read_text()
+                self.assertNotIn('old-guide.md', text)
+                self.assertEqual('new-guide.md' in text, action == 'rename')
+                after = self.snapshot()
+                for mode in ['--write', '--check', '--audit']:
+                    result, _ = self.run_tool(mode)
+                    self.assertEqual(result.returncode, 0, result.stdout)
+                    self.assertEqual(after, self.snapshot())
+
+    def test_rename_does_not_hide_broken_manual_links_or_write_any_output(self):
+        self.green()
+        old, new = 'docs/old-guide.md', 'docs/new-guide.md'
+        (self.root / old).write_text('# Guide\n')
+        self.manifest['documents'][old] = {'policy': 'review', 'sources': ['app'], 'reviewed': {}}
+        self.save()
+        self.green()
+        readme = self.root / 'README.md'
+        readme.write_text(readme.read_text() + '\n[Manual guide](docs/old-guide.md)\n')
+        (self.root / old).rename(self.root / new)
+        self.manifest['documents'][new] = self.manifest['documents'].pop(old)
+        self.save()
+        before = self.snapshot()
+        result, report = self.run_tool('--write')
+        self.assertEqual(result.returncode, 1)
+        self.assertTrue(any('README.md: docs/old-guide.md' in error for error in report['errors']))
+        self.assertEqual(before, self.snapshot())
+
+    def test_manual_links_validate_prospective_generated_anchors_before_writes(self):
+        self.green()
+        status = self.root / 'docs/DOC_STATUS.md'
+        status.write_text(status.read_text().replace(BEGIN, BEGIN + '\n## Obsolete generated heading\n'))
+        readme = self.root / 'README.md'
+        readme.write_text(readme.read_text() + '\n[Old anchor](docs/DOC_STATUS.md#obsolete-generated-heading)\n')
+        before = self.snapshot()
+        for mode in ['--check', '--audit', '--write']:
+            result, report = self.run_tool(mode)
+            self.assertEqual(result.returncode, 1, result.stdout)
+            self.assertTrue(any('Missing local anchor' in error for error in report['errors']))
+            self.assertEqual(before, self.snapshot())
+
+    def test_output_named_directories_do_not_hide_authored_documentation(self):
+        for tracked in [False, True]:
+            for directory in ['qa', 'bin', 'obj', 'artifacts', 'node_modules', '.venv', 'venv', '__pycache__']:
+                with self.subTest(tracked=tracked, directory=directory):
+                    name = 'docs/' + directory + '/new-guide.md'
+                    path = self.root / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_text('# QA guide\n[Broken](missing.md)\n')
+                    if tracked:
+                        subprocess.run(['git', '-C', str(self.root), 'add', '-f', name], check=True)
+                    before = self.snapshot()
+                    for mode in ['--audit', '--check', '--write']:
+                        result, report = self.run_tool(mode)
+                        self.assertEqual(result.returncode, 1, result.stdout)
+                        self.assertIn(name, report['unregistered'])
+                        self.assertEqual(before, self.snapshot())
+                    self.manifest['documents'][name] = {'policy': 'review', 'sources': ['app'], 'reviewed': {}}
+                    self.save()
+                    before = self.snapshot()
+                    result, report = self.run_tool('--write')
+                    self.assertEqual(result.returncode, 1)
+                    self.assertTrue(any(name + ': missing.md' in error for error in report['errors']))
+                    self.assertEqual(before, self.snapshot())
+                    if tracked:
+                        subprocess.run(['git', '-C', str(self.root), 'rm', '-q', '-f', name], check=True)
+                    else:
+                        path.unlink()
+                    del self.manifest['documents'][name]
+                    self.save()
+
+    def test_output_named_directories_do_not_hide_nonignored_source_changes(self):
+        self.green()
+        for directory in ['qa', 'bin', 'obj', 'artifacts', 'node_modules', '.venv', 'venv', '__pycache__']:
+            with self.subTest(directory=directory):
+                path = self.root / 'src' / directory / 'implementation.py'
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text('value = 1\n')
+                before = self.snapshot()
+                result, report = self.run_tool('--check')
+                self.assertEqual(result.returncode, 1)
+                self.assertIn('README.md', report['review_required'])
+                self.assertEqual(before, self.snapshot())
+                self.acknowledge()
+                result, _ = self.run_tool('--check')
+                self.assertEqual(result.returncode, 0, result.stdout)
+                path.write_text('value = 2\n')
+                result, report = self.run_tool('--check')
+                self.assertEqual(result.returncode, 1)
+                self.assertIn('README.md', report['review_required'])
+                self.acknowledge()
+
     def test_symlink_and_escape_fail_before_any_write(self):
         self.green()
         target = self.root / 'src/link.py'
@@ -350,6 +468,10 @@ class DocsSyncTests(unittest.TestCase):
         self.assertFalse(list(self.root.rglob('.docs-sync-*')))
 
     def test_build_git_and_doc_edits_not_recursive_source_drift(self):
+        # Real generated outputs are ignored by Git, not guessed by basename.
+        (self.root / '.gitignore').write_text('src/bin/\n')
+        self.manifest['source_groups']['facts'].append('.gitignore')
+        self.save()
         self.green()
         before_result, before = self.run_tool('--audit')
         self.assertEqual(before_result.returncode, 0)
@@ -360,6 +482,11 @@ class DocsSyncTests(unittest.TestCase):
         result, report = self.run_tool('--check')
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(before['source_digests'], report['source_digests'])
+        # Force-tracking a previously ignored output makes it a real input.
+        subprocess.run(['git', '-C', str(self.root), 'add', '-f', 'src/bin/output.py'], check=True)
+        result, report = self.run_tool('--check')
+        self.assertEqual(result.returncode, 1)
+        self.assertIn('README.md', report['review_required'])
 
 
 if __name__ == '__main__':
