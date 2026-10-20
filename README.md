@@ -101,7 +101,3 @@ The [roadmap](docs/ROADMAP.md) prioritizes real native library and readiness flo
 Community projects, game names and external metadata belong to their respective creators and rights holders. Source links and exact provenance remain available; a catalog listing is not a download license or safety endorsement. This repository contains no ROMs, BIOS, commercial game data, user credentials or copied installed executables.
 
 See [NOTICE.md](NOTICE.md) for third-party credits and font licenses. Inherited native source retains its applicable MIT notices. No open-source license has been selected for separately owned original Relicade material; source visibility alone is not a reuse grant.
-
----
-
-<div align="center">**RELICADE** · Old legends. New life.</div>
