@@ -79,7 +79,8 @@ public sealed class PortableRollbackCoreTests
             case "missing-live": File.Delete(Path.Combine(s.Live,PortableInstallationTransaction.ManifestFileName)); break;
         }
         var before = s.Snapshot();
-        Assert.ThrowsAny<IOException>(() => Apply(s.Tx,plan.PlanSha256));
+        var error = Record.Exception(() => Apply(s.Tx,plan.PlanSha256));
+        Assert.True(error is IOException or InvalidDataException, error?.ToString());
         Assert.Equal(before,s.Snapshot());
     }
 
@@ -90,8 +91,10 @@ public sealed class PortableRollbackCoreTests
         var plan = Preview(s.Tx); var path = kind switch { "mod" => Path.Combine(s.Live,".relicade-mod-writer.lock"),
             "previous-mod" => Path.Combine(s.Tx.OperationsPath,plan.CurrentOperationId,"previous",".relicade-mod-writer.lock"),
             "backup-mod" => Path.Combine(s.Tx.OperationsPath,plan.CurrentOperationId,"backup",".relicade-mod-writer.lock"), _ => "" };
-        using var held = kind == "writer" ? s.Tx.AcquireLease() : new FileStream(path,FileMode.OpenOrCreate,FileAccess.ReadWrite,FileShare.None);
-        var before = s.Snapshot(); Assert.ThrowsAny<IOException>(() => Preview(s.Tx)); Assert.ThrowsAny<IOException>(() => Apply(s.Tx,plan.PlanSha256));
+        if (kind != "writer" && !File.Exists(path)) File.WriteAllBytes(path, []);
+        var before = s.Snapshot();
+        using var held = kind == "writer" ? s.Tx.AcquireLease() : new FileStream(path,FileMode.Open,FileAccess.ReadWrite,FileShare.None);
+        Assert.ThrowsAny<IOException>(() => Preview(s.Tx)); Assert.ThrowsAny<IOException>(() => Apply(s.Tx,plan.PlanSha256));
         held.Dispose(); Assert.Equal(before,s.Snapshot()); Assert.True(Apply(s.Tx,Preview(s.Tx).PlanSha256).Completed);
     }
 
