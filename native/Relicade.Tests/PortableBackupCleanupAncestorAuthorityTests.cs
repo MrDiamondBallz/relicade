@@ -132,7 +132,10 @@ public sealed class PortableBackupCleanupAncestorAuthorityTests(ITestOutputHelpe
     {
         var home = Path.Combine(coord, "home"); Directory.CreateDirectory(home);
         var psi = new ProcessStartInfo(Environment.ProcessPath!) { UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
-        foreach (var arg in new[] { typeof(PortableBackupCleanupAncestorAuthorityTests).Assembly.Location, "-noLogo", "-noColor", "-parallel", "none", "-method", "Relicade.Tests.PortableBackupCleanupAncestorAuthorityTests.Authority_coordination_worker_has_substantive_ordinary_entry", "-xml", Path.Combine(coord, "worker.xml") }) psi.ArgumentList.Add(arg);
+        // dotnet needs the DLL; direct apphost/VSTest workers must not receive it.
+        if (Path.GetFileNameWithoutExtension(psi.FileName).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
+            psi.ArgumentList.Add(typeof(PortableBackupCleanupAncestorAuthorityTests).Assembly.Location);
+        foreach (var arg in new[] { "-noLogo", "-noColor", "-parallel", "none", "-method", "Relicade.Tests.PortableBackupCleanupAncestorAuthorityTests.Authority_coordination_worker_has_substantive_ordinary_entry", "-xml", Path.Combine(coord, "worker.xml") }) psi.ArgumentList.Add(arg);
         psi.Environment["RELICADE_BC_ANCESTOR_COORD"] = coord; psi.Environment["RELICADE_BC_ANCESTOR_LOCK"] = lockPath;
         psi.Environment["HOME"] = home; psi.Environment["DOTNET_CLI_HOME"] = home;
         return Process.Start(psi)!;

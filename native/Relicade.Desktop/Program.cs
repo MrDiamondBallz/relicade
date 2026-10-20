@@ -24,7 +24,7 @@ internal static class Program
         // or any normal desktop initialization. Non-cleanup dispatch is unchanged.
         if (args.Any(a => a.StartsWith("--preview-portable-backups", StringComparison.OrdinalIgnoreCase) ||
             a.StartsWith("--cleanup-portable-backups", StringComparison.OrdinalIgnoreCase)))
-            return RunCli(args);
+            return PortableBackupCleanupConsole.Run(() => RunCli(args));
 
         AppInstallLaunch.Current = new DesktopAppInstallLaunchService();
 

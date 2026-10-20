@@ -11,7 +11,9 @@ public sealed class PortableBackupCleanupProcessTests(ITestOutputHelper output)
         var coord = Path.Combine(root, "coord"); Directory.CreateDirectory(coord);
         var home = Path.Combine(coord, "home-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(home);
         var psi = new ProcessStartInfo(Environment.ProcessPath!) { RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false };
-        psi.ArgumentList.Add(typeof(PortableBackupCleanupProcessTests).Assembly.Location);
+        // dotnet needs the DLL; the test apphost (including VSTest) already owns it.
+        if (Path.GetFileNameWithoutExtension(psi.FileName).Equals("dotnet", StringComparison.OrdinalIgnoreCase))
+            psi.ArgumentList.Add(typeof(PortableBackupCleanupProcessTests).Assembly.Location);
         foreach (var arg in new[] { "-noLogo", "-noColor", "-parallel", "none", "-method", WorkerMethod, "-xml", Path.Combine(coord, "worker-" + Guid.NewGuid().ToString("N") + ".xml") }) psi.ArgumentList.Add(arg);
         psi.Environment["RELICADE_BC_WORKER_ROOT"] = root; psi.Environment["RELICADE_BC_WORKER_MODE"] = mode; psi.Environment["RELICADE_BC_WORKER_PLAN"] = plan;
         psi.Environment["HOME"] = home; psi.Environment["DOTNET_CLI_HOME"] = home;
