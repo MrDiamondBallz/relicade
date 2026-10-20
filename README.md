@@ -31,7 +31,7 @@ The separate [native foundation](native/README.md) includes .NET 10/Avalonia sou
 
 ### Interface preview
 
-![Relicade interface preview featuring Ocarina of Time artwork](docs/assets/relicade-interface-ocarina.png)
+![Relicade interface preview featuring Ocarina of Time artwork](docs/assets/relicade-interface-ocarina.png?v=single-r)
 
 *Browser-rendered interface design preview with Ocarina of Time artwork inside the hero. This illustrates the visual design, not a native launcher release or installed-game state. Third-party artwork remains with its respective rights holders; see [NOTICE.md](NOTICE.md).*
 

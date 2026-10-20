@@ -1,6 +1,8 @@
 """Keep the repository masthead a single accessible Relicade wordmark."""
 from pathlib import Path
+import importlib.util
 import re
+from typing import cast
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -35,6 +37,25 @@ class ReadmeBrandingTests(unittest.TestCase):
             self.assertEqual(paths[0].get('id'), 'letter-r')
             self.assertEqual(paths[0].get('fill'), '#FF663D')
             self.assertFalse(any('http' in value for path in paths for value in path.attrib.values()))
+
+    def test_prototype_uses_one_complete_wordmark(self):
+        html = (ROOT / 'prototype/index.html').read_text()
+        brand = re.search(r'<a class="brand"[^>]*>(.*?)</a>', html, re.S)
+        self.assertIsNotNone(brand)
+        assert brand is not None
+        images = re.findall(r'<img\b[^>]*src="([^"]+)"', brand.group(1))
+        self.assertEqual(images, ['../brand/readme-lockup-dark.svg'])
+
+    @unittest.skipUnless(importlib.util.find_spec('PIL'),
+                         'Optional image QA dependency not installed')
+    def test_curated_interface_preview_uses_the_same_single_r(self):
+        from PIL import Image
+        image = Image.open(ROOT / 'docs/assets/relicade-interface-ocarina.png').convert('RGB')
+        # The orange initial replaces R; exactly seven light-coloured letters follow.
+        columns = [any(min(cast(tuple[int, int, int], image.getpixel((x, y)))) > 180 for y in range(34, 74))
+                   for x in range(24, 198)]
+        runs = sum(active and (i == 0 or not columns[i - 1]) for i, active in enumerate(columns))
+        self.assertEqual(runs, 7, 'Preview still contains an extra light-coloured R')
 
     def test_interface_preview_and_tagline_remain(self):
         readme = (ROOT / 'README.md').read_text()

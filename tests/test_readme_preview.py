@@ -19,7 +19,7 @@ class ReadmePreviewTests(unittest.TestCase):
         text = (ROOT / 'README.md').read_text(encoding='utf-8')
         section = text.split('### Interface preview', 1)[1].split('## Explore locally', 1)[0]
         images = re.findall(r'!\[[^\]]*\]\(([^)]+)\)', section)
-        self.assertEqual(images, ['docs/assets/relicade-interface-ocarina.png'])
+        self.assertEqual(images, ['docs/assets/relicade-interface-ocarina.png?v=single-r'])
         self.assertNotIn('### Ocarina of Time\n\n![', text)
         self.assertNotRegex(text, r'!\[[^\]]*\]\(https://cdn2\.steamgriddb\.com/')
 
