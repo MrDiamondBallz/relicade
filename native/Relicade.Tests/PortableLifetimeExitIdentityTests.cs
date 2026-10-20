@@ -117,6 +117,81 @@ public sealed class PortableLifetimeExitIdentityTests
             await WaitForWriterRelease(f); Released(f);
         }
     }
+    [Fact]
+    public async Task Real_preopened_proc_read_proven_exit_releases_completed_lifetime()
+    {
+        using var f = new ManagedRemovalFixture(); await f.Install();
+        using var process = Child(f.Root);
+        using var lifetime = PortableInstallationLifetime.Begin(f.Live);
+        await Barrier(process, f.Root);
+        var before = File.ReadAllText(Receipt(f));
+        Held(f); Assert.Contains("Launching", before); bool opened = false;
+        var failure = Record.Exception(() => lifetime.Attach(process, null, () =>
+        {
+            opened = true; Assert.False(process.HasExited); Held(f);
+            Stop(process);
+            Console.WriteLine("REAL proc/stat stream OPEN before ORIGINAL worker exit/reap; next operation is actual procfs READ, no injected exception.");
+        }));
+        Evidence("real-preopened-proc-read-after-exit", process, File.Exists(Receipt(f)) ? File.ReadAllText(Receipt(f)) : null, failure);
+        if (failure != null) lifetime.PreserveUncertain();
+        Assert.True(opened); Assert.True(process.HasExited); Assert.Null(failure);
+        Assert.False(File.Exists(Receipt(f))); Released(f);
+        Assert.Equal("current save old", File.ReadAllText(Path.Combine(f.Live, "saves", "slot")));
+        Assert.Equal("synthetic owned original", File.ReadAllText(Path.Combine(f.Live, "owned-data", "original")));
+    }
+    [Fact]
+    public async Task Real_preopened_proc_read_with_unknown_original_exit_retains_uncertainty()
+    {
+        using var f = new ManagedRemovalFixture(); await f.Install();
+        using var process = Child(f.Root);
+        using var lifetime = PortableInstallationLifetime.Begin(f.Live);
+        await Barrier(process, f.Root); var before = File.ReadAllText(Receipt(f));
+        var failure = Record.Exception(() => lifetime.Attach(process, null, () => { Stop(process); process.Dispose(); }));
+        Assert.IsType<IOException>(failure); Assert.Equal(3, failure.HResult);
+        Assert.Throws<InvalidOperationException>(() => process.HasExited);
+        Held(f); lifetime.PreserveUncertain(); Released(f);
+        Assert.Equal(before, File.ReadAllText(Receipt(f)));
+        Assert.ThrowsAny<IOException>(() => PortableInstallationLifetime.EnsureNotRunning(f.Tx.OperationsPath));
+        Console.WriteLine("REAL preopened READ ESRCH with UNKNOWN original exit: " + failure);
+    }
+    sealed class InjectedIo(int result) : IOException("INJECTED CALLBACK FAULT CONTROL, not OS causal proof")
+    { public int Number { get; } = result; public void SetNumber() => HResult = Number; }
+    [Theory]
+    [InlineData(false, 3)][InlineData(true, 3)]
+    [InlineData(true, 2)][InlineData(true, 13)][InlineData(true, unchecked((int)0x80070003))]
+    public async Task After_open_callback_IO_is_never_OS_exit_authority(bool exit, int number)
+    {
+        using var f = new ManagedRemovalFixture(); await f.Install();
+        using var process = Child(f.Root);
+        using var lifetime = PortableInstallationLifetime.Begin(f.Live);
+        await Barrier(process, f.Root); var before = File.ReadAllText(Receipt(f));
+        var expected = new InjectedIo(number); expected.SetNumber();
+        try
+        {
+            var failure = Record.Exception(() => lifetime.Attach(process, null, () => { if (exit) Stop(process); throw expected; }));
+            Assert.Same(expected, failure); Assert.Equal(exit, process.HasExited);
+            Held(f); lifetime.PreserveUncertain(); Released(f);
+            Assert.Equal(before, File.ReadAllText(Receipt(f)));
+            Evidence("injected-after-open-" + number, process, before, failure);
+        }
+        finally { Stop(process); }
+    }
+    [Fact]
+    public async Task Real_preopened_exit_cleanup_error_propagates()
+    {
+        using var f = new ManagedRemovalFixture(); await f.Install();
+        using var process = Child(f.Root);
+        using var lifetime = PortableInstallationLifetime.Begin(f.Live);
+        await Barrier(process, f.Root); var receipt = Receipt(f);
+        var failure = Record.Exception(() => lifetime.Attach(process, null, () =>
+        {
+            Stop(process); File.Delete(receipt); Directory.CreateDirectory(receipt);
+        }));
+        Assert.NotNull(failure); Assert.True(failure is IOException or UnauthorizedAccessException);
+        Assert.True(Directory.Exists(receipt)); Released(f); lifetime.PreserveUncertain();
+        Evidence("real-preopened-exit-cleanup-refused", process, "directory retained", failure);
+        Directory.Delete(receipt);
+    }
     [Theory]
     [InlineData("missing-file")][InlineData("missing-directory")]
     [InlineData("permission")][InlineData("unexpected")]

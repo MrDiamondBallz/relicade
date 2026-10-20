@@ -59,11 +59,25 @@ public sealed class PortableInstallationLifetime : IDisposable
     }
     static string Identity(Process process)
     {
+        bool identityIo = true;
+        return Identity(process, null, ref identityIo);
+    }
+    static string Identity(Process process, Action? afterIdentityOpen, ref bool identityIo)
+    {
         if (!OperatingSystem.IsLinux()) return process.StartTime.ToUniversalTime().Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture);
         // Linux Process.StartTime is derived from wall time/uptime and can differ
         // slightly across processes. Kernel start ticks + boot ID are stable, unlike
         // an approximate DateTime comparison that could mistake a live PID for reuse.
-        var stat = File.ReadAllText($"/proc/{process.Id}/stat");
+        using var reader = File.OpenText($"/proc/{process.Id}/stat");
+        if (afterIdentityOpen != null)
+        {
+            // The scheduling callback is not an OS identity operation. Its exceptions
+            // must never authorize completed-process cleanup, even after real exit.
+            identityIo = false;
+            afterIdentityOpen();
+            identityIo = true;
+        }
+        var stat = reader.ReadToEnd();
         var fields = stat[(stat.LastIndexOf(')') + 2)..].Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return File.ReadAllText("/proc/sys/kernel/random/boot_id").Trim() + ":" + fields[22 - 3];
     }
@@ -76,7 +90,7 @@ public sealed class PortableInstallationLifetime : IDisposable
     /// <summary>Transfers the lease to an independently opened native process handle.</summary>
     public void Attach(Process process) => Attach(process, null);
     // Instance-local scheduling boundary for real owned-process exit regression tests.
-    internal void Attach(Process process, Action? beforeIdentity)
+    internal void Attach(Process process, Action? beforeIdentity, Action? afterIdentityOpen = null)
     {
         if (process.HasExited) { Dispose(); return; }
         Process tracked;
@@ -86,12 +100,17 @@ public sealed class PortableInstallationLifetime : IDisposable
         {
             beforeIdentity?.Invoke();
             string identity;
-            try { identity = Identity(tracked); }
-            catch (FileNotFoundException) when (process.HasExited)
+            bool identityIo = true;
+            try { identity = Identity(tracked, afterIdentityOpen, ref identityIo); }
+            catch (FileNotFoundException) when (identityIo && process.HasExited)
             {
                 tracked.Dispose(); Dispose(); return;
             }
-            catch (DirectoryNotFoundException) when (process.HasExited)
+            catch (DirectoryNotFoundException) when (identityIo && process.HasExited)
+            {
+                tracked.Dispose(); Dispose(); return;
+            }
+            catch (IOException ex) when (identityIo && OperatingSystem.IsLinux() && ex.HResult == 3 && process.HasExited)
             {
                 tracked.Dispose(); Dispose(); return;
             }

@@ -78,10 +78,12 @@ cleanup operations. No Core deletion, receipt or lease algorithm is changed.
 ## Portable launch completion identity
 
 A short-lived source-owned process may exit after its live check and tracking
-handle is opened but before its identity is read. Only a missing identity plus
+handle is opened but before its identity is read. Only a missing identity, or
+Linux's exact ESRCH IOException (HResult 3) from identity acquisition, together with
 positive exit evidence from the original owned Process permits the existing
 completed-lifetime cleanup. A missing PID alone, an unknown/live original process,
-permission errors and receipt write/flush/sync failures do not authorize success.
+permission errors, other IO errors and receipt write/flush/sync failures do not
+authorize success. Internal scheduling callbacks cannot authorize this exception.
 Cleanup failures propagate. This narrow Attach boundary changes no receipt schema,
 child-tree policy, journal/rollback algorithm or native-platform acceptance.
 
