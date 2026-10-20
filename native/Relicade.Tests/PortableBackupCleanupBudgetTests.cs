@@ -16,10 +16,18 @@ public sealed class PortableBackupCleanupBudgetTests
             ? new GameInstallationOptions { MaximumFileCount = 18 }
             : new GameInstallationOptions { MaximumExpandedBytes = 1024 * 1024 });
         var before = PortableBackupCleanupFixture.Snapshot(root);
-        if (applyDirectly) Assert.ThrowsAny<IOException>(() => bounded.CleanupRedundantBackups(plan.PlanSha256));
-        else Assert.ThrowsAny<IOException>(() => bounded.PreviewRedundantBackups());
+        // InvalidDataException is not derived from IOException. The public
+        // contract is refusal before ANY receipt/write, then a precise schema
+        // validation error, not an interrupted cleanup after publication.
+        var error = Record.Exception(() =>
+        {
+            if (applyDirectly) bounded.CleanupRedundantBackups(plan.PlanSha256);
+            else bounded.PreviewRedundantBackups();
+        });
+        Assert.NotNull(error);
         Assert.Empty(Directory.GetFiles(ordinary.OperationsPath, "backup-cleanup-*"));
         Assert.Equal(before, PortableBackupCleanupFixture.Snapshot(root));
+        Assert.IsType<InvalidDataException>(error);
         var retry = ordinary.PreviewRedundantBackups(); Assert.Equal(plan.PlanSha256, retry.PlanSha256);
         var result = ordinary.CleanupRedundantBackups(retry.PlanSha256);
         Assert.True(result.Completed); Assert.Equal(20, result.DeletedFiles); Assert.Equal(20L * bytes, result.ReclaimedBytes);
