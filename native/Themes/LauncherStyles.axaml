@@ -642,7 +642,13 @@
 
 	<Style Selector="Button.github-token-banner-link TextBlock">
 		<Setter Property="Foreground" Value="{Binding $parent[Button].Foreground}"/>
-		<Setter Property="TextDecorations" Value="Underline"/>
+		<Setter Property="TextDecorations">
+			<Setter.Value>
+				<TextDecorationCollection>
+					<TextDecoration Location="Underline"/>
+				</TextDecorationCollection>
+			</Setter.Value>
+		</Setter>
 	</Style>
 
 	<Style Selector="Button.github-token-banner-close">

@@ -469,7 +469,9 @@ public sealed class MarkdownRenderer
                     FontStyle = italic ? FontStyle.Italic : FontStyle.Normal,
                     Foreground = new SolidColorBrush(
                         isLink ? Color.Parse("#58a6ff") : bold || heading ? textColor : bodyColor),
-                    TextDecorations = isLink ? TextDecorations.Underline : null,
+                    TextDecorations = isLink
+                        ? new TextDecorationCollection { new TextDecoration { Location = TextDecorationLocation.Underline } }
+                        : null,
                 });
                 textPosition += decoded.Length;
             }

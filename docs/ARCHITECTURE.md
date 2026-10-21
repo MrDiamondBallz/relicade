@@ -96,6 +96,15 @@ reading windows/screens or claiming another application's dispatcher. This narro
 ownership boundary does not change artwork loading, cancellation or cache policy,
 and does not establish general application-lifetime or native-platform acceptance.
 
+## Text-decoration ownership
+
+Banner-link styles and Markdown link runs create their underline decorations on
+their owning UI context rather than sharing a thread-affine static instance
+across application lifetimes. The underline's visual properties, link targets
+and keyboard/controller editing behavior are unchanged. This narrow resource
+boundary does not change application isolation or certify general UI lifetime,
+native input hardware or platform acceptance.
+
 ## Library selection layout
 
 A queued library selection is bound to the latest request and the exact card at

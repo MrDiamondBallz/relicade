@@ -69,7 +69,18 @@ public class MarkdownRendererTests
         var paragraph = (SelectableTextBlock)_renderer.Render("[Read more](https://example.com)").Single();
         var run = paragraph.Inlines!.OfType<Run>().Single();
         run.Text.Should().Be("Read more");
-        run.TextDecorations.Should().Contain(TextDecorations.Underline.Single());
+        var decoration = run.TextDecorations.Should().ContainSingle().Which;
+        decoration.Location.Should().Be(TextDecorationLocation.Underline);
+        decoration.Stroke.Should().BeNull();
+        decoration.StrokeThickness.Should().Be(1);
+        decoration.StrokeThicknessUnit.Should().Be(TextDecorationUnit.FontRecommended);
+        decoration.StrokeDashArray.Should().BeNull();
+        decoration.StrokeDashOffset.Should().Be(0);
+        decoration.StrokeLineCap.Should().Be(PenLineCap.Flat);
+        decoration.StrokeOffset.Should().Be(0);
+        decoration.StrokeOffsetUnit.Should().Be(TextDecorationUnit.FontRecommended);
+        decoration.Dispatcher.Should().BeSameAs(run.Dispatcher);
+        decoration.CheckAccess().Should().BeTrue();
     }
 
     [AvaloniaFact]
