@@ -62,15 +62,15 @@
 							Orientation="Horizontal"
 							HorizontalAlignment="Center"
 							VerticalAlignment="Center"
-							Spacing="6">
+							Spacing="0">
 					<Image x:Name="SidebarLogoImage"
 						   Source="avares://Relicade/Assets/app.png"
 						   VerticalAlignment="Center"/>
 					<StackPanel Orientation="Vertical"
 								VerticalAlignment="Center"
-								Margin="20,0,0,0"
+								Margin="0"
 								Spacing="2">
-						<Image Source="avares://Relicade/Assets/wordmark.png" Width="128" Height="26"
+						<Image x:Name="SidebarWordmarkTail" Source="avares://Relicade/Assets/wordmark-tail.png" Width="128" Height="26" HorizontalAlignment="Left"
                                    AutomationProperties.Name="Relicade"/>
 						<TextBlock Text="Native foundation"
 								   FontSize="11"

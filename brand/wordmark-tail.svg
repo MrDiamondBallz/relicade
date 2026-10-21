@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="112 0 606 104" fill="#F4F0E6" role="img" aria-labelledby="title desc">
+  <title id="title">ELICADE suffix</title>
+  <desc id="desc">The seven original ELICADE glyphs, for use after the established orange cut-R initial in the native Relicade name.</desc>
+  <g id="relicade-wordmark-tail">
+    <path id="letter-e-1" transform="translate(112)" d="M0 0H76L66 22H28V40H64L54 62H28V82H76L66 104H0Z"/>
+    <path id="letter-l" transform="translate(204)" d="M0 0H28V80H72L62 104H0Z"/>
+    <path id="letter-i" transform="translate(292)" d="M0 0H28V104H0Z"/>
+    <path id="letter-c" transform="translate(336)" d="M24 0H80L70 24H34L28 30V74L34 80H80L70 104H24L0 80V24Z"/>
+    <path id="letter-a" transform="translate(424)" fill-rule="evenodd" d="M0 104L32 0H64L96 104H66L61 84H35L30 104ZM42 60H54L48 38Z"/>
+    <path id="letter-d" transform="translate(536)" fill-rule="evenodd" d="M0 0H54L86 32V72L54 104H0ZM28 24V80H44L58 66V38L44 24Z"/>
+    <path id="letter-e-2" transform="translate(642)" d="M0 0H76L66 22H28V40H64L54 62H28V82H76L66 104H0Z"/>
+  </g>
+</svg>

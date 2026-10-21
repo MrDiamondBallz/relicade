@@ -36,6 +36,7 @@ def main():
         icon.save(ASSETS / name)
     icon.save(NATIVE / 'icon.ico', sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
     svg('wordmark.svg', 718).save(ASSETS / 'wordmark.png')
+    svg('wordmark-tail.svg', 606).save(ASSETS / 'wordmark-tail.png')
     glyph('DefaultGame.png', rectangles=[(18, 24, 78, 72)], paths=[[(30, 48), (48, 48)], [(39, 39), (39, 57)]], circles=[(60, 39, 66, 45), (60, 54, 66, 60)])
     glyph('Continue.png', paths=[[(33, 20), (72, 48), (33, 76), (33, 20)]])
     glyph('AppCatalog.png', rectangles=[(12, 12, 39, 39), (57, 12, 84, 39), (12, 57, 39, 84), (57, 57, 84, 84)])

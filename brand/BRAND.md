@@ -18,6 +18,7 @@ Relicade's vision is a coherent home for community-revived classics, retro games
 | --- | --- |
 | `symbol.svg` | Reusable standalone cut-R. `viewBox="0 0 128 128"`. Orange by default. |
 | `wordmark.svg` | Original uppercase RELICADE, eight named editable path letters. `viewBox="0 0 718 104"`. Ivory by default. No font dependency. |
+| `wordmark-tail.svg` | Native ELICADE suffix: seven unchanged paths from `wordmark.svg`, `viewBox="112 0 606 104"`. Only use after the orange cut-R initial; never as the standalone product name. |
 | `app-icon.svg` | Orange mark on graphite field, rounded-square master. `viewBox="0 0 256 256"`. |
 | `lockup-dark.svg` | Orange symbol / ivory path wordmark, transparent, for graphite surfaces. |
 | `lockup-light.svg` | Graphite symbol and path wordmark, transparent, for ivory surfaces. |
@@ -30,6 +31,17 @@ Relicade's vision is a coherent home for community-revived classics, retro games
 The standalone symbol is directly consumable by the parent prototype as `../brand/symbol.svg`. SVGs have embedded accessible titles and descriptions. When an adjacent visible label already names Relicade, use an empty `alt=""` on the image to avoid duplicate announcements.
 
 ### Geometry
+
+Active native identity rule: the established **orange #FF663D cut-R is the first
+letter**, followed by the complete ivory ELICADE suffix. Preserve the larger R
+emphasis, original path geometry and optical spacing; never place a second ivory
+R after it, retype the lettering or reduce the name to an icon-only header.
+Export `wordmark-tail.svg` as `native/Assets/wordmark-tail.png` for this binding;
+the accessible product name remains **Relicade**. Pure app/window/tray/package
+icon surfaces use the established orange R on its graphite field, without a
+suffix. This active-native rule supersedes the general monochrome/light-surface
+permissions below for those surfaces. Historical masters, standalone full-name
+assets, the brand board and existing browser presentation remain unchanged.
 
 The cut-R is one closed, fill-only polygon. Its counter is **open to the right**, not a decorative enclosed hole. A clipped shoulder turns into a forward diagonal leg. The exterior contains vertical mass, an angular shoulder and an advancing foot; it must remain readable in one color.
 
