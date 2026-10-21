@@ -1,10 +1,12 @@
 using System.Net;
+using System.Buffers.Binary;
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FluentAssertions;
@@ -40,9 +42,13 @@ public class NativeBrandingTests
             var initial = view.FindControl<Image>("SidebarLogoImage")!;
             var suffix = view.FindControl<Image>("SidebarWordmarkTail")!;
             panel.GetVisualDescendants().OfType<Image>().Should().Equal(initial, suffix);
-            initial.Source.Should().BeOfType<Bitmap>().Which.PixelSize.Should().Be(new PixelSize(256, 256));
-            suffix.Source.Should().BeOfType<Bitmap>().Which.PixelSize.Should().Be(new PixelSize(606, 104),
-                "the native suffix must not bind the eight-letter full RELICADE bitmap");
+            initial.Source.Should().BeOfType<Bitmap>();
+            suffix.Source.Should().BeOfType<Bitmap>();
+            // The headless drawing backend intentionally substitutes 1x1 dummy pixels.
+            // Inspect actual embedded PNG headers, not its fabricated decode dimensions;
+            // normal production rendering must be inspected separately.
+            PngSize("app.png").Should().Be(new PixelSize(256, 256));
+            PngSize("wordmark-tail.png").Should().Be(new PixelSize(606, 104));
             AutomationProperties.GetName(suffix).Should().Be("Relicade");
             var sidebar = view.FindControl<Border>("SidebarPanel")!;
             var point = suffix.TranslatePoint(default, sidebar)!.Value;
@@ -72,5 +78,15 @@ public class NativeBrandingTests
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
             => Task.FromResult(new HttpResponseMessage(HttpStatusCode.ServiceUnavailable));
+    }
+
+    private static PixelSize PngSize(string name)
+    {
+        using var stream = AssetLoader.Open(new Uri("avares://Relicade/Assets/" + name));
+        Span<byte> header = stackalloc byte[24];
+        stream.ReadExactly(header);
+        header[..8].ToArray().Should().Equal(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 });
+        return new PixelSize(BinaryPrimitives.ReadInt32BigEndian(header[16..20]),
+            BinaryPrimitives.ReadInt32BigEndian(header[20..24]));
     }
 }

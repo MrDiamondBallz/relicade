@@ -68,7 +68,7 @@
 						   VerticalAlignment="Center"/>
 					<StackPanel Orientation="Vertical"
 								VerticalAlignment="Center"
-								Margin="0"
+								Margin="0,16,0,0"
 								Spacing="2">
 						<Image x:Name="SidebarWordmarkTail" Source="avares://Relicade/Assets/wordmark-tail.png" Width="128" Height="26" HorizontalAlignment="Left"
                                    AutomationProperties.Name="Relicade"/>

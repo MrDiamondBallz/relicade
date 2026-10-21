@@ -25,7 +25,7 @@ class NativeBrandingTests(unittest.TestCase):
         self.assertEqual(panel.get('Spacing'), '0')
         suffix_stack = images[1] in list(panel)[1].iter()
         self.assertTrue(suffix_stack)
-        self.assertEqual(list(panel)[1].get('Margin'), '0')
+        self.assertEqual(list(panel)[1].get('Margin'), '0,16,0,0')
 
     def test_suffix_preserves_exact_original_glyph_geometry(self):
         master = ET.parse(ROOT / 'brand/wordmark.svg').getroot()
