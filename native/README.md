@@ -75,8 +75,11 @@ platforms. `LiveArtwork` is an explicitly selected network smoke: set
 `RELICADE_ARTWORK_SMOKE_URL` to the exact credited HTTPS source and optionally
 `RELICADE_ARTWORK_SMOKE_CACHE` to private runtime storage, then run
 `--filter Category=LiveArtwork`. Never commit that downloaded artwork. The
-headless drawing backend uses dummy pixels; real image decoding/rendering must
-also be checked with a real native renderer on an isolated display.
+parent test project's headless drawing backend uses dummy pixels. The separate
+[CPU rendering smoke project](Relicade.Tests/RealRender/README.md) exercises actual
+Skia pixels with synthetic state in its own process; never load both test assemblies
+in one process. That controlled headless check does not replace real native
+rendering, image decoding and hardware acceptance on an isolated display.
 
 ## Identity, data and network boundaries
 

@@ -27,6 +27,7 @@ This inventory is generated from the explicit maintenance registry. Semantic rev
 | [docs/ROADMAP.md](ROADMAP.md) | review | native, preview, presentation, tooling, contracts |
 | [native/LICENSE](../native/LICENSE) | protected |  |
 | [native/README.md](../native/README.md) | review | native, contracts, tooling |
+| [native/Relicade.Tests/RealRender/README.md](../native/Relicade.Tests/RealRender/README.md) | review | native |
 | [native/THIRD_PARTY_NOTICES.md](../native/THIRD_PARTY_NOTICES.md) | protected |  |
 | [native/TRADEMARKS.md](../native/TRADEMARKS.md) | protected |  |
 | [native/lib/Relicade.Core/LICENSE](../native/lib/Relicade.Core/LICENSE) | protected |  |
