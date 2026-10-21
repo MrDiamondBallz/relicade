@@ -61,6 +61,8 @@
 
 	<ItemGroup>
 		<ProjectReference Include="lib\Relicade.Core\Relicade.Core.csproj" />
+		<!-- Separate CPU-render fixture uses the same controlled startup flag as layout tests. -->
+		<InternalsVisibleTo Include="Relicade.RenderTests" />
 	</ItemGroup>
 
 	<ItemGroup>

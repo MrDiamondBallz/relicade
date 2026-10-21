@@ -4,7 +4,8 @@ using Relicade.Services;
 
 namespace Relicade.Tests;
 
-// Explicit sessions only: the assembly-wide HeadlessTestApp remains dummy-drawing.
+// This project runs in its own process; never mix with the dummy-drawing test assembly.
+// Avalonia's renderer/font resources are process-wide, not isolated by headless sessions.
 public static class RealRenderTestApp
 {
     public static AppBuilder BuildAvaloniaApp()

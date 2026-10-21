@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Headless.XUnit" Version="12.1.1" />
-    <PackageReference Include="Avalonia.Skia" Version="12.1.1" />
     <PackageReference Include="coverlet.collector" Version="10.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -29,6 +28,10 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <!-- A distinct executable project: never initialize dummy and Skia renderers in one process. -->
+    <Compile Remove="RealRender\**\*.cs" />
+    <EmbeddedResource Remove="RealRender\**\*" />
+    <None Remove="RealRender\**\*" />
   </ItemGroup>
 
   <ItemGroup>

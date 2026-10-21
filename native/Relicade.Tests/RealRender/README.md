@@ -1,0 +1,34 @@
+# Native CPU rendering smoke tests
+
+This is a separate executable test project. The parent `Relicade.Tests.csproj`
+uses dummy drawing for layout tests and explicitly excludes this directory.
+Avalonia renderer/font resources can outlive a headless application session;
+initializing both backends in a single test process can produce blank frames.
+Do not link these fixtures into the parent assembly or load both test assemblies
+in one process. Run each project separately:
+
+```sh
+dotnet test native/Relicade.Tests/Relicade.Tests.csproj
+dotnet test native/Relicade.Tests/RealRender/Relicade.RenderTests.csproj
+```
+
+`RendererProjectIsolationTests` in the parent and `RendererProcessBoundaryTests`
+in this project assert the assembly boundary. Both projects disable parallel test
+collections. The render fixture uses real CPU/Skia drawing, explicit headless
+sessions and a bounded layout/compositor barrier, not sleeps or pixel retries.
+Every captured frame must have expected dimensions, substantial opaque content
+and more than 32 colors. The walkthrough also asserts visible native controls,
+exercises library → injected offline catalog → retry → Appearance settings,
+and drains close/shutdown while checking no SDL service/library was created.
+
+Set `RELICADE_RENDER_OUTPUT` to an optional output directory for the three PNGs.
+The data is synthetic: empty library/settings and an injected HTTP 503 handler.
+No games, artwork payloads, provider credentials or real network are required.
+Use an isolated empty HOME and deny device/display/network access when running
+this controlled fixture. Production input defaults remain enabled; only the
+existing injected `MainViewDependencies` test composition disables input/music
+and automatic initialization. This exercises actual `MainView` plus
+`DesktopHostController` in a headless `Window`, not the eager parameterless
+`MainWindow` or production desktop entrypoint. It is local development rendering
+evidence, not physical-platform, game/controller, accessibility, rights, package
+or release acceptance.
