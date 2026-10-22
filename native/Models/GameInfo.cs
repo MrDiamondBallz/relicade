@@ -1964,7 +1964,8 @@ namespace Relicade.Models
         /// </summary>
         internal bool TryAcknowledgeAlreadyInstalledRelease(string? releaseTag)
         {
-            if (!ReleaseSelection.IsSameInstalledRelease(InstalledVersion, releaseTag))
+            if (!ReleaseSelection.IsSameInstalledRelease(InstalledVersion, releaseTag) ||
+                InstalledBuild?.IsRebuiltIn(_cachedRelease, InstalledVersion) == true)
                 return false;
 
             if (Status == GameStatus.UpdateAvailable)

@@ -577,6 +577,18 @@ preference edit made during a transfer is not replaced with the action's old sta
 with synthetic packages, including successful installation, already-current
 versions, missing digests and interruption after activation.
 
+A rolling release can publish new package bytes under the same tag. **Update Now**
+does not acknowledge that tag as already current when the retained installed
+package digest and the matching asset's usable published SHA-256 identify a new
+build. It continues through the normal download, integrity and activation checks.
+Missing or malformed installed receipts and published digests do not establish a
+rebuild; unknown receipt bytes are preserved. This does not change general version
+equivalence or establish publisher authenticity or game readiness.
+[Release verification tests](Relicade.Tests/ReleaseVerificationTests.cs) cover actual
+interactive and automatic update callers, successful activation and cancellation,
+while [digest tests](Relicade.Tests/PublishedAssetDigestTests.cs) cover malformed
+and case-normalized hashes using synthetic inputs.
+
 ## Private Linux packaging recipe
 
 A [Linux x64 development recipe](../docs/LINUX_APPIMAGE_DEVELOPMENT.md) now assembles

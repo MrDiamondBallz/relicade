@@ -239,6 +239,71 @@ public class ReleaseVerificationTests
     }
 
     [AvaloniaTheory]
+    [InlineData("changed", true)][InlineData("changed", false)]
+    [InlineData("unchanged", true)][InlineData("unchanged", false)]
+    [InlineData("missing", true)][InlineData("missing", false)]
+    [InlineData("malformed", true)][InlineData("malformed", false)]
+    [InlineData("cancelled", true)][InlineData("cancelled", false)]
+    [InlineData("missing-receipt", true)][InlineData("missing-receipt", false)]
+    [InlineData("malformed-receipt", true)][InlineData("malformed-receipt", false)]
+    public async Task Update_now_reaches_a_published_same_tag_rebuild(string outcome, bool interactive)
+    {
+        using var launcher = new Launcher();
+        await using var session = new LauncherSession();
+        Task? drain = null;
+        var repo = Repo();
+        static byte[] Package(byte marker)
+        {
+            using var stream = new MemoryStream();
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+            {
+                var entry = archive.CreateEntry("game.exe");
+                entry.LastWriteTime = new DateTimeOffset(1980, 1, 1, 0, 0, 0, TimeSpan.Zero);
+                using var file = entry.Open(); file.Write([0x4d, 0x5a, marker, 0]);
+            }
+            return stream.ToArray();
+        }
+        var first = Package(1); var second = Package(2);
+        var app = App("Alpha", repo, manager: launcher.Manager);
+        InstallOnDisk(app, launcher.Manager.GamesFolder, "nightly", first);
+        var receiptPath = Path.Combine(app.GetInstallPath(launcher.Manager.GamesFolder), InstalledBuild.FileNameOnDisk);
+        var invalidReceipt = $"{Asset}\n{new string('z', 64)}\n";
+        if (outcome == "missing-receipt") File.Delete(receiptPath);
+        if (outcome == "malformed-receipt") File.WriteAllText(receiptPath, invalidReceipt);
+        await launcher.Manager.CatalogService.SaveLocalAppsAsync([app]);
+        var served = outcome == "unchanged" ? first : second;
+        launcher.Network.Site["/release-status?limit=100"] = Page([Status("alpha", repo, "nightly", rolling: true)]);
+        var history = System.Text.Json.Nodes.JsonNode.Parse(Page([History("nightly", "verified", [], [(Asset, served)], rolling: true)]))!;
+        if (outcome is "missing" or "malformed")
+            history["items"]![0]!["assets"]![0]!["checksum"] = outcome == "missing" ? null : "sha256:not-a-digest";
+        launcher.Network.Site["/apps/alpha/release-history?limit=100"] = history.ToJsonString();
+        launcher.Network.Files[SiteLink("nightly", Asset)] = served;
+        if (outcome == "cancelled")
+            launcher.Network.DownloadStarted = () => { drain = session.DisposeAsync().AsTask(); throw new OperationCanceledException(session.Token); };
+        await GameStatusService.CheckStatusAsync(app, launcher.Manager.HttpClient, launcher.Manager.GamesFolder, forceUpdateCheck: true);
+        app.Status.Should().Be(outcome is "missing-receipt" or "malformed-receipt" ? GameStatus.NeedsExecutable :
+            outcome is "changed" or "cancelled" ? GameStatus.UpdateAvailable : GameStatus.Installed);
+        var controller = new Relicade.Views.LibraryLaunchController(launcher.Manager, new Relicade.ViewModels.SettingsViewModel(launcher.Store), session,
+            new LibraryPersistenceService(launcher.Manager), (_, anchor) => anchor, (_, _) => throw new Exception("Unexpected picker"),
+            (_, _) => throw new Exception("Unexpected prompt"), _ => { }, () => { }, _ => { }, () => 900);
+        var completed = await controller.HandleUpdateNowAsync(new Avalonia.Controls.Button(), app,
+            preferAutoPlatform: !interactive, allowAssetPicker: interactive, interactive: interactive);
+        if (drain != null) await drain;
+        var path = app.GetInstallPath(launcher.Manager.GamesFolder);
+        launcher.Network.Downloads.Should().Be(outcome is "changed" or "cancelled" ? 1 : 0);
+        File.ReadAllBytes(Path.Combine(path, "game.exe")).Should().Equal(new byte[] { 0x4d, 0x5a, outcome == "changed" ? (byte)2 : (byte)1, 0 });
+        File.ReadAllText(Path.Combine(path, "version.txt")).Trim().Should().Be("nightly");
+        if (outcome is "missing-receipt" or "malformed-receipt")
+        {
+            InstalledBuild.Read(path).Should().BeNull();
+            if (outcome == "missing-receipt") File.Exists(receiptPath).Should().BeFalse();
+            else File.ReadAllText(receiptPath).Should().Be(invalidReceipt, "unknown receipt bytes are retained, not repaired implicitly");
+        }
+        else InstalledBuild.Read(path).Should().Be(new InstalledBuild(Asset, Sha256(outcome == "changed" ? second : first).ToLowerInvariant()));
+        completed.Should().Be(outcome == "changed");
+    }
+
+    [AvaloniaTheory]
     [InlineData(true)]
     [InlineData(false)]
     public async Task Rolling_release_rebuilt_under_the_same_tag_is_offered_and_installed_as_an_update(bool rebuilt)
@@ -1011,6 +1076,7 @@ public class ReleaseVerificationTests
         public ConcurrentQueue<(string App, string Version, string File, string Problem)> Reports { get; } = new();
         public int Downloads;
         public bool CatalogUnavailable;
+        public Action? DownloadStarted;
 
         public List<string> SitePaths() => Requests.Select(u => u.AbsolutePath).Where(p => p.StartsWith("/api/v1/")).ToList();
 
@@ -1035,6 +1101,7 @@ public class ReleaseVerificationTests
             else
             {
                 Interlocked.Increment(ref Downloads);
+                DownloadStarted?.Invoke();
                 if (Files.TryGetValue(uri.AbsoluteUri, out var bytes))
                     return new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(bytes) };
             }

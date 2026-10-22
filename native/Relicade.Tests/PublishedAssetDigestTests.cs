@@ -36,6 +36,33 @@ public sealed class PublishedAssetDigestTests
     }
 
     [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("1234")]
+    [InlineData("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz")]
+    [InlineData("sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
+    [InlineData(" aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
+    [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ")]
+    public void Unknown_installed_digest_does_not_invent_a_rebuilt_release(string? digest)
+    {
+        new InstalledBuild("game.zip", digest!)
+            .IsRebuiltIn(new GitHubRelease { tag_name = "nightly", assets =
+                [new() { name = "game.zip", digest = "sha256:" + new string('b', 64) }] }, "nightly")
+            .Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Uppercase_installed_digest_compares_the_same_bytes(bool changed)
+    {
+        new InstalledBuild("game.zip", new string('A', 64))
+            .IsRebuiltIn(new GitHubRelease { tag_name = "nightly", assets =
+                [new() { name = "game.zip", digest = "sha256:" + new string(changed ? 'b' : 'a', 64) }] }, "nightly")
+            .Should().Be(changed);
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task Catalog_approval_warning_separates_integrity_and_respects_decline(bool accept)

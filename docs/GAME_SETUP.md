@@ -77,6 +77,13 @@ only after installation is confirmed. Refused, failed or cancelled attempts do
 not count as completed updates, and a separate preference change made during the
 transfer is kept. Already-current versions do not count as new installations.
 
+For a rolling release, a valid changed package checksum can identify an update even
+when the source tag stays the same. **Update Now** runs the normal download and
+integrity checks for that rebuild instead of skipping it as already current.
+Absent or malformed installed/published checksums do not invent a same-tag update;
+unknown installed receipt bytes remain untouched. These checks do not certify
+the publisher or game, and general version-equivalence behavior is unchanged.
+
 ## Choosing a launch file before installation
 
 For a portable package with several unresolved launch files, the desktop download

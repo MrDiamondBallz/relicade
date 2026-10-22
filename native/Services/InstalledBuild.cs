@@ -19,8 +19,8 @@ public sealed record InstalledBuild(string FileName, string Sha256)
             var path = Path.Combine(gamePath, FileNameOnDisk);
             if (!File.Exists(path)) return null;
             var lines = File.ReadAllLines(path);
-            return lines.Length >= 2 && lines[0].Trim() is { Length: > 0 } name && lines[1].Trim() is { Length: 64 } sha
-                ? new(name, sha.ToLowerInvariant()) : null;
+            return lines.Length >= 2 && lines[0].Trim() is { Length: > 0 } name && PublishedAssetDigest.Normalize(lines[1].Trim()) is { } sha
+                ? new(name, sha) : null;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
@@ -46,7 +46,8 @@ public sealed record InstalledBuild(string FileName, string Sha256)
     {
         if (release == null || !ReleaseVersionIdentity.AreVersionsEquivalent(release.tag_name, installedVersion)) return false;
         var file = release.assets?.FirstOrDefault(a => string.Equals(a.name, FileName, StringComparison.OrdinalIgnoreCase));
-        return PublishedAssetDigest.FromPublisher(file?.digest) is { } digest &&
-            !string.Equals(digest, Sha256, StringComparison.OrdinalIgnoreCase);
+        return PublishedAssetDigest.Normalize(Sha256) is { } installedDigest &&
+            PublishedAssetDigest.FromPublisher(file?.digest) is { } digest &&
+            !string.Equals(digest, installedDigest, StringComparison.Ordinal);
     }
 }
