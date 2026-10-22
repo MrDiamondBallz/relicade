@@ -34,4 +34,5 @@ public enum LibraryActionKind
     CleanPortableBackups,
     RollbackPortableVersion,
     FinishOwnedGameSetup,
+    PlayFreedoom,
 }

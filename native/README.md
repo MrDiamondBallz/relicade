@@ -417,3 +417,11 @@ An absent explicit catalog ID cannot borrow a sibling entry's release approval.
 Exact cached links still work; this is not a complete catalog migration or metadata
 authentication system. A link learned in this session is retained across empty
 refreshes and checked after failures, without silently migrating legacy saved IDs.
+
+The optional **Play Freedoom Phase 2…** library action is a second package-bound
+setup path, for UZDoom 5.0.3 Linux x64 and Freedoom 0.13.0 Phase 2 only. It links the
+official data release, previews a local `.wad` copy, requires confirmation and
+provides an explicit Play action with launch-time revalidation. It does not
+replace normal engine Launch, relocate saves or automatically fetch data. See
+[the exact package, data and rights boundaries](../docs/GAME_SETUP.md#optional-freedoom-phase-2).
+This is development source, not tested gameplay or accepted platform support.

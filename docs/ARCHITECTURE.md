@@ -298,3 +298,24 @@ the current library object, so an empty refresh cannot erase that evidence or
 substitute a sibling. The exception boundary checks identity learned during the
 failed request as well as identity known before it. This does not rewrite legacy
 library IDs, migrate them across restarts, or authenticate feeds.
+
+## Optional engine data selection
+
+The separate Freedoom action uses a compiled UZDoom package and Phase 2 data
+binding. It reuses the local preview, confirmed copy and retained receipt
+transaction, with an explicitly validated single-component `.wad` filename and
+pinned SHA256 in addition to the variant MD5. The original Perfect Dark definition
+keeps its existing filename and behavior. The optional action does not set the
+engine's mandatory-data gate or alter ordinary Launch.
+
+The dialog requires explicit Play after data setup. It checks the saved library,
+settings and retained data before dispatch, and the launch service revalidates
+the exact generation and data under the existing portable launch lifetime. The
+dialog's linked cancellation token reaches readiness hashing and the final process
+attempt boundary. Cancellation before that boundary disposes the unstarted launch
+receipt; failures after an OS attempt still preserve uncertain lifetime evidence.
+Closing a dialog drains pending work, and successful open-dialog completion
+forwards the existing Close After Launch preference. A fixed `-iwad` argument carries the literal absolute file path; working directory
+and engine configuration/save locations are unchanged. No game/reference binary
+execution, universal WAD compatibility or native-platform acceptance follows from
+synthetic tests or static package inspection.

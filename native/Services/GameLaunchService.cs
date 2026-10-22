@@ -10,9 +10,34 @@ public static class GameLaunchService
     public static Task<bool> LaunchAsync(GameInfo game, string gamesFolder) => LaunchAsync(game, gamesFolder, null);
 
     // Shortcut dispatch binds the generation it validated before entering this service.
-    internal static async Task<bool> LaunchAsync(GameInfo game, string gamesFolder, string? expectedOperationId,
-        ManagedShortcutChildLifetime? shortcutObserver = null)
+    internal static Task<bool> LaunchAsync(GameInfo game, string gamesFolder, string? expectedOperationId,
+        ManagedShortcutChildLifetime? shortcutObserver = null) => LaunchCoreAsync(game, gamesFolder, expectedOperationId, shortcutObserver, false, CancellationToken.None);
+
+    internal static Process? StartProcessAttempt(PortableInstallationLifetime lifetime, CancellationToken cancellation,
+        Func<Process?> start, Action<Process> recordAndTrack)
     {
+        // A cancelled pre-start has no child to preserve. Once the OS attempt begins,
+        // failures remain uncertain and must retain recovery authority.
+        cancellation.ThrowIfCancellationRequested();
+        try
+        {
+            var process = start();
+            if (process != null) recordAndTrack(process);
+            return process;
+        }
+        catch { lifetime.PreserveUncertain(); throw; }
+    }
+
+    internal static Task<bool> LaunchFreedoomAsync(GameInfo game, string gamesFolder, CancellationToken cancellation = default)
+    {
+        if (!OwnedGameSetupService.OffersFreedoom(game)) throw new IOException("Freedoom setup is unavailable for this project.");
+        return LaunchCoreAsync(game, gamesFolder, null, null, true, cancellation);
+    }
+
+    static async Task<bool> LaunchCoreAsync(GameInfo game, string gamesFolder, string? expectedOperationId,
+        ManagedShortcutChildLifetime? shortcutObserver, bool freedoom, CancellationToken launchCancellation)
+    {
+        launchCancellation.ThrowIfCancellationRequested();
         if (string.IsNullOrEmpty(game.FolderName))
         {
             await GameDialogService.ShowMessageBoxAsync("Cannot launch game: folder name is not configured.", "Configuration Error");
@@ -30,7 +55,7 @@ public static class GameLaunchService
             if (expectedOperationId != null && shortcutObserver == null)
                 throw new NotSupportedException("Managed shortcut child-tree observation must be established before launch.");
 
-            if (OwnedGameSetupService.Requirement(game) != null &&
+            if ((freedoom || OwnedGameSetupService.Requirement(game) != null) &&
                 (portableManifest == null || FlatpakService.HasReceipt(gamePath) || WindowsInstallerService.HasReceipt(gamePath)))
                 throw new IOException("Requirements are not confirmed for this installation. Finish game setup requires a supported managed portable package.");
 
@@ -121,12 +146,12 @@ public static class GameLaunchService
 
             using var portableLifetime = PortableInstallationLifetime.Begin(gamePath, expectedOperationId ?? portableManifest?.OperationId);
             string? ownedGameData = null;
-            if (OwnedGameSetupService.Requirement(game) is { } requirement)
+            if ((freedoom ? OwnedGameSetupService.FreedoomPhase2 : OwnedGameSetupService.Requirement(game)) is { } requirement)
             {
                 var exactManifest = portableLifetime.CommittedManifest
                     ?? throw new IOException("Game setup requires a supported managed package. Open Finish game setup from the library.");
                 ownedGameData = await Task.Run(() => new PortableInstallationTransaction(gamePath)
-                    .ValidateOwnedData(requirement, RelicadePaths.UserDataRoot, exactManifest));
+                    .ValidateOwnedData(requirement, RelicadePaths.UserDataRoot, exactManifest, launchCancellation));
             }
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                 !executablePath.EndsWith(".app") &&
@@ -172,7 +197,7 @@ public static class GameLaunchService
                     HostProcessEnvironment.Sanitize(startInfo);
             }
 
-            ConfigureOwnedDataArguments(startInfo, ownedGameData);
+            ConfigureOwnedDataArguments(startInfo, ownedGameData, freedoom);
 
             // No-ops unless Relicade itself is running inside a Flatpak sandbox.
             HostProcessEnvironment.RouteToHostIfSandboxed(startInfo);
@@ -182,20 +207,16 @@ public static class GameLaunchService
                 : LaunchDebugReport.SnapshotStartInfoEnvironment(startInfo);
             var selectedExecutableFile = TryReadSelectedExecutableFile(gamePath);
 
-            System.Diagnostics.Process? gameProcess;
-            try
-            {
-                gameProcess = shortcutObserver == null ? HostGameSession.Start(startInfo) : shortcutObserver.Start(startInfo);
-                if (gameProcess != null)
+            var gameProcess = StartProcessAttempt(portableLifetime, launchCancellation,
+                () => shortcutObserver == null ? HostGameSession.Start(startInfo) : shortcutObserver.Start(startInfo),
+                process =>
                 {
                     void RecordStarted() => game.UpdateLastPlayedTime(
                         game.IsManagedPortable || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && executablePath.EndsWith(".app")
                             ? gamePath : (Path.GetDirectoryName(executablePath) ?? gamePath));
-                    if (shortcutObserver == null) RecordAndTrackStartedProcess(portableLifetime, gameProcess, RecordStarted);
+                    if (shortcutObserver == null) RecordAndTrackStartedProcess(portableLifetime, process, RecordStarted);
                     else RecordStarted(); // The owned child-tree observer retains the initial lease.
-                }
-            }
-            catch { portableLifetime.PreserveUncertain(); throw; }
+                });
             if (gameProcess == null)
             {
                 WriteLaunchReport(
@@ -264,6 +285,7 @@ public static class GameLaunchService
                 throw;
             }
         }
+        catch (OperationCanceledException) when (launchCancellation.IsCancellationRequested) { return false; }
         catch (Exception ex)
         {
             Telemetry.Current.CaptureException(ex, handled: true, "app_launch");
@@ -274,10 +296,10 @@ public static class GameLaunchService
         }
     }
 
-    internal static void ConfigureOwnedDataArguments(ProcessStartInfo startInfo, string? validatedDataPath)
+    internal static void ConfigureOwnedDataArguments(ProcessStartInfo startInfo, string? validatedDataPath, bool freedoom = false)
     {
         if (validatedDataPath == null) return;
-        startInfo.ArgumentList.Add("--rom-file");
+        startInfo.ArgumentList.Add(freedoom ? "-iwad" : "--rom-file");
         startInfo.ArgumentList.Add(validatedDataPath);
     }
 

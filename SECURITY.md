@@ -98,3 +98,9 @@ separate policy. This is not complete metadata schema, freshness, authentication
 or catalog identity-migration acceptance. Identity learned during a failed check
 or retained on the current library object still requires confirmation; a later
 empty refresh does not erase it. Legacy saved IDs are not silently rewritten.
+
+The optional Freedoom setup pins a separate engine package and data SHA256,
+requires local copy confirmation and an explicit Play action, and passes the
+validated path as a literal `-iwad` argument. Ordinary engine Launch, working
+directory and save/configuration locations are unchanged. The official release
+link is user-activated; no automatic download or signature verification is claimed.

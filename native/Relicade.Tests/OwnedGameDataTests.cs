@@ -24,6 +24,31 @@ public sealed class OwnedGameDataTests : IDisposable
     public void Dispose() { if (Directory.Exists(root)) Directory.Delete(root, true); }
 
     [Fact]
+    public async Task Compiled_wad_filename_and_sha256_are_checked_on_import_and_launch()
+    {
+        await Prepare();
+        requirement = requirement with { FileName = "freedoom2.wad", ExpectedSha256 = Convert.ToHexStringLower(SHA256.HashData(input)) };
+        var plan = Tx.PreviewOwnedData(requirement, Data, Source);
+        Assert.Equal("freedoom2.wad", Path.GetFileName(plan.Destination));
+        Tx.ImportOwnedData(requirement, Data, plan);
+        Assert.Equal(plan.Destination, Tx.ValidateOwnedData(requirement, Data, Tx.ReadCommitted()!));
+        var wrong = requirement with { ExpectedSha256 = new string('0', 64) };
+        Assert.ThrowsAny<IOException>(() => Tx.PreviewOwnedData(wrong, Data, Source));
+        Assert.ThrowsAny<IOException>(() => Tx.ValidateOwnedData(wrong, Data, Tx.ReadCommitted()!));
+        Assert.Equal(input, File.ReadAllBytes(Source)); Assert.Equal(input, File.ReadAllBytes(plan.Destination));
+    }
+
+    [Theory]
+    [InlineData("../escape.wad")][InlineData("nested/data.wad")][InlineData("/absolute.wad")][InlineData("data\\escape.wad")]
+    public async Task Adapter_data_filename_cannot_leave_its_dedicated_folder(string name)
+    {
+        await Prepare(); requirement = requirement with { FileName = name };
+        if (name == "nested/data.wad") Assert.Throws<IOException>(() => Tx.PreviewOwnedData(requirement, Data, Source));
+        else Assert.Throws<InvalidDataException>(() => Tx.PreviewOwnedData(requirement, Data, Source));
+        Assert.False(Directory.Exists(Data)); Assert.Equal(input, File.ReadAllBytes(Source));
+    }
+
+    [Fact]
     public async Task Confirmed_copy_preserves_original_and_manifest_and_validates_for_launch()
     {
         await Prepare();

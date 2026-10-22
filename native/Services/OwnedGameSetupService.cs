@@ -16,6 +16,18 @@ internal static class OwnedGameSetupService
         "40e8e1317a712a0b29ebd715d25ab7ae366aa601444eb8dec45b97c308ddf9a5", 33554432,
         "e03b088b6ac9e0080440efed07c1e40f");
 
+    internal static readonly OwnedDataRequirement FreedoomPhase2 = new(
+        "uzdoom-5-0-3-freedoom-0-13-phase2-linux-x64", "Freedoom Phase 2 v0.13.0 (.wad)", "5.0.3",
+        "Linux-UZDoom-Release-x86_64.AppImage|sha256:9c5166febc09cbf80c24612a78829037c953f38c4d986e36f8475ddd507e0228",
+        "9c5166febc09cbf80c24612a78829037c953f38c4d986e36f8475ddd507e0228", 28787748,
+        "cd666466759b5e5f63af93c5f0ffd0a1", "freedoom2.wad",
+        "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b");
+
+    // Optional, explicit play choice. Ordinary engine Launch remains unchanged.
+    internal static bool OffersFreedoom(GameInfo game) => !game.IsManuallyManaged &&
+        RepositorySourceHelper.IsGitHub(game.RepositorySource) &&
+        string.Equals(game.Repository, "UZDoom/UZDoom", StringComparison.OrdinalIgnoreCase);
+
     internal sealed record InstallTarget(string RelativePath, long Length, string Sha256)
     {
         internal void Validate(string candidate)
@@ -76,6 +88,7 @@ internal sealed class OwnedGameSetupSession
     internal string Label => requirement.Label;
     internal long RequiredBytes => requirement.Length;
     internal string VariantMd5 => requirement.Md5;
+    internal string? ExpectedSha256 => requirement.ExpectedSha256;
 
     internal OwnedGameSetupSession(GameManager manager, string instance) : this(manager, instance, null) { }
     // A definition is injectable only by trusted in-process compositions/tests;
@@ -160,6 +173,12 @@ internal sealed class OwnedGameSetupSession
         Validate();
         return new PortableInstallationTransaction(install).ImportOwnedData(requirement, dataRoot, plan, token,
             point => { if (point != "Copying") Validate(); });
+    }
+    internal void ValidateReady(CancellationToken token = default)
+    {
+        token.ThrowIfCancellationRequested(); Validate();
+        new PortableInstallationTransaction(install).ReadOwnedData(requirement, dataRoot, token);
+        token.ThrowIfCancellationRequested(); Validate();
     }
     internal Task RefreshAsync() => OwnedGameSetupService.RefreshAsync(game, appsRoot);
 }

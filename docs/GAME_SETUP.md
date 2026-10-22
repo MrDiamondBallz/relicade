@@ -138,3 +138,50 @@ not permission to execute external games or evidence of real gameplay acceptance
 The exact pinned archive has also been checked through the download/install caller
 using a local test transport, without starting its executables. This establishes
 bounded extraction/activation evidence, not a working game or a packaged launcher.
+
+## Optional Freedoom Phase 2
+
+The library offers **Play Freedoom Phase 2…** for the UZDoom project. This is an
+optional, explicit data selection, not a replacement for normal engine Launch or
+existing WAD configuration. It does not change the working directory, move saves,
+download data in the background or claim gameplay certification.
+
+The compiled adapter accepts only this managed **Linux x64** package:
+
+- [UZDoom 5.0.3](https://github.com/UZDoom/UZDoom/releases/tag/5.0.3), asset
+  `584674268`, `Linux-UZDoom-Release-x86_64.AppImage`, 34,560,504 bytes.
+- Package and selected executable SHA256:
+  `9c5166febc09cbf80c24612a78829037c953f38c4d986e36f8475ddd507e0228`.
+- [Freedoom v0.13.0](https://github.com/freedoom/freedoom/releases/tag/v0.13.0),
+  `freedoom-0.13.0.zip`, asset `148625434`, 24,143,781 bytes.
+- Official archive checksum and locally checked SHA256:
+  `3f9b264f3e3ce503b4fb7f6bdcb1f419d93c7b546f4df3e874dd878db9688f59`.
+- Extracted `freedoom-0.13.0/freedoom2.wad`, 28,787,748 bytes; SHA256
+  `a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b`;
+  MD5 `cd666466759b5e5f63af93c5f0ffd0a1`.
+
+Use the dialog's official release link, download and extract the archive yourself,
+then select `freedoom2.wad`. Review the local source, destination and storage
+estimate before confirming the copy. The original is retained. Select **Play
+Freedoom Phase 2** to start explicitly; subsequent visits can use the verified
+retained copy. Package, file and installation identity are checked again before
+launch. Closing the dialog cancels pending validation and prevents a later process
+attempt; work is drained before the dialog state is disposed. A process attempt
+that has already begun still retains its normal tracking and recovery authority.
+Successful optional play respects **Close After Launch**. Normal engine **Launch**
+continues to use its existing behavior.
+
+The pinned [argument definition](https://github.com/UZDoom/UZDoom/blob/7910df7102033fd7754a317f3254f24101135926/src/d_main.cpp)
+and [IWAD loader](https://github.com/UZDoom/UZDoom/blob/7910df7102033fd7754a317f3254f24101135926/src/d_iwad.cpp)
+accept a literal `-iwad` argument with an absolute data path. No shell command is
+constructed from the selected path. The retained copy uses a `.wad` filename;
+Perfect Dark's existing `.z64` location remains unchanged.
+
+Freedoom is original free game data, not a commercial Doom data download. See its
+[pinned license](https://github.com/freedoom/freedoom/blob/v0.13.0/COPYING.adoc)
+and keep the archive's COPYING and credits when redistributing it. UZDoom has its
+own [license and asset/branding exceptions](https://github.com/UZDoom/UZDoom/blob/7910df7102033fd7754a317f3254f24101135926/LICENSE).
+Relicade does not bundle either package here. Comparing hashes is not signature
+authentication, package-to-source reproducibility or a full distribution-rights
+review. This adapter does not accept arbitrary WADs, Phase 1, other engine
+versions, other platforms, or the full catalog's setup requirements.
