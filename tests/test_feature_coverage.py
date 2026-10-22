@@ -114,7 +114,9 @@ class CoverageTests(unittest.TestCase):
                     command='runner --synthetic', result='pass', output='exit 0; assertions passed',
                     artifact='evidence/test-run.txt', hardware='isolated test device description',
                     feature=row['id'])
-        c['evidence'] = [dict(base, id=kind.replace('_', '-'), kind=kind) for kind in ['unit', 'package', 'native_runtime']]
+        # Preserve existing bounded source records and their references. Synthetic
+        # acceptance records stay last so mutations target the intended runtime.
+        c['evidence'] += [dict(base, id=kind.replace('_', '-'), kind=kind) for kind in ['unit', 'package', 'native_runtime']]
         row['targets']['windows-x64'].update(implementation='supported', validation='accepted',
                                               evidence=['unit', 'package', 'native-runtime'])
         return c
@@ -177,15 +179,15 @@ class CoverageTests(unittest.TestCase):
                     with self.subTest(path=path, field=field, value=invalid):
                         self.assertIsInstance(self.validator.validate_contract(c, self.scenarios), list)
         c = self.evidence_case()
-        for field in c['evidence'][0]:
+        for field in next(record for record in c['evidence'] if record['id'] == 'unit'):
             for invalid in [None, [], {}, 7, True, '']:
                 modified = copy.deepcopy(c)
-                modified['evidence'][0][field] = invalid
+                next(record for record in modified['evidence'] if record['id'] == 'unit')[field] = invalid
                 self.assertTrue(self.validator.validate_contract(modified, self.scenarios))
 
     def test_platform_build_package_runtime_checks_can_be_recorded_separately(self):
         c = self.evidence_case()
-        build = dict(c['evidence'][0], id='source-build', kind='source_build')
+        build = dict(next(record for record in c['evidence'] if record['id'] == 'unit'), id='source-build', kind='source_build')
         c['evidence'].append(build)
         p = c['platforms'][0]
         p['implementation'] = 'supported'

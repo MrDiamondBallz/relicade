@@ -90,6 +90,16 @@ artifact existence, signatures, commit ancestry or completeness of assertions.
 Independent review must inspect the exact commit, commands, outputs and artifacts
 before recording acceptance. Do not use a successful schema check as sign-off.
 
+## Recorded partial source evidence
+
+Two unit records at the immutable free-data source checkpoint cover pinned
+download retention/reuse and mid-transfer cancellation. Their public test links
+and sanitized results are in [the setup guide](GAME_SETUP.md). They apply only to
+that source-tested subset: the corresponding Linux x64 AppImage target cells
+remain `wip` / `inconclusive`, not supported or accepted. No package, live-network,
+engine execution or gameplay result is inferred. Other feature and platform
+acceptance rows are unchanged.
+
 ## Platform boundaries
 
 The eight independent targets are Windows x64; Linux x64/ARM64 AppImage; Linux

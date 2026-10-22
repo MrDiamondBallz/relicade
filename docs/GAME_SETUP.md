@@ -203,3 +203,34 @@ Relicade does not bundle either package here. Comparing hashes is not signature
 authentication, package-to-source reproducibility or a full distribution-rights
 review. This adapter does not accept arbitrary WADs, Phase 1, other engine
 versions, other platforms, or the full catalog's setup requirements.
+
+Eligible installed UZDoom cards offer a separate **Play Freedoom Phase 2…** action
+in list, grid and compact layouts. Ordinary engine Launch remains unchanged.
+Keyboard focus can activate the separate action, and controller users can also
+reach it through the existing App options menu. Kiosk/read-only settings and
+uninstalled or recovery-blocked entries do not expose this shortcut. Opening the
+flow still validates the exact supported package; the card itself is not a
+compatibility guarantee.
+
+## Source checks and remaining acceptance
+
+The [pinned free-data source checkpoint](https://github.com/MrDiamondBallz/relicade/commit/d0f1d3cb9b5196cc4a555a924d4f54f93636e379)
+records bounded Linux x64 source tests, not an AppImage runtime pass. Two narrowly
+scoped unit records are linked from the coverage contract:
+
+- `FreedoomDataDownloadTests.Verified_archive_data_and_original_notices_are_retained_and_reused_without_another_request`:
+  passed once in the selected run. Synthetic archive/data/notice bytes matched,
+  originals remained, and reuse made no additional request.
+- `FreedoomDownloadLifetimeTests.Cancellation_mid_body_cleans_only_owned_partial_and_releases_cache_writer`:
+  passed once in the same run. Controlled mid-transfer cancellation removed only
+  the operation's incomplete file and released writer authority.
+
+The exact test sources are [download tests](https://github.com/MrDiamondBallz/relicade/blob/d0f1d3cb9b5196cc4a555a924d4f54f93636e379/native/Relicade.Tests/FreedoomDataDownloadTests.cs)
+and [lifetime tests](https://github.com/MrDiamondBallz/relicade/blob/d0f1d3cb9b5196cc4a555a924d4f54f93636e379/native/Relicade.Tests/FreedoomDownloadLifetimeTests.cs).
+Run them from that source using `dotnet test native/Relicade.Tests/Relicade.Tests.csproj --filter FullyQualifiedName~FreedoomDataDownloadTests`
+and the corresponding `FreedoomDownloadLifetimeTests` filter, with the documented
+telemetry opt-outs. These are reproducible test definitions, not a claim that a
+future rerun has already passed. The two coverage rows remain work in progress
+and inconclusive as complete requirements. Live-network behavior, general queues,
+crash recovery, native packaging, gameplay and other target platforms remain
+unaccepted.

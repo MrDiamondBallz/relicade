@@ -262,6 +262,10 @@ public partial class LibraryView : UserControl
     private void CreateShortcut_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.CreateShortcut);
     private void DeleteGameFromLibrary_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.DeleteGameFromLibrary);
     private void CleanPortableBackups_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.CleanPortableBackups);
+    private void FreedoomAction_GotFocus(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Button button) Navigation?.SynchronizeFreedoomActionFocus(button);
+    }
     private void PlayFreedoom_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.PlayFreedoom);
     private void FinishOwnedGameSetup_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.FinishOwnedGameSetup);
     private void RollbackPortableVersion_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.RollbackPortableVersion);
@@ -565,7 +569,8 @@ public partial class LibraryView : UserControl
         var border = FindGameCardBorder(game, itemsControl);
         if (border == null)
             return null;
-        if (border.Classes.Contains("gamecardgrid") && border.Parent is StackPanel stack && ReferenceEquals(stack.DataContext, game))
+        if (border.Parent is StackPanel stack && ReferenceEquals(stack.DataContext, game) &&
+            (border.Classes.Contains("gamecardgrid") || stack.Classes.Contains("library-secondary-card-root")))
         {
             return stack;
         }

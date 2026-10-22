@@ -61,3 +61,5 @@ The optional Freedoom setup renders before file selection at 760×660 and the
 game, download or launch. The explicit free-data action and official release-page
 alternative are rendered with a throwing transport, never requested. It verifies footer bounds as well as framebuffer pixels;
 these are native headless renders, not physical input or engine-runtime evidence.
+
+`FreedoomLibraryRenderingTests` captures the optional library action in list, grid and compact layouts. The installed-state entry is synthetic and uses the built-in placeholder, not real game artwork or an installed engine. These captures verify native geometry and readable actions, not gameplay or desktop-host acceptance.

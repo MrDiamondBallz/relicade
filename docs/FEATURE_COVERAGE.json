@@ -228,7 +228,34 @@
       }
     }
   ],
-  "evidence": [],
+  "evidence": [
+    {
+      "id": "freedoom-pinned-download-unit",
+      "feature": "download.stage-bytes",
+      "platform": "linux-x64-appimage",
+      "commit": "d0f1d3cb9b5196cc4a555a924d4f54f93636e379",
+      "fixture": "http-cases",
+      "command": "Relicade.Tests.FreedoomDataDownloadTests.Verified_archive_data_and_original_notices_are_retained_and_reused_without_another_request",
+      "result": "pass",
+      "output": "One case passed. The synthetic pinned archive, selected data and original notices were verified and retained; reuse made no additional request.",
+      "artifact": "docs/GAME_SETUP.md",
+      "hardware": "Linux x64 own-source .NET 10 tests with synthetic local HTTP transport; no AppImage or acquired engine execution.",
+      "kind": "unit"
+    },
+    {
+      "id": "freedoom-cancel-download-unit",
+      "feature": "download.cancel-retry",
+      "platform": "linux-x64-appimage",
+      "commit": "d0f1d3cb9b5196cc4a555a924d4f54f93636e379",
+      "fixture": "http-cases",
+      "command": "Relicade.Tests.FreedoomDownloadLifetimeTests.Cancellation_mid_body_cleans_only_owned_partial_and_releases_cache_writer",
+      "result": "pass",
+      "output": "One case passed. Controlled mid-body cancellation removed only the current incomplete file and released cache writer authority. General queue retry and crash recovery were not accepted.",
+      "artifact": "docs/GAME_SETUP.md",
+      "hardware": "Linux x64 own-source .NET 10 tests with synthetic local HTTP transport; no AppImage or acquired engine execution.",
+      "kind": "unit"
+    }
+  ],
   "features": [
     {
       "id": "catalog.browse",
@@ -1469,10 +1496,12 @@
         },
         "linux-x64-appimage": {
           "applicability": "required",
-          "reason": "Shared behavior requires independent native acceptance on this target.",
-          "implementation": "planned",
-          "validation": "not_run",
-          "evidence": []
+          "reason": "Bounded pinned free-data source checks are recorded; the complete requirement and native package/runtime acceptance remain pending.",
+          "implementation": "wip",
+          "validation": "inconclusive",
+          "evidence": [
+            "freedoom-pinned-download-unit"
+          ]
         },
         "linux-arm64-appimage": {
           "applicability": "required",
@@ -1541,10 +1570,12 @@
         },
         "linux-x64-appimage": {
           "applicability": "required",
-          "reason": "Shared behavior requires independent native acceptance on this target.",
-          "implementation": "planned",
-          "validation": "not_run",
-          "evidence": []
+          "reason": "Bounded pinned free-data source checks are recorded; the complete requirement and native package/runtime acceptance remain pending.",
+          "implementation": "wip",
+          "validation": "inconclusive",
+          "evidence": [
+            "freedoom-cancel-download-unit"
+          ]
         },
         "linux-arm64-appimage": {
           "applicability": "required",

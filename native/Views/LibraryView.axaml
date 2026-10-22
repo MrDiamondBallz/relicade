@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:Relicade" xmlns:models="using:Relicade.Models" xmlns:services="using:Relicade.Services" xmlns:vm="using:Relicade.ViewModels" xmlns:views="using:Relicade.Views" xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia" x:Class="Relicade.Views.LibraryView" x:DataType="vm:LibraryViewModel" x:CompileBindings="True">
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:Relicade" xmlns:models="using:Relicade.Models" xmlns:services="using:Relicade.Services" xmlns:vm="using:Relicade.ViewModels" xmlns:views="using:Relicade.Views" xmlns:converters="using:Avalonia.Data.Converters" xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia" x:Class="Relicade.Views.LibraryView" x:DataType="vm:LibraryViewModel" x:CompileBindings="True">
 <UserControl.Resources>
 <!-- One menu for every card: built per card, it cost about 0.5 MB of memory per app. -->
 <ContextMenu x:Key="LibraryCardMenu" x:DataType="models:GameInfo" Opening="LibraryCardMenu_Opening">
@@ -128,6 +128,7 @@
 									</ContextMenu>
 
 <DataTemplate x:Key="ListViewTemplate" x:DataType="models:GameInfo">
+<StackPanel Classes="library-secondary-card-root">
 			<Border Classes="gamecard" Classes.gamepad-focused="{Binding IsGamepadFocused}"
 					Height="{Binding $parent[views:LibraryView].Model.Settings.ListRowHeight}" Margin="0,0,0,8"
 					PlatformFeedback.FeedbackType="Auto"
@@ -177,6 +178,15 @@
 </views:LibraryListRowLayout>
 				</DataTemplate></views:LazyCardContent.ContentTemplate></views:LazyCardContent>
 </Border>
+<Button Classes="freedoom-action" Focusable="True" MinHeight="44" HorizontalAlignment="Stretch" Margin="0,4,0,8" Padding="10,6" Click="PlayFreedoom_Click" GotFocus="FreedoomAction_GotFocus" CommandParameter="{Binding}" IsEnabled="{Binding !IsLoading}" AutomationProperties.Name="Play Freedoom Phase 2" ToolTip.Tip="Optional guided setup and play. Ordinary engine Launch stays unchanged.">
+    <Button.IsVisible><MultiBinding Converter="{x:Static converters:BoolConverters.And}">
+        <Binding Path="OffersFreedoomSetup"/><Binding Path="IsInstalled"/>
+        <Binding Path="!$parent[views:LibraryView].Model.Settings.KioskLocked"/>
+        <Binding Path="!$parent[views:LibraryView].Model.Settings.IsReadOnly"/>
+    </MultiBinding></Button.IsVisible>
+    <TextBlock Text="Play Freedoom Phase 2…" TextWrapping="Wrap"/>
+</Button>
+</StackPanel>
 </DataTemplate><DataTemplate x:Key="GridViewTemplate" x:DataType="models:GameInfo">
 			<StackPanel Classes="library-grid-item"
 						Background="Transparent"
@@ -386,9 +396,18 @@
 					</Grid>
 					</DataTemplate></views:LazyCardContent.ContentTemplate></views:LazyCardContent>
 				</Grid>
-			</StackPanel>
+<Button Classes="freedoom-action" Focusable="True" MinHeight="44" HorizontalAlignment="Stretch" Margin="0,4,0,8" Padding="10,6" Click="PlayFreedoom_Click" GotFocus="FreedoomAction_GotFocus" CommandParameter="{Binding}" IsEnabled="{Binding !IsLoading}" AutomationProperties.Name="Play Freedoom Phase 2" ToolTip.Tip="Optional guided setup and play. Ordinary engine Launch stays unchanged." Width="{Binding $parent[views:LibraryView].Model.CardPixelSize}">
+    <Button.IsVisible><MultiBinding Converter="{x:Static converters:BoolConverters.And}">
+        <Binding Path="OffersFreedoomSetup"/><Binding Path="IsInstalled"/>
+        <Binding Path="!$parent[views:LibraryView].Model.Settings.KioskLocked"/>
+        <Binding Path="!$parent[views:LibraryView].Model.Settings.IsReadOnly"/>
+    </MultiBinding></Button.IsVisible>
+    <TextBlock Text="Play Freedoom Phase 2…" TextWrapping="Wrap"/>
+</Button>
+</StackPanel>
 		</DataTemplate>
 <DataTemplate x:Key="CompactGridViewTemplate" x:DataType="models:GameInfo">
+<StackPanel Classes="library-secondary-card-root">
 			<Border Classes="gamecardcompact" Classes.gamepad-focused="{Binding IsGamepadFocused}"
 					ClipToBounds="True"
 					PlatformFeedback.FeedbackType="Auto"
@@ -603,7 +622,16 @@
 				</Grid>
 				</DataTemplate></views:LazyCardContent.ContentTemplate></views:LazyCardContent>
 			</Border>
-		</DataTemplate>
+<Button Classes="freedoom-action" Focusable="True" MinHeight="44" HorizontalAlignment="Stretch" Margin="0,4,0,8" Padding="10,6" Click="PlayFreedoom_Click" GotFocus="FreedoomAction_GotFocus" CommandParameter="{Binding}" IsEnabled="{Binding !IsLoading}" AutomationProperties.Name="Play Freedoom Phase 2" ToolTip.Tip="Optional guided setup and play. Ordinary engine Launch stays unchanged." Width="{Binding $parent[views:LibraryView].Model.CardPixelSize}">
+    <Button.IsVisible><MultiBinding Converter="{x:Static converters:BoolConverters.And}">
+        <Binding Path="OffersFreedoomSetup"/><Binding Path="IsInstalled"/>
+        <Binding Path="!$parent[views:LibraryView].Model.Settings.KioskLocked"/>
+        <Binding Path="!$parent[views:LibraryView].Model.Settings.IsReadOnly"/>
+    </MultiBinding></Button.IsVisible>
+    <TextBlock Text="Play Freedoom Phase 2…" TextWrapping="Wrap"/>
+</Button>
+</StackPanel>
+</DataTemplate>
 </UserControl.Resources>
 <Grid x:Name="Surface">
 					<ScrollViewer x:Name="LibraryContentPanel" VerticalScrollBarVisibility="Auto" Margin="30,20,6,30"

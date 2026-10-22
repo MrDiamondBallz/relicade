@@ -1,3 +1,4 @@
+using Avalonia.VisualTree;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -25,6 +26,16 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
     {
         if (_session.IsClosed || !_canSelect()) return;
         var index = EmptyActions.IndexOf(button);
+        if (index < 0) return;
+        _gamepadNavigation.LibrarySelectedIndex = index;
+        _gamepadNavigation.ActiveZone = GamepadNavigationZone.Library;
+    }
+
+    internal void SynchronizeFreedoomActionFocus(Button button)
+    {
+        if (_session.IsClosed || !_canSelect() || !button.IsEffectivelyVisible || !button.IsEnabled ||
+            button.DataContext is not GameInfo game) return;
+        var index = Games.IndexOf(game);
         if (index < 0) return;
         _gamepadNavigation.LibrarySelectedIndex = index;
         _gamepadNavigation.ActiveZone = GamepadNavigationZone.Library;
@@ -73,6 +84,13 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
         if (index < 0)
             return false;
         var game = Games[index];
+        if (TopLevel.GetTopLevel(_view)?.FocusManager?.GetFocusedElement() is Button focused &&
+            focused.Classes.Contains("freedoom-action") && focused.IsEffectivelyVisible && focused.IsEnabled &&
+            ReferenceEquals(focused.DataContext, game) && _view.IsVisualAncestorOf(focused))
+        {
+            GamepadControlActivation.ActivateButton(focused);
+            return true;
+        }
         _ = _session.RunAsync(() => _confirm(game));
         return true;
     }
