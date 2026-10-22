@@ -380,6 +380,7 @@ has several unresolved candidates. Relative paths distinguish the game from tool
 **Install** confirms the choice without running it. Cancellation preserves the
 prior installation, and background/headless operations decline unresolved choices
 without prompting. Existing valid selections and verified package defaults remain
-in effect. Staged bytes are checked again before activation. This is development
+in effect. Staged bytes are checked again before activation, and package-supplied
+transaction lock entries are rejected without opening them. This is development
 source with synthetic UI/transaction evidence, not game or platform acceptance.
 See the [setup guide](../docs/GAME_SETUP.md) for the separate game-data step.

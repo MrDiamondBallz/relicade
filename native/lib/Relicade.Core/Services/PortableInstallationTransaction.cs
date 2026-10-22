@@ -375,6 +375,7 @@ public sealed partial class PortableInstallationTransaction
         options.TransactionBoundary?.Invoke("Extracted");
         cancellationToken.ThrowIfCancellationRequested();
         options.PrepareCandidate?.Invoke(candidate);
+        RejectReservedStagedLock(candidate);
         var payload = Inventory(candidate);
         foreach (var file in payload)
         {
@@ -406,6 +407,7 @@ public sealed partial class PortableInstallationTransaction
                 throw new InvalidDataException("The selected launch file was not one of the staged choices.");
             // A dialog may remain open while other software changes files. Never
             // silently accept a different staged payload after the displayed choice.
+            RejectReservedStagedLock(candidate);
             AssertInventory(candidate, payload);
         }
         else if (executables.Count(e => Path.GetDirectoryName(e) == candidate) == 1)
@@ -487,6 +489,7 @@ public sealed partial class PortableInstallationTransaction
     void Commit(string dir, Manifest candidateManifest, Manifest? old, List<Entry> before, CancellationToken token)
     {
         var candidate = SafePath(dir, "candidate");
+        RejectReservedStagedLock(candidate);
         using var candidateModLease = AcquireModLease(candidate);
         var j = new Journal { OperationId = Path.GetFileName(dir), InstallKey = key, InstallName = Path.GetFileName(root),
             OldManifestHash = FileHash(SafePath(root, ManifestFileName)), CandidateManifestHash = FileHash(SafePath(candidate, ManifestFileName))!,
@@ -670,6 +673,15 @@ public sealed partial class PortableInstallationTransaction
     public static string SafePath(string basePath, string relative)
     {
         ValidateRelative(relative); var result = Path.GetFullPath(Path.Combine(basePath, relative)); CheckLinks(result); return result;
+    }
+    static void RejectReservedStagedLock(string candidate)
+    {
+        // Inventory excludes locks owned by live/retained transactions. A package
+        // must never supply that entry, regardless of its kind or platform casing.
+        // Inspect names without opening a possibly blocking or linked payload.
+        if (Directory.EnumerateFileSystemEntries(candidate).Any(path =>
+                string.Equals(Path.GetFileName(path), ModLock, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidDataException("Release payload contains a reserved transaction lock.");
     }
     static List<Entry> Inventory(string path, string[]? data = null)
     {

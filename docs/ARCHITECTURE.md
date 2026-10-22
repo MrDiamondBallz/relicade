@@ -235,6 +235,11 @@ including cancellation; no abandoned UI task can activate a later choice.
 The desktop modal supports keyboard/controller navigation. Automatic and headless
 callers decline instead of prompting or trusting remote preferred-file metadata.
 Cancellation preserves any prior generation and can retain private staging/history.
+Staged payloads cannot supply the reserved transaction lock, including directories,
+links or special files. Name checks precede initial inventory, follow the choice,
+and run before the candidate lease is created. Locks created by the transaction
+remain excluded from live and retained-generation inventories; this is not a
+sandbox against hostile concurrent filesystem replacement.
 
 The initial definition covers one Perfect Dark US 1.1 Linux x64 package only.
 Synthetic fixtures exercise the source workflow; they do not establish gameplay,

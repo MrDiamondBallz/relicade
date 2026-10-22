@@ -51,6 +51,84 @@ public sealed class StagedExecutableChoiceTests : IDisposable
         using var released = new PortableInstallationTransaction(Live).AcquireLease();
     }
 
+    [Theory]
+    [InlineData("initial", "file")]
+    [InlineData("initial", "directory")]
+    [InlineData("initial", "symlink")]
+    [InlineData("initial", "fifo")]
+    [InlineData("initial", "hardlink")]
+    [InlineData("choice", "file")]
+    [InlineData("choice", "directory")]
+    [InlineData("choice", "symlink")]
+    [InlineData("choice", "fifo")]
+    [InlineData("choice", "hardlink")]
+    [InlineData("staged", "file")]
+    [InlineData("staged", "directory")]
+    [InlineData("staged", "symlink")]
+    [InlineData("staged", "fifo")]
+    [InlineData("staged", "hardlink")]
+    public async Task Package_cannot_supply_the_reserved_transaction_lock(string phase, string kind)
+    {
+        Assert.SkipUnless(OperatingSystem.IsLinux(), "Exercises Linux file kinds and kernel wait evidence.");
+        var prior = new PortableInstallationTransaction(Live);
+        await prior.InstallAsync(path => { File.WriteAllText(Path.Combine(path, "old.exe"), "original payload"); return Task.CompletedTask; }, "old");
+        var manifest = File.ReadAllBytes(Path.Combine(Live, PortableInstallationTransaction.ManifestFileName));
+        var external = Path.Combine(root, "unrelated.txt"); File.WriteAllText(external, "preserved unrelated bytes");
+        string staged = "";
+        var entered = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        void Introduce()
+        {
+            var path = Path.Combine(staged, ".relicade-mod-writer.lock");
+            switch (kind)
+            {
+                case "fifo": Assert.Equal(0, mkfifo(path, 0x180)); break;
+                case "hardlink": Assert.Equal(0, link(external, path)); break;
+                case "symlink": File.CreateSymbolicLink(path, external); break;
+                case "directory": Directory.CreateDirectory(path); break;
+                default: File.WriteAllText(path, "untrusted reserved payload"); break;
+            }
+            entered.TrySetResult(gettid());
+        }
+        var transaction = new PortableInstallationTransaction(Live, new()
+        {
+            ChooseExecutableAsync = (_, _) => { if (phase == "choice") Introduce(); return Task.FromResult<string?>("game.exe"); },
+            TransactionBoundary = boundary => { if (phase == "staged" && boundary == "Staged") Introduce(); }
+        });
+        var operation = Task.Run(async () => await Record.ExceptionAsync(() => transaction.InstallAsync(async path =>
+        { staged = path; await Stage(path); if (phase == "initial") Introduce(); }, "new")));
+        var blocked = false;
+        Exception? error = null;
+        try
+        {
+            var tid = await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            if (kind == "fifo")
+            {
+                var deadline = Stopwatch.StartNew();
+                while (!operation.IsCompleted && deadline.Elapsed < TimeSpan.FromSeconds(5))
+                {
+                    if (File.ReadAllText($"/proc/self/task/{tid}/wchan").Trim() == "wait_for_partner") { blocked = true; break; }
+                    await Task.Yield();
+                }
+            }
+        }
+        finally
+        {
+            // Drain only our controlled FIFO if the rejected implementation opens it.
+            if (blocked)
+                using (var release = new FileStream(Path.Combine(staged, ".relicade-mod-writer.lock"), FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite)) { }
+            error = await operation.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        Assert.False(blocked);
+        Assert.True(error is IOException or InvalidDataException);
+        Assert.Equal(manifest, File.ReadAllBytes(Path.Combine(Live, PortableInstallationTransaction.ManifestFileName)));
+        Assert.Equal("original payload", File.ReadAllText(Path.Combine(Live, "old.exe")));
+        Assert.Equal("preserved unrelated bytes", File.ReadAllText(external));
+        Assert.False(File.Exists(Path.Combine(Live, "game.exe")));
+        Assert.Equal("old", prior.ReadCommitted()!.SelectedVersion);
+        Assert.Equal(0, new FileInfo(Path.Combine(Live, ".relicade-mod-writer.lock")).Length);
+        using var released = prior.AcquireLease();
+    }
+
     readonly string root = Path.Combine(Path.GetTempPath(), "staged-choice-" + Guid.NewGuid().ToString("N"));
     string Live => Path.Combine(root, "Game");
     static Task Stage(string path)
