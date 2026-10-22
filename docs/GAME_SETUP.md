@@ -55,6 +55,12 @@ existing **Back to latest updates** or
 [explicit build-version pins](../native/README.md#explicit-build-version-pins)
 for cache and legacy-alias boundaries.
 
+Choosing a version changes the saved pin only after that chosen installation is
+confirmed. Declining, cancelling or failing the operation keeps the previous pin.
+If an error occurs after activation, the new installed files can still remain;
+check the library and recovery state rather than assuming cancellation rolled
+everything back.
+
 ## Choosing a launch file before installation
 
 For a portable package with several unresolved launch files, the desktop download

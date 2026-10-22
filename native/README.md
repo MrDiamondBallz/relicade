@@ -538,6 +538,13 @@ is target-selection and cache binding, not a complete update-ordering redesign o
 runtime compatibility claim. Preference setters and cache validation do not
 modify game files.
 
+The version menu saves a new preference only after the installation service
+confirms the chosen release completed, or validates that exact release is already
+installed, while the library session is still open. Declines, cancellation and
+unconfirmed failures retain the prior preference. A failure after activation may
+still leave the new generation installed: the library reconciles actual files
+without interpreting a missing completion result as a rollback.
+
 ## Private Linux packaging recipe
 
 A [Linux x64 development recipe](../docs/LINUX_APPIMAGE_DEVELOPMENT.md) now assembles

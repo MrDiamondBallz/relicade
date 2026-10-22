@@ -11,9 +11,12 @@ namespace Relicade.Services;
 
 public enum ReleaseInstallMode { Automatic, ExplicitRelease }
 
+/// <summary>A positively completed release. No result means completion was not confirmed, not that files stayed unchanged.</summary>
+public sealed record GameInstallCompletion(string ReleaseTag);
+
 public static class GameDownloadInstallService
 {
-    public static async Task DownloadAndInstallAsync(
+    public static async Task<GameInstallCompletion?> DownloadAndInstallAsync(
         GameInfo game,
         HttpClient httpClient,
         string gamesFolder,
@@ -29,6 +32,7 @@ public static class GameDownloadInstallService
     {
         dialogs ??= AvaloniaGameDownloadDialogs.Instance;
         flatpakService ??= FlatpakService.Current;
+        GameInstallCompletion? completion = null;
         var previousVersion = game.InstalledVersion;
         var rejectedFormatSwitch = false;
         var isUpdate = triggerStatus == GameStatus.UpdateAvailable;
@@ -57,19 +61,19 @@ public static class GameDownloadInstallService
         catch (Exception ex)
         {
             await dialogs.ShowErrorAsync($"This app was saved, but its files could not be prepared: {ex.Message}", "Preparation Error");
-            return;
+            return null;
         }
 
         if (string.IsNullOrEmpty(game.FolderName))
         {
             await dialogs.ShowErrorAsync("App configuration is invalid (missing folder name).", "Configuration Error");
-            return;
+            return null;
         }
 
         if (string.IsNullOrEmpty(game.Repository))
         {
             await dialogs.ShowErrorAsync("App configuration is invalid (missing repository).", "Configuration Error");
-            return;
+            return null;
         }
 
         try
@@ -81,7 +85,7 @@ public static class GameDownloadInstallService
         catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
         {
             await dialogs.ShowErrorAsync("Invalid installation path authority. Choose a new unlinked managed folder; no installation files were changed.", "Configuration Error");
-            return;
+            return null;
         }
 
         var apiToken = game.GetReleaseApiToken(settings);
@@ -124,7 +128,7 @@ public static class GameDownloadInstallService
             {
                 ResetNotInstalled(game);
                 await dialogs.ShowErrorAsync($"No valid releases found for {game.Name}.", "No Releases");
-                return;
+                return null;
             }
 
             game.DownloadProgress = 10;
@@ -139,7 +143,7 @@ public static class GameDownloadInstallService
                 game.Status = triggerStatus == GameStatus.UpdateAvailable ? GameStatus.UpdateAvailable : GameStatus.NotInstalled;
                 game.DownloadProgress = 0;
                 game.NotifyMultipleDownloadsChanged();
-                return;
+                return null;
             }
 
             firstInstall?.ValidateSelection(latestRelease.tag_name, asset.name);
@@ -168,7 +172,7 @@ public static class GameDownloadInstallService
                 game.InstalledVersion = latestRelease.tag_name;
                 game.LatestVersion = latestRelease.tag_name;
                 game.DownloadProgress = 0;
-                return;
+                return new(latestRelease.tag_name);
             }
 
             // A catalog release the source catalog hasn't verified installs only once the player confirms, never by itself.
@@ -198,7 +202,7 @@ public static class GameDownloadInstallService
                 Telemetry.Current.Track("app_install_cancelled", Usage(("stage", "not_verified"), ("blocked", check.State == ReleaseCheckState.Blocked)));
                 game.Status = triggerStatus;
                 game.DownloadProgress = 0;
-                return;
+                return null;
             }
             // Several antivirus engines flag the file: the player's own antivirus may block or remove it.
             if (check is { State: ReleaseCheckState.Verified, Flagged: true } &&
@@ -207,7 +211,7 @@ public static class GameDownloadInstallService
                 Telemetry.Current.Track("app_install_cancelled", Usage(("stage", "antivirus_flagged")));
                 game.Status = triggerStatus;
                 game.DownloadProgress = 0;
-                return;
+                return null;
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) &&
@@ -221,7 +225,7 @@ public static class GameDownloadInstallService
                     if (!await dialogs.ConfirmDownloadWithoutRunnerAsync())
                     {
                         ResetNotInstalled(game);
-                        return;
+                        return null;
                     }
                 }
                 else
@@ -234,7 +238,7 @@ public static class GameDownloadInstallService
                     if (runnerConfig == null)
                     {
                         ResetNotInstalled(game);
-                        return;
+                        return null;
                     }
 
                     runnerConfig.ApplyTo(game);
@@ -355,7 +359,8 @@ public static class GameDownloadInstallService
                     game.DownloadProgress = 0;
                     game.ClearDownloadSelection();
                     game.AvailableDownloads = null;
-                    return;
+                    return game.IsWindowsInstaller && game.InstalledVersion == latestRelease.tag_name
+                        ? new(latestRelease.tag_name) : null;
                 }
 
                 if (GameInstallationService.IsFlatpakAsset(effectiveAssetName))
@@ -386,7 +391,7 @@ public static class GameDownloadInstallService
                         await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder, checkRemoteVersion: false).ConfigureAwait(false);
                         game.DownloadProgress = 0;
                         game.ClearDownloadSelection();
-                        return;
+                        return null;
                     }
 
                     Directory.CreateDirectory(gamePath);
@@ -526,6 +531,7 @@ public static class GameDownloadInstallService
                     game.GameManager.OnPropertyChanged(nameof(GameManager.Games));
                 });
             }
+            completion = new(latestRelease.tag_name);
         }
         catch (DownloadMismatchException ex)
         {
@@ -653,9 +659,10 @@ public static class GameDownloadInstallService
         if (fallback != null && firstInstall == null)
         {
             game.ClearDownloadSelection();
-            await DownloadAndInstallAsync(game, httpClient, gamesFolder, fallback, settings, triggerStatus, dialogs,
+            return await DownloadAndInstallAsync(game, httpClient, gamesFolder, fallback, settings, triggerStatus, dialogs,
                 flatpakService, windowsInstallerService, ReleaseInstallMode.ExplicitRelease, reinstall).ConfigureAwait(false);
         }
+        return completion;
     }
 
     /// <summary>The kind of file a release was installed from, for usage data.</summary>

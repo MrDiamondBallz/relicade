@@ -623,10 +623,12 @@ public sealed class LibraryLaunchController
             return;
         }
         var latestBefore = game.LatestVersion;
-        await game.InstallReleaseAsync(_gameManager.HttpClient, _gameManager.GamesFolder, _settings, release, asset);
-        // Saying no to an unverified or blocked release (or a download that failed) leaves the app as it was. Pinning it to
-        // that release anyway left it showing an update it would never install, until Skip Update undid the pin.
-        if (!ReleaseVersionIdentity.AreVersionsEquivalent(game.InstalledVersion, release.tag_name))
+        var completion = await game.InstallReleaseAsync(_gameManager.HttpClient, _gameManager.GamesFolder, _settings, release, asset);
+        // Only an acknowledged chosen installation can change the pin. A failed or cancelled operation may
+        // already have committed files: reconcile that state without inventing a new version preference.
+        if (_session.IsClosed || completion == null ||
+            !string.Equals(completion.ReleaseTag, release.tag_name, StringComparison.Ordinal) ||
+            !CatalogReleaseSelection.MatchesTarget(release.tag_name, game.InstalledVersion))
         {
             game.LatestVersion = latestBefore;
             game.RefreshInstalledStatus();

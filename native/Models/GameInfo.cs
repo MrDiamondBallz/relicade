@@ -2021,11 +2021,11 @@ namespace Relicade.Models
         }
         /// <param name="automatic">An automatic update: it never installs a release the source catalog hasn't verified.</param>
         /// <param name="releaseMode">An explicit pick installs that release; an automatic one checks which release to install first.</param>
-        public async Task InstallReleaseAsync(HttpClient httpClient, string gamesFolder, AppSettings settings, GitHubRelease release, GitHubAsset selectedAsset,
+        public async Task<GameInstallCompletion?> InstallReleaseAsync(HttpClient httpClient, string gamesFolder, AppSettings settings, GitHubRelease release, GitHubAsset selectedAsset,
             bool automatic = false, ReleaseInstallMode releaseMode = ReleaseInstallMode.ExplicitRelease, bool reinstall = false)
         {
             GameDownloadService.SelectExplicit(this, release, settings, selectedAsset);
-            await GameDownloadInstallService.DownloadAndInstallAsync(
+            return await GameDownloadInstallService.DownloadAndInstallAsync(
                 this, httpClient, gamesFolder, release, settings, Status,
                 automatic ? new AutomaticGameDownloadDialogs(AvaloniaGameDownloadDialogs.Instance) : null, releaseMode: releaseMode,
                 reinstall: reinstall);
