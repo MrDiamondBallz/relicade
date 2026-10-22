@@ -231,4 +231,7 @@ Preview inspects existing authority without creating history. Confirmed import
 revalidates the input before creating writer history, then holds the destination
 lease through both copy and receipt commit. Library evidence reads use a bounded
 opened-file length and reject growth, rather than a path-size check followed by
-an unbounded read.
+an unbounded read. Library and detached rollback/settings reads also reuse the
+regular-file and link-count guard before opening, preventing a pre-existing FIFO
+from blocking cancellation. General settings/credential initialization is separate;
+these checks do not certify hostile concurrent path replacement.

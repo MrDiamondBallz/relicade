@@ -70,7 +70,10 @@ installation history rather than recovering it implicitly. The exact data-store
 folder and its ancestors must also be free of conflicting installation authority;
 a confirmed copy holds the destination writer lease through the receipt commit.
 Preview does not create that history. Library identity and
-writable settings are rechecked during the operation. Unknown requirements never
+writable settings are rechecked during the operation. Library and detached settings
+evidence must be unlinked regular files before opening; a pipe is not a settings
+document. These checks are not a sandbox against hostile concurrent path
+replacement. Unknown requirements never
 become confirmed merely because an executable exists.
 
 This first adapter does not implement data-store migration, automatic owned-file

@@ -74,7 +74,7 @@ internal sealed class OwnedGameSetupSession
 
     byte[] ReadLibrary(int? expectedLength = null)
     {
-        PortableInstallationTransaction.CheckLinks(libraryPath);
+        PortableInstallationTransaction.RequireRegularEvidenceFile(libraryPath);
         using var file = new FileStream(libraryPath, FileMode.Open, FileAccess.Read, FileShare.Read);
         var length = file.Length;
         if (length > 8 * 1024 * 1024) throw new IOException("The local library exceeds the setup inspection limit.");

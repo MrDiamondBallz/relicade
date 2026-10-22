@@ -22,7 +22,11 @@ public partial class FileSettingsStore : IPortableRollbackSettingsEvidence
                 throw new IOException("Settings recovery or legacy credential cleanup is required before portable rollback.");
             PortableInstallationTransaction.CheckLinks(_settingsPath);
             byte[] bytes;
-            try { bytes = ReadBoundedSettingsBytes(); }
+            try
+            {
+                PortableInstallationTransaction.RequireRegularEvidenceFile(_settingsPath);
+                bytes = ReadBoundedSettingsBytes();
+            }
             catch (FileNotFoundException) when (!_hasSeenDocument && ReadError == null)
             { return (CreateDefault(), _settingsPath, "absent"); }
             catch (DirectoryNotFoundException) when (!_hasSeenDocument && ReadError == null)

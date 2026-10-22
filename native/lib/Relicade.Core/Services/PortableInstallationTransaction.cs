@@ -630,6 +630,11 @@ public sealed partial class PortableInstallationTransaction
         return list;
     }
     static bool IsData(string p, string[] data) => data.Any(d => p == d || p.StartsWith(d + "/", StringComparison.Ordinal));
+    // Reuse the existing regular-file/link-count guard before evidence readers
+    // open a path. In particular, a FIFO open cannot be cancelled by a token.
+    // This is not a sandbox against hostile concurrent path replacement.
+    internal static void RequireRegularEvidenceFile(string path) => RequireCleanupKind(path, false);
+
     public static void CheckLinks(string path)
     {
         for (var p = Path.GetFullPath(path); p != null; p = Path.GetDirectoryName(p))
