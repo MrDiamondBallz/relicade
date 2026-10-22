@@ -446,3 +446,10 @@ request without starting a game. Normal engine Launch and saves are unchanged.
 No unattended download, engine installation or automatic Play is implied. See
 [the exact package, data and rights boundaries](../docs/GAME_SETUP.md#optional-freedoom-phase-2).
 This is development source, not tested gameplay or accepted platform support.
+
+Project details offer an explicit **Retry release notes** action after a transient
+catalog or repository read failure. The current project stays open, duplicate
+in-flight reads are suppressed, and cancelled or superseded requests cannot
+publish old notes into a different page. Successfully loaded or empty histories
+are retained; missing or removed repositories do not become retry loops. This
+is a read-only recovery path, not a release download or installation action.

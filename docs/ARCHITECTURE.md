@@ -332,3 +332,10 @@ staging is disposable. The actual dialog rechecks local library/settings authori
 before requesting, tracks cancellation/drain, and passes the retained source into
 the existing explicit preview/import protocol. Neither download completion nor a
 cache hit authorizes the separate game-data import or starting a process.
+
+Release-note loading in project details has explicit loading and retry state,
+separate from display text. One request belongs to the current page generation;
+closing or switching pages invalidates its result. Transient failures expose a
+user-initiated retry, while successful loaded/empty histories remain cached for
+that page and HTTP missing/removed sources do not create a retry loop. Catalog
+and repository reads preserve their existing provenance and do not install files.

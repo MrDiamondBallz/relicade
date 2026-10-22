@@ -63,3 +63,8 @@ alternative are rendered with a throwing transport, never requested. It verifies
 these are native headless renders, not physical input or engine-runtime evidence.
 
 `FreedoomLibraryRenderingTests` captures the optional library action in list, grid and compact layouts. The installed-state entry is synthetic and uses the built-in placeholder, not real game artwork or an installed engine. These captures verify native geometry and readable actions, not gameplay or desktop-host acceptance.
+
+`BrowseReleaseRetryRenderingTests` renders the actual release-notes retry action
+at normal and minimum desktop layout sizes after an injected offline failure.
+Its project and failure are synthetic, with a throwing transport and no network,
+download or game execution. It checks button bounds and real framebuffer pixels.

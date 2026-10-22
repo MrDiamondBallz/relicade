@@ -291,6 +291,8 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
         BrowseDetailsReleasesNote.IsVisible = app != null;
         BrowseDetailsReleasesStatus.Text = Model.ReleasesStatus;
         BrowseDetailsReleasesStatus.IsVisible = Model.ReleasesStatus.Length > 0;
+        BrowseDetailsReleaseRetryButton.IsVisible = Model.CanRetryReleases || Model.IsLoadingReleases;
+        BrowseDetailsReleaseRetryButton.IsEnabled = Model.CanRetryReleases && !Model.IsLoadingReleases;
         if (!ReferenceEquals(_shownReleases, Model.Releases)) ShowReleases(Model.Releases);
         BrowseDetailsShareTitle.Text = said == 0 ? "Nobody has shared how it runs yet" : "Your experience helps the next person";
         BrowseDetailsReviewButton.IsVisible = Model.ReviewUrl != null;
@@ -472,6 +474,12 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
         Refresh();
     }
 
+    private void RetryReleases_Click(object? sender, RoutedEventArgs e)
+    {
+        if (!_session.IsClosed && _tab == Tab.Releases && Model.CanRetryReleases)
+            _ = _session.RunAsync(() => Model.LoadReleasesAsync(_session.Token));
+    }
+
     private void Add_Click(object? sender, RoutedEventArgs e)
     {
         if (Model.Entry is { } entry) AddRequested?.Invoke(entry);
@@ -529,6 +537,7 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
         Visible(BrowseDetailsActions.Children),
         BrowseDetailsTabsBar.IsVisible ? Visible([BrowseDetailsOverviewTab, BrowseDetailsReleasesTab, BrowseDetailsFeedbackTab]) : [],
         BrowseDetailsFeedback.IsVisible ? Visible([BrowseDetailsReviewButton]) : [],
+        BrowseDetailsReleases.IsVisible ? Visible([BrowseDetailsReleaseRetryButton]) : [],
     }.Where(r => r.Count > 0).ToList();
 
     private List<Control> Controls() => Rows().SelectMany(r => r).ToList();
@@ -668,7 +677,7 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
     internal void ClearHighlights()
     {
         Control[] controls = [BrowseDetailsCloseButton, .. BrowseDetailsActions.Children, BrowseDetailsOverviewTab, BrowseDetailsReleasesTab, BrowseDetailsFeedbackTab,
-            BrowseDetailsReviewButton];
+            BrowseDetailsReviewButton, BrowseDetailsReleaseRetryButton];
         foreach (var control in controls.Concat(GameChips()))
             control.Classes.Set("gamepad-focused", false);
         foreach (var way in _ways)

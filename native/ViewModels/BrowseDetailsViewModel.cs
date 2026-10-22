@@ -29,6 +29,7 @@ public sealed class BrowseDetailsViewModel(QuiverCatalogClient client, Func<Quiv
     private IReadOnlyList<QuiverCatalogRelease>? _releases;
     private bool _releasesMore;
     private string _releasesStatus = "";
+    private bool _isLoadingReleases, _canRetryReleases;
     private IReadOnlyList<BrowseReviewLine> _reviews = [];
     private string _reviewsStatus = "";
     private string _error = "";
@@ -43,6 +44,8 @@ public sealed class BrowseDetailsViewModel(QuiverCatalogClient client, Func<Quiv
     public IReadOnlyList<QuiverCatalogRelease>? Releases { get => _releases; private set => Set(ref _releases, value); }
     /// <summary>The site has older releases than the ones shown.</summary>
     public bool ReleasesMore { get => _releasesMore; private set => Set(ref _releasesMore, value); }
+    public bool IsLoadingReleases { get => _isLoadingReleases; private set => Set(ref _isLoadingReleases, value); }
+    public bool CanRetryReleases { get => _canRetryReleases; private set => Set(ref _canRetryReleases, value); }
     public string ReleasesStatus { get => _releasesStatus; private set => Set(ref _releasesStatus, value); }
     public string ReviewsStatus { get => _reviewsStatus; private set => Set(ref _reviewsStatus, value); }
     public string Error { get => _error; private set => Set(ref _error, value); }
@@ -58,6 +61,7 @@ public sealed class BrowseDetailsViewModel(QuiverCatalogClient client, Func<Quiv
         Releases = null;
         ReleasesMore = false;
         ReleasesStatus = "";
+        IsLoadingReleases = CanRetryReleases = false;
         Error = "";
         Reviews = [];
         ReviewsStatus = item.App == null ? "" : "Loading reviews…";
@@ -76,6 +80,7 @@ public sealed class BrowseDetailsViewModel(QuiverCatalogClient client, Func<Quiv
         Project = null;
         Releases = null;
         ReleasesStatus = "";
+        IsLoadingReleases = CanRetryReleases = false;
         Reviews = [];
         ReviewsStatus = "";
         Error = "";
@@ -89,45 +94,53 @@ public sealed class BrowseDetailsViewModel(QuiverCatalogClient client, Func<Quiv
     /// <summary>Reads the app's release history the first time its Releases tab opens.</summary>
     public async Task LoadReleasesAsync(CancellationToken token)
     {
-        if (!HasReleases || Releases != null || ReleasesStatus.Length > 0) return;
-        if (Item?.App is not { } app)
-        {
-            await LoadRepositoryReleasesAsync(Item!.ListApp!, token);
-            return;
-        }
+        if (!HasReleases || Releases != null || IsLoadingReleases || (ReleasesStatus.Length > 0 && !CanRetryReleases)) return;
         var generation = _generation;
+        var item = Item!;
+        IsLoadingReleases = true; CanRetryReleases = false;
         ReleasesStatus = "Loading releases…";
         try
         {
-            var page = await client.GetReleaseHistoryAsync(app.Slug, token);
-            if (generation != _generation) return;
-            Releases = page.Items;
-            ReleasesMore = !page.IsDone;
-            ReleasesStatus = page.Items.Count == 0 ? "Releases are being cataloged. Check the project's repository for now." : "";
+            if (item.App is { } app)
+            {
+                var page = await client.GetReleaseHistoryAsync(app.Slug, token);
+                token.ThrowIfCancellationRequested();
+                if (generation != _generation) return;
+                Releases = page.Items;
+                ReleasesMore = !page.IsDone;
+                ReleasesStatus = page.Items.Count == 0 ? "Releases are being cataloged. Check the project's repository for now." : "";
+            }
+            else
+            {
+                var releases = await repositoryReleases!(item.ListApp!, token);
+                token.ThrowIfCancellationRequested();
+                if (generation != _generation) return;
+                Releases = releases;
+                ReleasesMore = false;
+                ReleasesStatus = releases.Count == 0 ? "This app's repository has no releases." : "";
+            }
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            if (generation == _generation)
+            {
+                ReleasesStatus = "Release loading cancelled.";
+                CanRetryReleases = true;
+            }
+            throw;
         }
         catch (Exception ex) when (!token.IsCancellationRequested)
         {
-            if (generation == _generation) ReleasesStatus = $"Couldn't load releases. {ex.Message}";
+            if (generation == _generation)
+            {
+                ReleasesStatus = item.App != null ? $"Couldn't load releases. {ex.Message}"
+                    : $"Couldn't load releases from the app's repository. {ex.Message}";
+                // A transient read may be explicitly retried. Missing/removed sources
+                // and successfully empty histories do not become automatic retry loops.
+                CanRetryReleases = ex is not HttpRequestException { StatusCode: System.Net.HttpStatusCode.NotFound or System.Net.HttpStatusCode.Gone };
+            }
         }
-    }
-
-    // An app that isn't in the catalog: its latest releases and notes, straight from its repository.
-    private async Task LoadRepositoryReleasesAsync(GameInfo app, CancellationToken token)
-    {
-        var generation = _generation;
-        ReleasesStatus = "Loading releases…";
-        try
-        {
-            var releases = await repositoryReleases!(app, token);
-            if (generation != _generation) return;
-            Releases = releases;
-            ReleasesMore = false;
-            ReleasesStatus = releases.Count == 0 ? "This app's repository has no releases." : "";
-        }
-        catch (Exception ex) when (!token.IsCancellationRequested)
-        {
-            if (generation == _generation) ReleasesStatus = $"Couldn't load releases from the app's repository. {ex.Message}";
-        }
+        finally { if (generation == _generation) IsLoadingReleases = false; }
     }
 
     private async Task LoadDetailAsync(QuiverCatalogApp app, int generation, CancellationToken token)
