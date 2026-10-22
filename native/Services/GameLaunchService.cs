@@ -168,10 +168,6 @@ public static class GameLaunchService
                 : LaunchDebugReport.SnapshotStartInfoEnvironment(startInfo);
             var selectedExecutableFile = TryReadSelectedExecutableFile(gamePath);
 
-            game.UpdateLastPlayedTime(game.IsManagedPortable || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && executablePath.EndsWith(".app")
-                ? gamePath
-                : (Path.GetDirectoryName(executablePath) ?? gamePath));
-
             System.Diagnostics.Process? gameProcess;
             try
             {
@@ -197,6 +193,12 @@ public static class GameLaunchService
                     "Launch Error");
                 return false;
             }
+
+            // A launch attempt is not play history. Record only after the OS
+            // returned a process and the existing lifetime tracking accepted it.
+            game.UpdateLastPlayedTime(game.IsManagedPortable || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && executablePath.EndsWith(".app")
+                ? gamePath
+                : (Path.GetDirectoryName(executablePath) ?? gamePath));
 
             try
             {

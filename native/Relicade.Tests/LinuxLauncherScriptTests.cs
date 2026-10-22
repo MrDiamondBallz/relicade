@@ -129,6 +129,45 @@ public sealed class LinuxLauncherScriptTests : IDisposable
             .And.Contain("StartDir\0\"" + GamePath.Replace("$", "\\$") + "\"\0").And.NotContain("/bin/false");
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Failed_process_creation_preserves_last_played_history(bool hasPreviousPlay)
+    {
+        if (!OperatingSystem.IsLinux())
+        {
+            Assert.Skip("Requires Linux process creation for the missing-interpreter fixture.");
+            return;
+        }
+
+        // Own fixture only: the missing interpreter makes exec fail before a child
+        // can start. The file remains discoverable as a shell launch candidate.
+        var wrapper = Path.Combine(GamePath, "launch.sh");
+        var missingInterpreter = Path.Combine(_root, "missing-interpreter");
+        File.WriteAllText(wrapper, "#!" + missingInterpreter + "\nexit 0\n");
+        var history = Path.Combine(GamePath, "LastPlayed.txt");
+        const string previousPlay = "2001-02-03 04:05:06";
+        if (hasPreviousPlay) File.WriteAllText(history, previousPlay);
+        var save = Path.Combine(GamePath, "save.dat");
+        File.WriteAllText(save, "synthetic-save-preserve");
+        var game = new GameInfo
+        {
+            Name = "Failed launch fixture", FolderName = Path.GetFileName(GamePath),
+            Status = GameStatus.Installed, SelectedExecutable = wrapper,
+        };
+        var started = 0;
+        game.GameProcessStarted += _ => started++;
+
+        var launched = await GameLaunchService.LaunchAsync(game, _root);
+
+        launched.Should().BeFalse();
+        started.Should().Be(0);
+        if (hasPreviousPlay) File.ReadAllText(history).Should().Be(previousPlay);
+        else File.Exists(history).Should().BeFalse();
+        File.ReadAllText(save).Should().Be("synthetic-save-preserve");
+        File.Exists(wrapper).Should().BeTrue();
+    }
+
     private static byte[] Elf()
     {
         var header = new byte[64];

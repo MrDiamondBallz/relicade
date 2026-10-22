@@ -75,6 +75,15 @@ algorithms are unchanged.
 Existing library-menu release prefetch remains separate from these network-silent
 cleanup operations. No Core deletion, receipt or lease algorithm is changed.
 
+## Recent-play recording boundary
+
+Ordinary desktop launch records last-played time only after process creation
+returns a non-null process and the existing lifetime tracker accepts it. A
+missing interpreter or other process-creation failure cannot create or overwrite
+recent-play history. Null returns retain the existing error path. The record
+means a process started, not that gameplay or project prerequisites were verified;
+no receipt, child-tree, recovery or launch-event policy changes with this ordering.
+
 ## Portable launch completion identity
 
 A short-lived source-owned process may exit after its live check and tracking

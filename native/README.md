@@ -185,6 +185,16 @@ acceptance, independent update trust, complete behavior reconciliation and every
 platform/package gate. Redundant payload cleanup does not close those gates.
 Do not treat this source as a production-safe installer or full readiness.
 
+## Recent-play history
+
+A failed ordinary desktop process-creation attempt leaves existing last-played
+history unchanged and does not create a new recent-play record. History is
+recorded after a non-null process is returned and the existing portable-lifetime
+tracking accepts it. A started process is not evidence that a game reached its
+menu or played successfully; game-specific readiness and native-platform checks
+remain separate. The launch failure still reports an error, and this ordering
+change does not relax recovery or process-lifetime authority.
+
 ## Restore previous portable version — bounded development source
 
 Open a library tile's context menu in list, grid or compact grid and choose
