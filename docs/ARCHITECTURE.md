@@ -183,3 +183,29 @@ Manual preparation checks ancestor links before creating directories, retains
 existing committed-install validation ahead of marker writes, and creates its
 instruction file with create-new semantics. A failed instruction write can leave
 a partial newly created file; it is not silently overwritten on retry.
+
+## Entry edits and portable authority
+
+Entry edits coordinate with portable installation writers before changing library
+metadata. Folder, source, management-mode and setup changes require conservative
+unmanaged authority over both original and destination roots. Managed history,
+unknown transaction state and any launch receipt, including uncertain or stale
+receipts, prevent these changes. The check does not recover operations or remove
+receipts. Enclosing managed roots and active ancestor writers are checked before
+creating child history, including for linked paths inside another installation.
+
+Display names, project labels, artwork and tags remain editable at the actual
+installation root without marker or instruction preparation. This presentation-only
+path retains the root's own recovery and launch records. Both authority scopes
+span metadata commit and compensation; only setup edits may prepare files.
+
+Managed migration remains unsupported and unaccepted. It needs a recoverable
+transaction spanning root identities, manifests, retained versions/history, data,
+settings and library metadata, with interruption and running-game coverage.
+Hostile concurrent directory replacement and platform certification remain
+separate obligations.
+
+Linked installation paths use their actual root for presentation-edit authority.
+Changing a linked entry’s folder name is refused rather than moving an unrelated
+default-folder path, even when the explicit path currently equals that default.
+Linked-root migration remains unsupported.

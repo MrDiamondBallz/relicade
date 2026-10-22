@@ -86,6 +86,37 @@ public sealed class AppEntryService(GameManager manager, SettingsViewModel setti
                         return false;
                     }
 
+                    // Setup changes need conservative authority over every affected root,
+                    // including retained launch receipts and enclosing managed installations.
+                    var changesSetup = (oldFolderName != folderName || appToUpdate.IsManuallyManaged != manuallyManaged ||
+                             !string.Equals(oldRepository, repository, StringComparison.Ordinal) ||
+                             !string.Equals(RepositorySourceHelper.Normalize(oldRepositorySource), RepositorySourceHelper.Normalize(repositorySource), StringComparison.OrdinalIgnoreCase) ||
+                             !AppFilesToAddService.Normalize(appToUpdate.FilesToAdd).SequenceEqual(filesToAdd, StringComparer.Ordinal) ||
+                             !string.Equals(appToUpdate.ReleaseAssetFilter ?? "", releaseAssetFilter ?? "", StringComparison.Ordinal) ||
+                             !string.Equals(GameModsConfig.NormalizePath(appToUpdate.ModsPath), modsPath, StringComparison.Ordinal) ||
+                             !string.Equals(GameModsConfig.NormalizeLayout(appToUpdate.ModsLayout), GameModsConfig.NormalizeLayout(modsLayout), StringComparison.Ordinal) ||
+                             !System.Text.Json.JsonSerializer.Serialize(GameModsConfig.NormalizeSources(appToUpdate.ModsSources))
+                                 .Equals(System.Text.Json.JsonSerializer.Serialize(modsSources), StringComparison.Ordinal));
+                    IDisposable? entryAuthority = null;
+                    try
+                    {
+                        var originalPath = appToUpdate.GetInstallPath(_settings.AppsPath);
+                        if (oldFolderName != folderName && !string.IsNullOrWhiteSpace(appToUpdate.InstallPath))
+                            throw new IOException("Linked installation folder changes require an explicit migration and are not supported by entry editing.");
+                        entryAuthority = changesSetup
+                            ? PortableInstallationTransaction.AcquireUnmanagedRemovalLeases(oldFolderName != folderName
+                                ? new[] { originalPath, Path.Combine(_settings.AppsPath, folderName) }
+                                : new[] { originalPath })
+                            : new PortableInstallationTransaction(originalPath).AcquireMetadataEditLease();
+                    }
+                    catch (Exception error)
+                    {
+                        entryAuthority?.Dispose();
+                        Notify($"The entry was not changed. Its managed installation authority could not be secured: {error.Message}", "Entry Update Unavailable");
+                        return false;
+                    }
+                    using var entryAuthorityScope = entryAuthority;
+
                     // Work only on staged metadata and a deep settings copy until both stores commit.
                     var originalSettings = _settings;
                     var stagedSettings = System.Text.Json.JsonSerializer.Deserialize<AppSettings>(
@@ -203,7 +234,11 @@ public sealed class AppEntryService(GameManager manager, SettingsViewModel setti
                         GitHubApiCache.RemoveCache(oldRepositorySource, oldRepository);
                     try
                     {
-                        if (appToUpdate.IsManuallyManaged)
+                        if (!changesSetup)
+                        {
+                            // Presentation-only edits must not mutate the committed payload.
+                        }
+                        else if (appToUpdate.IsManuallyManaged)
                             ManualAppFolderService.EnsurePrepared(appToUpdate, _gameManager.GamesFolder, throwOnFailure: true, previousFilesToAdd: previousFilesToAdd);
                         else
                             AppFilesToAddService.SyncForGame(appToUpdate, _gameManager.GamesFolder, previousFilesToAdd, throwOnFailure: true);
