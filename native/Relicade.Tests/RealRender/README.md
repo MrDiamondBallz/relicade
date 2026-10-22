@@ -75,7 +75,19 @@ at normal and minimum desktop layout sizes after an injected offline failure.
 Its project and failure are synthetic, with a throwing transport and no network,
 download or game execution. It checks button bounds and real framebuffer pixels.
 
-The release-notes retry fixture keeps both size cases on one renderer dispatcher
-and application lifetime because the details view uses shared platform-icon
-geometries. Each case still owns and closes its own window. It awaits an actual
+The release-notes retry and catalog-cover fixtures share one collection-owned
+renderer dispatcher and application lifetime. Recreating a per-assembly session
+while the prior application remains alive loses its synchronization context;
+shared platform-icon geometries also belong to their original UI thread. Each case still owns and closes its own window. It awaits an actual
 composition batch before capturing once; no pixel retry or sleep is used.
+
+`CatalogCoverRenderingTests` uses the shared dispatcher across all three
+native library layouts. Procedural synthetic pixels are saved to a disposable
+local cache and read through the actual image pipeline with an injected rejecting
+HTTP transport. Captures are explicitly synthetic, not real game artwork or an
+installed game. Local cache validation, attribution and visible primary actions
+are asserted before capture; no remote images or acquired executables are used.
+
+The seven cover/retry cases are exercised together with unchanged individual
+window cleanup. This scoped check does not establish combined execution of every
+other renderer fixture or physical desktop behavior.

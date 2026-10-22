@@ -357,3 +357,16 @@ closing or switching pages invalidates its result. Transient failures expose a
 user-initiated retry, while successful loaded/empty histories remain cached for
 that page and HTTP missing/removed sources do not create a retry loop. Catalog
 and repository reads preserve their existing provenance and do not install files.
+
+## Library cover identity
+
+`CatalogCover` keeps catalog entry, source URL, variant and baseline icon separate
+from the project's icon. Mapping, strict local-library mutation parsing and
+catalog synchronization retain that record. Unknown stored shapes refuse a
+mutation rather than being silently rewritten. `GameInfo.CardImageUrl` resolves
+only a matching record and yields to custom local art or an edited icon.
+Cache-only Add checks precede session-owned enrichment; cancelled or changed
+entries cannot publish late shared-loader results. The three library templates
+bind the effective image and its attribution without changing primary actions.
+This reuses the existing image transport, not a new security-certified downloader;
+see [native artwork scope](ARTWORK.md#native-library-cover-references).

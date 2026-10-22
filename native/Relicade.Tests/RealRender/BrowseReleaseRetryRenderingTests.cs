@@ -7,18 +7,8 @@ using Relicade.Services;
 using Relicade.ViewModels;
 using Relicade.Views;
 namespace Relicade.Tests;
-// PlatformIcons owns process-static geometries. Both sizes must use the same
-// renderer dispatcher, rather than move those geometries between UI threads.
-public sealed class BrowseReleaseRetryRenderer : IAsyncLifetime
-{
-    internal HeadlessUnitTestSession Session { get; } = HeadlessUnitTestSession.StartNew(
-        typeof(RealRenderTestApp), AvaloniaTestIsolationLevel.PerAssembly);
-    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
-    public ValueTask DisposeAsync() => Session.DisposeAsync();
-}
-
-public sealed class BrowseReleaseRetryRenderingTests(BrowseReleaseRetryRenderer renderer)
-    : IClassFixture<BrowseReleaseRetryRenderer>
+[Collection(SharedCatalogRenderer.CollectionName)]
+public sealed class BrowseReleaseRetryRenderingTests(SharedCatalogRenderer renderer)
 {
     [Theory]
     [InlineData(1000,760)][InlineData(750,490)]

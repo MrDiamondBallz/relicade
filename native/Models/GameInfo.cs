@@ -21,7 +21,7 @@ using System.Linq;
 namespace Relicade.Models
 {
 
-    public class GameInfo : INotifyPropertyChanged, IDisposable
+    public partial class GameInfo : INotifyPropertyChanged, IDisposable
     {
         private const string DefaultInstalledVersion = "v0.0.0";
         public event Action<Process?>? GameProcessStarted;
@@ -249,14 +249,31 @@ namespace Relicade.Models
         /// <summary>Android package id after a successful APK install.</summary>
         public string? AndroidPackageName { get; set; }
         public string? InstallPath { get; set; }
-        public string? GameIconUrl { get; set; }
+        private string? _gameIconUrl;
+        public string? GameIconUrl
+        {
+            get => _gameIconUrl;
+            set
+            {
+                if (_gameIconUrl == value) return;
+                _gameIconUrl = value;
+                _cachedDefaultIconPath = null;
+                DispatchPropertyChanged(nameof(IconUrl));
+                NotifyCardArtwork();
+            }
+        }
         /// <summary>What the catalog last set on this app, so the player's own changes are told apart from its.</summary>
         public CatalogSnapshot? CatalogSnapshot { get; set; }
         /// <summary>
         /// The app's entry id on quiverlauncher.com, saved in apps.json. When present it must match that exact entry;
         /// repository/folder heuristics only link entries without an id. A missing id match is unconfirmed, not another app.
         /// </summary>
-        public string? CatalogEntryId { get; set; }
+        private string? _catalogEntryId;
+        public string? CatalogEntryId
+        {
+            get => _catalogEntryId;
+            set { if (_catalogEntryId != value) { _catalogEntryId = value; NotifyCardArtwork(); } }
+        }
         public bool IsExperimental { get; set; }
         public bool IsCustom { get; set; }
         public List<string> Tags { get; set; } = [];
@@ -393,6 +410,7 @@ namespace Relicade.Models
                     _customIconPath = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IconUrl));
+                    NotifyCardArtwork();
                     OnPropertyChanged(nameof(HasCustomIcon));
                 }
             }
@@ -1294,6 +1312,7 @@ namespace Relicade.Models
 
                 OnPropertyChanged(nameof(CustomIconPath));
                 OnPropertyChanged(nameof(IconUrl));
+                NotifyCardArtwork();
                 OnPropertyChanged(nameof(HasCustomIcon));
             }
             catch (Exception ex)
@@ -1315,6 +1334,7 @@ namespace Relicade.Models
 
                 OnPropertyChanged(nameof(CustomIconPath));
                 OnPropertyChanged(nameof(IconUrl));
+                NotifyCardArtwork();
                 OnPropertyChanged(nameof(HasCustomIcon));
 
                 ClearImageFromMemory();
@@ -1477,6 +1497,7 @@ namespace Relicade.Models
             using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, LauncherSession.OperationCancellation);
             cancellationToken = lifetime.Token;
             cancellationToken.ThrowIfCancellationRequested();
+            await LoadCatalogCoverAsync(cacheDirectory, allowDownload, cancellationToken);
             if (allowDownload) CachedArtworkOnly = false;
             if (string.IsNullOrEmpty(FolderName))
                 return;
@@ -1503,6 +1524,7 @@ namespace Relicade.Models
                     if (!LauncherIconCache.HasImageHeader(sharedPath)) continue;
                     _cachedDefaultIconPath = sharedPath;
                     DispatchPropertyChanged(nameof(IconUrl));
+                    NotifyCardArtwork();
                     return;
                 }
 
@@ -1543,6 +1565,7 @@ namespace Relicade.Models
                 cancellationToken.ThrowIfCancellationRequested();
                 _cachedDefaultIconPath = cachedIconPath;
                 OnPropertyChanged(nameof(IconUrl));
+                NotifyCardArtwork();
                 System.Diagnostics.Debug.WriteLine($"Icon cached for {Name}: {cachedIconPath}");
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
@@ -1556,6 +1579,7 @@ namespace Relicade.Models
         internal async Task CompleteCatalogArtworkAsync(CancellationToken cancellationToken)
         {
             if (!CachedArtworkOnly) return;
+            if (GameManager != null) await LoadCatalogCoverAsync(GameManager.CacheFolder, true, cancellationToken);
             // The shared loader reuses catalog memory/disk entries and downloads only
             // on a cache miss. Keep ownership of its shared bitmap with the loader.
             // IconUrl can be the /Assets placeholder while artwork is deferred. On
@@ -1566,6 +1590,7 @@ namespace Relicade.Models
             cancellationToken.ThrowIfCancellationRequested();
             CachedArtworkOnly = false;
             DispatchPropertyChanged(nameof(IconUrl));
+            NotifyCardArtwork();
         }
 
         private static string GetUrlHash(string url)
@@ -1580,6 +1605,7 @@ namespace Relicade.Models
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 OnPropertyChanged(nameof(IconUrl));
+                NotifyCardArtwork();
                 OnPropertyChanged(nameof(HasCustomIcon));
             }, DispatcherPriority.Render);
         }

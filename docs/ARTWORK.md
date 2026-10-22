@@ -30,6 +30,39 @@ The browser reference prefers actual game imagery from the catalog's retained
 not a substitute presented as a successfully loaded game image. Game images do
 not establish an installed game, playable state, publisher approval or license.
 
+## Native library cover references
+
+Library entries retain a separate catalog cover record with the exact entry ID,
+source URL, header/capsule variant and the catalog icon value used when it was
+selected. The initial supported references are static SteamGridDB grid URLs;
+other hosts or URL shapes keep the existing project icon. This is a bounded
+mapping, not complete artwork-source coverage or a rights grant. Borrowed game
+icons remain excluded from the project-icon field.
+
+All three native library layouts use an eligible resolved cover while preserving
+the player's custom local image and edited project icon. A changed entry ID or
+icon binding invalidates the cover. The image tooltip retains its provider,
+variant and original URL. These fields survive library save/load and catalog
+refresh; they are not silently substituted with another project's art.
+
+Add checks only existing cache files before inserting the library entry. Later
+session-owned enrichment may use the existing shared image loader; its resizing
+service at `quiverlauncher.com` and original SteamGridDB source can receive image
+requests. Cancellation prevents late results from changing the entry, but does
+not promise to cancel a shared image request already used by other views. This
+is not the product-wide network-disabled mode required below.
+
+Cache-only checks refuse linked/nonregular files, files larger than 16 MiB,
+unsupported headers and undecodable images without deleting or overwriting the
+retained entry. If revalidation rejects a previously displayed cache, its resolved
+path and source label are revoked; a valid alternate cache alias still takes
+priority. Valid cached covers remain usable offline; missing/failed covers fall
+back to the project icon. The encoded-file limit is not a decoded-pixel or
+memory budget. The broader transport, redirect, DNS, pixel, atomic-cache and
+rights-review obligations below remain open; this change does not certify them.
+Synthetic image fixtures exercise mapping, persistence, fallback and native
+layouts without downloading or bundling third-party game pixels.
+
 ## Player controls and image completeness
 
 Run `python tools/preview.py` and open `/prototype/`. Online artwork contacts
