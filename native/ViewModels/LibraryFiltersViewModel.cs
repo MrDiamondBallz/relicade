@@ -17,6 +17,7 @@ public sealed class LibraryFiltersViewModel(GameManager manager, LibraryViewMode
     }
     public void Toggle(string filterId)
     {
+        manager.ClearLibraryReveal();
         Settings.ActiveTagDisplayFilterId = string.Equals(Settings.ActiveTagDisplayFilterId, filterId, StringComparison.OrdinalIgnoreCase) ? null : filterId;
         Save();
         manager.ApplyTagDisplayFilter(Settings);
@@ -28,6 +29,7 @@ public sealed class LibraryFiltersViewModel(GameManager manager, LibraryViewMode
     {
         var filter = Settings.TagDisplayFilters.FirstOrDefault(f => f.Id == filterId);
         if (filter == null) return;
+        manager.ClearLibraryReveal();
         Settings.TagDisplayFilters.Remove(filter);
         if (string.Equals(Settings.ActiveTagDisplayFilterId, filterId, StringComparison.OrdinalIgnoreCase)) Settings.ActiveTagDisplayFilterId = null;
         Save();

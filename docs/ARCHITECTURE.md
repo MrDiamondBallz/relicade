@@ -249,4 +249,11 @@ The action is shown only for a matched local entry and re-resolves that entry at
 activation; it does not treat a catalog listing as an installation. The handler
 passes the resolved local instance through the same selection route used by catalog
 cards. Adding an entry exposes this primary action, while removal remains separate.
+A session-only target exception lets selection cross installed-only, tag and search
+filters without changing their persisted values or clearing the query. Normal
+matching entries stay visible. Deliberate filter/search changes and switching to
+Browse clear the exception; background refiltering retains it only while that exact
+local object remains in the library. Pending search input is applied without its
+debounce before the target is revealed, so a delayed search cannot hide it after
+navigation. A native notice explains how to restore the normal filtered view.
 No new download, launch, remote request or prerequisite acceptance is introduced.

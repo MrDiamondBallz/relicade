@@ -39,3 +39,9 @@ It writes `04-owned-game-setup-before-selection.png` with create-new semantics
 when an output directory is supplied. Use a new output directory for every
 capture; do not overwrite historical evidence. It does not certify the platform
 file picker, data import, native desktop host or gameplay.
+
+The library-reveal fixture captures `07-library-filtered-target-reveal.png` after
+opening actual project details and selecting its existing local entry. It shows a
+synthetic uninstalled entry and the temporary-filter exception notice, with no game
+artwork or network request. It is native CPU rendering, not desktop or gameplay
+acceptance. Capture outputs use create-new semantics and unique directories.

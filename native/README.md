@@ -380,5 +380,8 @@ on its details page. Adding an app changes the primary action to that same route
 which selects the actual local entry so installation and setup remain in the
 library. **Remove from library** stays a separate action; opening an entry does
 not install or launch it. A missing or removed entry cannot use a stale navigation
-action. This route has local synthetic native keyboard/controller coverage, not
-physical-device acceptance.
+action. If scope, tags or search hide the selected entry, a temporary reveal keeps
+that one entry visible alongside normal results without saving different filters.
+A visible notice explains the exception. Changing search/filters or switching to
+Browse restores the filtered view. This route has local synthetic native
+keyboard/controller coverage, not physical-device acceptance.
