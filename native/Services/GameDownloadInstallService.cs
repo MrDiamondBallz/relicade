@@ -669,13 +669,15 @@ public static class GameDownloadInstallService
 
     private static async Task<ReleaseCheck?> CheckReleaseAsync(GameInfo game, string version)
     {
-        if (game.GameManager?.CatalogReleases is not { } catalog) return null;
+        if (game.GameManager?.CatalogReleases is not { } catalog)
+            return CatalogReleases.HasCatalogIdentity(game) ? CatalogReleases.UnconfirmedIdentity() : null;
+        var knownIdentity = CatalogReleases.HasCatalogIdentity(game);
         try { return await catalog.CheckAsync(game, version, LauncherSession.OperationCancellation).ConfigureAwait(false); }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
             Debug.WriteLine($"Release check failed for {game.Name}: {ex.Message}");
-            return null;
+            return knownIdentity || CatalogReleases.HasCatalogIdentity(game) ? CatalogReleases.UnconfirmedIdentity() : null;
         }
     }
 

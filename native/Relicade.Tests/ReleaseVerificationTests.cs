@@ -536,6 +536,142 @@ public class ReleaseVerificationTests
         app.Status.Should().Be(GameStatus.UpdateAvailable);
     }
 
+    [AvaloniaTheory]
+    [InlineData("offline", "decline")]
+    [InlineData("offline", "automatic")]
+    [InlineData("offline", "accept")]
+    [InlineData("malformed", "decline")]
+    [InlineData("malformed", "automatic")]
+    [InlineData("malformed", "accept")]
+    [InlineData("empty", "decline")]
+    [InlineData("empty", "automatic")]
+    [InlineData("empty", "accept")]
+    [InlineData("different-id", "decline")]
+    [InlineData("different-id", "automatic")]
+    [InlineData("different-id", "accept")]
+    [InlineData("unavailable", "decline")]
+    [InlineData("unavailable", "automatic")]
+    [InlineData("unavailable", "accept")]
+    [InlineData("offline", "automatic-revalidate")]
+    [InlineData("malformed", "automatic-revalidate")]
+    [InlineData("different-id", "automatic-revalidate")]
+    [InlineData("no-manager", "decline")]
+    [InlineData("no-manager", "automatic")]
+    [InlineData("no-manager", "accept")]
+    [InlineData("bad-history", "decline")]
+    [InlineData("bad-history", "automatic")]
+    [InlineData("bad-history", "accept")]
+    public async Task Known_catalog_identity_without_status_requires_explicit_decision(string status, string mode)
+    {
+        using var launcher = new Launcher();
+        var repo = Repo(); var served = IntegrityArchive();
+        launcher.Network.CatalogUnavailable = status == "unavailable";
+        if (status != "offline") launcher.Network.Site["/release-status?limit=100"] = status == "malformed" ? "{broken" : status == "different-id" ? Page([Status("sibling", repo, "v2")]) : status == "bad-history" ? Page([Status("alpha", repo, "v2")]) : Page([]);
+        launcher.Network.Site["/apps?limit=100&sort=added"] = Page([]);
+        var release = OnGitHub("v2", "sha256:" + Sha256(served));
+        launcher.Network.Files[release.assets[0].browser_download_url] = served;
+        launcher.Network.GitHub[$"/repos/{repo}/releases/latest"] = Json(release);
+        launcher.Network.GitHub[$"/repos/{repo}/releases"] = Json(new[] { release });
+        if (status == "bad-history") launcher.Network.Site["/apps/alpha/release-history?limit=100"] = Page([new { version = "v2", state = "verified", assets = (object?)null }]);
+        var app = InstalledApp(launcher, repo, latest: "v2"); app.CatalogEntryId = "id-alpha";
+        if (status == "no-manager") app.GameManager = null;
+        var player = new Dialogs(confirm: mode == "accept");
+        IGameDownloadDialogs dialogs = mode.StartsWith("automatic", StringComparison.Ordinal) ? new AutomaticGameDownloadDialogs(player) : player;
+        var manifestPath = Path.Combine(app.GetInstallPath(launcher.Manager.GamesFolder), PortableInstallationTransaction.ManifestFileName);
+        var original = File.ReadAllBytes(manifestPath);
+        await GameDownloadInstallService.DownloadAndInstallAsync(app, launcher.Manager.HttpClient, launcher.Manager.GamesFolder,
+            release, launcher.Store.Current, GameStatus.UpdateAvailable, dialogs, releaseMode: mode == "automatic-revalidate" ? ReleaseInstallMode.Automatic : ReleaseInstallMode.ExplicitRelease);
+        player.Errors.Should().BeEmpty(); app.CatalogEntryId.Should().Be("id-alpha");
+        if (mode.StartsWith("automatic", StringComparison.Ordinal)) player.Confirmations.Should().BeEmpty();
+        else
+        {
+            var check = player.Confirmations.Should().ContainSingle().Subject.Check;
+            check.State.Should().Be(ReleaseCheckState.Unverified);
+            check.Reasons.Should().Contain(r => r.Contains("catalog", StringComparison.OrdinalIgnoreCase) && r.Contains("identity", StringComparison.OrdinalIgnoreCase));
+        }
+        if (mode == "accept")
+        {
+            launcher.Network.Downloads.Should().Be(1); app.InstalledVersion.Should().Be("v2"); app.Status.Should().Be(GameStatus.Installed);
+        }
+        else
+        {
+            launcher.Network.Downloads.Should().Be(0); AssertStillV1(app, launcher.Manager.GamesFolder);
+            File.ReadAllBytes(manifestPath).Should().Equal(original); app.Status.Should().Be(GameStatus.UpdateAvailable);
+        }
+        launcher.Network.Reports.Should().BeEmpty();
+    }
+
+    [AvaloniaFact]
+    public async Task Newly_linked_identity_survives_a_history_schema_exception()
+    {
+        using var launcher = new Launcher(); var repo = Repo(); var bytes = Zip("v2.txt");
+        var app = InstalledApp(launcher,repo,"v2");
+        launcher.Network.Site["/release-status?limit=100"] = Page([Status("alpha",repo,"v2")]);
+        launcher.Network.Site["/apps?limit=100&sort=added"] = Page([]);
+        launcher.Network.Site["/apps/alpha/release-history?limit=100"] = Page([new { version = "v2", state = "verified", assets = (object?)null }]);
+        var release = OnGitHub("v2","sha256:"+Sha256(bytes)); launcher.Network.Files[release.assets[0].browser_download_url] = bytes;
+        var player = new Dialogs(false);
+        await GameDownloadInstallService.DownloadAndInstallAsync(app,launcher.Manager.HttpClient,launcher.Manager.GamesFolder,
+            release,launcher.Store.Current,GameStatus.UpdateAvailable,new AutomaticGameDownloadDialogs(player),releaseMode:ReleaseInstallMode.ExplicitRelease);
+        Assert.Equal("alpha",app.CatalogSlug); Assert.Equal(0,launcher.Network.Downloads);
+        AssertStillV1(app,launcher.Manager.GamesFolder); Assert.Empty(player.Confirmations); Assert.Empty(player.Errors);
+    }
+
+    [AvaloniaFact]
+    public async Task Previously_linked_identity_is_not_forgotten_by_automatic_revalidation()
+    {
+        using var launcher = new Launcher(); var repo = Repo(); var bytes = Zip("v2.txt");
+        var app = InstalledApp(launcher,repo,"v2");
+        launcher.Network.Site["/release-status?limit=100"] = Page([Status("alpha",repo,"v2")]);
+        launcher.Network.Site["/apps?limit=100&sort=added"] = Page([]);
+        await launcher.Manager.CatalogReleases.RefreshAsync([app],TestContext.Current.CancellationToken);
+        Assert.Equal("alpha",app.CatalogSlug); Assert.Null(app.CatalogEntryId);
+        launcher.Network.Site["/release-status?limit=100"] = Page([]);
+        using var manager = new GameManager(launcher.Store,new HttpClient(launcher.Network),new AppCatalogService(dataDirectory:RelicadePaths.UserDataRoot));
+        app.GameManager = manager;
+        // The status snapshot no longer contains this formerly linked app; refresh is a real public lifecycle operation.
+        await manager.CatalogReleases.RefreshAsync([app],TestContext.Current.CancellationToken);
+        var release = OnGitHub("v2","sha256:"+Sha256(bytes)); launcher.Network.Files[release.assets[0].browser_download_url] = bytes;
+        launcher.Network.GitHub[$"/repos/{repo}/releases/latest"] = Json(release);
+        launcher.Network.GitHub[$"/repos/{repo}/releases"] = Json(new[] {release});
+        var player = new Dialogs(false);
+        await GameDownloadInstallService.DownloadAndInstallAsync(app,manager.HttpClient,manager.GamesFolder,
+            null,launcher.Store.Current,GameStatus.UpdateAvailable,new AutomaticGameDownloadDialogs(player));
+        Assert.Equal(0,launcher.Network.Downloads); AssertStillV1(app,manager.GamesFolder); Assert.Empty(player.Confirmations); Assert.Empty(player.Errors);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Independent_repository_or_cached_exact_catalog_identity_keeps_working(bool cachedCatalog)
+    {
+        using var launcher = new Launcher();
+        var repo = Repo(); var served = IntegrityArchive();
+        var app = InstalledApp(launcher, repo, latest: "v2");
+        var release = OnGitHub("v2", "sha256:" + Sha256(served));
+        launcher.Network.Files[release.assets[0].browser_download_url] = served;
+        if (cachedCatalog)
+        {
+            app.CatalogEntryId = "id-alpha";
+            launcher.Network.Site["/release-status?limit=100"] = Page([Status("alpha", repo, "v2")]);
+            launcher.Network.Site["/apps?limit=100&sort=added"] = Page([]);
+            await launcher.Manager.CatalogReleases.RefreshAsync([app], TestContext.Current.CancellationToken);
+            // A second manager reads the saved exact-ID status with an offline catalog transport.
+            launcher.Network.Site.Clear();
+            launcher.Network.CatalogUnavailable = true;
+            File.Exists(Path.Combine(launcher.Manager.CacheFolder, "catalog-release-status.json")).Should().BeTrue();
+        }
+        using var manager = new GameManager(launcher.Store, new HttpClient(launcher.Network), new AppCatalogService(dataDirectory: RelicadePaths.UserDataRoot));
+        app.GameManager = manager; app.CatalogSlug = null;
+        var player = new Dialogs(confirm: false);
+        await GameDownloadInstallService.DownloadAndInstallAsync(app, manager.HttpClient, manager.GamesFolder,
+            release, launcher.Store.Current, GameStatus.UpdateAvailable, new AutomaticGameDownloadDialogs(player), releaseMode: ReleaseInstallMode.ExplicitRelease);
+        player.Errors.Should().BeEmpty(); player.Confirmations.Should().BeEmpty();
+        launcher.Network.Downloads.Should().Be(1); app.InstalledVersion.Should().Be("v2"); app.Status.Should().Be(GameStatus.Installed);
+        if (cachedCatalog) { app.CatalogEntryId.Should().Be("id-alpha"); app.CatalogSlug.Should().Be("alpha"); }
+        else app.CatalogSlug.Should().BeNull();
+    }
+
     private static byte[] IntegrityArchive()
     {
         using var memory = new MemoryStream();
@@ -874,6 +1010,7 @@ public class ReleaseVerificationTests
         /// <summary>Broken downloads reported to quiverlauncher.com: app, version, file and problem.</summary>
         public ConcurrentQueue<(string App, string Version, string File, string Problem)> Reports { get; } = new();
         public int Downloads;
+        public bool CatalogUnavailable;
 
         public List<string> SitePaths() => Requests.Select(u => u.AbsolutePath).Where(p => p.StartsWith("/api/v1/")).ToList();
 
@@ -882,6 +1019,8 @@ public class ReleaseVerificationTests
             var uri = request.RequestUri!;
             Requests.Enqueue(uri);
             string? body = null;
+            if (CatalogUnavailable && uri.AbsolutePath.StartsWith("/api/v1/"))
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable);
             if (request.Method == HttpMethod.Post && uri.AbsolutePath.StartsWith("/api/v1/apps/") && uri.AbsolutePath.EndsWith("/download-problem"))
             {
                 using var sent = JsonDocument.Parse(await request.Content!.ReadAsStringAsync(cancellationToken));

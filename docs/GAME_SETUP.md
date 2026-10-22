@@ -25,8 +25,17 @@ digests do not create a false same-tag update after a successful installation.
 
 A matching checksum is not a guarantee of safe software, publisher authenticity,
 rights clearance or gameplay. These checks have synthetic local-transport coverage,
-not acceptance of every catalog asset or platform. Noncatalog source policy and
-catalog reachability are separate concerns; this change does not certify them.
+not acceptance of every catalog asset or platform. Library entries added from the catalog retain their exact catalog ID before
+background enrichment. If that ID cannot be matched to available status metadata,
+automatic installs decline and interactive installs explain the unconfirmed identity
+before asking. An absent explicit ID does not borrow another entry's approval just
+because its repository or folder matches. Saved exact-ID status can still be used
+offline with a valid selected digest. Independent repositories without catalog
+identity retain their separate policy; complete catalog freshness, authentication
+and explicit identity migration remain unaccepted. Links learned on the current
+library object survive a later empty refresh; errors after linking do not permit
+automatic installation. Legacy entries without saved IDs are not migrated across
+restarts by this runtime safeguard.
 
 ## Choosing a launch file before installation
 

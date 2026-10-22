@@ -75,6 +75,7 @@ public sealed class LibraryAddService(GameManager manager, SettingsViewModel set
             FolderName = external.FolderName,
             InstallPath = external.InstallPath,
             GameIconUrl = external.GameIconUrl,
+            CatalogEntryId = manual ? null : external.CatalogEntryId,
             PreferredVersion = manual ? null : external.PreferredVersion,
             SkippedUpdateVersion = manual ? null : external.SkippedUpdateVersion,
             AutoUpdate = autoUpdate && !manual,

@@ -90,5 +90,11 @@ installation requires a usable published SHA-256 or explicit interactive consent
 to proceed without it; automatic/headless flows decline the missing-digest case.
 Valid nonrolling catalog digests retain precedence over publisher fallback digests,
 and mismatches block activation. Syntax validation and a matching digest are not
-publisher authentication, malware clearance or a sandbox. Catalog linkage and
-reachability policy and noncatalog source policy remain separate review boundaries.
+publisher authentication, malware clearance or a sandbox. Known catalog identity is retained when adding a library entry. Missing or
+malformed status evidence, unavailable check services and a missing explicit ID
+produce an unconfirmed diagnostic instead of implicit noncatalog permission.
+Exact cached identity remains usable; unknown independent repositories retain
+separate policy. This is not complete metadata schema, freshness, authentication
+or catalog identity-migration acceptance. Identity learned during a failed check
+or retained on the current library object still requires confirmation; a later
+empty refresh does not erase it. Legacy saved IDs are not silently rewritten.
