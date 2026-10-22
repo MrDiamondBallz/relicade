@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.ExceptionServices;
 using System.Text.Json;
+using System.Text;
+using Relicade.Core.Services;
 using System.Text.Json.Nodes;
 
 namespace Relicade.Services;
@@ -176,6 +178,7 @@ public sealed class QuiverCatalogScan
 /// <summary>A release as the site judges it: verified, unverified or blocked, with the files it pinned.</summary>
 public sealed class QuiverCatalogRelease
 {
+    public string? ReleaseId { get; set; }
     public string Version { get; set; } = "";
     public string State { get; set; } = "";
     public string Notes { get; set; } = "";
@@ -259,8 +262,119 @@ public sealed class QuiverCatalogClient(HttpClient http, string? baseUrl = null)
         GetPageAsync<QuiverCatalogStatus>("/release-status?limit=100" + (cursor == null ? "" : "&cursor=" + Uri.EscapeDataString(cursor)), token);
 
     /// <summary>Every release the site knows for an app, newest first, each verified, unverified or blocked.</summary>
-    public Task<QuiverCatalogPage<QuiverCatalogRelease>> GetReleaseHistoryAsync(string slug, CancellationToken token) =>
-        GetPageAsync<QuiverCatalogRelease>($"/apps/{Uri.EscapeDataString(slug)}/release-history?limit=100", token);
+    public async Task<QuiverCatalogPage<QuiverCatalogRelease>> GetReleaseHistoryAsync(string slug, CancellationToken token)
+    {
+        // A deadline and byte budget refuse oversized/incomplete reads rather than silently cutting off pages.
+        using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(token);
+        lifetime.CancelAfter(TimeSpan.FromMinutes(2));
+        var budget = new HistoryReadBudget(64 * 1024 * 1024);
+        var releases = new List<QuiverCatalogRelease>();
+        var cursors = new HashSet<string>(StringComparer.Ordinal);
+        string? cursor = null;
+        var receivedPage = false;
+        try
+        {
+            while (true)
+            {
+                lifetime.Token.ThrowIfCancellationRequested();
+                var path = $"/apps/{Uri.EscapeDataString(slug)}/release-history?limit=100" +
+                    (cursor == null ? "" : "&cursor=" + Uri.EscapeDataString(cursor));
+                var page = await GetAsync<JsonObject>(path, lifetime.Token, budget).ConfigureAwait(false);
+                receivedPage |= page != null;
+                if (page == null)
+                    throw new HttpRequestException("Release history is no longer available.", null, HttpStatusCode.NotFound);
+                if (page["items"] is not JsonArray rows)
+                    throw new InvalidDataException("Release history has no valid items array.");
+                var items = rows.Deserialize<List<QuiverCatalogRelease>>(Json) ?? [];
+                releases.AddRange(items);
+                if (page["isDone"] is not JsonValue completion || !completion.TryGetValue<bool>(out var done))
+                    throw new InvalidDataException("Release history has no valid completion marker.");
+                if (done) break;
+                cursor = page?["nextCursor"]?.GetValue<string>();
+                if (string.IsNullOrEmpty(cursor) || !cursors.Add(cursor))
+                    throw new InvalidDataException("Catalog release-history pagination did not advance.");
+            }
+            lifetime.Token.ThrowIfCancellationRequested();
+            return new(await Task.Run(() => MergeHistory(releases, lifetime.Token), lifetime.Token).ConfigureAwait(false), null, true);
+        }
+        catch (Exception ex)
+        {
+            // Partial approval is never a completed history. Retain only denial evidence for the safety caller.
+            if (token.IsCancellationRequested) throw new CanceledHistoryException(releases, ex, token);
+            throw new IncompleteHistoryException(releases, receivedPage, ex);
+        }
+    }
+
+    internal interface IHistoryReadEvidence
+    {
+        IReadOnlyList<QuiverCatalogRelease> KnownBlocks { get; }
+    }
+
+    private static IReadOnlyList<QuiverCatalogRelease> SnapshotBlocks(IEnumerable<QuiverCatalogRelease> releases) =>
+        releases.Where(r => r is { State: "blocked" } && !string.IsNullOrWhiteSpace(r.Version))
+            .Select(r => new QuiverCatalogRelease { Version = r.Version, State = "blocked", Reasons = (r.Reasons ?? []).ToList() }).ToArray();
+
+    internal sealed class CanceledHistoryException : OperationCanceledException, IHistoryReadEvidence
+    {
+        public IReadOnlyList<QuiverCatalogRelease> KnownBlocks { get; }
+        public CanceledHistoryException(IEnumerable<QuiverCatalogRelease> releases, Exception inner, CancellationToken token)
+            : base("Release-history reading was canceled.", inner, token) => KnownBlocks = SnapshotBlocks(releases);
+    }
+
+    internal sealed class IncompleteHistoryException : IOException, IHistoryReadEvidence
+    {
+        public IReadOnlyList<QuiverCatalogRelease> KnownBlocks { get; }
+        public bool NoHistoryPageReceived { get; }
+        public IncompleteHistoryException(IEnumerable<QuiverCatalogRelease> releases, bool receivedPage, Exception inner)
+            : base("The complete release history could not be checked. Try again later.", inner)
+        {
+            NoHistoryPageReceived = !receivedPage;
+            KnownBlocks = SnapshotBlocks(releases);
+        }
+    }
+
+    internal static bool SameHistoryRecord(QuiverCatalogRelease left, QuiverCatalogRelease right)
+    {
+        var a = JsonSerializer.SerializeToNode(left, Json)!.AsObject();
+        var b = JsonSerializer.SerializeToNode(right, Json)!.AsObject();
+        a.Remove("version"); b.Remove("version");
+        return JsonNode.DeepEquals(a, b);
+    }
+
+    private static List<QuiverCatalogRelease> MergeHistory(List<QuiverCatalogRelease> releases, CancellationToken token)
+    {
+        var result = new List<QuiverCatalogRelease>();
+        foreach (var release in releases)
+        {
+            token.ThrowIfCancellationRequested();
+            if (release == null || string.IsNullOrWhiteSpace(release.Version)) throw new InvalidDataException("Release history contains an unnamed version.");
+            if (release.Assets == null || release.Reasons == null || release.Assets.Any(a => a == null || string.IsNullOrWhiteSpace(a.Filename)))
+                throw new InvalidDataException("Release history contains invalid file or review metadata.");
+            // Tags are source identities, not semantic-version ordering keys. Build labels and case remain intact.
+            // Only an identical repeated record is redundant; retain conflicting revisions and their file metadata.
+            if (!result.Any(r => r.Version == release.Version && SameHistoryRecord(r, release))) result.Add(release);
+        }
+        return result;
+    }
+
+    internal sealed class HistoryReadBudget(int remaining)
+    {
+        public async Task<string> ReadAsync(HttpContent content, CancellationToken token)
+        {
+            if (content.Headers.ContentLength > remaining) throw new InvalidDataException("Release history exceeds the metadata download limit.");
+            using var input = await content.ReadAsStreamAsync(token).ConfigureAwait(false);
+            using var output = new MemoryStream();
+            var buffer = new byte[32768];
+            while (true)
+            {
+                var count = await input.ReadAsync(buffer.AsMemory(0, Math.Min(buffer.Length, remaining + 1)), token).ConfigureAwait(false);
+                if (count == 0) break;
+                if (count > remaining) throw new InvalidDataException("Release history exceeds the metadata download limit.");
+                remaining -= count; output.Write(buffer, 0, count);
+            }
+            return Encoding.UTF8.GetString(output.GetBuffer(), 0, checked((int)output.Length));
+        }
+    }
 
     /// <summary>Reporting is disabled. A catalog read does not authorize sending diagnostics.</summary>
     public Task ReportDownloadProblemAsync(string slug, string version, string fileName, string problem, CancellationToken token)
@@ -282,12 +396,12 @@ public sealed class QuiverCatalogClient(HttpClient http, string? baseUrl = null)
     /// be reached at all (a failed TLS handshake or connection, or the 499 its proxy sometimes answers), asks the
     /// deployment's own host instead, and keeps asking it from then on.
     /// </summary>
-    private async Task<T?> GetAsync<T>(string path, CancellationToken token) where T : class
+    private async Task<T?> GetAsync<T>(string path, CancellationToken token, HistoryReadBudget? budget = null) where T : class
     {
-        if (_usingFallback) return await GetAsync<T>(FallbackBaseUrl, path, token).ConfigureAwait(false);
+        if (_usingFallback) return await GetAsync<T>(FallbackBaseUrl, path, token, budget).ConfigureAwait(false);
         try
         {
-            return await GetAsync<T>(_base, path, token).ConfigureAwait(false);
+            return await GetAsync<T>(_base, path, token, budget).ConfigureAwait(false);
         }
         catch (HttpRequestException ex) when (_base == DefaultBaseUrl && Unreachable(ex) && !token.IsCancellationRequested)
         {
@@ -295,7 +409,7 @@ public sealed class QuiverCatalogClient(HttpClient http, string? baseUrl = null)
             var failed = false;
             try
             {
-                answer = await GetAsync<T>(FallbackBaseUrl, path, token).ConfigureAwait(false);
+                answer = await GetAsync<T>(FallbackBaseUrl, path, token, budget).ConfigureAwait(false);
             }
             catch (Exception fallback) when (fallback is HttpRequestException or TimeoutException or JsonException)
             {
@@ -327,18 +441,21 @@ public sealed class QuiverCatalogClient(HttpClient http, string? baseUrl = null)
             : ex.Message;
     }
 
-    private async Task<T?> GetAsync<T>(string baseUrl, string path, CancellationToken token) where T : class
+    private async Task<T?> GetAsync<T>(string baseUrl, string path, CancellationToken token, HistoryReadBudget? budget = null) where T : class
     {
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
         timeout.CancelAfter(Timeout);
         try
         {
-            using var response = await http.GetAsync(baseUrl + path, timeout.Token).ConfigureAwait(false);
+            using var response = await http.GetAsync(baseUrl + path, budget == null ? HttpCompletionOption.ResponseContentRead : HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.NotFound) return null;
-            var body = await response.Content.ReadAsStringAsync(timeout.Token).ConfigureAwait(false);
+            var body = budget == null ? await response.Content.ReadAsStringAsync(timeout.Token).ConfigureAwait(false)
+                : await budget.ReadAsync(response.Content, timeout.Token).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
                 throw new HttpRequestException(ErrorMessage(body) ?? $"quiverlauncher.com answered {(int)response.StatusCode}.", null, response.StatusCode);
-            return JsonSerializer.Deserialize<T>(body, Json);
+            var parsed = JsonSerializer.Deserialize<T>(body, Json);
+            if (budget != null && parsed == null) throw new JsonException("Release history is not a JSON object.");
+            return parsed;
         }
         catch (OperationCanceledException) when (!token.IsCancellationRequested)
         {

@@ -432,6 +432,34 @@ query; ordinary network failures and cancellation retain the next-page retry.
 There is no fixed catalog-size or page-count cutoff. This protects discovery
 progress, not metadata authenticity, installation or gameplay acceptance.
 
+### Release-history completeness
+
+Release checks follow every declared history continuation before replacing the
+last complete in-memory history. Empty or short pages do not end a history when
+the server declares another page. History cursors retain their exact opaque value;
+repeated or cyclic cursors, missing continuation/completion fields and malformed
+responses produce an incomplete-read diagnostic rather than partial approval.
+There is no fixed page-count cutoff. Reads have a two-minute overall deadline,
+the existing per-request timeout, and a shared 64 MiB metadata-body budget; hitting
+a bound refuses the incomplete read instead of silently truncating it.
+
+Exact source tags, including case and `+build` labels, release IDs and existing
+file metadata remain available. An exact requested tag takes precedence over a
+legacy numeric or `v`-prefix alias. Conflicting records for one requested tag do
+not lend it an arbitrary checksum or automatic approval, and known per-file flags
+remain visible. Ambiguous aliases do not choose between distinct source tags.
+The global release-ordering and cached-release rules are unchanged by this work.
+
+A failed or canceled continuation retains the previous complete version-menu
+history. Blocks actually observed in an incomplete read are kept separately as
+denial-only evidence for that catalog app and version. They cannot supply an
+approval, download or version-menu row. A valid complete refresh supersedes that
+session evidence. Existing status-only offline checks still work when no history
+page was received and no known block contradicts the status. This is not a durable
+block database, authenticated metadata or a guarantee of current catalog status:
+the normal ten-minute complete-history cache and thirty-minute status cache still
+apply, and observed denial-only evidence does not survive an application restart.
+
 ## Selected download integrity
 
 Catalog release approval does not replace a selected file's integrity check.
