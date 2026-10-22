@@ -27,6 +27,8 @@ public sealed class VersionMenuOutcomeTests
     [InlineData("already-installed", true)]
     [InlineData("post-commit-error", false)]
     [InlineData("post-commit-error", true)]
+    [InlineData("changed-pin", true)]
+    [InlineData("cleared-pin", true)]
     public async Task Version_preferences_require_a_confirmed_chosen_installation(string outcome, bool priorPin)
     {
         var root = Path.Combine(Path.GetTempPath(), "relicade-menu-outcome-" + Guid.NewGuid().ToString("N"));
@@ -38,7 +40,7 @@ public sealed class VersionMenuOutcomeTests
             store.Current.Platform = TargetOS.Windows; store.Current.AppsPath = Path.Combine(root, "Apps");
             store.Save(store.Current); SettingsStoreProvider.Default = store;
             await using var session = new LauncherSession();
-            Task? drain = null; var downloads = 0;
+            Task? drain = null, preferenceSave = null; Action? editPreference = null; var downloads = 0;
             using var client = new HttpClient(new Handler(request =>
             {
                 if (request.RequestUri!.Host == "api.quiverlauncher.com") return new(HttpStatusCode.NotFound);
@@ -55,19 +57,26 @@ public sealed class VersionMenuOutcomeTests
                     using (var file = zip.CreateEntry("game.exe").Open()) file.Write([0x4d, 0x5a, 0x90, 0]);
                     return new(HttpStatusCode.OK) { Content = new ByteArrayContent(zipBytes.ToArray()) };
                 }
+                if (outcome is "changed-pin" or "cleared-pin") editPreference!();
                 throw new HttpRequestException("Synthetic connection failure.");
             }));
             using var manager = new GameManager(store, client, new AppCatalogService(dataDirectory: root));
-            const string chosen = "v1.0.0-prerelease+37";
-            var installed = outcome == "already-installed" ? chosen : "v1.0.0-prerelease+39";
+            var concurrentEdit = outcome is "changed-pin" or "cleared-pin";
+            var chosen = concurrentEdit ? "1.0" : "v1.0.0-prerelease+37";
+            var installed = outcome == "already-installed" ? chosen : concurrentEdit ? "2.0" : "v1.0.0-prerelease+39";
             var game = new GameInfo { Name = "Menu fixture", FolderName = "game", Repository = "fixture/" + Guid.NewGuid().ToString("N"),
                 GameManager = manager, CatalogEntryId = outcome == "declined" ? "menu-fixture" : null,
-                InstalledVersion = installed, LatestVersion = installed, PreferredVersion = priorPin ? installed : null, Status = GameStatus.Installed };
+                InstalledVersion = installed, LatestVersion = installed, PreferredVersion = priorPin ? concurrentEdit ? chosen : installed : null, Status = GameStatus.Installed };
             var folder = game.GetInstallPath(manager.GamesFolder);
             var original = Path.Combine(root, "original.exe");
             File.WriteAllText(original, "Original synthetic bytes; never executed.");
             await GameInstallationService.InstallOrUpdateGameAsync(original, folder, "game.exe", installed);
             await manager.CatalogService.SaveLocalAppsAsync([game]);
+            editPreference = () =>
+            {
+                game.PreferredVersion = outcome == "changed-pin" ? "1.5" : null;
+                preferenceSave = manager.CatalogService.SaveLocalAppsAsync([game]);
+            };
             var injectedPostCommitFailure = false;
             manager.PropertyChanged += (_, args) =>
             {
@@ -82,6 +91,7 @@ public sealed class VersionMenuOutcomeTests
             var release = new GitHubRelease { tag_name = chosen, assets = [new() { name = "game-windows.zip", browser_download_url = "https://example.test/game-windows.zip" }] };
             await controller.ShowReleaseDownloadSelectionMenuAsync(new Button(), game, release, chosen, installed);
             if (drain != null) await drain;
+            if (preferenceSave != null) await preferenceSave;
             downloads.Should().Be(outcome is "declined" or "already-installed" ? 0 : 1);
             var activated = outcome is "installed" or "post-commit-error";
             var actualVersion = activated ? chosen : installed;
@@ -91,7 +101,7 @@ public sealed class VersionMenuOutcomeTests
             game.InstalledVersion.Should().Be(actualVersion);
             injectedPostCommitFailure.Should().Be(outcome == "post-commit-error");
             var confirmed = outcome is "installed" or "already-installed";
-            var expectedPin = confirmed ? chosen : priorPin ? installed : null;
+            var expectedPin = concurrentEdit ? outcome == "changed-pin" ? "1.5" : null : confirmed ? chosen : priorPin ? installed : null;
             game.PreferredVersion.Should().Be(expectedPin,
                 "only the positively completed chosen installation authorizes a new version preference");
             var saved = (await manager.CatalogService.LoadLocalAppsAsync()).Should().ContainSingle().Subject;

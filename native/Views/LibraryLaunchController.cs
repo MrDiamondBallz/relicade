@@ -615,6 +615,7 @@ public sealed class LibraryLaunchController
     private async Task InstallChosenReleaseAsync(GameInfo game, GitHubRelease release, GitHubAsset asset,
         string? preferredVersion, string? skippedUpdateVersion, bool reinstall = false)
     {
+        using var preferenceRetention = game.PreserveVersionPreferenceDuringSelection();
         if (reinstall)
         {
             // The same version again: the player's version choices stay as they are.

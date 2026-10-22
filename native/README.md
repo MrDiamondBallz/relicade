@@ -541,7 +541,11 @@ modify game files.
 The version menu saves a new preference only after the installation service
 confirms the chosen release completed, or validates that exact release is already
 installed, while the library session is still open. Declines, cancellation and
-unconfirmed failures retain the prior preference. A failure after activation may
+unconfirmed failures retain the live preference in memory and in the saved library.
+Temporary selection metadata does not retire an existing numeric pin; explicit
+preference edits made during the operation are not restored to an older snapshot
+on failure. Ordinary numeric-pin retirement outside selection is unchanged.
+A failure after activation may
 still leave the new generation installed: the library reconciles actual files
 without interpreting a missing completion result as a rollback.
 

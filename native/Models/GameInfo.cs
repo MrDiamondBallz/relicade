@@ -713,6 +713,27 @@ namespace Relicade.Models
         [System.Text.Json.Serialization.JsonIgnore]
         public bool HasRepositoryCheckError => !IsManuallyManaged && !string.IsNullOrWhiteSpace(RepositoryCheckError);
 
+        private int _versionPreferenceRetention;
+
+        // Explicit selection can temporarily apply a different latest release before its outcome is known.
+        // Retain the live preference, rather than restoring an older snapshot over a concurrent user edit.
+        internal IDisposable PreserveVersionPreferenceDuringSelection() => new VersionPreferenceScope(this);
+
+        private sealed class VersionPreferenceScope : IDisposable
+        {
+            private GameInfo? _owner;
+            public VersionPreferenceScope(GameInfo owner)
+            {
+                _owner = owner;
+                Interlocked.Increment(ref owner._versionPreferenceRetention);
+            }
+            public void Dispose()
+            {
+                var owner = Interlocked.Exchange(ref _owner, null);
+                if (owner != null) Interlocked.Decrement(ref owner._versionPreferenceRetention);
+            }
+        }
+
         public string? LatestVersion
         {
             get => _latestVersion;
@@ -723,7 +744,8 @@ namespace Relicade.Models
                 {
                     _latestVersion = value;
 
-                    if (_preferredVersion?.Contains('+') != true && CatalogReleaseSelection.MatchesTarget(_preferredVersion, _latestVersion))
+                    if (Volatile.Read(ref _versionPreferenceRetention) == 0 &&
+                        _preferredVersion?.Contains('+') != true && CatalogReleaseSelection.MatchesTarget(_preferredVersion, _latestVersion))
                     {
                         _preferredVersion = null;
                         DispatchPropertyChanged(nameof(PreferredVersion));

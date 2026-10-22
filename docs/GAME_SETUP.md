@@ -56,7 +56,8 @@ existing **Back to latest updates** or
 for cache and legacy-alias boundaries.
 
 Choosing a version changes the saved pin only after that chosen installation is
-confirmed. Declining, cancelling or failing the operation keeps the previous pin.
+confirmed. Declining, cancelling or failing the operation keeps the existing pin
+in memory and in the saved library, without undoing a separate preference edit.
 If an error occurs after activation, the new installed files can still remain;
 check the library and recovery state rather than assuming cancellation rolled
 everything back.
