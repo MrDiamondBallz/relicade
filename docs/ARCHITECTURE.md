@@ -55,7 +55,7 @@ Merged source now includes contained portable staging, manifests and journaled g
 
 The cleanup-only typed `PortableBackupCleanupService` now composes that same
 Core authority and canonical context for CLI and the native library dialog. The
-UI is included in this source, not packaged or native-platform accepted. A session-owned flow
+UI is included in this source, not released or native-platform accepted. A session-owned flow
 captures the exact InstanceKey, prevents duplicate dialogs, hashes/applies off
 the dispatcher and drains cancellation before dependencies are released. The
 dialog confirms only its displayed hash; stale errors require a new preview and
@@ -370,3 +370,15 @@ entries cannot publish late shared-loader results. The three library templates
 bind the effective image and its attribution without changing primary actions.
 This reuses the existing image transport, not a new security-certified downloader;
 see [native artwork scope](ARTWORK.md#native-library-cover-references).
+
+
+## Development Linux container assembly
+
+The Linux packaging templates and Python builders assemble a checked directory
+publish into an AppDir and then an unsigned development AppImage. They preserve
+payload bytes and existing notices, use explicit local pinned tool/runtime assets,
+and do not register desktop settings, fetch dependencies or configure updates.
+The embedded AppImage runtime introduces separate component-rights obligations;
+the directory-publish inventory does not cover them automatically. See the
+[development recipe](LINUX_APPIMAGE_DEVELOPMENT.md). This does not accept a
+platform, installer migration, full desktop behavior or public release.

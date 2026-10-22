@@ -21,7 +21,7 @@ The native development source now includes staged portable installation and jour
 
 Vault failures are explicit and have no general-settings plaintext fallback. Legacy plaintext credentials require an informed preview/confirmation flow; the existence of migration code does not mean every previous copy has been scrubbed. Sensitive old originals/backups/rescue files and filesystem/OS remnants remain a separate privacy/retention problem. The redundant portable backup cleanup source only removes explicitly previewed/hash-confirmed duplicate immutable payload files from older committed operations, retaining all previous generations, data snapshots, journals and current-operation backups. It does not erase credentials, securely erase files, implement general history pruning or provide managed uninstall. Its durable local approval is not publisher authentication; hostile OS writers and native/power-loss guarantees remain unaccepted. Never put credentials or migration diagnostics into public docs/status inputs.
 
-The native library cleanup dialog included in this source (not packaged or native-platform accepted)
+The native library cleanup dialog included in this source (not released or native-platform accepted)
 confirms only the displayed plan hash, defaults to Cancel and does not
 implicitly confirm a changed plan or automatically resume. The shared typed
 service checks persisted library/settings context and the session manager's own

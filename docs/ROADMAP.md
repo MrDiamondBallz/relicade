@@ -33,7 +33,7 @@ Merged source includes staged portable installation, manifests/journaled generat
 
 This source includes the native library's **Clean redundant backups…** journey:
 complete preview, explicit displayed-hash confirmation, cancel, invocation-local
-results and explicit same-hash resume. The UI is not packaged or native-platform
+results and explicit same-hash resume. The UI is not released or native-platform
 accepted; it does not complete general retention or managed uninstall.
 
 Complete durable queues/cancellation, retained-version recovery journeys, provider trust and independent fault/security/platform acceptance still need work. Preserve original game data, saves and configuration. Test interrupted transfers, crashes, locked files and disk exhaustion.
@@ -45,6 +45,11 @@ retained, not older saves; compatibility and external data remain unsupported
 without project adapters. Preview/reopen starts no repair, resume or retry; the
 existing confirmed transaction can attempt internal recovery on failure. No
 download or general history restore is implied. Complete R3 and native-platform/package acceptance remain open.
+
+A private Linux x64 [AppDir/AppImage recipe](LINUX_APPIMAGE_DEVELOPMENT.md)
+provides a development packaging path with explicit pinned tools. Runtime rights,
+AppStream metadata, signing and actual package/desktop installation acceptance
+remain open. This does not supply a released binary or cover Flatpak/ARM64.
 
 ## 4. Full functionality and platform coverage — mandatory, pending
 

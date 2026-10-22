@@ -24,6 +24,7 @@ This inventory is generated from the explicit maintenance registry. Semantic rev
 | [docs/DOC_STATUS.md](DOC_STATUS.md) | generated |  |
 | [docs/FEATURE_COVERAGE.md](FEATURE_COVERAGE.md) | review | contracts, tooling, native |
 | [docs/GAME_SETUP.md](GAME_SETUP.md) | review | native, contracts |
+| [docs/LINUX_APPIMAGE_DEVELOPMENT.md](LINUX_APPIMAGE_DEVELOPMENT.md) | review | native, tooling |
 | [docs/NATIVE_PACKAGE_CONTENTS.md](NATIVE_PACKAGE_CONTENTS.md) | review | native, tooling |
 | [docs/PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md) | review | native, preview, presentation, tooling, contracts |
 | [docs/ROADMAP.md](ROADMAP.md) | review | native, preview, presentation, tooling, contracts |

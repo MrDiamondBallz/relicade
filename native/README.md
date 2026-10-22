@@ -171,7 +171,7 @@ coverage, a rights grant or product-wide offline-network acceptance. See
 
 | Target | Foundation status | Still required |
 | --- | --- | --- |
-| Linux x64 | Self-contained publish; isolated virtual-X11 startup and local/headless fixture exercises | Packaged AppImage/Flatpak, real installs/launches, game-data requirements, recovery/security, controller/accessibility/hardware tests |
+| Linux x64 | Self-contained publish; private AppDir/AppImage recipe; isolated virtual-X11 startup and local/headless fixture exercises | Released AppImage/Flatpak, real installs/launches, game-data requirements, recovery/security, controller/accessibility/hardware tests |
 | Windows x64 | Self-contained cross-publish from Linux | Native Windows build/package/runtime, install/launch/recovery, signing, DPI/Narrator/controller acceptance |
 | Linux ARM64 | Desktop RID and source retained; not built here | ARM64 build/package/runtime and hardware acceptance |
 | macOS Intel/Apple Silicon | Both desktop RIDs and platform adapters retained; not built here | macOS build, signing/notarization, packaging/runtime and hardware acceptance |
@@ -482,3 +482,12 @@ in-flight reads are suppressed, and cancelled or superseded requests cannot
 publish old notes into a different page. Successfully loaded or empty histories
 are retained; missing or removed repositories do not become retry loops. This
 is a read-only recovery path, not a release download or installation action.
+
+## Private Linux packaging recipe
+
+A [Linux x64 development recipe](../docs/LINUX_APPIMAGE_DEVELOPMENT.md) now assembles
+an AppDir and an unsigned AppImage from the checked directory publish, using
+explicitly pinned local build tools. Existing output paths are not replaced.
+This is separate from supported-platform and release acceptance: actual desktop,
+FUSE, installation/upgrade, gameplay and AppImage-runtime rights checks remain
+open. It does not provide Flatpak or ARM64 packaging acceptance.

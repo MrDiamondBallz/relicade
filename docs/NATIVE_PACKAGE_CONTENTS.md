@@ -105,3 +105,8 @@ than treating them as Relicade files or claiming they are valid local links.
 No unrelated upstream implementation files are added to make those links appear
 local. This does not resolve every transitive license obligation or promote the
 package to distribution acceptance.
+
+
+The separate [development AppImage recipe](LINUX_APPIMAGE_DEVELOPMENT.md) embeds
+an additional runtime with its own component obligations. This directory-publish
+inventory does not silently extend to that runtime or approve its distribution.
