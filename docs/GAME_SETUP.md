@@ -180,7 +180,8 @@ The compiled adapter accepts only this managed **Linux x64** package:
   MD5 `cd666466759b5e5f63af93c5f0ffd0a1`.
 
 For an uninstalled entry on Linux x64, **Set up Freedoom Phase 2…** first asks
-whether to install the exact UZDoom package above. Declining makes no download.
+whether to install the exact UZDoom package above. The setup window requires an
+explicit **Install engine** action and shows progress. Declining makes no download.
 The selected release, asset name and official download address must still match;
 the downloaded bytes must match the compiled adapter hash even if remote metadata
 reports a different digest. Header and streamed bytes are bounded to the pinned
@@ -202,11 +203,18 @@ Unsupported platforms and already remembered versions need ordinary installation
 or version selection. Version preferences, normal updates and Launch are unchanged;
 a later normal update can require a future adapter before this optional flow works.
 
-Cancellation prevents the handoff from opening data setup. An owned package transfer
-is drained; an already committed engine can remain installed if cancellation occurs
-at completion. Reopen the entry to inspect its actual state before retrying. This is
-not a promise that every cancellation removes all work or that a first-install guard
-protects against hostile concurrent filesystem replacement.
+**Cancel setup**, Escape/controller Back, or closing the busy setup window cancels
+this guided operation, not the launcher or unrelated downloads. The window stays
+pending until its owned package transfer and installation work drain, and then
+shows a result before Close. It cannot start a second attempt while work is pending.
+Cancellation prevents the handoff from opening data setup; an already committed
+engine and its history remain installed if cancellation arrives at completion.
+Reopen the entry only after the terminal result to inspect its actual state before
+retrying. Shared metadata requests retain their separate coordinator ownership.
+This is not a promise that cancellation removes all work or that the first-install
+guard protects against hostile concurrent filesystem replacement. Long diagnostic
+text has keyboard/controller Previous/Next pages and an explicit display limit;
+the retained operation message is not truncated by that view.
 
 Select **Get free game data** to download that exact archive explicitly, or use
 the official release-page link and choose your existing `freedoom2.wad`. The
@@ -269,6 +277,11 @@ cover retained data/history, ancestor authority, immutable bytes and size bounds
 The [guided handoff tests](../native/Relicade.Tests/FreedoomEngineHandoffTests.cs)
 exercise actual installation with non-runnable synthetic payloads and injected
 metadata/download responses, including consent, offline retry and cancellation.
+The [engine progress tests](../native/Relicade.Tests/FreedoomEngineProgressTests.cs)
+exercise the actual confirmation composition, mouse/keyboard/controller routes,
+original-context checks, setup-only cancellation, delayed owned-transfer drain,
+late committed-engine retention and terminal retry. Synthetic operation renders
+check the ordinary/minimum-size dialog separately from installer behavior.
 The [library action tests](../native/Relicade.Tests/FreedoomLibraryActionTests.cs)
 cover separate setup/play routing. These source checks do not accept real engine
 execution, all catalog projects or target platforms.

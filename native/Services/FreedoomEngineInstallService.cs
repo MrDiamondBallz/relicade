@@ -7,9 +7,17 @@ namespace Relicade.Services;
 
 internal static class FreedoomEngineInstallService
 {
-    internal static async Task<bool> InstallAsync(GameInfo game, GameManager manager, AppSettings settings,
-        CancellationToken token, Func<string, string, Task<bool>> confirm,
-        IGameDownloadDialogs? dialogs = null, OwnedDataRequirement? definition = null)
+    internal static string ConfirmationMessage(OwnedDataRequirement? definition = null)
+    {
+        var requirement = definition ?? OwnedGameSetupService.FreedoomPhase2;
+        var asset = requirement.AssetIdentity.Split("|sha256:", StringSplitOptions.None)[0];
+        return $"Install UZDoom {requirement.ReleaseIdentity} for Linux x64 in this library entry?\n\nThis explicit setup uses the reviewed {asset} package. After installation, you can download and confirm the free Freedoom Phase 2 data. Nothing is played automatically. Existing engines, versions and personal game files are not replaced.";
+    }
+    internal sealed record PreparedInstall(OwnedDataRequirement Requirement, string AssetName,
+        OwnedGameSetupSession Context, FirstInstallPackageConstraint Constraint);
+
+    internal static PreparedInstall PrepareFirstInstall(GameInfo game, GameManager manager,
+        CancellationToken token, OwnedDataRequirement? definition = null)
     {
         token.ThrowIfCancellationRequested();
         if (!OperatingSystem.IsLinux() || OperatingSystem.IsAndroid() || RuntimeInformation.ProcessArchitecture != Architecture.X64)
@@ -27,10 +35,20 @@ internal static class FreedoomEngineInstallService
         constraint.ValidateSelection(requirement.ReleaseIdentity, split[0]);
         var destination = game.GetInstallPath(manager.GamesFolder);
         new PortableInstallationTransaction(destination).RequireFirstInstallationTarget();
+        return new PreparedInstall(requirement, split[0], context, constraint);
+    }
+
+    internal static async Task<bool> InstallAsync(GameInfo game, GameManager manager, AppSettings settings,
+        CancellationToken token, Func<string, string, Task<bool>> confirm,
+        IGameDownloadDialogs? dialogs = null, OwnedDataRequirement? definition = null)
+    {
+        var prepared = PrepareFirstInstall(game, manager, token, definition);
+        var requirement = prepared.Requirement; var assetName = prepared.AssetName;
+        var context = prepared.Context; var constraint = prepared.Constraint;
         game.IsLoading = true;
         try
         {
-            if (!await confirm($"Install UZDoom {requirement.ReleaseIdentity} for Linux x64 in this library entry?\n\nThis explicit setup uses the reviewed {split[0]} package. After installation, you can download and confirm the free Freedoom Phase 2 data. Nothing is played automatically. Existing engines, versions and personal game files are not replaced.", "Set up Freedoom Phase 2")) return false;
+            if (!await confirm(ConfirmationMessage(requirement), "Set up Freedoom Phase 2")) return false;
             token.ThrowIfCancellationRequested();
             context.ValidateDownloadRequest(token);
             using var fresh = ReleaseRequestCoordinator.AllowCachedMetadata(TimeSpan.Zero);
@@ -40,8 +58,8 @@ internal static class FreedoomEngineInstallService
             context.ValidateDownloadRequest(token);
             if (release == null || release.tag_name != requirement.ReleaseIdentity)
                 throw new IOException("The reviewed engine release is unavailable. No newer or alternative release was selected.");
-            var assets = release.assets.Where(asset => asset.name == split[0]).ToArray();
-            var expectedUrl = $"https://github.com/UZDoom/UZDoom/releases/download/{requirement.ReleaseIdentity}/{split[0]}";
+            var assets = release.assets.Where(asset => asset.name == assetName).ToArray();
+            var expectedUrl = $"https://github.com/UZDoom/UZDoom/releases/download/{requirement.ReleaseIdentity}/{assetName}";
             if (assets.Length != 1 || assets[0].browser_download_url != expectedUrl)
                 throw new IOException("The reviewed engine download is missing or its source changed. No alternative asset was selected.");
             GameDownloadService.SelectExplicit(game, release, settings, assets[0]);

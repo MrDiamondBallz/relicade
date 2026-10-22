@@ -97,3 +97,9 @@ shared renderer owner, in all three layouts at ordinary and minimum card sizes.
 Entries and placeholder art are synthetic; no engine, data or network request is
 used. It checks button labels, framebuffer content and geometry separately from
 the injected actual download/install handoff tests.
+
+`FreedoomEngineProgressRenderingTests` uses the same renderer owner for the actual
+setup dialog at ordinary and minimum sizes, including pending cancellation,
+retained-engine and long-error states. Its controlled operation is synthetic and
+performs no download or execution. Footer geometry and rendered pixels are
+separate from the actual injected-installer, keyboard/controller and lifetime tests.

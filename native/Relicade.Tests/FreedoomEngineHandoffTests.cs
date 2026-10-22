@@ -162,7 +162,7 @@ public sealed class FreedoomEngineHandoffTests
         Assert.Equal(change == "unchanged", File.Exists(Path.Combine(f.Live, Fixture.Asset)));
     }
 
-    sealed class Fixture : IDisposable
+    internal sealed class Fixture : IDisposable
     {
         internal const string Asset = "Linux-UZDoom-Release-x86_64.AppImage";
         readonly string? previousRoot = RelicadePaths.OverrideUserDataRoot;

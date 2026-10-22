@@ -2,6 +2,8 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Relicade.Models;
+using Relicade.Core.Models;
+using Relicade.Core.Services;
 using Relicade.ViewModels;
 using Relicade.Views;
 
@@ -24,8 +26,7 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
             try
             {
                 if (freedoom && (game == null || !OwnedGameSetupService.OffersFreedoom(game))) throw new IOException("Freedoom setup is unavailable for this project.");
-                if (freedoom && !game!.IsInstalled && !await FreedoomEngineInstallService.InstallAsync(
-                    game, manager, settings.Current, session.Token, GameDialogService.ShowQuestionAsync)) return;
+                if (freedoom && !game!.IsInstalled && !await InstallFreedoomEngineAsync(game)) return;
                 session.Token.ThrowIfCancellationRequested();
                 var setup = new OwnedGameSetupSession(manager, key, freedoom ? OwnedGameSetupService.FreedoomPhase2 : null);
                 model = new OwnedGameSetupViewModel(session, key, setup);
@@ -46,6 +47,36 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
                 model?.DisposeAfterDrain(); active = false;
                 if (!session.IsClosed && origin != null && TopLevel.GetTopLevel(origin) != null && origin.IsEffectivelyVisible) origin.Focus();
             }
+        });
+    }
+    async Task<bool> InstallFreedoomEngineAsync(GameInfo game)
+    {
+        var progress = CreateEngineProgress(game, manager, settings.Current, session);
+        var window = new FreedoomEngineProgressDialog(progress); dialogs.Track(window);
+        try
+        {
+            await GameDialogService.ShowWindowAsync(window, session.Token);
+            await progress.Work;
+            return progress.Succeeded && !progress.CancellationRequested && !session.IsClosed;
+        }
+        finally
+        {
+            if (!progress.Succeeded) progress.Cancel();
+            await progress.Work;
+            window.Close(); progress.DisposeAfterDrain();
+        }
+    }
+    internal static FreedoomEngineProgressViewModel CreateEngineProgress(GameInfo game, GameManager manager,
+        AppSettings settings, LauncherSession session, IGameDownloadDialogs? engineDialogs = null, OwnedDataRequirement? definition = null)
+    {
+        // Preserve the existing pre-prompt refusal and original library binding.
+        // The installer also repeats its current-target checks when Install is chosen.
+        var prepared = FreedoomEngineInstallService.PrepareFirstInstall(game, manager, session.Token, definition);
+        return new(session, game, token =>
+        {
+            prepared.Context.ValidateDownloadRequest(token);
+            return FreedoomEngineInstallService.InstallAsync(game, manager, settings, token,
+                (_, _) => Task.FromResult(true), engineDialogs, definition); // Only the explicit Install action invokes this.
         });
     }
     internal static async Task InitializeFreedoomAsync(OwnedGameSetupViewModel model, OwnedGameSetupSession setup,

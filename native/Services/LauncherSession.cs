@@ -18,6 +18,18 @@ public sealed class LauncherSession : IAsyncDisposable
 
     public LauncherSession() => Token = _lifetime.Token;
 
+    // The surrounding RunAsync remains the lifetime owner. This nested scope only
+    // adds cancellation for one awaited operation, not its siblings or the host.
+    internal static async Task<T> WithOperationCancellationAsync<T>(CancellationToken cancellation,
+        Func<Task<T>> operation)
+    {
+        var previous = OperationLifetime.Value;
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(previous, cancellation);
+        OperationLifetime.Value = linked.Token;
+        try { linked.Token.ThrowIfCancellationRequested(); return await operation(); }
+        finally { OperationLifetime.Value = previous; }
+    }
+
     public async Task<T> RunAsync<T>(Func<Task<T>> operation)
     {
         T result = default!;

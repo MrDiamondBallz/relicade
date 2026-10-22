@@ -319,8 +319,15 @@ and pre-journal interrupted staging. Context is revalidated after asynchronous
 selection/download and at transaction boundaries. The ordinary update path is
 unchanged; the constrained path never substitutes another release or invokes
 recovery from its failure-finalization path. Success opens the existing data flow,
-not a process. Shared metadata waiter cancellation retains its existing coordinator
-semantics; owned package work remains within the launcher session lifetime.
+not a process. A setup-only confirmation/progress model publishes its work before
+invoking callbacks, remains owned by the launcher session, and adds a linked
+operation token without canceling sibling operations. The async-local scope restores
+the outer token after completion or failure. Preflight and the original library
+context remain bound across the explicit confirmation. Cancel/back/window-close
+keeps the dialog pending while owned transfer/install work drains; a terminal
+cancellation never opens the data dialog and can leave a committed engine.
+Shared metadata waiter cancellation retains its existing coordinator semantics;
+the UI does not claim ownership of an independently shared metadata transport.
 
 The dialog requires explicit Play after data setup. It checks the saved library,
 settings and retained data before dispatch, and the launch service revalidates

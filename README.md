@@ -52,8 +52,9 @@ source, not gameplay certification or complete project support. See
 **Set up / Play Freedoom Phase 2…** action can explicitly install one pinned
 UZDoom Linux x64 package in a new entry, then offer a separately confirmed local
 data copy or free-data download. Existing engines and normal Launch are not
-replaced. Neither flow is
-complete catalog coverage or gameplay certification.
+replaced. The first engine setup has explicit confirmation, progress and its own
+Cancel action; cancellation waits for owned work and preserves a committed engine.
+Neither flow is complete catalog coverage or gameplay certification.
 
 The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. It does not install, update, verify or launch executables.
 
