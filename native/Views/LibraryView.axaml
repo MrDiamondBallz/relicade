@@ -3,7 +3,7 @@
 <!-- One menu for every card: built per card, it cost about 0.5 MB of memory per app. -->
 <ContextMenu x:Key="LibraryCardMenu" x:DataType="models:GameInfo" Opening="LibraryCardMenu_Opening">
     <MenuItem Name="CleanPortableBackupsMenu" Header="Clean redundant backups…" Click="CleanPortableBackups_Click" CommandParameter="{Binding}"/>
-    <MenuItem Name="PlayFreedoomMenu" Header="Play Freedoom Phase 2…" Click="PlayFreedoom_Click" CommandParameter="{Binding}" IsVisible="{Binding OffersFreedoomSetup}"/>
+    <MenuItem Name="PlayFreedoomMenu" Header="{Binding FreedoomActionLabel}" Click="PlayFreedoom_Click" CommandParameter="{Binding}" IsVisible="{Binding OffersFreedoomSetup}"/>
     <MenuItem Name="FinishOwnedGameSetupMenu" Header="Finish game setup…" Click="FinishOwnedGameSetup_Click" CommandParameter="{Binding}" IsVisible="{Binding HasOwnedDataAdapter}"/>
     <MenuItem Name="RollbackPortableVersionMenu" Header="Restore previous portable version…" Click="RollbackPortableVersion_Click" CommandParameter="{Binding}"/>
 										<MenuItem Header="Launch"
@@ -178,13 +178,13 @@
 </views:LibraryListRowLayout>
 				</DataTemplate></views:LazyCardContent.ContentTemplate></views:LazyCardContent>
 </Border>
-<Button Classes="freedoom-action" Focusable="True" MinHeight="44" HorizontalAlignment="Stretch" Margin="0,4,0,8" Padding="10,6" Click="PlayFreedoom_Click" GotFocus="FreedoomAction_GotFocus" CommandParameter="{Binding}" IsEnabled="{Binding !IsLoading}" AutomationProperties.Name="Play Freedoom Phase 2" ToolTip.Tip="Optional guided setup and play. Ordinary engine Launch stays unchanged.">
+<Button Classes="freedoom-action" Focusable="True" MinHeight="44" HorizontalAlignment="Stretch" Margin="0,4,0,8" Padding="10,6" Click="PlayFreedoom_Click" GotFocus="FreedoomAction_GotFocus" CommandParameter="{Binding}" IsEnabled="{Binding !IsLoading}" AutomationProperties.Name="{Binding FreedoomActionLabel}" ToolTip.Tip="Optional guided setup and play. Ordinary engine Launch stays unchanged.">
     <Button.IsVisible><MultiBinding Converter="{x:Static converters:BoolConverters.And}">
-        <Binding Path="OffersFreedoomSetup"/><Binding Path="IsInstalled"/>
+        <Binding Path="CanOfferFreedoomSetup"/>
         <Binding Path="!$parent[views:LibraryView].Model.Settings.KioskLocked"/>
         <Binding Path="!$parent[views:LibraryView].Model.Settings.IsReadOnly"/>
     </MultiBinding></Button.IsVisible>
-    <TextBlock Text="Play Freedoom Phase 2…" TextWrapping="Wrap"/>
+    <TextBlock Text="{Binding FreedoomActionLabel}" TextWrapping="Wrap"/>
 </Button>
 </StackPanel>
 </DataTemplate><DataTemplate x:Key="GridViewTemplate" x:DataType="models:GameInfo">
@@ -396,13 +396,13 @@
 					</Grid>
 					</DataTemplate></views:LazyCardContent.ContentTemplate></views:LazyCardContent>
 				</Grid>
-<Button Classes="freedoom-action" Focusable="True" MinHeight="44" HorizontalAlignment="Stretch" Margin="0,4,0,8" Padding="10,6" Click="PlayFreedoom_Click" GotFocus="FreedoomAction_GotFocus" CommandParameter="{Binding}" IsEnabled="{Binding !IsLoading}" AutomationProperties.Name="Play Freedoom Phase 2" ToolTip.Tip="Optional guided setup and play. Ordinary engine Launch stays unchanged." Width="{Binding $parent[views:LibraryView].Model.CardPixelSize}">
+<Button Classes="freedoom-action" Focusable="True" MinHeight="44" HorizontalAlignment="Stretch" Margin="0,4,0,8" Padding="10,6" Click="PlayFreedoom_Click" GotFocus="FreedoomAction_GotFocus" CommandParameter="{Binding}" IsEnabled="{Binding !IsLoading}" AutomationProperties.Name="{Binding FreedoomActionLabel}" ToolTip.Tip="Optional guided setup and play. Ordinary engine Launch stays unchanged." Width="{Binding $parent[views:LibraryView].Model.CardPixelSize}">
     <Button.IsVisible><MultiBinding Converter="{x:Static converters:BoolConverters.And}">
-        <Binding Path="OffersFreedoomSetup"/><Binding Path="IsInstalled"/>
+        <Binding Path="CanOfferFreedoomSetup"/>
         <Binding Path="!$parent[views:LibraryView].Model.Settings.KioskLocked"/>
         <Binding Path="!$parent[views:LibraryView].Model.Settings.IsReadOnly"/>
     </MultiBinding></Button.IsVisible>
-    <TextBlock Text="Play Freedoom Phase 2…" TextWrapping="Wrap"/>
+    <TextBlock Text="{Binding FreedoomActionLabel}" TextWrapping="Wrap"/>
 </Button>
 </StackPanel>
 		</DataTemplate>
@@ -622,13 +622,13 @@
 				</Grid>
 				</DataTemplate></views:LazyCardContent.ContentTemplate></views:LazyCardContent>
 			</Border>
-<Button Classes="freedoom-action" Focusable="True" MinHeight="44" HorizontalAlignment="Stretch" Margin="0,4,0,8" Padding="10,6" Click="PlayFreedoom_Click" GotFocus="FreedoomAction_GotFocus" CommandParameter="{Binding}" IsEnabled="{Binding !IsLoading}" AutomationProperties.Name="Play Freedoom Phase 2" ToolTip.Tip="Optional guided setup and play. Ordinary engine Launch stays unchanged." Width="{Binding $parent[views:LibraryView].Model.CardPixelSize}">
+<Button Classes="freedoom-action" Focusable="True" MinHeight="44" HorizontalAlignment="Stretch" Margin="0,4,0,8" Padding="10,6" Click="PlayFreedoom_Click" GotFocus="FreedoomAction_GotFocus" CommandParameter="{Binding}" IsEnabled="{Binding !IsLoading}" AutomationProperties.Name="{Binding FreedoomActionLabel}" ToolTip.Tip="Optional guided setup and play. Ordinary engine Launch stays unchanged." Width="{Binding $parent[views:LibraryView].Model.CardPixelSize}">
     <Button.IsVisible><MultiBinding Converter="{x:Static converters:BoolConverters.And}">
-        <Binding Path="OffersFreedoomSetup"/><Binding Path="IsInstalled"/>
+        <Binding Path="CanOfferFreedoomSetup"/>
         <Binding Path="!$parent[views:LibraryView].Model.Settings.KioskLocked"/>
         <Binding Path="!$parent[views:LibraryView].Model.Settings.IsReadOnly"/>
     </MultiBinding></Button.IsVisible>
-    <TextBlock Text="Play Freedoom Phase 2…" TextWrapping="Wrap"/>
+    <TextBlock Text="{Binding FreedoomActionLabel}" TextWrapping="Wrap"/>
 </Button>
 </StackPanel>
 </DataTemplate>

@@ -91,3 +91,9 @@ are asserted before capture; no remote images or acquired executables are used.
 The seven cover/retry cases are exercised together with unchanged individual
 window cleanup. This scoped check does not establish combined execution of every
 other renderer fixture or physical desktop behavior.
+
+`FreedoomInstallRenderingTests` renders the new uninstalled setup action using the
+shared renderer owner, in all three layouts at ordinary and minimum card sizes.
+Entries and placeholder art are synthetic; no engine, data or network request is
+used. It checks button labels, framebuffer content and geometry separately from
+the injected actual download/install handoff tests.

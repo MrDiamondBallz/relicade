@@ -24,7 +24,9 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
             try
             {
                 if (freedoom && (game == null || !OwnedGameSetupService.OffersFreedoom(game))) throw new IOException("Freedoom setup is unavailable for this project.");
-                if (freedoom && !game!.IsInstalled) throw new IOException("Install the supported UZDoom 5.0.3 Linux x64 AppImage before setting up Freedoom.");
+                if (freedoom && !game!.IsInstalled && !await FreedoomEngineInstallService.InstallAsync(
+                    game, manager, settings.Current, session.Token, GameDialogService.ShowQuestionAsync)) return;
+                session.Token.ThrowIfCancellationRequested();
                 var setup = new OwnedGameSetupSession(manager, key, freedoom ? OwnedGameSetupService.FreedoomPhase2 : null);
                 model = new OwnedGameSetupViewModel(session, key, setup);
                 if (freedoom)

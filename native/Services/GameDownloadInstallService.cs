@@ -24,7 +24,8 @@ public static class GameDownloadInstallService
         FlatpakService? flatpakService = null,
         WindowsInstallerService? windowsInstallerService = null,
         ReleaseInstallMode releaseMode = ReleaseInstallMode.Automatic,
-        bool reinstall = false)
+        bool reinstall = false,
+        FirstInstallPackageConstraint? firstInstall = null)
     {
         dialogs ??= AvaloniaGameDownloadDialogs.Instance;
         flatpakService ??= FlatpakService.Current;
@@ -91,7 +92,17 @@ public static class GameDownloadInstallService
             game.DownloadProgress = 0;
 
             var gamePath = game.GetInstallPath(gamesFolder);
-            PortableInstallationRecovery.EnsureReadable(game, gamePath);
+            if (firstInstall == null) PortableInstallationRecovery.EnsureReadable(game, gamePath);
+            else
+            {
+                firstInstall.ValidateContext?.Invoke();
+                if (releaseMode != ReleaseInstallMode.ExplicitRelease || reinstall || triggerStatus != GameStatus.NotInstalled ||
+                    !string.IsNullOrEmpty(previousVersion) || game.IsManuallyManaged ||
+                    !string.IsNullOrWhiteSpace(game.InstallPath) || game.IsFlatpak || game.IsWindowsInstaller ||
+                    game.IsInstalled)
+                    throw new IOException("First-time setup cannot replace or recover an existing installation.");
+                new PortableInstallationTransaction(gamePath).RequireFirstInstallationTarget();
+            }
             var versionFile = Path.Combine(gamePath, "version.txt");
 
             if (releaseMode == ReleaseInstallMode.Automatic)
@@ -131,6 +142,8 @@ public static class GameDownloadInstallService
                 return;
             }
 
+            firstInstall?.ValidateSelection(latestRelease.tag_name, asset.name);
+
             var flatpakDownload = GameInstallationService.IsFlatpakAsset(asset.name);
             if (GameInstallationService.IsWindowsInstallerAsset(asset.name) && !OperatingSystem.IsWindows())
                 throw new PlatformNotSupportedException("MSI installation requires Windows desktop. Choose a native download for this platform.");
@@ -144,7 +157,7 @@ public static class GameDownloadInstallService
             if (flatpakDownload)
                 await flatpakService.CheckAvailableAsync().ConfigureAwait(false);
             // Already installed: nothing to download, unless the player asked to reinstall it.
-            else if (!reinstall && !GameInstallationService.IsWindowsInstallerAsset(asset.name) && !WindowsInstallerService.HasReceipt(gamePath) && oldFlatpak == null && File.Exists(versionFile) &&
+            else if (firstInstall == null && !reinstall && !GameInstallationService.IsWindowsInstallerAsset(asset.name) && !WindowsInstallerService.HasReceipt(gamePath) && oldFlatpak == null && File.Exists(versionFile) &&
                 (OperatingSystem.IsAndroid() || GameInstallationService.HasCompletePortableInstallation(
                     gamePath, game.GetInstallationOptions())) &&
                 (await File.ReadAllTextAsync(versionFile).ConfigureAwait(false)).Trim() == latestRelease.tag_name &&
@@ -271,6 +284,7 @@ public static class GameDownloadInstallService
                     if (flatpakDownload) await flatpakService.CheckAvailableAsync().ConfigureAwait(false);
                 }
 
+                firstInstall?.ValidateLength(downloadResponse.Content.Headers.ContentLength ?? 0);
                 var downloadRoot = OperatingSystem.IsAndroid() || HostProcessEnvironment.IsSandboxed()
                     ? Path.Combine(RelicadePaths.CacheDirectory, "Downloads")
                     : DownloadStaging.GetDesktopRoot();
@@ -289,6 +303,7 @@ public static class GameDownloadInstallService
 
                     while ((bytesRead = await contentStream.ReadAsync(buffer, LauncherSession.OperationCancellation).ConfigureAwait(false)) > 0)
                     {
+                        firstInstall?.ValidateLength(checked(totalRead + bytesRead));
                         await fs.WriteAsync(buffer.AsMemory(0, bytesRead), LauncherSession.OperationCancellation).ConfigureAwait(false);
                         totalRead += bytesRead;
 
@@ -311,6 +326,8 @@ public static class GameDownloadInstallService
                     !(check?.Rolling == true && string.Equals(actual, await LiveDigestAsync(game, httpClient, apiToken,
                         latestRelease.tag_name, asset.name).ConfigureAwait(false), StringComparison.OrdinalIgnoreCase)))
                     throw new DownloadMismatchException(asset.name, latestRelease.tag_name, catalogDigest != null);
+
+                firstInstall?.ValidateBytes(actual);
 
                 game.DownloadProgress = 90;
                 game.Status = GameStatus.Installing;
@@ -394,6 +411,7 @@ public static class GameDownloadInstallService
                     var installOptions = new GameInstallationOptions
                     {
                         Log = baseOptions.Log,
+                        FirstInstallationOnly = firstInstall != null,
                         AdditionalMetadataFileNames = baseOptions.AdditionalMetadataFileNames,
                         IsSharedFolder = sharedFolder || folderHasOtherApps,
                         PreviousInstallFileName = folderHasOtherApps ? null : InstalledBuild.Read(gamePath)?.FileName,
@@ -409,6 +427,8 @@ public static class GameDownloadInstallService
                         },
                         TransactionBoundary = point =>
                         {
+                            if (point is "FirstInstallationChecked" or "Extracted" or "Staged" or "Applying")
+                                firstInstall?.ValidateContext?.Invoke();
                             if (point != "Applying") return;
                             game.IsPortableCommitInProgress = true;
                             game.IsInstallIndeterminate = true;
@@ -521,7 +541,7 @@ public static class GameDownloadInstallService
             game.DownloadProgress = 0;
             // The site reads the release back now, so the next player isn't sent to the same dead link.
             await ReportProblemAsync(game, ex.Version, ex.FileName, "missing").ConfigureAwait(false);
-            var other = await VerifiedFallbackAsync(game, ex.Version).ConfigureAwait(false);
+            var other = firstInstall == null ? await VerifiedFallbackAsync(game, ex.Version).ConfigureAwait(false) : null;
             if (other != null && await dialogs.OfferOtherReleaseAsync(game.DisplayName, ex.Message, other.tag_name))
                 fallback = other;
             else
@@ -588,33 +608,47 @@ public static class GameDownloadInstallService
             game.IsPortableCommitInProgress = false;
             game.IsInstallIndeterminate = false;
             var path = game.GetInstallPath(gamesFolder);
-            if (PortableInstallationTransaction.HasEvidence(path))
+            if (firstInstall != null)
             {
-                await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder, checkRemoteVersion: false, applyCachedRelease: false).ConfigureAwait(false);
-            }
-            else if (WindowsInstallerService.HasReceipt(path))
-            {
-                game.DownloadProgress = 0;
-                await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder,
-                    checkRemoteVersion: false, applyCachedRelease: false).ConfigureAwait(false);
-            }
-            else if (FlatpakService.HasReceipt(path))
-            {
-                if (game.Status == GameStatus.NotInstalled && !string.IsNullOrWhiteSpace(previousVersion))
+                // Do not run general recovery against a generation that appeared while
+                // this first-install request was downloading or being declined.
+                if (!game.IsInstalled)
                 {
-                    game.InstalledVersion = previousVersion;
-                    game.Status = triggerStatus is GameStatus.Installed or GameStatus.UpdateAvailable
-                        ? triggerStatus : GameStatus.Installed;
+                    try { new PortableInstallationTransaction(path).RequireFirstInstallationTarget(); }
+                    catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
+                    { game.PortableRecoveryError = "First-time setup did not finish. Existing installation data was retained; inspect it with the ordinary recovery or version controls before retrying."; }
                 }
-                await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder,
-                    checkRemoteVersion: false, applyCachedRelease: false, flatpakService: flatpakService).ConfigureAwait(false);
             }
-            else if (rejectedFormatSwitch || game.Status == GameStatus.NotInstalled && triggerStatus == GameStatus.UpdateAvailable)
-                await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder,
-                    checkRemoteVersion: false, applyCachedRelease: false).ConfigureAwait(false);
+            else
+            {
+                if (PortableInstallationTransaction.HasEvidence(path))
+                {
+                    await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder, checkRemoteVersion: false, applyCachedRelease: false).ConfigureAwait(false);
+                }
+                else if (WindowsInstallerService.HasReceipt(path))
+                {
+                    game.DownloadProgress = 0;
+                    await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder,
+                        checkRemoteVersion: false, applyCachedRelease: false).ConfigureAwait(false);
+                }
+                else if (FlatpakService.HasReceipt(path))
+                {
+                    if (game.Status == GameStatus.NotInstalled && !string.IsNullOrWhiteSpace(previousVersion))
+                    {
+                        game.InstalledVersion = previousVersion;
+                        game.Status = triggerStatus is GameStatus.Installed or GameStatus.UpdateAvailable
+                            ? triggerStatus : GameStatus.Installed;
+                    }
+                    await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder,
+                        checkRemoteVersion: false, applyCachedRelease: false, flatpakService: flatpakService).ConfigureAwait(false);
+                }
+                else if (rejectedFormatSwitch || game.Status == GameStatus.NotInstalled && triggerStatus == GameStatus.UpdateAvailable)
+                    await GameStatusService.CheckStatusAsync(game, httpClient, gamesFolder,
+                        checkRemoteVersion: false, applyCachedRelease: false).ConfigureAwait(false);
+            }
         }
 
-        if (fallback != null)
+        if (fallback != null && firstInstall == null)
         {
             game.ClearDownloadSelection();
             await DownloadAndInstallAsync(game, httpClient, gamesFolder, fallback, settings, triggerStatus, dialogs,

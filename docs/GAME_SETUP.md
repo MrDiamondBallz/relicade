@@ -159,8 +159,9 @@ bounded extraction/activation evidence, not a working game or a packaged launche
 
 ## Optional Freedoom Phase 2
 
-The library offers **Play Freedoom Phase 2…** for the UZDoom project. This is an
-optional, explicit data selection, not a replacement for normal engine Launch or
+The library offers **Set up Freedoom Phase 2…** for a new UZDoom entry and
+**Play Freedoom Phase 2…** after engine installation. This is an optional,
+explicit setup path, not a replacement for normal engine Launch or
 existing WAD configuration. It does not change the working directory, move saves,
 download data in the background or claim gameplay certification.
 
@@ -177,6 +178,33 @@ The compiled adapter accepts only this managed **Linux x64** package:
 - Extracted `freedoom-0.13.0/freedoom2.wad`, 28,787,748 bytes; SHA256
   `a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b`;
   MD5 `cd666466759b5e5f63af93c5f0ffd0a1`.
+
+For an uninstalled entry on Linux x64, **Set up Freedoom Phase 2…** first asks
+whether to install the exact UZDoom package above. Declining makes no download.
+The selected release, asset name and official download address must still match;
+the downloaded bytes must match the compiled adapter hash even if remote metadata
+reports a different digest. Header and streamed bytes are bounded to the pinned
+package size before writing beyond it. There is no fallback to another release or asset.
+After installation, the existing data dialog opens for a separately confirmed
+free-data download or local-file selection. Nothing is played automatically.
+
+This first-time path does not replace an existing version, payload, personal data,
+launch receipt or prepared recovery operation. It checks the target before the
+prompt and again under installation authority before recovery or activation.
+An enclosing managed installation or existing ancestor history is also refused
+before child history is created. Only empty targets and incomplete pre-journal
+candidate staging can proceed through the ordinary installer. Unknown or special
+files are not opened to infer ownership. A conflict is retained and reported for
+the ordinary recovery/version controls, rather than silently downgraded or retried.
+Unsupported platforms and already remembered versions need ordinary installation
+or version selection. Version preferences, normal updates and Launch are unchanged;
+a later normal update can require a future adapter before this optional flow works.
+
+Cancellation prevents the handoff from opening data setup. An owned package transfer
+is drained; an already committed engine can remain installed if cancellation occurs
+at completion. Reopen the entry to inspect its actual state before retrying. This is
+not a promise that every cancellation removes all work or that a first-install guard
+protects against hostile concurrent filesystem replacement.
 
 Select **Get free game data** to download that exact archive explicitly, or use
 the official release-page link and choose your existing `freedoom2.wad`. The
@@ -222,17 +250,26 @@ authentication, package-to-source reproducibility or a full distribution-rights
 review. This adapter does not accept arbitrary WADs, Phase 1, other engine
 versions, other platforms, or the full catalog's setup requirements.
 
-Eligible installed UZDoom cards offer a separate **Play Freedoom Phase 2…** action
-in list, grid and compact layouts. Ordinary engine Launch remains unchanged.
+Eligible UZDoom cards offer the separate setup/play action in list, grid and
+compact layouts. Ordinary engine Download and Launch remain unchanged.
 Keyboard focus can activate the separate action, and controller users can also
 reach it through the existing App options menu. Kiosk/read-only settings and
-uninstalled or recovery-blocked entries do not expose this shortcut. Opening the
+recovery-blocked entries do not expose this shortcut. Opening the
 flow still validates the exact supported package; the card itself is not a
 compatibility guarantee. A focused secondary action stays bound to its own entry
 when the visible collection changes; confirmation does not fall through to a
 different game at the old selection index.
 
 ## Source checks and remaining acceptance
+
+The [first-install package tests](../native/Relicade.Tests/FirstInstallPackageTests.cs)
+cover retained data/history, ancestor authority, immutable bytes and size bounds.
+The [guided handoff tests](../native/Relicade.Tests/FreedoomEngineHandoffTests.cs)
+exercise actual installation with non-runnable synthetic payloads and injected
+metadata/download responses, including consent, offline retry and cancellation.
+The [library action tests](../native/Relicade.Tests/FreedoomLibraryActionTests.cs)
+cover separate setup/play routing. These source checks do not accept real engine
+execution, all catalog projects or target platforms.
 
 The [pinned free-data source checkpoint](https://github.com/MrDiamondBallz/relicade/commit/d0f1d3cb9b5196cc4a555a924d4f54f93636e379)
 records bounded Linux x64 source tests, not an AppImage runtime pass. Two narrowly

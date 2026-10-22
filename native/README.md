@@ -465,7 +465,11 @@ can explicitly download the pinned official free-data archive or choose an
 existing `.wad`, then review and confirm a separate copy before Play. Verified
 original downloads and notices are retained and reusable; cancellation drains the
 request without starting a game. Normal engine Launch and saves are unchanged.
-No unattended download, engine installation or automatic Play is implied. See
+New Linux x64 entries can first choose **Set up Freedoom Phase 2…** and confirm
+the exact engine package. This guarded first installation never replaces an
+existing version or retained data, never falls back to an unreviewed package, and
+opens the separate data setup only after success. No unattended download or
+automatic Play is implied. See
 [the exact package, data and rights boundaries](../docs/GAME_SETUP.md#optional-freedoom-phase-2).
 This is development source, not tested gameplay or accepted platform support.
 

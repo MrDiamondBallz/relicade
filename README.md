@@ -49,9 +49,10 @@ Perfect Dark Linux x64 package: choose a lawful local file, review the copy,
 confirm explicitly and revalidate before launch. This is bounded development
 source, not gameplay certification or complete project support. See
 [local game-data setup](docs/GAME_SETUP.md) for the exact package and limits. The separate
-**Play Freedoom Phase 2…** action offers a local, confirmed data setup for one
-UZDoom Linux package, with an explicit download option for the pinned free data,
-without replacing normal engine Launch. Neither flow is
+**Set up / Play Freedoom Phase 2…** action can explicitly install one pinned
+UZDoom Linux x64 package in a new entry, then offer a separately confirmed local
+data copy or free-data download. Existing engines and normal Launch are not
+replaced. Neither flow is
 complete catalog coverage or gameplay certification.
 
 The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. It does not install, update, verify or launch executables.

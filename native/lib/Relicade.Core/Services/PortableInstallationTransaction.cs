@@ -173,7 +173,8 @@ public sealed partial class PortableInstallationTransaction
     /// history. The root's own history is retained, including launch receipts.
     /// This lease does not authorize payload, setup, path or identity changes.
     /// </summary>
-    public IDisposable AcquireMetadataEditLease()
+    public IDisposable AcquireMetadataEditLease() => AcquireCoordinatedWriterLease();
+    IDisposable AcquireCoordinatedWriterLease()
     {
         var held = new Dictionary<string, IDisposable>(OperatingSystem.IsWindows()
             ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
@@ -347,10 +348,66 @@ public sealed partial class PortableInstallationTransaction
             throw new IOException("Portable manifest does not match its committed journal; recovery/repair is required.");
         EqualEntries(Inventory(root).Where(e => Metadata(e.Path)).ToList(), j.CandidateFiles.Where(e => Metadata(e.Path)).ToList());
     }
+    /// <summary>Read-only preflight, not a writer lease. InstallAsync repeats this under its lease before recovery.</summary>
+    public void RequireFirstInstallationTarget()
+    {
+        CheckLinks(root); CheckLinks(operations);
+        static bool Present(string path)
+        {
+            try { _ = File.GetAttributes(path); return true; }
+            catch (FileNotFoundException) { return false; }
+            catch (DirectoryNotFoundException) { return false; }
+        }
+        static void EmptyLock(string path)
+        {
+            RequireRegularEvidenceFile(path);
+            if (new FileInfo(path).Length != 0) throw new IOException("Unknown lock contents are retained; first-time setup cannot use this folder.");
+        }
+        for (var ancestor = Path.GetDirectoryName(root); ancestor != null; ancestor = Path.GetDirectoryName(ancestor))
+        {
+            // Presence is sufficient to refuse: never open an ancestor's unknown
+            // journal, manifest or lock merely to decide if this child is empty.
+            if (Present(Path.Combine(ancestor, ManifestFileName)) ||
+                Path.GetDirectoryName(ancestor) != null && Present(new PortableInstallationTransaction(ancestor).OperationsPath))
+                throw new IOException("First-time setup cannot create an installation inside existing managed or recovery authority.");
+        }
+        if (Present(root))
+        {
+            if (!Directory.Exists(root)) throw new IOException("The install target is not an empty directory.");
+            foreach (var entry in Directory.EnumerateFileSystemEntries(root))
+            {
+                if (Path.GetFileName(entry) != ModLock)
+                    throw new IOException("An installation or retained data already exists. First-time setup will not replace it; use the ordinary library recovery or version controls.");
+                EmptyLock(entry);
+            }
+        }
+        if (!Present(operations)) return;
+        if (!Directory.Exists(operations)) throw new IOException("Unknown installation history is retained.");
+        foreach (var entry in Directory.EnumerateFileSystemEntries(operations))
+        {
+            CheckLinks(entry);
+            if (Path.GetFileName(entry) == "writer.lock") { EmptyLock(entry); continue; }
+            if (!Guid.TryParseExact(Path.GetFileName(entry), "N", out _) || !Directory.Exists(entry))
+                throw new IOException("Existing installation history requires ordinary recovery, not first-time setup.");
+            // Only pre-journal candidate staging can belong to an interrupted first
+            // attempt. Never read arbitrary metadata or resolve a prepared swap here.
+            if (Directory.EnumerateFileSystemEntries(entry).Any(path => Path.GetFileName(path) != "candidate"))
+                throw new IOException("Retained installation work needs recovery before first-time setup.");
+        }
+    }
+
     public async Task InstallAsync(Func<string, Task> stage, string version, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(version) || version.Any(char.IsControl)) throw new InvalidDataException("A portable generation needs a nonempty selected version without control characters.");
-        using var lease = AcquireLease(); PortableInstallationLifetime.EnsureNotRunning(operations); RecoverLocked();
+        if (options.FirstInstallationOnly) RequireFirstInstallationTarget();
+        using var lease = options.FirstInstallationOnly ? AcquireCoordinatedWriterLease() : AcquireLease();
+        if (options.FirstInstallationOnly)
+        {
+            RequireFirstInstallationTarget();
+            options.TransactionBoundary?.Invoke("FirstInstallationChecked");
+        }
+        PortableInstallationLifetime.EnsureNotRunning(operations);
+        RecoverLocked();
         if (options.IsSharedFolder) throw new IOException("Shared or linked installations cannot be swapped. Choose a new empty managed folder; explicit adoption/repair is required.");
         cancellationToken.ThrowIfCancellationRequested();
         var existed = Directory.Exists(root);

@@ -309,6 +309,19 @@ pinned SHA256 in addition to the variant MD5. The original Perfect Dark definiti
 keeps its existing filename and behavior. The optional action does not set the
 engine's mandatory-data gate or alter ordinary Launch.
 
+Uninstalled entries can explicitly confirm the adapter's first engine installation.
+A constrained route reuses the ordinary download/install service, but requires the
+exact release, asset and compiled SHA256 independently of mutable provider digests.
+The transaction's opt-in first-install boundary inspects file kinds/presence before
+opening metadata, coordinates ancestor and target writer authority, and refuses
+existing data or prepared history before recovery. It permits only empty targets
+and pre-journal interrupted staging. Context is revalidated after asynchronous
+selection/download and at transaction boundaries. The ordinary update path is
+unchanged; the constrained path never substitutes another release or invokes
+recovery from its failure-finalization path. Success opens the existing data flow,
+not a process. Shared metadata waiter cancellation retains its existing coordinator
+semantics; owned package work remains within the launcher session lifetime.
+
 The dialog requires explicit Play after data setup. It checks the saved library,
 settings and retained data before dispatch, and the launch service revalidates
 the exact generation and data under the existing portable launch lifetime. The

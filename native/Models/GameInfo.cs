@@ -586,7 +586,7 @@ namespace Relicade.Models
                 if (_portableRecoveryError == value) return;
                 _portableRecoveryError = value;
                 if (value != null) { InstalledVersion = null; Status = GameStatus.NeedsExecutable; }
-                foreach (var property in new[] { nameof(PortableRecoveryError), nameof(StatusText), nameof(ButtonText), nameof(CanLaunch), nameof(CanDownload), nameof(CanUpdate), nameof(IsInstalled) }) DispatchPropertyChanged(property);
+                foreach (var property in new[] { nameof(PortableRecoveryError), nameof(StatusText), nameof(ButtonText), nameof(CanLaunch), nameof(CanDownload), nameof(CanUpdate), nameof(IsInstalled), nameof(CanOfferFreedoomSetup) }) DispatchPropertyChanged(property);
             }
         }
         private bool _isManagedPortable;
@@ -610,6 +610,10 @@ namespace Relicade.Models
         }
         [System.Text.Json.Serialization.JsonIgnore]
         public bool OffersFreedoomSetup => OwnedGameSetupService.OffersFreedoom(this);
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool CanOfferFreedoomSetup => OffersFreedoomSetup && PortableRecoveryError == null && (IsInstalled || Status == GameStatus.NotInstalled);
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string FreedoomActionLabel => IsInstalled ? "Play Freedoom Phase 2…" : "Set up Freedoom Phase 2…";
         [System.Text.Json.Serialization.JsonIgnore]
         public bool HasOwnedDataAdapter => OwnedGameSetupService.Requirement(this) != null;
         private bool _ownedDataReady;
@@ -882,6 +886,8 @@ namespace Relicade.Models
                     DispatchPropertyChanged(nameof(ButtonColor));
                     DispatchPropertyChanged(nameof(StatusText));
                     DispatchPropertyChanged(nameof(IsInstalled));
+                    DispatchPropertyChanged(nameof(FreedoomActionLabel));
+                    DispatchPropertyChanged(nameof(CanOfferFreedoomSetup));
                     DispatchPropertyChanged(nameof(CanRemoveInstalledApp));
                     DispatchPropertyChanged(nameof(CanRunWindowsInstaller));
                     DispatchPropertyChanged(nameof(CanLaunch));

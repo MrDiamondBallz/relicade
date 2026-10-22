@@ -75,6 +75,66 @@ public sealed class FreedoomLibraryActionTests
         finally { window.Close(); await view.ShutdownAsync(); GamepadFocusChrome.SetKeyboardNavigationActive(false); }
     }
 
+    [AvaloniaTheory]
+    [InlineData("ListViewTemplate")]
+    [InlineData("GridViewTemplate")]
+    [InlineData("CompactGridViewTemplate")]
+    public async Task Eligible_uninstalled_engine_has_visible_setup_action_without_replacing_download(string template)
+    {
+        var view = new MainView(new() { SettingsStore = new Store(), EnableInput = false, EnableMusic = false, InitializeOnOpen = false });
+        var window = new Window { Content = view, Width = 1000, Height = 750 };
+        try
+        {
+            var library = view.FindControl<LibraryView>("LibraryPanel")!;
+            var game = new GameInfo { Name = "Synthetic UZDoom", Repository = "UZDoom/UZDoom", RepositorySource = "github", Status = GameStatus.NotInstalled };
+            var card = ((IDataTemplate)library.Resources[template]!).Build(game)!;
+            card.DataContext = game; library.FindControl<Grid>("Surface")!.Children.Add(card);
+            window.Show(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
+            var action = Assert.Single(card.GetVisualDescendants().OfType<Button>().Where(b => b.Classes.Contains("freedoom-action")));
+            Assert.True(action.IsEffectivelyVisible); Assert.True(action.IsEnabled);
+            Assert.True(action.Bounds.Height >= 44); Assert.True(game.CanDownload); Assert.Equal("Set up Freedoom Phase 2…", game.FreedoomActionLabel);
+        }
+        finally { window.Close(); await view.ShutdownAsync(); }
+    }
+    [AvaloniaTheory]
+    [InlineData("ListViewTemplate", "mouse")][InlineData("GridViewTemplate", "mouse")][InlineData("CompactGridViewTemplate", "mouse")]
+    [InlineData("ListViewTemplate", "keyboard")][InlineData("GridViewTemplate", "keyboard")][InlineData("CompactGridViewTemplate", "keyboard")]
+    [InlineData("ListViewTemplate", "controller")][InlineData("GridViewTemplate", "controller")][InlineData("CompactGridViewTemplate", "controller")]
+    public async Task Uninstalled_setup_action_routes_selected_instance_without_primary_launch(string template, string input)
+    {
+        var view = new MainView(new() { SettingsStore = new Store(), EnableInput = false, EnableMusic = false, InitializeOnOpen = false });
+        var window = new Window { Content = view, Width = 1000, Height = 750 };
+        await using var session = new LauncherSession();
+        try
+        {
+            var library = view.FindControl<LibraryView>("LibraryPanel")!;
+            var game = new GameInfo { Name = "Synthetic UZDoom", Repository = "UZDoom/UZDoom", RepositorySource = "github", Status = GameStatus.NotInstalled };
+            library.Model.Games.Add(game); view.Shell.Mode = MainViewMode.Library; library.UpdateEmptyState(true);
+            var primary = 0; var secondary = 0; GameInfo? selected = null;
+            library.Navigation = new LibraryNavigation(library, (IFeatureNavigationHost)view, session, () => true, () => true, () => false, _ => { }, _ => { primary++; return Task.CompletedTask; });
+            library.ConfigureFreedoomSetup((item, _) => { secondary++; selected = item; return Task.CompletedTask; });
+            var card = ((IDataTemplate)library.Resources[template]!).Build(game)!;
+            card.DataContext = game; library.FindControl<Grid>("Surface")!.Children.Add(card);
+            window.Show(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
+            var action = Assert.Single(card.GetVisualDescendants().OfType<Button>().Where(b => b.Classes.Contains("freedoom-action")));
+            Assert.Equal("Set up Freedoom Phase 2…", game.FreedoomActionLabel);
+            Assert.True(action.Focus(), $"Focusable={action.Focusable}; enabled={action.IsEffectivelyEnabled}; visible={action.IsEffectivelyVisible}; bounds={action.Bounds}; status={game.Status}; root={card.Bounds}");
+            if (input == "keyboard")
+            {
+                window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+                window.KeyRelease(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+            }
+            else if (input == "controller") Assert.True(library.Navigation.Confirm());
+            else action.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Dispatcher.UIThread.RunJobs();
+            Assert.Equal(1, secondary); Assert.Same(game, selected); Assert.Equal(0, primary);
+            // Default card confirmation remains the ordinary primary action.
+            library.Navigation.ApplyLibraryGamepadSelection(0); Assert.True(library.Navigation.Confirm());
+            Assert.Equal(1, primary); Assert.Equal(1, secondary);
+        }
+        finally { window.Close(); await view.ShutdownAsync(); GamepadFocusChrome.SetKeyboardNavigationActive(false); }
+    }
+
     [AvaloniaFact]
     public async Task Controller_options_still_reaches_optional_play_without_primary_dispatch()
     {
@@ -104,7 +164,7 @@ public sealed class FreedoomLibraryActionTests
 
     public static IEnumerable<object[]> HiddenCases() =>
         from template in new[] { "ListViewTemplate", "GridViewTemplate", "CompactGridViewTemplate" }
-        from reason in new[] { "other-project", "manual", "not-installed", "recovery", "kiosk", "read-only", "loading" }
+        from reason in new[] { "other-project", "manual", "recovery", "kiosk", "read-only", "loading" }
         select new object[] { template, reason };
 
     [AvaloniaTheory][MemberData(nameof(HiddenCases))]
@@ -118,7 +178,6 @@ public sealed class FreedoomLibraryActionTests
             var library = view.FindControl<LibraryView>("LibraryPanel")!;
             var game = new GameInfo { Name = "Synthetic card", Repository = reason == "other-project" ? "fixture/other" : "UZDoom/UZDoom", RepositorySource = "github", Status = GameStatus.Installed };
             if (reason == "manual") game.Repository = "";
-            if (reason == "not-installed") game.Status = GameStatus.NotInstalled;
             if (reason == "loading") game.Status = GameStatus.Downloading;
             if (reason == "recovery") game.PortableRecoveryError = "Synthetic pending recovery";
             var card = ((IDataTemplate)library.Resources[template]!).Build(game)!;

@@ -20,6 +20,9 @@ public sealed class GameInstallationOptions
     /// </summary>
     public bool IsSharedFolder { get; init; }
 
+    /// <summary>Never replace an existing generation or resolve its pending recovery. Checked under the writer lease.</summary>
+    public bool FirstInstallationOnly { get; init; }
+
     /// <summary>The file Relicade last installed this app from, when it recorded one.</summary>
     public string? PreviousInstallFileName { get; init; }
 
