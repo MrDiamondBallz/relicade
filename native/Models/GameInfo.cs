@@ -1206,7 +1206,7 @@ namespace Relicade.Models
         /// <summary>
         /// True when on-disk version is missing or the sentinel written after manual→repo promotion.
         /// </summary>
-        private static bool IsUnknownInstalledVersion(string? version)
+        internal static bool IsUnknownInstalledVersion(string? version)
         {
             if (string.IsNullOrWhiteSpace(version) ||
                 string.Equals(version, "Unknown", StringComparison.OrdinalIgnoreCase))

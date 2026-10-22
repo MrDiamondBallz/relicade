@@ -379,16 +379,21 @@ public sealed class LibraryLaunchController
     {
         using var priority = ReleaseRequestCoordinator.PrioritizeInteractiveChecks();
         GitHubRelease? release;
+        string? installedTarget = null;
         try
         {
             game.IsLoading = true;
             var releaseResult = await game.FetchReleasesAsync(_gameManager.HttpClient, _session.Token);
             _session.Token.ThrowIfCancellationRequested();
-            // The version installed; if it isn't known or no longer listed, the one the app follows.
-            release = (game.InstalledVersion is { Length: > 0 } installed
-                    ? releaseResult.Releases.FirstOrDefault(r => ReleaseVersionIdentity.AreVersionsEquivalent(r.tag_name, installed))
-                    : null)
-                ?? GameInfo.SelectLatestRelease(releaseResult.Releases, game.ReleaseTarget, game.InstalledVersion, releaseResult.LatestTag);
+            // A known installed version is authoritative, even when it is no longer listed.
+            // Only an unknown version falls back to the release the app follows.
+            var installed = game.InstalledVersion;
+            installedTarget = installed?.Contains('+') == true || !GameInfo.IsUnknownInstalledVersion(installed) ? installed : null;
+            release = !string.IsNullOrWhiteSpace(installed)
+                ? CatalogReleaseSelection.SelectLatestRelease(releaseResult.Releases, preferredVersion: installed)
+                : null;
+            if (release == null && installedTarget == null)
+                release = GameInfo.SelectLatestRelease(releaseResult.Releases, game.ReleaseTarget, game.InstalledVersion, releaseResult.LatestTag);
         }
         catch (Exception ex)
         {
@@ -401,7 +406,10 @@ public sealed class LibraryLaunchController
         }
         if (release == null)
         {
-            await ShowMessageBoxAsync($"No downloadable releases were found for {game.Name}.", "No Releases");
+            var message = installedTarget == null
+                ? $"No downloadable releases were found for {game.Name}."
+                : $"The installed release {installedTarget} is not uniquely available for {game.Name}. Choose a different version explicitly instead.";
+            await ShowMessageBoxAsync(message, "No Releases");
             return;
         }
         await ShowReleaseDownloadSelectionMenuAsync(_resolveAnchor(game, anchor) ?? anchor, game, release, game.PreferredVersion,
@@ -418,7 +426,7 @@ public sealed class LibraryLaunchController
             game.IsLoading = true;
             var releaseResult = await game.FetchReleasesAsync(_gameManager.HttpClient, _session.Token);
             _session.Token.ThrowIfCancellationRequested();
-            release = releaseResult.Releases.FirstOrDefault(r => ReleaseVersionIdentity.AreVersionsEquivalent(r.tag_name, version));
+            release = CatalogReleaseSelection.SelectLatestRelease(releaseResult.Releases, preferredVersion: version);
         }
         catch (Exception ex)
         {

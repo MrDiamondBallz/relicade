@@ -532,6 +532,15 @@ also checks that the cached version and attached release describe the same targe
 inconsistent metadata is retained but fetched again rather than attached to the
 card. Conditional endpoint responses reuse only their own cached payload.
 
+**Reinstall** selects the known installed source tag, and **Install Unverified**
+selects the displayed requested tag, using the same exact-first target rule.
+A missing or ambiguous known target does not fall back to another release;
+the player can use **Change Version** to choose another target explicitly.
+Existing unknown-version sentinels retain the followed-release fallback only
+when no exact or unique legacy release matches them. An explicit `+build` tag
+remains authoritative even with a zero numeric base.
+The selected release still undergoes its normal integrity and consent checks.
+
 Ordinary numeric and `v`-prefix aliases retain their existing behavior. Numeric
 version ordering and general installed-version equivalence are unchanged; this
 is target-selection and cache binding, not a complete update-ordering redesign or

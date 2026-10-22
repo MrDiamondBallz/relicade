@@ -55,6 +55,11 @@ existing **Back to latest updates** or
 [explicit build-version pins](../native/README.md#explicit-build-version-pins)
 for cache and legacy-alias boundaries.
 
+**Reinstall** keeps the known installed target, and **Install Unverified** keeps
+the requested target. If that release is missing or ambiguous, use **Change
+Version** to choose another one; Relicade does not silently substitute a different
+build. Verification and any required download confirmation still apply.
+
 Choosing a version changes the saved pin only after that chosen installation is
 confirmed. Declining, cancelling or failing the operation keeps the existing pin
 in memory and in the saved library, without undoing a separate preference edit.
