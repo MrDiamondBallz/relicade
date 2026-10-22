@@ -269,6 +269,7 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
             : app != null && entry == null ? "Loading…" : "";
         BrowseDetailsNote.IsVisible = BrowseDetailsNote.Text.Length > 0;
         BrowseDetailsAddButton.IsVisible = entry != null && _libraryApp == null;
+        BrowseDetailsOpenLibraryButton.IsVisible = _libraryApp != null;
         BrowseDetailsRemoveButton.IsVisible = _libraryApp != null;
         BrowseDetailsRepositoryButton.IsVisible = !string.IsNullOrWhiteSpace(entry?.Repository);
 
@@ -474,6 +475,13 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
     private void Add_Click(object? sender, RoutedEventArgs e)
     {
         if (Model.Entry is { } entry) AddRequested?.Invoke(entry);
+    }
+
+    private void OpenLibrary_Click(object? sender, RoutedEventArgs e)
+    {
+        // Recheck the local entry rather than navigating from a stale displayed card.
+        if (!_session.IsClosed && Model.Entry is { } entry && _findInLibrary(entry) is { } app)
+            OpenInLibraryRequested?.Invoke(BrowseItem.FromList(app));
     }
 
     private void Remove_Click(object? sender, RoutedEventArgs e)

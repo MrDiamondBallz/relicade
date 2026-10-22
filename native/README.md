@@ -372,3 +372,13 @@ revalidates data on the shared launch path. Installation and game-data readiness
 are separate. Unknown package variants remain unconfirmed; this is not gameplay,
 platform or complete catalog acceptance. See [supported input, provenance and
 recovery limits](../docs/GAME_SETUP.md).
+
+## From project details to your library
+
+An app already in your local library has a separate **Open in Library** action
+on its details page. Adding an app changes the primary action to that same route,
+which selects the actual local entry so installation and setup remain in the
+library. **Remove from library** stays a separate action; opening an entry does
+not install or launch it. A missing or removed entry cannot use a stale navigation
+action. This route has local synthetic native keyboard/controller coverage, not
+physical-device acceptance.

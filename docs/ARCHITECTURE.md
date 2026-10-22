@@ -241,3 +241,12 @@ an unbounded read. Library and detached rollback/settings reads also reuse the
 regular-file and link-count guard before opening, preventing a pre-existing FIFO
 from blocking cancellation. General settings/credential initialization is separate;
 these checks do not certify hostile concurrent path replacement.
+
+## Details-to-library navigation
+
+Project details reuse the existing library navigation event for **Open in Library**.
+The action is shown only for a matched local entry and re-resolves that entry at
+activation; it does not treat a catalog listing as an installation. The handler
+passes the resolved local instance through the same selection route used by catalog
+cards. Adding an entry exposes this primary action, while removal remains separate.
+No new download, launch, remote request or prerequisite acceptance is introduced.
