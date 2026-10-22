@@ -100,6 +100,6 @@ the injected actual download/install handoff tests.
 
 `FreedoomEngineProgressRenderingTests` uses the same renderer owner for the actual
 setup dialog at ordinary and minimum sizes, including pending cancellation,
-retained-engine and long-error states. Its controlled operation is synthetic and
+retained-engine, long-error and short/multiline error states. Its controlled operation is synthetic and
 performs no download or execution. Footer geometry and rendered pixels are
 separate from the actual injected-installer, keyboard/controller and lifetime tests.

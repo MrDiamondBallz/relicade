@@ -18,6 +18,7 @@ public sealed class FreedoomEngineProgressRenderingTests(SharedCatalogRenderer r
     [Theory]
     [InlineData("confirmation", 700, 510)][InlineData("confirmation", 580, 440)]
     [InlineData("progress", 700, 510)][InlineData("progress", 580, 440)]
+    [InlineData("error-lines", 580, 440)][InlineData("error-short-lines", 580, 440)]
     [InlineData("canceling", 580, 440)][InlineData("retained", 700, 510)][InlineData("error", 580, 440)]
     public async Task Setup_progress_and_cancellation_keep_status_and_footer_readable(string state, int width, int height)
     {
@@ -26,10 +27,12 @@ public sealed class FreedoomEngineProgressRenderingTests(SharedCatalogRenderer r
             await using var session = new LauncherSession();
             var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
             var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            var isError = state.StartsWith("error", StringComparison.Ordinal);
             var game = new GameInfo { Name = "Synthetic engine progress" };
             var model = new FreedoomEngineProgressViewModel(session, game, async _ =>
             {
                 entered.TrySetResult(); await release.Task;
+                if (state == "error-lines" || state == "error-short-lines") throw new IOException(string.Concat(Enumerable.Repeat("detail\n", state == "error-lines" ? 100 : 30)));
                 if (state == "error") throw new IOException("Synthetic destination refusal: /fixture/" + new string('x', 1200));
                 return false;
             });
@@ -43,7 +46,7 @@ public sealed class FreedoomEngineProgressRenderingTests(SharedCatalogRenderer r
                     game.DownloadProgress = 65; Dispatcher.UIThread.RunJobs();
                     if (state == "canceling" || state == "retained") model.Cancel();
                     if (state == "retained") game.Status = GameStatus.Installed;
-                    if (state == "retained" || state == "error") { release.TrySetResult(); await model.Work; }
+                    if (state == "retained" || isError) { release.TrySetResult(); await model.Work; }
                 }
                 window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
                 // Await the composition batch after operation-driven layout changes.
@@ -59,9 +62,13 @@ public sealed class FreedoomEngineProgressRenderingTests(SharedCatalogRenderer r
                     Assert.InRange(point.X, 0, width - button.Bounds.Width);
                     Assert.InRange(point.Y, 0, height - button.Bounds.Height);
                 }
-                if (state == "error")
+                if (isError)
                 {
                     Assert.StartsWith(window.DiagnosticText.Text!, model.Message);
+                    var viewport = Assert.Single(window.GetVisualDescendants().OfType<ScrollViewer>());
+                    var diagnosticPoint = window.DiagnosticText.TranslatePoint(default, viewport)!.Value;
+                    Assert.InRange(diagnosticPoint.Y, 0, viewport.Bounds.Height - window.DiagnosticText.Bounds.Height);
+                    if (state == "error-short-lines") Assert.True(model.Message.Length <= 280);
                     foreach (var control in new Control[] { window.DiagnosticText, window.PreviousDetailsButton, window.NextDetailsButton })
                     {
                         Assert.True(control.IsEffectivelyVisible);

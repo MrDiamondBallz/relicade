@@ -287,6 +287,53 @@ public sealed class FreedoomEngineProgressTests
         finally { window.Close(); await model.Work; model.DisposeAfterDrain(); }
     }
 
+    [AvaloniaTheory]
+    [InlineData("\n", 100, "keyboard")][InlineData("\r\n", 100, "controller")]
+    [InlineData("\u2028", 100, "keyboard")][InlineData("\u2029", 100, "controller")]
+    [InlineData("\u0085", 100, "keyboard")][InlineData("\n", 30, "controller")]
+    [InlineData("\r\n", 20, "keyboard")][InlineData("\u2028", 30, "controller")]
+    public async Task Multiline_pages_preserve_all_text_and_fit_without_scrolling(string separator, int lines, string input)
+    {
+        await using var session = new LauncherSession();
+        var message = string.Concat(Enumerable.Repeat("detail" + separator, lines));
+        var model = new FreedoomEngineProgressViewModel(session, new(), _ => Task.FromException<bool>(new IOException(message)));
+        var window = new FreedoomEngineProgressDialog(model) { Width = 580, Height = 440 };
+        try
+        {
+            Show(window); await model.StartAsync(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+            Assert.True(window.GetValue(DesktopInterfaceScaling.ManagesScrollingProperty));
+            if (lines <= 30) Assert.True(model.Message.Length <= 280);
+            var viewport = Assert.Single(window.GetVisualDescendants().OfType<ScrollViewer>());
+            var pages = new List<string>();
+            while (true)
+            {
+                var text = window.DiagnosticText;
+                Assert.True(text.IsVisible);
+                var point = text.TranslatePoint(default, viewport)!.Value;
+                Assert.InRange(point.Y, 0, viewport.Bounds.Height - text.Bounds.Height);
+                pages.Add(text.Text!); Assert.InRange(pages.Count, 1, 60);
+                if (separator == "\r\n") Assert.False(text.Text!.EndsWith('\r'));
+                if (!window.NextDetailsButton.IsEnabled) break;
+                if (input == "controller")
+                {
+                    GamepadFocusChrome.SetActive(true, window);
+                    Assert.True(GamepadModalDialogNavigation.Instance.FocusDialogControl(window.NextDetailsButton));
+                    Assert.True(GamepadModalDialogNavigation.Instance.TryHandleConfirm());
+                }
+                else
+                {
+                    Assert.True(window.NextDetailsButton.Focus());
+                    window.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+                    window.KeyRelease(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+                }
+                Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); Assert.True(window.IsVisible);
+            }
+            Assert.Equal(model.Message, string.Concat(pages));
+            Assert.Contains(message, model.Message); Assert.False(model.Succeeded);
+        }
+        finally { window.Close(); await model.Work; model.DisposeAfterDrain(); }
+    }
+
     [AvaloniaFact]
     public async Task Oversized_diagnostic_is_explicitly_bounded_without_splitting_unicode()
     {

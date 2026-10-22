@@ -212,8 +212,9 @@ engine and its history remain installed if cancellation arrives at completion.
 Reopen the entry only after the terminal result to inspect its actual state before
 retrying. Shared metadata requests retain their separate coordinator ownership.
 This is not a promise that cancellation removes all work or that the first-install
-guard protects against hostile concurrent filesystem replacement. Long diagnostic
-text has keyboard/controller Previous/Next pages and an explicit display limit;
+guard protects against hostile concurrent filesystem replacement. Long or multiline diagnostic
+text has keyboard/controller Previous/Next pages sized to the displayed text,
+including short messages with many line breaks, and an explicit display limit;
 the retained operation message is not truncated by that view.
 
 Select **Get free game data** to download that exact archive explicitly, or use

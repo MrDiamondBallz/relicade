@@ -30,6 +30,7 @@ internal sealed class FreedoomEngineProgressDialog : Window
         Model = model; Title = "Set up Freedoom Phase 2";
         Width = 700; Height = 510; MinWidth = 580; MinHeight = 440;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        SetValue(DesktopInterfaceScaling.ManagesScrollingProperty, true);
         var layout = new Grid { RowDefinitions = new RowDefinitions("Auto,*,Auto"), Margin = new Thickness(24), RowSpacing = 16 };
         layout.Children.Add(new TextBlock { Text = Title, FontSize = 23, FontWeight = FontWeight.SemiBold, TextWrapping = TextWrapping.Wrap });
         var details = new StackPanel { Spacing = 16 };
@@ -58,17 +59,22 @@ internal sealed class FreedoomEngineProgressDialog : Window
         };
         model.PropertyChanged += Changed;
         Closed += (_, _) => model.PropertyChanged -= Changed;
-        Opened += (_, _) => Dispatcher.UIThread.Post(() =>
+        Opened += (_, _) =>
         {
-            if (IsVisible) { GamepadModalDialogNavigation.Instance.FocusDialogControl(CancelButton); CancelButton.Focus(); }
-        }, DispatcherPriority.Loaded);
+            // Font inheritance/styles are resolved when the native view opens.
+            Render();
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (IsVisible) { GamepadModalDialogNavigation.Instance.FocusDialogControl(CancelButton); CancelButton.Focus(); }
+            }, DispatcherPriority.Loaded);
+        };
         GamepadModalDialogNavigation.Attach(this); Render();
     }
     void Changed(object? sender, System.ComponentModel.PropertyChangedEventArgs args) => Render();
     void Render()
     {
         var installFocused = InstallButton.IsFocused;
-        var diagnostic = Model.Message.Length > 280 ? Model.Message : "";
+        var diagnostic = IsVisible && (Model.Message.Length > 280 || !FitsDiagnosticPage(Model.Message)) ? Model.Message : "";
         StatusText.Text = diagnostic.Length == 0 ? Model.Message : "Engine setup stopped. Review the details with Previous and Next.";
         AutomationProperties.SetName(StatusText, StatusText.Text);
         var pagesChanged = diagnostic != displayedDiagnostic;
@@ -83,7 +89,15 @@ internal sealed class FreedoomEngineProgressDialog : Window
             while (text.Length > 0)
             {
                 var boundaries = System.Globalization.StringInfo.ParseCombiningCharacters(text);
-                var end = boundaries.Length > 140 ? boundaries[140] : text.Length;
+                var low = 1; var high = Math.Min(boundaries.Length, 140); var fitted = 1;
+                while (low <= high)
+                {
+                    var middle = low + (high - low) / 2;
+                    var candidateEnd = middle == boundaries.Length ? text.Length : boundaries[middle];
+                    if (FitsDiagnosticPage(text[..candidateEnd])) { fitted = middle; low = middle + 1; }
+                    else high = middle - 1;
+                }
+                var end = fitted == boundaries.Length ? text.Length : boundaries[fitted];
                 diagnosticPages.Add(text[..end]); text = text[end..];
             }
         }
@@ -101,6 +115,21 @@ internal sealed class FreedoomEngineProgressDialog : Window
             CancelButton.Focus();
         }
         if (IsVisible && !Model.IsBusy && (Model.Succeeded || Model.SessionClosed)) Close();
+    }
+    bool FitsDiagnosticPage(string text)
+    {
+        // Measure with the displayed font and the minimum dialog's content width.
+        // Character counts alone miss LF, CRLF and Unicode line separators.
+        var probe = new TextBlock
+        {
+            Text = text, TextWrapping = TextWrapping.Wrap,
+            FontFamily = DiagnosticText.FontFamily, FontSize = DiagnosticText.FontSize,
+            FontStyle = DiagnosticText.FontStyle, FontWeight = DiagnosticText.FontWeight,
+            FontStretch = DiagnosticText.FontStretch, LineHeight = DiagnosticText.LineHeight,
+            FlowDirection = DiagnosticText.FlowDirection
+        };
+        probe.Measure(new Size(580 - 48, double.PositiveInfinity));
+        return probe.DesiredSize.Height <= 72;
     }
     void RenderPage()
     {
