@@ -113,3 +113,9 @@ setup dialog at ordinary and minimum sizes, including pending cancellation,
 retained-engine, long-error and short/multiline error states. Its controlled operation is synthetic and
 performs no download or execution. Footer geometry and rendered pixels are
 separate from the actual injected-installer, keyboard/controller and lifetime tests.
+
+`NativeTaglineRenderingTests` captures the empty native Library at normal and
+minimum window sizes, with a light-theme control. The established tagline sits
+beneath the original wordmark, inside the sidebar bounds. The isolated profile
+has no games or external requests; these frames verify native product copy and
+layout, not desktop-host, accessibility-device or gameplay acceptance.

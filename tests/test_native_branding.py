@@ -27,6 +27,12 @@ class NativeBrandingTests(unittest.TestCase):
         self.assertTrue(suffix_stack)
         self.assertEqual(list(panel)[1].get('Margin'), '0,16,0,0')
 
+    def test_sidebar_uses_the_established_product_tagline(self):
+        root = ET.parse(ROOT / 'native/MainView.axaml').getroot()
+        panel = next(n for n in root.iter() if n.get(X + 'Name') == 'SidebarLogoPanel')
+        labels = list(panel.iter(XAML + 'TextBlock'))
+        self.assertEqual([label.get('Text') for label in labels], ['Old legends. New life.'])
+
     def test_suffix_preserves_exact_original_glyph_geometry(self):
         master = ET.parse(ROOT / 'brand/wordmark.svg').getroot()
         tail = ET.parse(ROOT / 'brand/wordmark-tail.svg').getroot()
