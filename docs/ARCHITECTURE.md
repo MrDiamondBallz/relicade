@@ -163,3 +163,23 @@ The long-term discovery/library model spans community-revived classics, retro ga
 ## Acceptance
 
 The [product requirements](PRODUCT_REQUIREMENTS.md) define feature, platform and improvement gates. Every native side effect requires unit/fault/security tests plus package and runtime evidence. A shared-code build alone cannot accept a platform.
+
+## Marker preparation boundary
+
+`AppFilesToAddService` treats marker metadata as untrusted filenames, not file
+ownership or original-game prerequisites. It validates single platform-safe
+names, rejects linked paths and reserves launcher metadata. Creation uses
+`FileMode.CreateNew`, so an existing or concurrently created file is not opened
+for a truncating write. Removed metadata never authorizes deletion. Retained
+names are returned; strict preparation raises a preservation error before any
+creation when removed entries still exist. No ownership ledger is inferred from
+package contents or legacy lists. Automatic cleanup needs a separately reviewed
+ownership/recovery design. Individual creates can succeed before a subsequent
+failure; callers must not infer that an exception left the directory unchanged.
+
+Manual entry edits pass their previous marker list through folder preparation, so
+the same preserved-file warning applies after a saved manual or hosted edit.
+Manual preparation checks ancestor links before creating directories, retains
+existing committed-install validation ahead of marker writes, and creates its
+instruction file with create-new semantics. A failed instruction write can leave
+a partial newly created file; it is not silently overwritten on retry.

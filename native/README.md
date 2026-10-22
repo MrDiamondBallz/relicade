@@ -189,6 +189,26 @@ acceptance, independent update trust, complete behavior reconciliation and every
 platform/package gate. Redundant payload cleanup does not close those gates.
 Do not treat this source as a production-safe installer or full readiness.
 
+## Catalog marker files
+
+Catalog `filesToAdd` entries are requests for empty marker files, not game-data
+or BIOS prerequisites. Preparation uses atomic create-new operations and never
+truncates existing files. Linked install roots or marker paths are refused;
+platform-ambiguous names and launcher-reserved metadata names are excluded.
+This is not protection against a hostile process concurrently replacing parent
+directories, and it does not establish game readiness.
+
+Removing a name from metadata no longer deletes its existing file, even when it
+is empty. Legacy metadata does not prove ownership. Best-effort preparation
+returns the preserved names; strict entry preparation reports them before
+creating any new markers, for both hosted and manually managed entry edits.
+Manual folder preparation checks existing installation metadata first and performs
+marker preflight before creating instructions. Instruction files are also created
+without overwriting existing content. Review retained files before removing them yourself.
+A failed later creation may leave earlier newly created empty markers in place;
+preparation is not an all-or-nothing transaction. Automatic owned-marker cleanup
+remains unimplemented until ownership and recovery can be established safely.
+
 ## Recent-play history
 
 A failed ordinary desktop process-creation attempt leaves existing last-played

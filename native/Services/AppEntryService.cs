@@ -204,7 +204,7 @@ public sealed class AppEntryService(GameManager manager, SettingsViewModel setti
                     try
                     {
                         if (appToUpdate.IsManuallyManaged)
-                            ManualAppFolderService.EnsurePrepared(appToUpdate, _gameManager.GamesFolder, throwOnFailure: true);
+                            ManualAppFolderService.EnsurePrepared(appToUpdate, _gameManager.GamesFolder, throwOnFailure: true, previousFilesToAdd: previousFilesToAdd);
                         else
                             AppFilesToAddService.SyncForGame(appToUpdate, _gameManager.GamesFolder, previousFilesToAdd, throwOnFailure: true);
                     }

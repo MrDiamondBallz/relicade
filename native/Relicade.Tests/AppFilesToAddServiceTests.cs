@@ -31,7 +31,7 @@ public class AppFilesToAddServiceTests
     }
 
     [Fact]
-    public void Sync_creates_new_files_and_removes_cleared_ones()
+    public void Sync_creates_new_files_and_preserves_cleared_marker_content()
     {
         var root = Path.Combine(Path.GetTempPath(), "relicade-files-to-add-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
@@ -43,9 +43,10 @@ public class AppFilesToAddServiceTests
             File.Exists(Path.Combine(root, "keep.txt")).Should().BeTrue();
 
             File.WriteAllText(Path.Combine(root, "portable.txt"), "existing");
-            AppFilesToAddService.Sync(root, previous: ["portable.txt", "keep.txt"], next: ["keep.txt", "new.txt"]);
+            var preserved = AppFilesToAddService.Sync(root, previous: ["portable.txt", "keep.txt"], next: ["keep.txt", "new.txt"]);
 
-            File.Exists(Path.Combine(root, "portable.txt")).Should().BeFalse();
+            preserved.Should().Equal("portable.txt");
+            File.ReadAllText(Path.Combine(root, "portable.txt")).Should().Be("existing");
             File.Exists(Path.Combine(root, "keep.txt")).Should().BeTrue();
             File.ReadAllText(Path.Combine(root, "keep.txt")).Should().BeEmpty();
             File.Exists(Path.Combine(root, "new.txt")).Should().BeTrue();
