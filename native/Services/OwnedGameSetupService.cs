@@ -174,6 +174,10 @@ internal sealed class OwnedGameSetupSession
         return new PortableInstallationTransaction(install).ImportOwnedData(requirement, dataRoot, plan, token,
             point => { if (point != "Copying") Validate(); });
     }
+    internal void ValidateDownloadRequest(CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested(); Validate(); token.ThrowIfCancellationRequested();
+    }
     internal void ValidateReady(CancellationToken token = default)
     {
         token.ThrowIfCancellationRequested(); Validate();

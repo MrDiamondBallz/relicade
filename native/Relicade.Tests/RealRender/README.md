@@ -58,5 +58,6 @@ acceptance. Capture outputs use create-new semantics and unique directories.
 
 The optional Freedoom setup renders before file selection at 760×660 and the
 320×360 minimum size. The fixture uses a synthetic local entry, with no installed
-game, download or launch. It verifies footer bounds as well as framebuffer pixels;
+game, download or launch. The explicit free-data action and official release-page
+alternative are rendered with a throwing transport, never requested. It verifies footer bounds as well as framebuffer pixels;
 these are native headless renders, not physical input or engine-runtime evidence.

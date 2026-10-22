@@ -160,9 +160,27 @@ The compiled adapter accepts only this managed **Linux x64** package:
   `a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b`;
   MD5 `cd666466759b5e5f63af93c5f0ffd0a1`.
 
-Use the dialog's official release link, download and extract the archive yourself,
-then select `freedoom2.wad`. Review the local source, destination and storage
-estimate before confirming the copy. The original is retained. Select **Play
+Select **Get free game data** to download that exact archive explicitly, or use
+the official release-page link and choose your existing `freedoom2.wad`. The
+built-in option checks the ZIP size/hash, exact WAD member and original COPYING
+and credits entries without extracting arbitrary paths or starting the engine.
+It uses no account credentials or cookies, allows only official GitHub HTTPS
+asset redirects and has bounded download size, redirects and a five-minute request
+budget. Cancel closes and drains the request.
+
+The verified ZIP and WAD stay under `free-game-downloads/freedoom-0.13.0` in
+Relicade's user-data directory. The ZIP retains the original license and credits.
+Together these use approximately 53 MB; the separately confirmed retained game
+copy needs another 29 MB. A repeated request rechecks and reuses the cache without
+a network transfer. Conflicting, linked, corrupt or unknown cache files are
+preserved and reported, never silently overwritten or recovered. Only this
+operation's incomplete staging is removed on ordinary failure; an interrupted
+process can leave pending files requiring inspection. General cache cleanup and
+crash recovery remain separate work. Cancel after a verified file was committed
+can leave that download retained, but never confirms a game-data import or Play.
+
+Review the local source, destination and storage estimate before confirming the
+separate copy. The original download or selected file is retained. Select **Play
 Freedoom Phase 2** to start explicitly; subsequent visits can use the verified
 retained copy. Package, file and installation identity are checked again before
 launch. Closing the dialog cancels pending validation and prevents a later process

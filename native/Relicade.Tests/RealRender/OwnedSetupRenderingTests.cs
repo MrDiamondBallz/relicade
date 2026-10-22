@@ -34,7 +34,11 @@ public sealed class OwnedSetupRenderingTests(ITestOutputHelper output)
             manager.Games = new ObservableCollection<GameInfo> { game }; await manager.CatalogService.SaveLocalAppsAsync([game]);
             await using var session = new LauncherSession();
             var model = new OwnedGameSetupViewModel(session, game.InstanceKey, new OwnedGameSetupSession(manager, game.InstanceKey, freedoom ? OwnedGameSetupService.FreedoomPhase2 : null));
-            if (freedoom) model.ConfigureFreedoom(() => throw new InvalidOperationException("Render fixture must not launch."), false);
+            if (freedoom)
+            {
+                model.ConfigureFreedoom(() => throw new InvalidOperationException("Render fixture must not launch."), false);
+                model.ConfigureFreeDataDownload((_, _) => throw new InvalidOperationException("Render fixture must not download."));
+            }
             var dialog = new OwnedGameSetupDialog(model) { Width = width, Height = height };
             try
             {

@@ -77,7 +77,7 @@ The first compiled adapter pins a package and selected executable; remote catalo
 metadata cannot override its file rules or destinations. Local selection is
 followed by a preview and explicit copy confirmation. Originals, committed copies
 and prior receipts are retained. Input variant hashes do not establish ownership
-or publisher authenticity. Setup creates no remote data transfer; product-wide
+or publisher authenticity. That local-import path creates no remote data transfer; product-wide
 network behavior remains separate. Copies and receipts use owner-only Linux file
 permissions, not encryption. Hostile concurrent filesystem writers, full power-loss
 recovery, migration and real-game compatibility remain unaccepted. See
@@ -102,5 +102,10 @@ empty refresh does not erase it. Legacy saved IDs are not silently rewritten.
 The optional Freedoom setup pins a separate engine package and data SHA256,
 requires local copy confirmation and an explicit Play action, and passes the
 validated path as a literal `-iwad` argument. Ordinary engine Launch, working
-directory and save/configuration locations are unchanged. The official release
-link is user-activated; no automatic download or signature verification is claimed.
+directory and save/configuration locations are unchanged. An explicit free-data
+button uses a separate no-authentication/no-cookie client, restricted official
+HTTPS redirects, fixed byte budgets and pinned archive/member SHA256 checks.
+The original ZIP (with notices) and verified WAD are retained, not overwritten;
+only the operation's incomplete staging is disposable. Cached files must be
+unlinked regular files. This is not an unattended install, signature verification
+or a sandbox against hostile concurrent filesystem replacement.

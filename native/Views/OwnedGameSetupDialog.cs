@@ -17,6 +17,7 @@ internal sealed class OwnedGameSetupDialog : Window
     internal Button ConfirmButton { get; } = new() { Content = "Confirm lawful use and copy", MinHeight = 44 };
     internal Button PlayButton { get; } = new() { Content = "Play Freedoom Phase 2", MinHeight = 44 };
     internal Button DownloadButton { get; } = new() { Content = "Official download", MinHeight = 44 };
+    internal Button WebsiteButton { get; } = new() { Content = new TextBlock { Text = "Open official Freedoom release page", TextWrapping = TextWrapping.Wrap }, MinHeight = 44 };
     internal Button CloseButton { get; } = new() { Content = "Cancel", IsCancel = true, IsDefault = true, MinHeight = 44 };
     internal Task Work { get; private set; } = Task.CompletedTask;
     readonly StackPanel details = new() { Spacing = 8 };
@@ -43,7 +44,10 @@ internal sealed class OwnedGameSetupDialog : Window
         ConfirmButton.Click += (_, _) => { if (model.CanConfirm) Work = model.ConfirmAsync(); };
         PlayButton.Click += (_, _) => { if (model.CanPlay) Work = model.PlayAsync(); };
         model.OpenDownload = () => Launcher.LaunchUriAsync(new Uri(OwnedGameSetupViewModel.OfficialFreedoomRelease));
-        DownloadButton.Click += (_, _) => { if (model.CanChoose) Work = model.OpenDownloadAsync(); };
+        DownloadButton.Click += (_, _) => { if (model.CanChoose) Work = model.HasFreeDataDownload ? model.DownloadAndPreviewAsync() : model.OpenDownloadAsync(); };
+        WebsiteButton.Click += (_, _) => { if (model.CanChoose) Work = model.OpenDownloadAsync(); };
+        WebsiteButton.SetValue(GamepadModalDialogNavigation.KeepDialogOpenProperty, true);
+        WebsiteButton.GotFocus += (_, _) => WebsiteButton.BringIntoView();
         CloseButton.Click += (_, _) => Close();
         model.PropertyChanged += Changed;
         Closed += (_, _) => { model.Close(); model.PropertyChanged -= Changed; };
@@ -80,14 +84,17 @@ internal sealed class OwnedGameSetupDialog : Window
     void Render()
     {
         details.Children.Clear();
-        foreach (var text in new[] { Model.Requirement, Model.Message, "Local only. Originals and prior copies are preserved; no ROM or BIOS download is provided." }.SelectMany(text => text.Split('\n')))
+        foreach (var text in new[] { Model.Requirement, Model.Message, Model.DataPolicy }.SelectMany(text => text.Split('\n')))
             AddInspection(text);
+        if (Model.HasFreeDataDownload && Model.State != OwnedGameSetupUiState.Completed)
+        { WebsiteButton.IsEnabled = Model.CanChoose; details.Children.Add(WebsiteButton); }
         if (Model.Plan is { } plan)
             foreach (var text in new[] { "Source: " + plan.Source, "Destination: " + plan.Destination,
                 "Additional space needed: " + plan.BytesToCopy.ToString("N0") + " bytes, plus a small local receipt.",
                 plan.ReuseExisting ? "An identical retained copy exists; confirmation adopts it for this generation without overwriting it." : "The selected file will be copied, not moved or linked.",
                 "Local copy SHA256: " + plan.SourceSha256 }) AddInspection(text);
         PlayButton.IsVisible = Model.IsFreedoom && Model.State == OwnedGameSetupUiState.Completed; PlayButton.IsEnabled = Model.CanPlay;
+        DownloadButton.Content = Model.HasFreeDataDownload ? "Get free game data" : "Official download";
         DownloadButton.IsVisible = Model.IsFreedoom && Model.State != OwnedGameSetupUiState.Completed; DownloadButton.IsEnabled = Model.CanChoose;
         ChooseButton.IsVisible = !Model.IsFreedoom || Model.State != OwnedGameSetupUiState.Completed;
         ChooseButton.IsEnabled = Model.CanChoose; ConfirmButton.IsEnabled = Model.CanConfirm;

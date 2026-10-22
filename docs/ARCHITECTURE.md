@@ -319,3 +319,16 @@ forwards the existing Close After Launch preference. A fixed `-iwad` argument ca
 and engine configuration/save locations are unchanged. No game/reference binary
 execution, universal WAD compatibility or native-platform acceptance follows from
 synthetic tests or static package inspection.
+
+
+The optional free-data request is a compiled archive adapter, not catalog-provided
+execution or path instructions. A dedicated no-auth/no-cookie transport handles
+at most three official HTTPS redirects, enforces the pinned compressed-byte limit
+and SHA256, then checks exact WAD/notice entries. Extraction writes only a generated
+staging name and the fixed retained WAD name. The archive retains upstream notices.
+The cache uses conservative root/ancestor writer authority and create-new writes;
+existing files are rehashed or refused, never overwritten. Only owned incomplete
+staging is disposable. The actual dialog rechecks local library/settings authority
+before requesting, tracks cancellation/drain, and passes the retained source into
+the existing explicit preview/import protocol. Neither download completion nor a
+cache hit authorizes the separate game-data import or starting a process.

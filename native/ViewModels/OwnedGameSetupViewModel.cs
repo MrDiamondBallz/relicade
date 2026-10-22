@@ -29,6 +29,48 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
             : "Download Freedoom v0.13.0 from its official release, extract the ZIP and choose freedoom2.wad. This dialog does not download files.";
         Changed();
     }
+    Func<IProgress<double>?, CancellationToken, Task<FreeDataDownloadResult>>? downloadData;
+    internal bool HasFreeDataDownload => downloadData != null;
+    internal string DataPolicy => HasFreeDataDownload
+        ? "Only an explicit free-data download is offered. The verified ZIP and WAD are retained locally, including original notices in the ZIP. No commercial ROM or BIOS is downloaded."
+        : "Local only. Originals and prior copies are preserved; no ROM or BIOS download is provided.";
+    internal void ConfigureFreeDataDownload(Func<IProgress<double>?, CancellationToken, Task<FreeDataDownloadResult>> download)
+    {
+        downloadData = download;
+        if (State != OwnedGameSetupUiState.Completed)
+            Message = "Get Freedoom v0.13.0 from its official GitHub release, or choose your existing freedoom2.wad. The download retains a 24 MB ZIP and 29 MB WAD; confirming the later copy needs another 29 MB. Downloading does not install or start the engine.";
+        Changed();
+    }
+    internal Task DownloadAndPreviewAsync()
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (!CanChoose || downloadData == null) return Task.CompletedTask;
+        busy = true; Plan = null; State = OwnedGameSetupUiState.Inspecting;
+        Message = "Downloading and checking the pinned free-data archive…"; Changed();
+        return session.RunAsync(async () =>
+        {
+            var acceptingProgress = true;
+            try
+            {
+                var progress = new Progress<double>(value =>
+                {
+                    if (acceptingProgress && !IsClosed)
+                    { Message = $"Downloading free game data: {Math.Clamp(value, 0, 1):P0}. Hash and archive checks must still finish."; Changed(); }
+                });
+                var downloaded = await downloadData(progress, cancellation.Token);
+                acceptingProgress = false; cancellation.Token.ThrowIfCancellationRequested();
+                var plan = await Task.Run(() => preview(downloaded.Source, cancellation.Token));
+                await UpdateAsync(() =>
+                {
+                    Plan = plan; State = OwnedGameSetupUiState.Confirm;
+                    Message = "Free data verified. Review and confirm the separate local copy. The original ZIP, with COPYING and credits, is retained at: " + downloaded.Archive;
+                });
+            }
+            catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
+            catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }
+            finally { acceptingProgress = false; await UpdateAsync(() => busy = false); }
+        });
+    }
     internal Task PlayAsync()
     {
         Dispatcher.UIThread.VerifyAccess();

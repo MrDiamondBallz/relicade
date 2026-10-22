@@ -36,6 +36,7 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
                     ConfigureFreedoomPlay(model, ready,
                         token => Task.Run(() => setup.ValidateReady(token)),
                         token => GameLaunchService.LaunchFreedoomAsync(game!, manager.GamesFolder, token), afterLaunch);
+                    ConfigureFreedoomDownload(model, setup, FreedoomDataDownload.DownloadAsync);
                 }
                 dialog = new OwnedGameSetupDialog(model); dialogs.Track(dialog);
                 await GameDialogService.ShowWindowAsync(dialog, session.Token);
@@ -49,6 +50,16 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
                 model?.DisposeAfterDrain(); active = false;
                 if (!session.IsClosed && origin != null && TopLevel.GetTopLevel(origin) != null && origin.IsEffectivelyVisible) origin.Focus();
             }
+        });
+    }
+    internal static void ConfigureFreedoomDownload(OwnedGameSetupViewModel model, OwnedGameSetupSession setup,
+        Func<IProgress<double>?, CancellationToken, Task<FreeDataDownloadResult>> download)
+    {
+        model.ConfigureFreeDataDownload(async (progress, token) =>
+        {
+            await Task.Run(() => setup.ValidateDownloadRequest(token));
+            token.ThrowIfCancellationRequested();
+            return await download(progress, token);
         });
     }
     internal static void ConfigureFreedoomPlay(OwnedGameSetupViewModel model, bool ready,
