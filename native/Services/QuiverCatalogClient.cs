@@ -285,8 +285,23 @@ public sealed class QuiverCatalogClient(HttpClient http, string? baseUrl = null)
                     throw new HttpRequestException("Release history is no longer available.", null, HttpStatusCode.NotFound);
                 if (page["items"] is not JsonArray rows)
                     throw new InvalidDataException("Release history has no valid items array.");
-                var items = rows.Deserialize<List<QuiverCatalogRelease>>(Json) ?? [];
-                releases.AddRange(items);
+                Exception? invalidRow = null;
+                foreach (var row in rows)
+                {
+                    lifetime.Token.ThrowIfCancellationRequested();
+                    try
+                    {
+                        var item = row?.Deserialize<QuiverCatalogRelease>(Json)
+                            ?? throw new JsonException("Release history contains a null record.");
+                        releases.Add(item);
+                    }
+                    catch (Exception ex) when (ex is JsonException or InvalidOperationException)
+                    {
+                        // Inspect every sibling so one malformed row cannot erase a well-formed block.
+                        invalidRow ??= ex;
+                    }
+                }
+                if (invalidRow != null) throw new JsonException("Release history contains an invalid record.", invalidRow);
                 if (page["isDone"] is not JsonValue completion || !completion.TryGetValue<bool>(out var done))
                     throw new InvalidDataException("Release history has no valid completion marker.");
                 if (done) break;

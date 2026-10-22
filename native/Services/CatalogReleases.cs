@@ -176,7 +176,8 @@ public sealed class CatalogReleases
         }
         var matches = releases?.Where(r => string.Equals(r.Version, version, StringComparison.Ordinal)).ToArray() ?? [];
         if (matches.Length == 0) matches = releases?.Where(r => SameHistoryVersion(r.Version, version)).ToArray() ?? [];
-        if (matches.Length > 1 && matches.Skip(1).Any(r => !QuiverCatalogClient.SameHistoryRecord(matches[0], r)))
+        if (matches.Length > 1 && (matches.Select(r => r.Version).Distinct(StringComparer.Ordinal).Count() > 1 ||
+            matches.Skip(1).Any(r => !QuiverCatalogClient.SameHistoryRecord(matches[0], r))))
         {
             var conflictState = matches.Any(r => r.State == "blocked") ? ReleaseCheckState.Blocked : ReleaseCheckState.Unverified;
             var reasons = matches.SelectMany(r => r.Reasons ?? []).Append("The catalog returned conflicting records for this release.").Distinct().ToArray();
