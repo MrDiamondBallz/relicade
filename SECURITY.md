@@ -92,3 +92,9 @@ Valid nonrolling catalog digests retain precedence over publisher fallback diges
 and mismatches block activation. Syntax validation and a matching digest are not
 publisher authentication, malware clearance or a sandbox. Catalog linkage and
 reachability policy and noncatalog source policy remain separate review boundaries.
+
+The optional Freedoom setup pins a separate engine package and data SHA256,
+requires local copy confirmation and an explicit Play action, and passes the
+validated path as a literal `-iwad` argument. Ordinary engine Launch, working
+directory and save/configuration locations are unchanged. The official release
+link is user-activated; no automatic download or signature verification is claimed.

@@ -15,30 +15,35 @@ internal sealed class OwnedGameSetupDialog : Window
     internal OwnedGameSetupViewModel Model { get; }
     internal Button ChooseButton { get; } = new() { Content = "Choose my game file…", MinHeight = 44 };
     internal Button ConfirmButton { get; } = new() { Content = "Confirm lawful use and copy", MinHeight = 44 };
+    internal Button PlayButton { get; } = new() { Content = "Play Freedoom Phase 2", MinHeight = 44 };
+    internal Button DownloadButton { get; } = new() { Content = "Official download", MinHeight = 44 };
     internal Button CloseButton { get; } = new() { Content = "Cancel", IsCancel = true, IsDefault = true, MinHeight = 44 };
     internal Task Work { get; private set; } = Task.CompletedTask;
     readonly StackPanel details = new() { Spacing = 8 };
     internal OwnedGameSetupDialog(OwnedGameSetupViewModel model)
     {
-        Model = model; Title = "Finish game setup"; Background = new SolidColorBrush(Color.Parse("#14171C"));
+        Model = model; Title = model.Title; Background = new SolidColorBrush(Color.Parse("#14171C"));
         Width = 760; Height = 660; MinWidth = 320; MinHeight = 360; WindowStartupLocation = WindowStartupLocation.CenterOwner;
         SetValue(DesktopInterfaceScaling.ManagesScrollingProperty, true); AutomationProperties.SetName(this, Title);
         var layout = new Grid { RowDefinitions = new("Auto,*,Auto"), Margin = new Thickness(20), RowSpacing = 12 };
         layout.Children.Add(new TextBlock { Text = Title, FontSize = 24, Foreground = new SolidColorBrush(Color.Parse("#FF8A32")) });
         var scroll = new ScrollViewer { Content = details, Focusable = true, HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled };
         AutomationProperties.SetName(scroll, "Game setup requirements and local copy preview"); Grid.SetRow(scroll, 1); layout.Children.Add(scroll);
-        var buttons = new WrapPanel { Orientation = Orientation.Horizontal, Children = { CloseButton, ChooseButton, ConfirmButton } };
+        var buttons = new WrapPanel { Orientation = Orientation.Horizontal, Children = { CloseButton, DownloadButton, ChooseButton, ConfirmButton, PlayButton } };
         foreach (var button in buttons.Children.OfType<Button>())
         { button.Margin = new Thickness(0, 0, 8, 8); button.SetValue(GamepadModalDialogNavigation.KeepDialogOpenProperty, true); }
         Grid.SetRow(buttons, 2); layout.Children.Add(buttons); Content = layout;
         model.PickFile = async () =>
         {
             var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { Title = "Choose your lawful game-data file", AllowMultiple = false,
-                FileTypeFilter = [new FilePickerFileType("Nintendo 64 big-endian data") { Patterns = ["*.z64"] }, FilePickerFileTypes.All] });
+                FileTypeFilter = [new FilePickerFileType(model.FileTypeLabel) { Patterns = [model.FilePattern] }, FilePickerFileTypes.All] });
             return files.FirstOrDefault()?.TryGetLocalPath();
         };
         ChooseButton.Click += (_, _) => { if (model.CanChoose) Work = model.ChooseAsync(); };
         ConfirmButton.Click += (_, _) => { if (model.CanConfirm) Work = model.ConfirmAsync(); };
+        PlayButton.Click += (_, _) => { if (model.CanPlay) Work = model.PlayAsync(); };
+        model.OpenDownload = () => Launcher.LaunchUriAsync(new Uri(OwnedGameSetupViewModel.OfficialFreedoomRelease));
+        DownloadButton.Click += (_, _) => { if (model.CanChoose) Work = model.OpenDownloadAsync(); };
         CloseButton.Click += (_, _) => Close();
         model.PropertyChanged += Changed;
         Closed += (_, _) => { model.Close(); model.PropertyChanged -= Changed; };
@@ -82,6 +87,9 @@ internal sealed class OwnedGameSetupDialog : Window
                 "Additional space needed: " + plan.BytesToCopy.ToString("N0") + " bytes, plus a small local receipt.",
                 plan.ReuseExisting ? "An identical retained copy exists; confirmation adopts it for this generation without overwriting it." : "The selected file will be copied, not moved or linked.",
                 "Local copy SHA256: " + plan.SourceSha256 }) AddInspection(text);
+        PlayButton.IsVisible = Model.IsFreedoom && Model.State == OwnedGameSetupUiState.Completed; PlayButton.IsEnabled = Model.CanPlay;
+        DownloadButton.IsVisible = Model.IsFreedoom && Model.State != OwnedGameSetupUiState.Completed; DownloadButton.IsEnabled = Model.CanChoose;
+        ChooseButton.IsVisible = !Model.IsFreedoom || Model.State != OwnedGameSetupUiState.Completed;
         ChooseButton.IsEnabled = Model.CanChoose; ConfirmButton.IsEnabled = Model.CanConfirm;
         ConfirmButton.IsVisible = Model.State == OwnedGameSetupUiState.Confirm;
         CloseButton.Content = Model.State == OwnedGameSetupUiState.Completed ? "Close" : "Cancel";

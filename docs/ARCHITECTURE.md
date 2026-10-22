@@ -282,3 +282,20 @@ The installer resolves catalog then publisher digest before confirmation/downloa
 missing integrity reaches the existing interactive consent seam, while automatic
 and headless implementations decline. Valid digests are compared before activation.
 This does not establish publisher trust, software safety, rights or playable setup.
+
+## Optional engine data selection
+
+The separate Freedoom action uses a compiled UZDoom package and Phase 2 data
+binding. It reuses the local preview, confirmed copy and retained receipt
+transaction, with an explicitly validated single-component `.wad` filename and
+pinned SHA256 in addition to the variant MD5. The original Perfect Dark definition
+keeps its existing filename and behavior. The optional action does not set the
+engine's mandatory-data gate or alter ordinary Launch.
+
+The dialog requires explicit Play after data setup. It checks the saved library,
+settings and retained data before dispatch, and the launch service revalidates
+the exact generation and data under the existing portable launch lifetime. A
+fixed `-iwad` argument carries the literal absolute file path; working directory
+and engine configuration/save locations are unchanged. No game/reference binary
+execution, universal WAD compatibility or native-platform acceptance follows from
+synthetic tests or static package inspection.

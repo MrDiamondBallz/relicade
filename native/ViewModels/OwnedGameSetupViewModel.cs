@@ -13,6 +13,49 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     readonly Func<Task> refresh;
     readonly CancellationTokenSource cancellation;
     bool busy, closed;
+    Func<Task<bool>>? play;
+    internal bool IsFreedoom => play != null;
+    internal string FileTypeLabel => IsFreedoom ? "Freedoom Phase 2 data" : "Nintendo 64 big-endian data";
+    internal string FilePattern => IsFreedoom ? "*.wad" : "*.z64";
+    internal string Title => IsFreedoom ? "Play Freedoom Phase 2" : "Finish game setup";
+    internal bool CanPlay => IsFreedoom && !IsClosed && !busy && State == OwnedGameSetupUiState.Completed;
+    internal void ConfigureFreedoom(Func<Task<bool>> launch, bool ready)
+    {
+        play = launch;
+        if (ready) State = OwnedGameSetupUiState.Completed;
+        Message = ready ? "The retained Freedoom copy is verified for this package. Play rechecks it before starting."
+            : "Download Freedoom v0.13.0 from its official release, extract the ZIP and choose freedoom2.wad. This dialog does not download files.";
+        Changed();
+    }
+    internal Task PlayAsync()
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (!CanPlay) return Task.CompletedTask;
+        busy = true; Changed();
+        return session.RunAsync(async () =>
+        {
+            try { var started = await play!(); await UpdateAsync(() => Message = started ? "Launch started. Gameplay compatibility is not certified." : "Launch did not complete. Review the reported error before retrying."); }
+            catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }
+            finally { await UpdateAsync(() => busy = false); }
+        });
+    }
+    internal const string OfficialFreedoomRelease = "https://github.com/freedoom/freedoom/releases/tag/v0.13.0";
+    internal Func<Task<bool>> OpenDownload { get; set; } = () => Task.FromResult(false);
+    internal Task OpenDownloadAsync()
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (!IsFreedoom || !CanChoose) return Task.CompletedTask;
+        busy = true; Changed();
+        return session.RunAsync(async () =>
+        {
+            try
+            {
+                if (!await OpenDownload()) await UpdateAsync(() => Message = "Could not open the browser. Open this official release yourself: " + OfficialFreedoomRelease);
+            }
+            catch (Exception) { await UpdateAsync(() => Message = "Could not open the browser. Open this official release yourself: " + OfficialFreedoomRelease); }
+            finally { await UpdateAsync(() => busy = false); }
+        });
+    }
     internal Func<Task<string?>> PickFile { get; set; } = () => Task.FromResult<string?>(null);
     internal string InstanceKey { get; }
     internal string Requirement { get; }
@@ -23,7 +66,7 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     internal bool CanChoose => !IsClosed && !busy && State != OwnedGameSetupUiState.Completed;
     internal bool CanConfirm => !IsClosed && !busy && State == OwnedGameSetupUiState.Confirm && Plan != null;
     internal OwnedGameSetupViewModel(LauncherSession session, string key, OwnedGameSetupSession setup)
-        : this(session, key, $"{setup.Label}\n{setup.RequiredBytes:N0} bytes; MD5 {setup.VariantMd5}\nThis identifies a variant, not ownership or legal entitlement.", setup.Preview, setup.Apply, setup.RefreshAsync) { }
+        : this(session, key, $"{setup.Label}\n{setup.RequiredBytes:N0} bytes; MD5 {setup.VariantMd5}{(setup.ExpectedSha256 == null ? "" : "\nPinned SHA256 " + setup.ExpectedSha256)}\nThis identifies a variant, not ownership or legal entitlement.", setup.Preview, setup.Apply, setup.RefreshAsync) { }
     internal OwnedGameSetupViewModel(LauncherSession session, string key, string requirement,
         Func<string, CancellationToken, OwnedDataPreview> preview,
         Func<OwnedDataPreview, CancellationToken, OwnedDataImportResult> apply, Func<Task> refresh)
@@ -67,7 +110,7 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
                 var result = await Task.Run(() => apply(plan, cancellation.Token));
                 await refresh();
                 await UpdateAsync(() => { State = result.Completed ? OwnedGameSetupUiState.Completed : OwnedGameSetupUiState.Error;
-                    Message = result.Completed ? "Game data verified and retained locally. Close this window and select Launch. This does not certify gameplay or hardware compatibility."
+                    Message = result.Completed ? (IsFreedoom ? "Freedoom verified and retained locally. Select Play Freedoom Phase 2. Ordinary engine Launch keeps your existing WAD configuration." : "Game data verified and retained locally. Close this window and select Launch. This does not certify gameplay or hardware compatibility.")
                         : "Completion was not established. Keep the original and any retained copy; review setup before retrying."; });
             }
             catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }

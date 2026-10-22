@@ -10,8 +10,17 @@ public static class GameLaunchService
     public static Task<bool> LaunchAsync(GameInfo game, string gamesFolder) => LaunchAsync(game, gamesFolder, null);
 
     // Shortcut dispatch binds the generation it validated before entering this service.
-    internal static async Task<bool> LaunchAsync(GameInfo game, string gamesFolder, string? expectedOperationId,
-        ManagedShortcutChildLifetime? shortcutObserver = null)
+    internal static Task<bool> LaunchAsync(GameInfo game, string gamesFolder, string? expectedOperationId,
+        ManagedShortcutChildLifetime? shortcutObserver = null) => LaunchCoreAsync(game, gamesFolder, expectedOperationId, shortcutObserver, false);
+
+    internal static Task<bool> LaunchFreedoomAsync(GameInfo game, string gamesFolder)
+    {
+        if (!OwnedGameSetupService.OffersFreedoom(game)) throw new IOException("Freedoom setup is unavailable for this project.");
+        return LaunchCoreAsync(game, gamesFolder, null, null, true);
+    }
+
+    static async Task<bool> LaunchCoreAsync(GameInfo game, string gamesFolder, string? expectedOperationId,
+        ManagedShortcutChildLifetime? shortcutObserver, bool freedoom)
     {
         if (string.IsNullOrEmpty(game.FolderName))
         {
@@ -30,7 +39,7 @@ public static class GameLaunchService
             if (expectedOperationId != null && shortcutObserver == null)
                 throw new NotSupportedException("Managed shortcut child-tree observation must be established before launch.");
 
-            if (OwnedGameSetupService.Requirement(game) != null &&
+            if ((freedoom || OwnedGameSetupService.Requirement(game) != null) &&
                 (portableManifest == null || FlatpakService.HasReceipt(gamePath) || WindowsInstallerService.HasReceipt(gamePath)))
                 throw new IOException("Requirements are not confirmed for this installation. Finish game setup requires a supported managed portable package.");
 
@@ -121,7 +130,7 @@ public static class GameLaunchService
 
             using var portableLifetime = PortableInstallationLifetime.Begin(gamePath, expectedOperationId ?? portableManifest?.OperationId);
             string? ownedGameData = null;
-            if (OwnedGameSetupService.Requirement(game) is { } requirement)
+            if ((freedoom ? OwnedGameSetupService.FreedoomPhase2 : OwnedGameSetupService.Requirement(game)) is { } requirement)
             {
                 var exactManifest = portableLifetime.CommittedManifest
                     ?? throw new IOException("Game setup requires a supported managed package. Open Finish game setup from the library.");
@@ -172,7 +181,7 @@ public static class GameLaunchService
                     HostProcessEnvironment.Sanitize(startInfo);
             }
 
-            ConfigureOwnedDataArguments(startInfo, ownedGameData);
+            ConfigureOwnedDataArguments(startInfo, ownedGameData, freedoom);
 
             // No-ops unless Relicade itself is running inside a Flatpak sandbox.
             HostProcessEnvironment.RouteToHostIfSandboxed(startInfo);
@@ -274,10 +283,10 @@ public static class GameLaunchService
         }
     }
 
-    internal static void ConfigureOwnedDataArguments(ProcessStartInfo startInfo, string? validatedDataPath)
+    internal static void ConfigureOwnedDataArguments(ProcessStartInfo startInfo, string? validatedDataPath, bool freedoom = false)
     {
         if (validatedDataPath == null) return;
-        startInfo.ArgumentList.Add("--rom-file");
+        startInfo.ArgumentList.Add(freedoom ? "-iwad" : "--rom-file");
         startInfo.ArgumentList.Add(validatedDataPath);
     }
 

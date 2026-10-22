@@ -408,3 +408,11 @@ install without either digest. Automatic/headless flows decline that unverified
 case. A mismatch preserves the previous installation; a malformed digest cannot
 invent a same-tag update. See [download integrity](../docs/GAME_SETUP.md#download-integrity-and-catalog-approval)
 for the boundaries. A matching digest is not a safety or gameplay certification.
+
+The optional **Play Freedoom Phase 2…** library action is a second package-bound
+setup path, for UZDoom 5.0.3 Linux x64 and Freedoom 0.13.0 Phase 2 only. It links the
+official data release, previews a local `.wad` copy, requires confirmation and
+provides an explicit Play action with launch-time revalidation. It does not
+replace normal engine Launch, relocate saves or automatically fetch data. See
+[the exact package, data and rights boundaries](../docs/GAME_SETUP.md#optional-freedoom-phase-2).
+This is development source, not tested gameplay or accepted platform support.

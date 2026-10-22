@@ -6,7 +6,8 @@ namespace Relicade.Core.Services;
 
 // Definitions are compiled, reviewed adapters, never instructions from catalog metadata.
 internal sealed record OwnedDataRequirement(string Id, string Label, string ReleaseIdentity,
-    string AssetIdentity, string ExecutableSha256, long Length, string Md5);
+    string AssetIdentity, string ExecutableSha256, long Length, string Md5,
+    string FileName = "game-data.z64", string? ExpectedSha256 = null);
 internal sealed record OwnedDataPreview(string PlanSha256, string Source, string Destination,
     string OperationId, string SourceSha256, long BytesToCopy, bool ReuseExisting);
 internal sealed record OwnedDataImportResult(string Destination, string Sha256, bool Completed);
@@ -191,9 +192,11 @@ public sealed partial class PortableInstallationTransaction
     {
         ValidateRelative(requirement.Id);
         if (requirement.Id.Contains('/')) throw new IOException("Invalid setup adapter identity.");
+        ValidateRelative(requirement.FileName);
+        if (requirement.FileName.Contains('/')) throw new IOException("Invalid setup data filename.");
         dataRoot = Path.TrimEndingDirectorySeparator(Path.GetFullPath(dataRoot));
         CheckLinks(dataRoot);
-        var destination = SafePath(dataRoot, "owned-game-data/" + key + "/" + requirement.Id + "/game-data.z64");
+        var destination = SafePath(dataRoot, "owned-game-data/" + key + "/" + requirement.Id + "/" + requirement.FileName);
         var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
         if (destination.StartsWith(root + Path.DirectorySeparatorChar, comparison) ||
             root.StartsWith(Path.Combine(dataRoot, "owned-game-data") + Path.DirectorySeparatorChar, comparison))
@@ -235,6 +238,9 @@ public sealed partial class PortableInstallationTransaction
         }
         if (read != requirement.Length || Convert.ToHexStringLower(md5.GetHashAndReset()) != requirement.Md5)
             throw new IOException($"This is not the supported {requirement.Label}. A hash identifies a variant, not ownership or legal entitlement. The original was preserved.");
-        return Convert.ToHexStringLower(sha.GetHashAndReset());
+        var digest = Convert.ToHexStringLower(sha.GetHashAndReset());
+        if (requirement.ExpectedSha256 is { } expected && digest != expected)
+            throw new IOException("The selected data does not match this adapter's pinned SHA-256. The original was preserved.");
+        return digest;
     }
 }

@@ -260,6 +260,7 @@ namespace Relicade
             LibraryPanel.ConfigurePortableRollback(portableRollback.OpenAsync);
             var ownedGameSetup = new OwnedGameSetupFlow(_gameManager, _settingsViewModel, _session, _dialogs);
             LibraryPanel.ConfigureOwnedGameSetup(ownedGameSetup.OpenAsync);
+            LibraryPanel.ConfigureFreedoomSetup(ownedGameSetup.OpenFreedoomAsync);
             _libraryLaunch.ConfigureOwnedGameSetup(ownedGameSetup.OpenAsync);
             LibraryPanel.Navigation = new Views.LibraryNavigation(LibraryPanel, this, _session, () => Shell.Mode == MainViewMode.Library && !Shell.AppUpdatesOpen && !Shell.ModsOpen, () => !_session.IsClosed && !Shell.SettingsOpen && !Shell.EntryEditorOpen && !Shell.TagEditorOpen && !IsDisplayFilterOverlayOpen, ShouldKeepLibraryChromeFocus, steal =>
             {

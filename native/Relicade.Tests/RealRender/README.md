@@ -55,3 +55,8 @@ opening actual project details and selecting its existing local entry. It shows 
 synthetic uninstalled entry and the temporary-filter exception notice, with no game
 artwork or network request. It is native CPU rendering, not desktop or gameplay
 acceptance. Capture outputs use create-new semantics and unique directories.
+
+The optional Freedoom setup renders before file selection at 760×660 and the
+320×360 minimum size. The fixture uses a synthetic local entry, with no installed
+game, download or launch. It verifies footer bounds as well as framebuffer pixels;
+these are native headless renders, not physical input or engine-runtime evidence.

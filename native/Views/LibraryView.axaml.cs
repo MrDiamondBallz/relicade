@@ -37,6 +37,8 @@ public partial class LibraryView : UserControl
     internal void ConfigurePortableRollback(Func<GameInfo?, Control?, Task> open) => _rollbackPortableVersion = open;
     private Func<GameInfo?, Control?, Task> _ownedGameSetup = (_, _) => Task.CompletedTask;
     internal void ConfigureOwnedGameSetup(Func<GameInfo?, Control?, Task> open) => _ownedGameSetup = open;
+    private Func<GameInfo?, Control?, Task> _freedoomSetup = (_, _) => Task.CompletedTask;
+    internal void ConfigureFreedoomSetup(Func<GameInfo?, Control?, Task> open) => _freedoomSetup = open;
     public void ConfigureActions(LibraryActions actions, LibraryCustomizationService customization, Func<GameInfo, Task> autoUpdate, Func<string, string, Task> message)
     {
         _actions = actions;
@@ -151,6 +153,9 @@ public partial class LibraryView : UserControl
             var anchor = game == null ? null : ResolveDownloadMenuAnchor(game, FindGameMenuAnchor(game));
             switch (action)
             {
+                case LibraryActionKind.PlayFreedoom:
+                    if (!Model.Settings.IsReadOnly) await _freedoomSetup(game, anchor);
+                    break;
                 case LibraryActionKind.FinishOwnedGameSetup:
                     if (!Model.Settings.IsReadOnly) await _ownedGameSetup(game, anchor);
                     break;
@@ -257,6 +262,7 @@ public partial class LibraryView : UserControl
     private void CreateShortcut_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.CreateShortcut);
     private void DeleteGameFromLibrary_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.DeleteGameFromLibrary);
     private void CleanPortableBackups_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.CleanPortableBackups);
+    private void PlayFreedoom_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.PlayFreedoom);
     private void FinishOwnedGameSetup_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.FinishOwnedGameSetup);
     private void RollbackPortableVersion_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.RollbackPortableVersion);
     private void EditCustomDisplayNameMenu_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.EditCustomDisplayNameMenu);
