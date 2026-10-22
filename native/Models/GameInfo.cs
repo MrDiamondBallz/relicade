@@ -723,7 +723,7 @@ namespace Relicade.Models
                 {
                     _latestVersion = value;
 
-                    if (AreVersionsEquivalent(_preferredVersion, _latestVersion))
+                    if (_preferredVersion?.Contains('+') != true && CatalogReleaseSelection.MatchesTarget(_preferredVersion, _latestVersion))
                     {
                         _preferredVersion = null;
                         DispatchPropertyChanged(nameof(PreferredVersion));
@@ -829,14 +829,14 @@ namespace Relicade.Models
         public string? ReleaseTarget => string.IsNullOrWhiteSpace(PreferredVersion) ? CatalogVerifiedVersion : PreferredVersion;
 
         internal bool MatchesReleaseTarget(string? version) =>
-            string.IsNullOrWhiteSpace(ReleaseTarget) || ReleaseVersionIdentity.AreVersionsEquivalent(ReleaseTarget, version);
+            string.IsNullOrWhiteSpace(ReleaseTarget) || CatalogReleaseSelection.MatchesTarget(ReleaseTarget, version);
 
         public string? PreferredVersion
         {
             get => _preferredVersion;
             set
             {
-                if (AreVersionsEquivalent(value, LatestVersion))
+                if (value?.Contains('+') != true && CatalogReleaseSelection.MatchesTarget(value, LatestVersion))
                 {
                     value = null;
                 }

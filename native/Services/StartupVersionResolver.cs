@@ -20,7 +20,7 @@ internal static class StartupVersionResolver
             !app.MatchesReleaseTarget(cached.Version))
             return null;
         var release = cached.CachedRelease;
-        if (release != null && !ReleaseVersionIdentity.AreVersionsEquivalent(release.tag_name, cached.Version)) release = null;
+        if (release != null && !CatalogReleaseSelection.MatchesTarget(cached.Version, release.tag_name)) release = null;
         // A version chosen by older selection rules is shown, but checked again.
         var checkedAt = cached.SelectionRevision == GameVersionCache.CurrentSelectionRevision
             ? new DateTimeOffset(DateTime.SpecifyKind(cached.LastChecked, DateTimeKind.Utc)) : DateTimeOffset.MinValue;
@@ -39,7 +39,7 @@ internal static class StartupVersionResolver
             app.CatalogRolling && app.InstalledBuild != null)
             return null;
         var known = GitHubApiCache.TryGetLastKnownVersion(app.RepositorySource, app.Repository, out var last) &&
-            last?.CachedRelease is { } cachedRelease && ReleaseVersionIdentity.AreVersionsEquivalent(cachedRelease.tag_name, verified)
+            last?.CachedRelease is { } cachedRelease && CatalogReleaseSelection.MatchesTarget(verified, cachedRelease.tag_name)
             ? last.CachedRelease : null;
         return new(verified, verifiedAt, known);
     }

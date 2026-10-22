@@ -37,6 +37,15 @@ library object survive a later empty refresh; errors after linking do not permit
 automatic installation. Legacy entries without saved IDs are not migrated across
 restarts by this runtime safeguard.
 
+## Keeping a specific build
+
+A version pin with a `+build` label stays attached to that exact source tag across
+refresh, save/load and installation. If that build is unavailable, Relicade does
+not substitute a different build. Use the existing **Back to latest updates** or
+**Back to verified updates** action to clear the pin. See
+[explicit build-version pins](../native/README.md#explicit-build-version-pins)
+for cache and legacy-alias boundaries.
+
 ## Choosing a launch file before installation
 
 For a portable package with several unresolved launch files, the desktop download

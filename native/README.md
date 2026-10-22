@@ -490,6 +490,21 @@ publish old notes into a different page. Successfully loaded or empty histories
 are retained; missing or removed repositories do not become retry loops. This
 is a read-only recovery path, not a release download or installation action.
 
+## Explicit build-version pins
+
+An explicit version containing `+build` metadata is an exact source-tag target,
+not just a numeric version. Different build labels, case or missing labels cannot
+satisfy that pin or lend it cached download assets. The pin survives library
+save/load, selected-release refresh and installation until the player uses the
+existing **Back to latest updates** or **Back to verified updates** action.
+Repository selection prefers an exact tag; an absent target cannot silently pick
+another build, and an ambiguous legacy alias is not a selection.
+
+Ordinary numeric and `v`-prefix aliases retain their existing behavior. Numeric
+version ordering and general installed-version equivalence are unchanged; this
+is target-selection and cache binding, not a complete update-ordering redesign or
+runtime compatibility claim. No game files are changed by selecting a pin.
+
 ## Private Linux packaging recipe
 
 A [Linux x64 development recipe](../docs/LINUX_APPIMAGE_DEVELOPMENT.md) now assembles

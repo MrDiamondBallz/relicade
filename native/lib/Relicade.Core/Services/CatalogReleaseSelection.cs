@@ -63,8 +63,17 @@ public static class CatalogReleaseSelection
     private static bool HasAssets(GitHubRelease release) =>
         Relicade.Core.Services.GitHubReleaseService.GetDownloadableAssets(release).Count > 0;
 
-    private static GitHubRelease? FindByTag(IReadOnlyList<GitHubRelease> pool, string tag) =>
-        pool.FirstOrDefault(release => string.Equals(release.tag_name, tag.Trim(), StringComparison.OrdinalIgnoreCase)) ??
-        pool.FirstOrDefault(release =>
-            ReleaseVersionIdentity.AreVersionsEquivalent(release.tag_name, tag));
+    /// <summary>Explicit target matching preserves build labels; numeric ordering remains separate.</summary>
+    public static bool MatchesTarget(string? target, string? candidate) =>
+        target?.Contains('+') == true || candidate?.Contains('+') == true
+            ? !string.IsNullOrWhiteSpace(target) && string.Equals(target.Trim(), candidate?.Trim(), StringComparison.Ordinal)
+            : ReleaseVersionIdentity.AreVersionsEquivalent(target, candidate);
+
+    private static GitHubRelease? FindByTag(IReadOnlyList<GitHubRelease> pool, string tag)
+    {
+        var exact = pool.FirstOrDefault(release => string.Equals(release.tag_name, tag.Trim(), StringComparison.Ordinal));
+        if (exact != null) return exact;
+        var aliases = pool.Where(release => MatchesTarget(tag, release.tag_name)).ToArray();
+        return aliases.Select(release => release.tag_name).Distinct(StringComparer.Ordinal).Count() == 1 ? aliases[0] : null;
+    }
 }
