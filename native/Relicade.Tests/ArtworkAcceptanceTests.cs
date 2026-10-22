@@ -29,20 +29,45 @@ public sealed class ArtworkAcceptanceTests
     }
     private sealed class MissingImage : IAsyncImageLoader
     {
-        public Task<Bitmap?> ProvideImageAsync(string url) => Task.FromResult<Bitmap?>(null);
-        public void Dispose() { }
+        private readonly TaskCompletionSource<string> _requested = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource<Bitmap?> _result = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public Task<string> Requested => _requested.Task;
+        public int Requests { get; private set; }
+        public Task<Bitmap?> ProvideImageAsync(string url)
+        {
+            Requests++;
+            _requested.TrySetResult(url);
+            return _result.Task;
+        }
+        public void CompleteMissing() => _result.TrySetResult(null);
+        public void Dispose() => CompleteMissing();
     }
 
     [AvaloniaFact]
     public async Task Missing_or_unreachable_art_shows_explicit_unavailable_label()
     {
-        var image = new AdvancedImage((Uri?)null) { Source = "https://artwork.example.test/missing.png", Loader = new MissingImage(), Width = 240, Height = 180 };
+        const string source = "https://artwork.example.test/missing.png";
+        using var loader = new MissingImage();
+        // Source starts loading immediately and captures the current Loader.
+        // Install the fixture first so no global/network loader can be selected.
+        var image = new AdvancedImage((Uri?)null) { Loader = loader, Width = 240, Height = 180 };
+        var completed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        image.PropertyChanged += (_, change) =>
+        {
+            if (change.Property == AdvancedImage.IsLoadingProperty && !image.IsLoading)
+                completed.TrySetResult();
+        };
+        image.Source = source;
         var window = new Window { Content = image };
         try
         {
             window.Show();
-            await Task.Delay(150, TestContext.Current.CancellationToken);
+            (await loader.Requested.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken)).Should().Be(source);
+            image.IsLoading.Should().BeTrue();
+            loader.CompleteMissing();
+            await completed.Task.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
             Dispatcher.UIThread.RunJobs();
+            loader.Requests.Should().Be(1);
             image.IsLoading.Should().BeFalse();
             image.CurrentImage.Should().BeNull();
             image.GetVisualDescendants().OfType<TextBlock>().Should().Contain(t => t.IsVisible && t.Text == "Artwork unavailable");

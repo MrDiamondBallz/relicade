@@ -81,6 +81,10 @@ dotnet test Relicade.Tests/Relicade.Tests.csproj -c Release -m:1 \
   --filter 'Category!=Slow&Category!=LiveArtwork'
 ```
 
+The unavailable-artwork UI fixture installs its fake loader before assigning an
+image source and waits for the observed loading transition, without external
+artwork traffic or a fixed timing delay. This is a synthetic UI check only.
+
 The `Slow` publish-output test performs another real build and can be run
 separately with `--filter Category=Slow`. OS/hardware-specific fixtures may skip
 or return early on other platforms. Passing test totals do not certify those
