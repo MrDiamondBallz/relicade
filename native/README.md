@@ -568,6 +568,15 @@ A failure after activation may
 still leave the new generation installed: the library reconciles actual files
 without interpreting a missing completion result as a rollback.
 
+**Update Now** and automatic updates count a completed update and clear its old
+skipped-version preference only after an acknowledged installation in the live
+session. Refusals, failed transfers and cancellation keep the existing preferences;
+late activation is reconciled without pretending it rolled back. A separate
+preference edit made during a transfer is not replaced with the action's old state.
+[Update outcome tests](Relicade.Tests/UpdateOutcomeTests.cs) exercise these paths
+with synthetic packages, including successful installation, already-current
+versions, missing digests and interruption after activation.
+
 ## Private Linux packaging recipe
 
 A [Linux x64 development recipe](../docs/LINUX_APPIMAGE_DEVELOPMENT.md) now assembles

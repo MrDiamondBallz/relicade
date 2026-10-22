@@ -72,6 +72,11 @@ If an error occurs after activation, the new installed files can still remain;
 check the library and recovery state rather than assuming cancellation rolled
 everything back.
 
+**Update Now** and automatic updates clear an existing skipped-version preference
+only after installation is confirmed. Refused, failed or cancelled attempts do
+not count as completed updates, and a separate preference change made during the
+transfer is kept. Already-current versions do not count as new installations.
+
 ## Choosing a launch file before installation
 
 For a portable package with several unresolved launch files, the desktop download

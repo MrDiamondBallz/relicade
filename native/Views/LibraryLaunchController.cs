@@ -307,11 +307,13 @@ public sealed class LibraryLaunchController
         return contentGrid;
     }
 
-    /// <returns>True when an install was started/completed; false when cancelled or deferred to a picker.</returns>
+    /// <returns>True only for an acknowledged automatic-choice installation. False does not imply that no files changed.</returns>
     private async Task<bool> HandleUpdateNowCoreAsync(Control anchor, GameInfo game, bool preferAutoPlatform = false, bool allowAssetPicker = true, bool interactive = true)
     {
+        using var preferenceRetention = game.PreserveVersionPreferenceDuringSelection();
         using var priority = interactive ? ReleaseRequestCoordinator.PrioritizeInteractiveChecks() : null;
         using var revalidate = ReleaseRequestCoordinator.AllowCachedMetadata(TimeSpan.Zero);
+        var skippedBefore = game.SkippedUpdateVersion;
         try
         {
             game.IsLoading = true;
@@ -342,8 +344,20 @@ public sealed class LibraryLaunchController
             {
                 // Install the release just revalidated above. Resolving again after
                 // applying it can lose the pin that selected this exact release.
-                await game.InstallReleaseAsync(_gameManager.HttpClient, _gameManager.GamesFolder, _settings, latestRelease, automatic, automatic: !interactive);
-                await _persistence.SaveVersionPreferencesAsync(game, game.PreferredVersion, null);
+                var completion = await game.InstallReleaseAsync(_gameManager.HttpClient, _gameManager.GamesFolder, _settings, latestRelease, automatic, automatic: !interactive);
+                // A refused or interrupted operation may have committed files without acknowledging completion.
+                // Reconcile those files, but do not count it as an update or clear the player's preferences.
+                if (_session.IsClosed || completion == null ||
+                    !string.Equals(completion.ReleaseTag, latestRelease.tag_name, StringComparison.Ordinal) ||
+                    !CatalogReleaseSelection.MatchesTarget(latestRelease.tag_name, game.InstalledVersion))
+                {
+                    game.RefreshInstalledStatus();
+                    Changed();
+                    return false;
+                }
+                var skippedAfter = string.Equals(game.SkippedUpdateVersion, skippedBefore, StringComparison.Ordinal)
+                    ? null : game.SkippedUpdateVersion;
+                await _persistence.SaveVersionPreferencesAsync(game, game.PreferredVersion, skippedAfter);
                 Changed();
                 return true;
             }
