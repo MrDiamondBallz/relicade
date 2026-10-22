@@ -1,4 +1,4 @@
-"""Guard the curated interface preview and keep QA exports separate."""
+"""Guard the authentic native product capture and keep browser QA separate."""
 import hashlib
 import importlib.util
 import os
@@ -11,21 +11,27 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-PREVIEW = ROOT / 'docs/assets/relicade-interface-ocarina.png'
+PREVIEW = ROOT / 'docs/assets/relicade-native-linux.png'
 
 
 class ReadmePreviewTests(unittest.TestCase):
-    def test_interface_section_uses_the_curated_local_ocarina_preview(self):
+    def test_product_section_uses_the_actual_native_capture(self):
         text = (ROOT / 'README.md').read_text(encoding='utf-8')
-        section = text.split('### Interface preview', 1)[1].split('## Explore locally', 1)[0]
+        section = text.split('### Current native application', 1)[1].split('## Explore locally', 1)[0]
         images = re.findall(r'!\[[^\]]*\]\(([^)]+)\)', section)
-        self.assertEqual(images, ['docs/assets/relicade-interface-ocarina.png?v=single-r'])
+        self.assertEqual(images, ['docs/assets/relicade-native-linux.png'])
+        self.assertIn('Captured from the actual native Linux development build', section)
+        self.assertIn('empty local library', section)
+        self.assertNotIn('relicade-interface-ocarina.png', text)
         self.assertNotIn('### Ocarina of Time\n\n![', text)
         self.assertNotRegex(text, r'!\[[^\]]*\]\(https://cdn2\.steamgriddb\.com/')
 
     def test_curated_preview_is_a_real_desktop_png(self):
-        self.assertTrue(PREVIEW.is_file(), 'Curated Ocarina interface preview is missing')
+        self.assertTrue(PREVIEW.is_file(), 'Actual native product capture is missing')
         raw = PREVIEW.read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(),
+                         '8cff472868bee415e31f2f4a63f532646fc4b05a17f8c8cda59a1e105bcee9a1',
+                         'Product capture changed; verify a new authentic native capture before updating this guard')
         self.assertEqual(raw[:8], b'\x89PNG\r\n\x1a\n')
         width, height = struct.unpack('>II', raw[16:24])
         self.assertGreaterEqual(width, 1280)
