@@ -589,6 +589,13 @@ interactive and automatic update callers, successful activation and cancellation
 while [digest tests](Relicade.Tests/PublishedAssetDigestTests.cs) cover malformed
 and case-normalized hashes using synthetic inputs.
 
+If another completed installation has already made that rolling package current,
+the no-download result refreshes the cached receipt but does not count a new update
+or clear saved version preferences. Explicit version selection can still acknowledge
+an already-current target without downloading it again. MSI completion uses the
+installer’s reported result: a retained same-tag receipt after cancellation is not
+a completed installation and does not replace the recorded package checksum.
+
 ## Private Linux packaging recipe
 
 A [Linux x64 development recipe](../docs/LINUX_APPIMAGE_DEVELOPMENT.md) now assembles

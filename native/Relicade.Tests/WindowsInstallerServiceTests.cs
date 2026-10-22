@@ -205,6 +205,46 @@ public sealed class WindowsInstallerServiceTests : IDisposable
         File.Exists(runner.Info!.ArgumentList[1]).Should().BeFalse("staging is cleaned after the installer exits");
     }
 
+    [Theory]
+    [InlineData(true, 0)]
+    [InlineData(true, 1602)]
+    [InlineData(false, 0)]
+    public async Task Same_tag_installer_completion_requires_reported_success(bool confirm, int code)
+    {
+        if (!OperatingSystem.IsWindows())
+            Assert.Skip("Requires Windows; the injected process runner never executes an installer.");
+        var previous = new WindowsInstallerReceipt("Linked", "v1", Executable);
+        WindowsInstallerService.WriteReceipt(Metadata, previous);
+        var oldBuild = new InstalledBuild("windows.msi", new string('a', 64));
+        await oldBuild.WriteAsync(Metadata);
+        var bytes = new byte[] { 1, 2, 3 };
+        var digest = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)).ToLowerInvariant();
+        var asset = new GitHubAsset { name = "windows.msi", browser_download_url = "https://example.com/package", digest = "sha256:" + digest };
+        var release = new GitHubRelease { tag_name = "v1", assets = [asset] };
+        using var client = new HttpClient(new ResponseHandler(() => new(HttpStatusCode.OK) { Content = new ByteArrayContent(bytes) }));
+        var game = Game();
+        WindowsInstallerService.ApplyState(game, Metadata);
+        game.InstalledBuild = oldBuild;
+        var runner = new Runner(code);
+        var result = await GameDownloadInstallService.DownloadAndInstallAsync(game, client, root, release,
+            new AppSettings(), GameStatus.UpdateAvailable, new Dialogs { Confirm = confirm, Selected = Executable },
+            windowsInstallerService: new(runner), releaseMode: ReleaseInstallMode.ExplicitRelease);
+        runner.Calls.Should().Be(confirm ? 1 : 0);
+        File.ReadAllText(Executable).Should().Be("test executable; never executed");
+        WindowsInstallerService.ReadReceipt(Metadata).Should().Be(previous);
+        if (confirm && code == 0)
+        {
+            result.Should().Be(new GameInstallCompletion("v1", InstalledNow: true));
+            InstalledBuild.Read(Metadata).Should().Be(new InstalledBuild(asset.name, digest));
+        }
+        else
+        {
+            result.Should().BeNull("a retained same-tag receipt is not installation completion");
+            InstalledBuild.Read(Metadata).Should().Be(oldBuild);
+            game.InstalledBuild.Should().Be(oldBuild);
+        }
+    }
+
     [Fact]
     public async Task Headless_flow_rejects_installer_before_process_start()
     {

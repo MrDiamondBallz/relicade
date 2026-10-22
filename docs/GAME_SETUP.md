@@ -81,7 +81,10 @@ For a rolling release, a valid changed package checksum can identify an update e
 when the source tag stays the same. **Update Now** runs the normal download and
 integrity checks for that rebuild instead of skipping it as already current.
 Absent or malformed installed/published checksums do not invent a same-tag update;
-unknown installed receipt bytes remain untouched. These checks do not certify
+unknown installed receipt bytes remain untouched. A package made current by another
+completed installation is rechecked without counting a new update or clearing
+version preferences; the cached receipt is refreshed from that check. Explicit
+version selection can still confirm an already-current target. These checks do not certify
 the publisher or game, and general version-equivalence behavior is unchanged.
 
 ## Choosing a launch file before installation

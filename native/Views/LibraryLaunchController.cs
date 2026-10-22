@@ -347,7 +347,7 @@ public sealed class LibraryLaunchController
                 var completion = await game.InstallReleaseAsync(_gameManager.HttpClient, _gameManager.GamesFolder, _settings, latestRelease, automatic, automatic: !interactive);
                 // A refused or interrupted operation may have committed files without acknowledging completion.
                 // Reconcile those files, but do not count it as an update or clear the player's preferences.
-                if (_session.IsClosed || completion == null ||
+                if (_session.IsClosed || completion is not { InstalledNow: true } ||
                     !string.Equals(completion.ReleaseTag, latestRelease.tag_name, StringComparison.Ordinal) ||
                     !CatalogReleaseSelection.MatchesTarget(latestRelease.tag_name, game.InstalledVersion))
                 {

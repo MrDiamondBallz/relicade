@@ -246,6 +246,8 @@ public class ReleaseVerificationTests
     [InlineData("cancelled", true)][InlineData("cancelled", false)]
     [InlineData("missing-receipt", true)][InlineData("missing-receipt", false)]
     [InlineData("malformed-receipt", true)][InlineData("malformed-receipt", false)]
+    [InlineData("disk-now-current", true)][InlineData("disk-now-current", false)]
+    [InlineData("disk-now-malformed", true)][InlineData("disk-now-malformed", false)]
     public async Task Update_now_reaches_a_published_same_tag_rebuild(string outcome, bool interactive)
     {
         using var launcher = new Launcher();
@@ -282,7 +284,17 @@ public class ReleaseVerificationTests
             launcher.Network.DownloadStarted = () => { drain = session.DisposeAsync().AsTask(); throw new OperationCanceledException(session.Token); };
         await GameStatusService.CheckStatusAsync(app, launcher.Manager.HttpClient, launcher.Manager.GamesFolder, forceUpdateCheck: true);
         app.Status.Should().Be(outcome is "missing-receipt" or "malformed-receipt" ? GameStatus.NeedsExecutable :
-            outcome is "changed" or "cancelled" ? GameStatus.UpdateAvailable : GameStatus.Installed);
+            outcome is "changed" or "cancelled" or "disk-now-current" or "disk-now-malformed" ? GameStatus.UpdateAvailable : GameStatus.Installed);
+        if (outcome is "disk-now-current" or "disk-now-malformed")
+        {
+            app.InstalledBuild.Should().Be(new InstalledBuild(Asset, Sha256(first).ToLowerInvariant()));
+            if (outcome == "disk-now-current") InstallOnDisk(app, launcher.Manager.GamesFolder, "nightly", second);
+            else File.WriteAllText(receiptPath, invalidReceipt);
+            app.LatestVersion = "future";
+            app.PreferredVersion = "nightly";
+            app.SkippedUpdateVersion = "old-skip";
+            await launcher.Manager.CatalogService.SaveLocalAppsAsync([app]);
+        }
         var controller = new Relicade.Views.LibraryLaunchController(launcher.Manager, new Relicade.ViewModels.SettingsViewModel(launcher.Store), session,
             new LibraryPersistenceService(launcher.Manager), (_, anchor) => anchor, (_, _) => throw new Exception("Unexpected picker"),
             (_, _) => throw new Exception("Unexpected prompt"), _ => { }, () => { }, _ => { }, () => 900);
@@ -291,16 +303,28 @@ public class ReleaseVerificationTests
         if (drain != null) await drain;
         var path = app.GetInstallPath(launcher.Manager.GamesFolder);
         launcher.Network.Downloads.Should().Be(outcome is "changed" or "cancelled" ? 1 : 0);
-        File.ReadAllBytes(Path.Combine(path, "game.exe")).Should().Equal(new byte[] { 0x4d, 0x5a, outcome == "changed" ? (byte)2 : (byte)1, 0 });
+        File.ReadAllBytes(Path.Combine(path, "game.exe")).Should().Equal(new byte[] { 0x4d, 0x5a, outcome is "changed" or "disk-now-current" ? (byte)2 : (byte)1, 0 });
         File.ReadAllText(Path.Combine(path, "version.txt")).Trim().Should().Be("nightly");
-        if (outcome is "missing-receipt" or "malformed-receipt")
+        if (outcome is "missing-receipt" or "malformed-receipt" or "disk-now-malformed")
         {
             InstalledBuild.Read(path).Should().BeNull();
             if (outcome == "missing-receipt") File.Exists(receiptPath).Should().BeFalse();
             else File.ReadAllText(receiptPath).Should().Be(invalidReceipt, "unknown receipt bytes are retained, not repaired implicitly");
         }
-        else InstalledBuild.Read(path).Should().Be(new InstalledBuild(Asset, Sha256(outcome == "changed" ? second : first).ToLowerInvariant()));
+        else InstalledBuild.Read(path).Should().Be(new InstalledBuild(Asset, Sha256(outcome is "changed" or "disk-now-current" ? second : first).ToLowerInvariant()));
         completed.Should().Be(outcome == "changed");
+        if (outcome is "disk-now-current" or "disk-now-malformed")
+        {
+            app.SkippedUpdateVersion.Should().Be("old-skip");
+            app.PreferredVersion.Should().Be("nightly");
+            var saved = (await launcher.Manager.CatalogService.LoadLocalAppsAsync()).Should().ContainSingle().Subject;
+            saved.SkippedUpdateVersion.Should().Be("old-skip");
+            saved.PreferredVersion.Should().Be("nightly");
+            if (outcome == "disk-now-current")
+                app.InstalledBuild.Should().Be(InstalledBuild.Read(path), "the validated no-download result must not leave the earlier receipt cached");
+            else
+                app.PortableRecoveryError.Should().NotBeNullOrWhiteSpace("unknown managed receipt bytes refuse recovery before a no-op can be acknowledged");
+        }
     }
 
     [AvaloniaTheory]

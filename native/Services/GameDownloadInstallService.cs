@@ -11,8 +11,9 @@ namespace Relicade.Services;
 
 public enum ReleaseInstallMode { Automatic, ExplicitRelease }
 
-/// <summary>A positively completed release. No result means completion was not confirmed, not that files stayed unchanged.</summary>
-public sealed record GameInstallCompletion(string ReleaseTag);
+/// <summary>A confirmed release target; InstalledNow distinguishes a completed installation from an already-current check.
+/// No result means completion was not confirmed, not that files stayed unchanged.</summary>
+public sealed record GameInstallCompletion(string ReleaseTag, bool InstalledNow);
 
 public static class GameDownloadInstallService
 {
@@ -158,6 +159,7 @@ public static class GameDownloadInstallService
                     GameInstallationService.FindExecutableCandidates(gamePath, SearchOption.AllDirectories,
                         game.GetInstallationOptions(), out _).Count > 0)))
                 throw FormatSwitchError();
+            InstalledBuild? currentInstalledBuild = null;
             if (flatpakDownload)
                 await flatpakService.CheckAvailableAsync().ConfigureAwait(false);
             // Already installed: nothing to download, unless the player asked to reinstall it.
@@ -166,13 +168,14 @@ public static class GameDownloadInstallService
                     gamePath, game.GetInstallationOptions())) &&
                 (await File.ReadAllTextAsync(versionFile).ConfigureAwait(false)).Trim() == latestRelease.tag_name &&
                 // A rolling release rebuilt under the same tag is a new build to download.
-                InstalledBuild.Read(gamePath)?.IsRebuiltIn(latestRelease, latestRelease.tag_name) != true)
+                (currentInstalledBuild = InstalledBuild.Read(gamePath))?.IsRebuiltIn(latestRelease, latestRelease.tag_name) != true)
             {
+                game.InstalledBuild = currentInstalledBuild;
                 game.Status = GameStatus.Installed;
                 game.InstalledVersion = latestRelease.tag_name;
                 game.LatestVersion = latestRelease.tag_name;
                 game.DownloadProgress = 0;
-                return new(latestRelease.tag_name);
+                return new(latestRelease.tag_name, InstalledNow: false);
             }
 
             // A catalog release the source catalog hasn't verified installs only once the player confirms, never by itself.
@@ -342,16 +345,17 @@ public static class GameDownloadInstallService
                 {
                     game.IsInstallIndeterminate = true;
                     game.IsLoading = true;
+                    var installerCompleted = false;
                     try
                     {
-                        await (windowsInstallerService ?? WindowsInstallerService.Current).InstallAsync(
+                        installerCompleted = await (windowsInstallerService ?? WindowsInstallerService.Current).InstallAsync(
                             game, downloadPath, latestRelease.tag_name, gamePath, dialogs).ConfigureAwait(false);
                     }
                     finally { game.IsLoading = false; }
                     if (WindowsInstallerService.HasReceipt(gamePath)) WindowsInstallerService.ApplyState(game, gamePath);
                     else ResetNotInstalled(game);
                     // Which file was installed, so the next update picks the same one (the .msi, not the zip beside it).
-                    if (game.IsWindowsInstaller && game.InstalledVersion == latestRelease.tag_name)
+                    if (installerCompleted && game.IsWindowsInstaller && game.InstalledVersion == latestRelease.tag_name)
                     {
                         game.InstalledBuild = new InstalledBuild(asset.name, actual);
                         await game.InstalledBuild.WriteAsync(gamePath).ConfigureAwait(false);
@@ -359,8 +363,8 @@ public static class GameDownloadInstallService
                     game.DownloadProgress = 0;
                     game.ClearDownloadSelection();
                     game.AvailableDownloads = null;
-                    return game.IsWindowsInstaller && game.InstalledVersion == latestRelease.tag_name
-                        ? new(latestRelease.tag_name) : null;
+                    return installerCompleted && game.IsWindowsInstaller && game.InstalledVersion == latestRelease.tag_name
+                        ? new(latestRelease.tag_name, InstalledNow: true) : null;
                 }
 
                 if (GameInstallationService.IsFlatpakAsset(effectiveAssetName))
@@ -531,7 +535,7 @@ public static class GameDownloadInstallService
                     game.GameManager.OnPropertyChanged(nameof(GameManager.Games));
                 });
             }
-            completion = new(latestRelease.tag_name);
+            completion = new(latestRelease.tag_name, InstalledNow: true);
         }
         catch (DownloadMismatchException ex)
         {
