@@ -60,6 +60,11 @@ the requested target. If that release is missing or ambiguous, use **Change
 Version** to choose another one; Relicade does not silently substitute a different
 build. Verification and any required download confirmation still apply.
 
+In **Change Version**, case-distinct release tags keep their own catalog check
+labels. Latest, Installed and Preferred markers identify an exact target or a
+unique legacy alias, not another build or an ambiguous match. These labels are
+source metadata, not a promise that a game is ready to run.
+
 Choosing a version changes the saved pin only after that chosen installation is
 confirmed. Declining, cancelling or failing the operation keeps the existing pin
 in memory and in the saved library, without undoing a separate preference edit.

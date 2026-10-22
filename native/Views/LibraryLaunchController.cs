@@ -473,7 +473,7 @@ public sealed class LibraryLaunchController
             }
 
             // Mark which releases the source catalog verified, so the player can pick one it checked.
-            var states = new Dictionary<string, ReleaseCheckState>(StringComparer.OrdinalIgnoreCase);
+            var states = new Dictionary<string, ReleaseCheckState>(StringComparer.Ordinal);
             foreach (var release in releaseResult.Releases)
                 if (await _gameManager.CatalogReleases.CheckAsync(game, release.tag_name, _session.Token) is { } check)
                     states[release.tag_name] = check.State;
@@ -524,6 +524,12 @@ public sealed class LibraryLaunchController
     private void FillVersionMenu(ContextMenu contextMenu, Control anchor, GameInfo game, IReadOnlyList<GitHubRelease> releases,
         IReadOnlyDictionary<string, ReleaseCheckState>? states)
     {
+        // Resolve each marker once using the same exact-first, unique-alias rule as explicit selection.
+        string? SelectedTag(string? version) => string.IsNullOrWhiteSpace(version) ? null
+            : CatalogReleaseSelection.SelectLatestRelease(releases, preferredVersion: version)?.tag_name;
+        var latestTag = SelectedTag(game.LatestVersion);
+        var installedTag = SelectedTag(game.InstalledVersion);
+        var preferredTag = SelectedTag(game.PreferredVersion);
         contextMenu.Items.Clear();
         contextMenu.Items.Add(new MenuItem { Header = $"Choose a version for {game.Name}:", IsEnabled = false, FontWeight = FontWeight.Bold });
         contextMenu.Items.Add(new Separator());
@@ -532,17 +538,17 @@ public sealed class LibraryLaunchController
             var tags = new List<string>();
             if (states != null && states.TryGetValue(release.tag_name, out var state))
                 tags.Add(state.ToString());
-            if (!string.IsNullOrWhiteSpace(game.LatestVersion) && release.tag_name.Equals(game.LatestVersion, StringComparison.OrdinalIgnoreCase))
+            if (latestTag != null && string.Equals(release.tag_name, latestTag, StringComparison.Ordinal))
             {
                 tags.Add("Latest");
             }
 
-            if (!string.IsNullOrWhiteSpace(game.InstalledVersion) && release.tag_name.Equals(game.InstalledVersion, StringComparison.OrdinalIgnoreCase))
+            if (installedTag != null && string.Equals(release.tag_name, installedTag, StringComparison.Ordinal))
             {
                 tags.Add("Installed");
             }
 
-            if (!string.IsNullOrWhiteSpace(game.PreferredVersion) && release.tag_name.Equals(game.PreferredVersion, StringComparison.OrdinalIgnoreCase))
+            if (preferredTag != null && string.Equals(release.tag_name, preferredTag, StringComparison.Ordinal))
             {
                 tags.Add("Preferred");
             }
@@ -567,7 +573,7 @@ public sealed class LibraryLaunchController
                 var acknowledgedVersion = string.IsNullOrWhiteSpace(game.LatestVersion) ? release.tag_name : game.LatestVersion;
                 ShowReleaseDownloadSelectionMenu(anchor, game, release, release.tag_name, acknowledgedVersion);
             };
-            if (!string.IsNullOrWhiteSpace(game.LatestVersion) && release.tag_name.Equals(game.LatestVersion, StringComparison.OrdinalIgnoreCase))
+            if (latestTag != null && string.Equals(release.tag_name, latestTag, StringComparison.Ordinal))
             {
                 versionItem.Classes.Add("accent");
             }

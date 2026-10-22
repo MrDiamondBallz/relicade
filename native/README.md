@@ -541,6 +541,16 @@ when no exact or unique legacy release matches them. An explicit `+build` tag
 remains authoritative even with a zero numeric base.
 The selected release still undergoes its normal integrity and consent checks.
 
+**Change Version** keeps source-catalog checks separate for exact, case-distinct
+release tags, both when first loaded and when shown from the session cache.
+Latest, Installed and Preferred markers use exact-first, unique-legacy-alias
+selection; an ambiguous or absent target does not label a different release.
+Conflicting history records remain conservatively marked, and these source
+labels do not replace integrity checks or establish game readiness.
+[Native-menu identity tests](Relicade.Tests/ExactVersionMenuTests.cs) exercise
+fresh and cached states, conflicting history and exact/legacy marker selection
+with synthetic metadata, without downloading or running a game.
+
 Ordinary numeric and `v`-prefix aliases retain their existing behavior. Numeric
 version ordering and general installed-version equivalence are unchanged; this
 is target-selection and cache binding, not a complete update-ordering redesign or
