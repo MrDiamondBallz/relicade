@@ -197,7 +197,10 @@ directories, and it does not establish game readiness.
 Removing a name from metadata no longer deletes its existing file, even when it
 is empty. Legacy metadata does not prove ownership. Best-effort preparation
 returns the preserved names; strict entry preparation reports them before
-creating any new markers. Review retained files before removing them yourself.
+creating any new markers, for both hosted and manually managed entry edits.
+Manual folder preparation checks existing installation metadata first and performs
+marker preflight before creating instructions. Instruction files are also created
+without overwriting existing content. Review retained files before removing them yourself.
 A failed later creation may leave earlier newly created empty markers in place;
 preparation is not an all-or-nothing transaction. Automatic owned-marker cleanup
 remains unimplemented until ownership and recovery can be established safely.

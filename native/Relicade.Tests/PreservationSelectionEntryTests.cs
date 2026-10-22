@@ -44,8 +44,8 @@ public sealed class PreservationSelectionEntryTests : IDisposable
         public AppSettings Load() => inner.Load();
         public void Save(AppSettings value) { BeforeSave?.Invoke(); inner.Save(value); }
     }
-    private Task<bool> Edit(CancellationToken token = default, bool manual = false) => new AppEntryService(manager, settings).SaveAsync(
-        new("Edited", "fixture/new", "github", "New", "", "", "", "", "", "", "", "", false, manual,
+    private Task<bool> Edit(CancellationToken token = default, bool manual = false, string filesToAdd = "") => new AppEntryService(manager, settings).SaveAsync(
+        new("Edited", "fixture/new", "github", "New", "", "", "", "", filesToAdd, "", "", "", false, manual,
             original.InstanceKey, original.Repository), notices.Add, _ => throw new Exception("Must not open folder"), token);
     private async Task AssertOld()
     {
@@ -55,6 +55,26 @@ public sealed class PreservationSelectionEntryTests : IDisposable
         Assert.Contains("fixture/old", new FileSettingsStore(Path.Combine(root, "settings.json")).Load().UserAppTags.Keys);
         Assert.Contains("fixture/old", settings.Current.UserAppTags.Keys);
         Assert.DoesNotContain(notices, n => n.Message.Contains("success", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Changed_marker_list_reports_preservation_for_hosted_and_manual_entries(bool manual)
+    {
+        if (manual) original.Repository = "";
+        original.FilesToAdd = ["portable.txt"];
+        await manager.CatalogService.SaveLocalAppsAsync([original]);
+        File.WriteAllText(Path.Combine(OldPath, "portable.txt"), "synthetic user configuration");
+        Assert.False(await Edit(manual: manual, filesToAdd: "new.txt"));
+        Assert.Contains("saved", Assert.Single(notices).Title, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("preserved", notices[0].Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("portable.txt", notices[0].Message);
+        Assert.Equal("synthetic user configuration", File.ReadAllText(Path.Combine(NewPath, "portable.txt")));
+        Assert.False(File.Exists(Path.Combine(NewPath, "new.txt")));
+        var saved = Assert.Single(await manager.CatalogService.LoadLocalAppsAsync());
+        Assert.Equal("New", saved.FolderName);
+        Assert.Equal(new[] { "new.txt" }, saved.FilesToAdd);
     }
 
     [Fact]

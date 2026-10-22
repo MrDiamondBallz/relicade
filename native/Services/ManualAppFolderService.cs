@@ -25,32 +25,44 @@ public static class ManualAppFolderService
         return string.IsNullOrWhiteSpace(path) ? null : path;
     }
 
-    public static bool EnsurePrepared(GameInfo game, string appsFolder, bool throwOnFailure = false)
+    public static bool EnsurePrepared(GameInfo game, string appsFolder, bool throwOnFailure = false, IEnumerable<string>? previousFilesToAdd = null)
     {
         var installPath = GetInstallPath(game, appsFolder);
         if (installPath == null)
             return false;
 
+        // Validate before creating a missing directory beneath an existing parent.
+        PortableInstallationTransaction.CheckLinks(installPath);
         Directory.CreateDirectory(installPath);
         if (throwOnFailure) _ = Directory.EnumerateFileSystemEntries(installPath).ToArray();
+        // Keep the existing committed-install validation ahead of all preparation writes.
+        var hasLaunchableFiles = HasLaunchableFiles(game, appsFolder);
+        AppFilesToAddService.SyncForGame(game, appsFolder, previousFilesToAdd, throwOnFailure);
 
-        if (!HasLaunchableFiles(game, appsFolder))
+        if (!hasLaunchableFiles)
         {
-            var instructionPath = Path.Combine(installPath, InstructionFileName);
-            if (!File.Exists(instructionPath))
+            try
             {
-                try
+                var instructionPath = PortableInstallationTransaction.SafePath(installPath, InstructionFileName);
+                FileStream created;
+                try { created = new FileStream(instructionPath, FileMode.CreateNew, FileAccess.Write, FileShare.None); }
+                catch (IOException) when (File.Exists(instructionPath))
                 {
-                    File.WriteAllText(instructionPath, InstructionContents);
+                    PortableInstallationTransaction.CheckLinks(instructionPath);
+                    return true; // Existing instructions or user content are never truncated.
                 }
-                catch when (!throwOnFailure)
+                using (created)
                 {
-                    // Best-effort placeholder; the folder itself is the drop target.
+                    created.Write(System.Text.Encoding.UTF8.GetBytes(InstructionContents));
+                    created.Flush(true);
                 }
+            }
+            catch when (!throwOnFailure)
+            {
+                // Best-effort instructions; a failed write may leave a partial new file.
             }
         }
 
-        AppFilesToAddService.SyncForGame(game, appsFolder, throwOnFailure: throwOnFailure);
         return true;
     }
 

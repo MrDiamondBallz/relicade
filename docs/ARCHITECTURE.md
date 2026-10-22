@@ -176,3 +176,10 @@ creation when removed entries still exist. No ownership ledger is inferred from
 package contents or legacy lists. Automatic cleanup needs a separately reviewed
 ownership/recovery design. Individual creates can succeed before a subsequent
 failure; callers must not infer that an exception left the directory unchanged.
+
+Manual entry edits pass their previous marker list through folder preparation, so
+the same preserved-file warning applies after a saved manual or hosted edit.
+Manual preparation checks ancestor links before creating directories, retains
+existing committed-install validation ahead of marker writes, and creates its
+instruction file with create-new semantics. A failed instruction write can leave
+a partial newly created file; it is not silently overwritten on retry.
