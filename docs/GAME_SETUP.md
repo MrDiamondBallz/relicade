@@ -14,6 +14,8 @@ Choose a file, then confirm **Install**. Selecting a row alone does not activate
 or run anything. Cancel closes the choice and leaves the prior installation intact;
 private staging and recovery history can remain. The transaction holds its writer
 authority until the dialog finishes and rechecks staged bytes before activation.
+On Linux, nonregular and multiply linked files are refused before inventory reads. Long
+relative paths remain scrollable without pushing confirmation out of the window.
 
 Existing valid launch selections, single-file packages and the exact compiled
 package default below do not require this prompt. Remote preferred-file hints are

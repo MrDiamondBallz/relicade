@@ -687,6 +687,7 @@ public sealed partial class PortableInstallationTransaction
                     Walk(p); continue;
                 }
                 if (relative == ModLock) continue;
+                RequireRegularEvidenceFile(p);
                 using var f = File.OpenRead(p);
                 result.Add(new Entry { Path = relative, Sha256 = Convert.ToHexStringLower(SHA256.HashData(f)), Length = f.Length, Ownership = data != null && IsData(relative, data) ? "data" : "payload" });
             }

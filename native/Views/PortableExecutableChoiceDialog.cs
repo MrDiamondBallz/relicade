@@ -26,7 +26,7 @@ internal sealed class PortableExecutableChoiceDialog : Window
         var selected = new TextBlock { Text = "No launch file selected.", TextWrapping = TextWrapping.Wrap, MinHeight = 40 };
         ChoicesList = new ListBox
         {
-            ItemsSource = snapshot, MinHeight = 140, Focusable = true,
+            ItemsSource = snapshot, MinHeight = 64, Focusable = true,
             ItemTemplate = new FuncDataTemplate<string>((path, _) => new TextBlock { Text = path, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(8), FontSize = 15 }),
         };
         AutomationProperties.SetName(ChoicesList, "Staged launch files");
@@ -52,10 +52,16 @@ internal sealed class PortableExecutableChoiceDialog : Window
             new TextBlock { Text = appName, FontSize = 17, TextTrimming = TextTrimming.CharacterEllipsis },
             new TextBlock { Text = "This package contains several launch files. Choose the game you want Relicade to open. Nothing will run now.", TextWrapping = TextWrapping.Wrap }
         } };
+        var selectionScroll = new ScrollViewer
+        {
+            Content = selected, MaxHeight = 64,
+            VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto,
+            HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
+        };
         var footer = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Spacing = 12, Children = { CancelButton, ConfirmButton } };
         var grid = new Grid { RowDefinitions = new RowDefinitions("Auto,*,Auto,Auto"), RowSpacing = 16, Margin = new Thickness(24) };
         grid.Children.Add(header); grid.Children.Add(ChoicesList); Grid.SetRow(ChoicesList, 1);
-        grid.Children.Add(selected); Grid.SetRow(selected, 2); grid.Children.Add(footer); Grid.SetRow(footer, 3);
+        grid.Children.Add(selectionScroll); Grid.SetRow(selectionScroll, 2); grid.Children.Add(footer); Grid.SetRow(footer, 3);
         Content = grid;
         GamepadModalDialogNavigation.Attach(this);
     }

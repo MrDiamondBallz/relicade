@@ -1,3 +1,6 @@
+using Avalonia;
+using Avalonia.Headless;
+using Avalonia.Input;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
@@ -9,6 +12,39 @@ namespace Relicade.Tests;
 
 public sealed class PortableExecutableChoiceDialogTests
 {
+    [AvaloniaTheory]
+    [InlineData(720, 540, false)][InlineData(480, 420, false)]
+    [InlineData(720, 540, true)][InlineData(480, 420, true)]
+    public void Long_valid_relative_paths_keep_confirmation_visible_and_operable(int width, int height, bool keyboard)
+    {
+        var path = string.Join('/', Enumerable.Range(0, 36).Select(i => $"segment-{i:00}-" + new string('x', 32))) + "/game.exe";
+        Relicade.Core.Services.PortableInstallationTransaction.ValidateRelative(path);
+        var dialog = new PortableExecutableChoiceDialog("Synthetic long-path package", [path, "tools/editor.exe"]) { Width = width, Height = height };
+        try
+        {
+            dialog.Show(); dialog.ChoicesList.SelectedIndex = 0; dialog.UpdateLayout(); Dispatcher.UIThread.RunJobs();
+            foreach (var button in new[] { dialog.ConfirmButton, dialog.CancelButton })
+            {
+                var point = button.TranslatePoint(default, dialog); Assert.NotNull(point);
+                Assert.InRange(point.Value.Y, 0, dialog.ClientSize.Height - button.Bounds.Height);
+            }
+            if (keyboard)
+            {
+                Assert.True(dialog.ConfirmButton.Focus());
+                dialog.KeyPress(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+                // Enter closes this window on key-down; its disposed headless host cannot receive key-up.
+                if (dialog.IsVisible) dialog.KeyRelease(Key.Enter, RawInputModifiers.None, PhysicalKey.Enter, null);
+            }
+            else
+            {
+                var nav = GamepadModalDialogNavigation.Instance;
+                Assert.True(nav.FocusDialogControl(dialog.ConfirmButton)); Assert.True(nav.TryHandleConfirm());
+            }
+            Assert.Equal(path, dialog.SelectedRelativePath); Assert.False(dialog.IsVisible);
+        }
+        finally { dialog.Close(); }
+    }
+
     [AvaloniaFact]
     public void Choosing_a_row_is_not_installation_and_close_rejects_late_confirmation()
     {

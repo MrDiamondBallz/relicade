@@ -1,9 +1,56 @@
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Relicade.Core.Services;
 
 namespace Relicade.Tests;
 
 public sealed class StagedExecutableChoiceTests : IDisposable
 {
+    [DllImport("libc", SetLastError = true)] static extern int mkfifo(string path, uint mode);
+    [DllImport("libc", SetLastError = true)] static extern int link(string original, string destination);
+    [DllImport("libc")] static extern int gettid();
+
+    [Theory]
+    [InlineData("fifo")][InlineData("hardlink")]
+    public async Task Nonregular_or_shared_file_introduced_during_choice_is_refused_before_open(string kind)
+    {
+        Assert.SkipUnless(OperatingSystem.IsLinux(), "Exercises Linux FIFO and link-count evidence.");
+        string staged = "";
+        var entered = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var cancel = new CancellationTokenSource();
+        var transaction = new PortableInstallationTransaction(Live, new() { ChooseExecutableAsync = (_, _) =>
+        {
+            var path = Path.Combine(staged, "editor.exe"); File.Delete(path);
+            Assert.Equal(0, kind == "fifo" ? mkfifo(path, 0x180) : link(Path.Combine(staged, "game.exe"), path));
+            entered.TrySetResult(gettid()); return Task.FromResult<string?>("game.exe");
+        } });
+        var operation = Task.Run(async () => await Record.ExceptionAsync(() => transaction.InstallAsync(path =>
+        { staged = path; return Stage(path); }, "v1", cancel.Token)));
+        var blocked = false;
+        Exception? error = null;
+        try
+        {
+            var tid = await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            var deadline = Stopwatch.StartNew();
+            while (!operation.IsCompleted && deadline.Elapsed < TimeSpan.FromSeconds(5))
+            {
+                if (File.ReadAllText($"/proc/self/task/{tid}/wchan").Trim() == "wait_for_partner") { blocked = true; break; }
+                await Task.Yield();
+            }
+            cancel.Cancel();
+        }
+        finally
+        {
+            // A rejected regression must also release the controlled FIFO reader.
+            if (kind == "fifo" && !string.IsNullOrEmpty(staged))
+                using (var release = new FileStream(Path.Combine(staged, "editor.exe"), FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite)) { }
+            error = await operation.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+        Assert.False(blocked); Assert.True(error is IOException or InvalidDataException);
+        AssertNoActivation();
+        using var released = new PortableInstallationTransaction(Live).AcquireLease();
+    }
+
     readonly string root = Path.Combine(Path.GetTempPath(), "staged-choice-" + Guid.NewGuid().ToString("N"));
     string Live => Path.Combine(root, "Game");
     static Task Stage(string path)

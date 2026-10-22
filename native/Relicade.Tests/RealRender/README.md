@@ -45,3 +45,7 @@ It renders the actual native chooser with clearly labeled synthetic package path
 and a selected row before confirmation. No package is installed or executed by the
 render test. This is a separate headless rendering check, not a desktop host,
 physical controller or gameplay acceptance result.
+
+A minimum-size long-path capture, `06-staged-long-path-choice.png`, exercises the
+bounded selection summary with both confirmation controls still in the viewport.
+Its paths are synthetic and no files are installed or launched.
