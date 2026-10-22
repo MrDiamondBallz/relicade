@@ -607,15 +607,18 @@
 <Grid x:Name="Surface">
 					<ScrollViewer x:Name="LibraryContentPanel" VerticalScrollBarVisibility="Auto" Margin="30,20,6,30"
                                       services:MouseWheelScroll.Multiplier="{Binding Settings.MouseWheelScrollSpeed}">
-						<Grid x:Name="LibraryItemsHost" Margin="0,0,30,0">
-							<ItemsControl ItemsSource="{Binding Games}" x:Name="ListViewControl"
+						<Grid x:Name="LibraryItemsHost" Margin="0,0,30,0" RowDefinitions="Auto,*">
+                            <TextBlock x:Name="LibraryRevealNotice" Grid.Row="0" IsVisible="{Binding HasNavigationReveal}"
+                                       Text="Selected game shown outside your filters. Change search or filters, or open Browse, to restore filtered results."
+                                       TextWrapping="Wrap" Margin="0,0,0,12" Foreground="{DynamicResource ThemeTextSecondary}"/>
+							<ItemsControl ItemsSource="{Binding Games}" x:Name="ListViewControl" Grid.Row="1"
 										  IsVisible="{Binding !Settings.UseGridView}">
 								<ItemsControl.ItemTemplate>
 									<StaticResource ResourceKey="ListViewTemplate"/>
 								</ItemsControl.ItemTemplate>
 							</ItemsControl>
 
-							<ItemsControl ItemsSource="{Binding Games}" x:Name="ClassicGridViewControl"
+							<ItemsControl ItemsSource="{Binding Games}" x:Name="ClassicGridViewControl" Grid.Row="1"
 										  IsVisible="False">
 								<ItemsControl.ItemsPanel>
 									<ItemsPanelTemplate>
@@ -627,7 +630,7 @@
 								</ItemsControl.ItemTemplate>
 							</ItemsControl>
 
-							<ItemsControl ItemsSource="{Binding Games}" x:Name="CompactGridViewControl"
+							<ItemsControl ItemsSource="{Binding Games}" x:Name="CompactGridViewControl" Grid.Row="1"
 										  IsVisible="False">
 								<ItemsControl.ItemsPanel>
 									<ItemsPanelTemplate>

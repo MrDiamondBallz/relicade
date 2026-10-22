@@ -98,7 +98,7 @@ public class BrowseNavigationTests
             await Until(() => details.BrowseDetailsRemoveButton.IsVisible);
             manager.LibraryApps.Should().ContainSingle().Which.Repository.Should().Be("HarbourMasters/2ship2harkinian");
             browse.Model.Items[0].InLibrary.Should().BeTrue();
-            details.BrowseDetailsRemoveButton.Classes.Should().Contain("gamepad-focused");
+            details.BrowseDetailsOpenLibraryButton.Classes.Should().Contain("gamepad-focused");
 
             // Back closes the details and returns to the card that opened them.
             Shell(view, "HandleCancelAction");

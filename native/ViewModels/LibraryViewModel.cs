@@ -10,6 +10,7 @@ public sealed class LibraryViewModel : ObservableViewModel, IDisposable
     private readonly GameManager _manager;
     private readonly GameGridViewModel _sorting = new();
     private CancellationTokenSource? _search;
+    private string? _pendingSearchText;
     private GameInfo? _continue;
     private string _sortBy = "Name";
     private bool _closed;
@@ -24,6 +25,7 @@ public sealed class LibraryViewModel : ObservableViewModel, IDisposable
     public bool IsInitialLoading => _initialLoading;
     public bool IsLibraryEmpty => !_initialLoading && !_initialLoadFailed && _manager.IsLibraryEmpty;
     public bool HasNoSearchMatches => !_initialLoading && !_initialLoadFailed && _manager.HasNoLibrarySearchMatches;
+    public bool HasNavigationReveal => _manager.HasLibraryReveal;
     public string SearchText => _manager.LibrarySearchText;
     public double CardPixelSize => PlatformCapabilities.IsMobile ? double.NaN : Settings.SlotSize;
     public bool ShowLibraryManagement => !Settings.KioskLocked;
@@ -42,7 +44,7 @@ public sealed class LibraryViewModel : ObservableViewModel, IDisposable
             _initialLoadFailed = false;
             Notify(null);
         }
-        if (e.PropertyName is nameof(GameManager.IsLibraryEmpty) or nameof(GameManager.HasNoLibrarySearchMatches) or nameof(GameManager.LibrarySearchText)) Notify(null);
+        if (e.PropertyName is nameof(GameManager.IsLibraryEmpty) or nameof(GameManager.HasNoLibrarySearchMatches) or nameof(GameManager.LibrarySearchText) or nameof(GameManager.HasLibraryReveal)) Notify(null);
     }
     internal void BeginInitialLoad()
     {
@@ -109,6 +111,8 @@ public sealed class LibraryViewModel : ObservableViewModel, IDisposable
     {
         if (_closed) return false;
         CancelSearch();
+        _manager.ClearLibraryReveal();
+        _pendingSearchText = query;
         var request = CancellationTokenSource.CreateLinkedTokenSource(lifetime);
         _search = request;
         try
@@ -124,11 +128,20 @@ public sealed class LibraryViewModel : ObservableViewModel, IDisposable
         catch (OperationCanceledException) when (request.IsCancellationRequested) { return false; }
         finally
         {
-            if (ReferenceEquals(_search, request)) _search = null;
+            if (ReferenceEquals(_search, request)) { _search = null; _pendingSearchText = null; }
             request.Dispose();
         }
     }
-    public void CancelSearch() { _search?.Cancel(); _search = null; }
+    public void RevealForNavigation(GameInfo game)
+    {
+        // Finish the latest typed query without waiting for its debounce, so a
+        // pending search cannot hide the selected target just after navigation.
+        var pending = _pendingSearchText;
+        CancelSearch();
+        if (pending != null) _manager.LibrarySearchText = pending;
+        _manager.RevealLibraryGame(game);
+    }
+    public void CancelSearch() { _search?.Cancel(); _search = null; _pendingSearchText = null; }
     public void Dispose()
     {
         if (_closed) return;

@@ -49,3 +49,9 @@ physical controller or gameplay acceptance result.
 A minimum-size long-path capture, `06-staged-long-path-choice.png`, exercises the
 bounded selection summary with both confirmation controls still in the viewport.
 Its paths are synthetic and no files are installed or launched.
+
+The library-reveal fixture captures `07-library-filtered-target-reveal.png` after
+opening actual project details and selecting its existing local entry. It shows a
+synthetic uninstalled entry and the temporary-filter exception notice, with no game
+artwork or network request. It is native CPU rendering, not desktop or gameplay
+acceptance. Capture outputs use create-new semantics and unique directories.

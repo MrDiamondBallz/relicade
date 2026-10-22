@@ -278,6 +278,7 @@ namespace Relicade
                 LibraryFiltersPanel.RefreshSidebarFilterSelection();
                 if (isEdit)
                 {
+                    _gameManager.ClearLibraryReveal();
                     _gameManager.ApplyTagDisplayFilter(_settings);
                     ApplySorting();
                 }
@@ -824,6 +825,8 @@ namespace Relicade
                 UpdateThemeColors();
             if (e.PropertyName is nameof(ShellViewModel.PendingUpdatesCount) or nameof(ShellViewModel.IsCheckingUpdates))
                 _app?.UpdateTrayTooltip(Shell.PendingUpdatesCount, Shell.IsCheckingUpdates);
+            if (e.PropertyName == nameof(ShellViewModel.Mode) && Shell.Mode != MainViewMode.Library)
+                _gameManager.ClearLibraryReveal();
             if (e.PropertyName == nameof(ShellViewModel.ShowUpdateCheckStatus))
                 LibraryPanel.SetUpdateStatusVisible(Shell.ShowUpdateCheckStatus);
         }
@@ -1486,10 +1489,10 @@ namespace Relicade
             if (Shell.BrowseDetailsOpen)
                 CloseBrowseDetails(restoreSelection: false);
             ShowLibraryView();
-            if (game == null || LibraryPanel.Navigation.SelectGame(game))
+            if (game == null)
                 return;
-            // A library search can hide it: clear the search and look again.
-            LibraryToolbar.ClearSearch();
+            // Reveal only this existing target without replacing the player's filters.
+            Library.RevealForNavigation(game);
             Dispatcher.UIThread.Post(() =>
             {
                 if (!_session.IsClosed) LibraryPanel.Navigation.SelectGame(game);

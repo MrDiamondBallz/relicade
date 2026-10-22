@@ -60,6 +60,8 @@ namespace Relicade.Services
         public IReadOnlyList<GameInfo> LibraryApps => _catalogApps.Count > 0 ? _catalogApps : Games.ToArray();
         /// <summary>Session-only library search. Applied after Show scope and tag display filters.</summary>
         public string LibrarySearchText { get; set; } = "";
+        private GameInfo? _revealedLibraryGame;
+        public bool HasLibraryReveal => _revealedLibraryGame != null && _catalogApps.Contains(_revealedLibraryGame);
         public bool HasLibrarySearch => !string.IsNullOrWhiteSpace(LibrarySearchText);
         public bool HasNoLibrarySearchMatches =>
             !IsLibraryEmpty && HasLibrarySearch && Games.Count == 0;
@@ -672,6 +674,7 @@ namespace Relicade.Services
         {
             settings ??= _settingsStore.Load();
             settings.EnsureInitialized();
+            _revealedLibraryGame = null;
             settings.ListScope = scope;
             settings.HiddenApps.Clear();
             _settingsStore.Save(settings);
@@ -682,6 +685,22 @@ namespace Relicade.Services
         private void FilterGames(AppSettings settings)
         {
             RebuildVisibleGames(settings);
+        }
+
+        public void RevealLibraryGame(GameInfo game)
+        {
+            if (!_catalogApps.Contains(game)) return;
+            _revealedLibraryGame = null;
+            var visible = GetVisibleGames(_settings);
+            if (!visible.Contains(game)) { _revealedLibraryGame = game; visible.Add(game); }
+            ApplyGamesList(visible);
+        }
+
+        public void ClearLibraryReveal()
+        {
+            if (_revealedLibraryGame == null) return;
+            _revealedLibraryGame = null;
+            ApplyGamesList(GetVisibleGames(_settings));
         }
 
         public void ApplyTagDisplayFilter(AppSettings? settings = null)
@@ -723,7 +742,10 @@ namespace Relicade.Services
             if (!string.IsNullOrWhiteSpace(LibrarySearchText))
                 visibleGames = visibleGames.Where(game => AppSearch.Matches(game, LibrarySearchText));
 
-            return visibleGames.ToList();
+            var result = visibleGames.ToList();
+            if (_revealedLibraryGame != null && !_catalogApps.Contains(_revealedLibraryGame)) _revealedLibraryGame = null;
+            if (HasLibraryReveal && !result.Contains(_revealedLibraryGame!)) result.Add(_revealedLibraryGame!);
+            return result;
         }
 
         private void ApplyGamesList(List<GameInfo> gamesToShow)
@@ -739,6 +761,7 @@ namespace Relicade.Services
                 Games.Add(app);
 
             OnPropertyChanged(nameof(Games));
+            OnPropertyChanged(nameof(HasLibraryReveal));
             OnPropertyChanged(nameof(HasLibrarySearch));
             OnPropertyChanged(nameof(HasNoLibrarySearchMatches));
         }
