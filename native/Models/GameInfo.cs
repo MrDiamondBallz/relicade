@@ -1808,6 +1808,12 @@ namespace Relicade.Models
                 AdditionalMetadataFileNames = AppFilesToAddService.Normalize(FilesToAdd),
             };
 
+        private bool MatchesCachedReleaseTarget(GameVersionCache cache) =>
+            MatchesReleaseTarget(cache.Version) &&
+            (cache.CachedRelease == null ||
+                CatalogReleaseSelection.MatchesTarget(cache.Version, cache.CachedRelease.tag_name) &&
+                MatchesReleaseTarget(cache.CachedRelease.tag_name));
+
         internal void ApplyCachedRelease(string version, GitHubRelease? release)
         {
             LatestVersion = version;
@@ -1855,7 +1861,7 @@ namespace Relicade.Models
 
                 // A cached release chosen for another target (say, before the verified release changed) is stale.
                 var cachedForTarget = GitHubApiCache.TryGetCachedVersion(RepositorySource, Repository, out var cachedData) &&
-                    cachedData != null && MatchesReleaseTarget(cachedData.Version);
+                    cachedData != null && MatchesCachedReleaseTarget(cachedData);
                 if (!forceCheck && cachedForTarget && !GitHubApiCache.NeedsUpdateCheck(RepositorySource, Repository))
                 {
                     ApplyCachedRelease(cachedData!.Version, cachedData.CachedRelease);
@@ -1874,7 +1880,8 @@ namespace Relicade.Models
                 if (result.IsNotModified)
                 {
                     RepositoryCheckError = null;
-                    if (GitHubApiCache.TryGetCachedVersion(RepositorySource, Repository, out var existingCache) && existingCache != null)
+                    if (GitHubApiCache.TryGetCachedVersion(RepositorySource, Repository, out var existingCache) &&
+                        existingCache != null && MatchesCachedReleaseTarget(existingCache))
                     {
                         ApplyCachedRelease(existingCache.Version, existingCache.CachedRelease);
                         GitHubApiCache.SetCache(
@@ -1885,6 +1892,7 @@ namespace Relicade.Models
                             existingCache.CachedRelease);
                         RefreshInstalledStatus();
                     }
+                    else RepositoryCheckError = "The cached release no longer matches the selected version. Check for updates again.";
 
                     return;
                 }

@@ -527,12 +527,16 @@ satisfy that pin or lend it cached download assets. The pin survives library
 save/load, selected-release refresh and installation until the player uses the
 existing **Back to latest updates** or **Back to verified updates** action.
 Repository selection prefers an exact tag; an absent target cannot silently pick
-another build, and an ambiguous legacy alias is not a selection.
+another build, and an ambiguous legacy alias is not a selection. Warm-cache reuse
+also checks that the cached version and attached release describe the same target;
+inconsistent metadata is retained but fetched again rather than attached to the
+card. Conditional endpoint responses reuse only their own cached payload.
 
 Ordinary numeric and `v`-prefix aliases retain their existing behavior. Numeric
 version ordering and general installed-version equivalence are unchanged; this
 is target-selection and cache binding, not a complete update-ordering redesign or
-runtime compatibility claim. No game files are changed by selecting a pin.
+runtime compatibility claim. Preference setters and cache validation do not
+modify game files.
 
 ## Private Linux packaging recipe
 

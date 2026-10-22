@@ -49,7 +49,8 @@ for cursor, resource, offline-cache and session-lifetime limits.
 
 A version pin with a `+build` label stays attached to that exact source tag across
 refresh, save/load and installation. If that build is unavailable, Relicade does
-not substitute a different build. Use the existing **Back to latest updates** or
+not substitute a different build or reuse a mismatched cached download. Use the
+existing **Back to latest updates** or
 **Back to verified updates** action to clear the pin. See
 [explicit build-version pins](../native/README.md#explicit-build-version-pins)
 for cache and legacy-alias boundaries.
