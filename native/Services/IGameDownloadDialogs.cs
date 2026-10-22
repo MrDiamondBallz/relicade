@@ -16,7 +16,7 @@ public interface IGameDownloadDialogs
     Task ShowRateLimitExceededAsync();
     Task ShowGitLabRateLimitExceededAsync();
     Task ShowErrorAsync(string message, string title);
-    /// <summary>Asks before installing a release the source catalog hasn't verified or blocked; false keeps what is installed.</summary>
+    /// <summary>Asks before an unverified/blocked catalog release or a selected download without a usable published digest; false keeps what is installed.</summary>
     Task<bool> ConfirmUnverifiedReleaseAsync(string appName, string version, ReleaseCheck check);
     /// <summary>
     /// Asks before installing a verified release whose download several antivirus engines flag, since the player's

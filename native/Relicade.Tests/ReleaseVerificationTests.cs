@@ -14,7 +14,7 @@ namespace Relicade.Tests;
 
 /// <summary>
 /// Catalog apps follow quiverlauncher.com: they update to the release the source catalog verified, ask before
-/// installing any other, and install only the files Relicade pinned.
+/// installing any other, and distinguish release approval from selected-file integrity.
 /// </summary>
 public class ReleaseVerificationTests
 {
@@ -434,6 +434,117 @@ public class ReleaseVerificationTests
             launcher.Network.Reports.Should().BeEmpty();
             app.Status.Should().Be(GameStatus.NotInstalled);
         }
+    }
+
+    [AvaloniaTheory]
+    [InlineData("empty", "decline")]
+    [InlineData("empty", "accept")]
+    [InlineData("empty", "automatic")]
+    [InlineData("missing", "decline")]
+    [InlineData("missing", "accept")]
+    [InlineData("missing", "automatic")]
+    [InlineData("invalid-catalog", "decline")]
+    [InlineData("invalid-catalog", "accept")]
+    [InlineData("invalid-catalog", "automatic")]
+    [InlineData("invalid-upstream", "decline")]
+    [InlineData("invalid-upstream", "accept")]
+    [InlineData("invalid-upstream", "automatic")]
+    public async Task Catalog_approval_without_usable_asset_digest_requires_explicit_confirmation(string kind, string mode)
+    {
+        using var launcher = new Launcher();
+        var repo = Repo(); var served = IntegrityArchive();
+        launcher.Network.Site["/release-status?limit=100"] = Page([Status("alpha", repo, "v2")]);
+        var assets = kind == "empty" ? Array.Empty<object>() : new object[] { new
+        {
+            filename = kind == "missing" ? "other-windows.zip" : Asset,
+            checksum = kind == "missing" ? "sha256:" + Sha256(served) : kind == "invalid-catalog" ? "sha256:not-hex" : null,
+            url = SiteLink("v2", Asset),
+        } };
+        launcher.Network.Site["/apps/alpha/release-history?limit=100"] = Page([new { version = "v2", state = "verified", assets }]);
+        var release = OnGitHub("v2", kind == "invalid-upstream" ? "sha256:1234" : null);
+        launcher.Network.Files[release.assets[0].browser_download_url] = served;
+        var app = InstalledApp(launcher, repo, latest: "v2");
+        var manifestPath = Path.Combine(app.GetInstallPath(launcher.Manager.GamesFolder), PortableInstallationTransaction.ManifestFileName);
+        var oldManifest = File.ReadAllBytes(manifestPath);
+        var player = new Dialogs(confirm: mode != "decline");
+        IGameDownloadDialogs dialogs = mode == "automatic" ? new AutomaticGameDownloadDialogs(player) : player;
+        await GameDownloadInstallService.DownloadAndInstallAsync(app, launcher.Manager.HttpClient, launcher.Manager.GamesFolder,
+            release, launcher.Store.Current, GameStatus.UpdateAvailable, dialogs, releaseMode: ReleaseInstallMode.ExplicitRelease);
+        player.Errors.Should().BeEmpty();
+        if (mode == "automatic") player.Confirmations.Should().BeEmpty("automatic updates cannot ask or assume consent");
+        else player.Confirmations.Should().ContainSingle().Which.Check.Reasons.Should().Contain(r => r.Contains("SHA-256") && r.Contains(Asset));
+        if (mode == "accept")
+        {
+            launcher.Network.Downloads.Should().Be(1); app.InstalledVersion.Should().Be("v2"); app.Status.Should().Be(GameStatus.Installed);
+        }
+        else
+        {
+            launcher.Network.Downloads.Should().Be(0); AssertStillV1(app, launcher.Manager.GamesFolder);
+            File.ReadAllBytes(manifestPath).Should().Equal(oldManifest); app.Status.Should().Be(GameStatus.UpdateAvailable);
+        }
+        launcher.Network.Reports.Should().BeEmpty();
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false, false)][InlineData(true, false)][InlineData(false, true)][InlineData(true, true)]
+    public async Task Valid_publisher_digest_supplies_missing_catalog_integrity(bool malformedCatalogDigest, bool automatic)
+    {
+        using var launcher = new Launcher();
+        var repo = Repo(); var served = IntegrityArchive();
+        launcher.Network.Site["/release-status?limit=100"] = Page([Status("alpha", repo, "v2")]);
+        launcher.Network.Site["/apps/alpha/release-history?limit=100"] = Page([new
+        {
+            version = "v2", state = "verified", assets = new[] { new
+            { filename = Asset, checksum = malformedCatalogDigest ? "sha256:invalid" : null, url = SiteLink("v2", Asset) } },
+        }]);
+        var release = OnGitHub("v2", "sha256:" + Sha256(served));
+        launcher.Network.Files[release.assets[0].browser_download_url] = served;
+        var app = InstalledApp(launcher, repo, latest: "v2"); var player = new Dialogs(confirm: false);
+        IGameDownloadDialogs dialogs = automatic ? new AutomaticGameDownloadDialogs(player) : player;
+        await GameDownloadInstallService.DownloadAndInstallAsync(app, launcher.Manager.HttpClient, launcher.Manager.GamesFolder,
+            release, launcher.Store.Current, GameStatus.UpdateAvailable, dialogs, releaseMode: ReleaseInstallMode.ExplicitRelease);
+        player.Errors.Should().BeEmpty(); player.Confirmations.Should().BeEmpty();
+        launcher.Network.Downloads.Should().Be(1); app.InstalledVersion.Should().Be("v2"); app.Status.Should().Be(GameStatus.Installed);
+        launcher.Network.Reports.Should().BeEmpty();
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Valid_but_mismatched_digest_preserves_the_previous_installation(bool catalogDigest)
+    {
+        using var launcher = new Launcher();
+        var repo = Repo(); var served = IntegrityArchive();
+        launcher.Network.Site["/release-status?limit=100"] = Page([Status("alpha", repo, "v2")]);
+        launcher.Network.Site["/apps/alpha/release-history?limit=100"] = Page([new
+        {
+            version = "v2", state = "verified", assets = new[] { new
+            { filename = Asset, checksum = catalogDigest ? "sha256:" + new string('0', 64) : null, url = SiteLink("v2", Asset) } },
+        }]);
+        // A valid catalog hash takes precedence over a matching publisher hash; a publisher fallback is checked too.
+        var release = OnGitHub("v2", "sha256:" + (catalogDigest ? Sha256(served) : new string('0', 64)));
+        launcher.Network.Files[release.assets[0].browser_download_url] = served;
+        var app = InstalledApp(launcher, repo, latest: "v2"); var player = new Dialogs(confirm: true);
+        var manifestPath = Path.Combine(app.GetInstallPath(launcher.Manager.GamesFolder), PortableInstallationTransaction.ManifestFileName);
+        var original = File.ReadAllBytes(manifestPath);
+        await GameDownloadInstallService.DownloadAndInstallAsync(app, launcher.Manager.HttpClient, launcher.Manager.GamesFolder,
+            release, launcher.Store.Current, GameStatus.UpdateAvailable, player, releaseMode: ReleaseInstallMode.ExplicitRelease);
+        player.Confirmations.Should().BeEmpty();
+        player.Errors.Should().ContainSingle().Which.Title.Should().Be("Download Not Verified");
+        launcher.Network.Downloads.Should().Be(1);
+        AssertStillV1(app, launcher.Manager.GamesFolder); File.ReadAllBytes(manifestPath).Should().Equal(original);
+        app.Status.Should().Be(GameStatus.UpdateAvailable);
+    }
+
+    private static byte[] IntegrityArchive()
+    {
+        using var memory = new MemoryStream();
+        using (var zip = new ZipArchive(memory, ZipArchiveMode.Create, true))
+        {
+            var exe = zip.CreateEntry("game.exe"); exe.LastWriteTime = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
+            using var bytes = exe.Open(); bytes.Write([0x4d, 0x5a, 0x90, 0x00]);
+        }
+        return memory.ToArray();
     }
 
     [AvaloniaTheory]

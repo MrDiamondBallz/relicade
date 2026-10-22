@@ -255,3 +255,14 @@ an unbounded read. Library and detached rollback/settings reads also reuse the
 regular-file and link-count guard before opening, preventing a pre-existing FIFO
 from blocking cancellation. General settings/credential initialization is separate;
 these checks do not certify hostile concurrent path replacement.
+
+
+## Selected-asset digest policy
+
+`PublishedAssetDigest` provides shared strict SHA-256 syntax normalization for the
+installer and same-tag rebuild detection. `ReleaseCheck.MissingAssetDigest` records
+selected-file integrity availability separately from the catalog's release state.
+The installer resolves catalog then publisher digest before confirmation/download;
+missing integrity reaches the existing interactive consent seam, while automatic
+and headless implementations decline. Valid digests are compared before activation.
+This does not establish publisher trust, software safety, rights or playable setup.

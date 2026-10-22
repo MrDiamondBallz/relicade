@@ -46,7 +46,7 @@ public sealed record InstalledBuild(string FileName, string Sha256)
     {
         if (release == null || !ReleaseVersionIdentity.AreVersionsEquivalent(release.tag_name, installedVersion)) return false;
         var file = release.assets?.FirstOrDefault(a => string.Equals(a.name, FileName, StringComparison.OrdinalIgnoreCase));
-        return file?.digest is { } digest && digest.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase) &&
-            !string.Equals(digest["sha256:".Length..], Sha256, StringComparison.OrdinalIgnoreCase);
+        return PublishedAssetDigest.FromPublisher(file?.digest) is { } digest &&
+            !string.Equals(digest, Sha256, StringComparison.OrdinalIgnoreCase);
     }
 }

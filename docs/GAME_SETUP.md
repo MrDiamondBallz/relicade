@@ -6,6 +6,28 @@ Relicade's native development source includes a first package-bound local setup
 flow. It is not a packaged release, gameplay certification or complete catalog
 setup support.
 
+## Download integrity and catalog approval
+
+A catalog's release approval is separate from verification of a selected download's
+bytes. The native download flow accepts a SHA-256 only when it is exactly 64
+hexadecimal characters. It prefers the selected file's catalog digest, with a
+valid publisher-provided SHA-256 as a fallback when that digest is unavailable or
+malformed. A valid nonrolling catalog digest cannot be overridden merely because
+a publisher digest differs. Existing rolling-release revalidation remains separate.
+
+If a catalog download has neither usable digest, interactive installation explains
+that the bytes cannot be verified against a published digest and requires explicit
+confirmation. Declining preserves the current installation without downloading the
+package. Automatic/background and headless flows decline rather than assuming
+consent. Existing blocked-release and flagged-file warnings still apply. A digest
+mismatch stops activation and retains the prior installation. Malformed publisher
+digests do not create a false same-tag update after a successful installation.
+
+A matching checksum is not a guarantee of safe software, publisher authenticity,
+rights clearance or gameplay. These checks have synthetic local-transport coverage,
+not acceptance of every catalog asset or platform. Noncatalog source policy and
+catalog reachability are separate concerns; this change does not certify them.
+
 ## Choosing a launch file before installation
 
 For a portable package with several unresolved launch files, the desktop download
