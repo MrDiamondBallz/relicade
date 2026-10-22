@@ -277,4 +277,8 @@ matching: if absent, repository/folder heuristics cannot substitute a sibling.
 to the catalog. The installer also retains the distinction if its check service is
 unavailable or throws. Unknown evidence uses the existing explicit consent seam;
 automatic/headless flows decline. Exact cached links and independent repositories
-remain supported. This does not implement identity migration or authenticate feeds.
+remain supported. A successful runtime link also retains its learned entry ID on
+the current library object, so an empty refresh cannot erase that evidence or
+substitute a sibling. The exception boundary checks identity learned during the
+failed request as well as identity known before it. This does not rewrite legacy
+library IDs, migrate them across restarts, or authenticate feeds.

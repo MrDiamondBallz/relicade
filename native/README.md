@@ -402,4 +402,5 @@ status metadata cannot silently turn that entry into an independent repository:
 interactive installs explain unconfirmed identity, while automatic installs wait.
 An absent explicit catalog ID cannot borrow a sibling entry's release approval.
 Exact cached links still work; this is not a complete catalog migration or metadata
-authentication system.
+authentication system. A link learned in this session is retained across empty
+refreshes and checked after failures, without silently migrating legacy saved IDs.

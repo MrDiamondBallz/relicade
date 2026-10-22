@@ -601,6 +601,45 @@ public class ReleaseVerificationTests
         launcher.Network.Reports.Should().BeEmpty();
     }
 
+    [AvaloniaFact]
+    public async Task Newly_linked_identity_survives_a_history_schema_exception()
+    {
+        using var launcher = new Launcher(); var repo = Repo(); var bytes = Zip("v2.txt");
+        var app = InstalledApp(launcher,repo,"v2");
+        launcher.Network.Site["/release-status?limit=100"] = Page([Status("alpha",repo,"v2")]);
+        launcher.Network.Site["/apps?limit=100&sort=added"] = Page([]);
+        launcher.Network.Site["/apps/alpha/release-history?limit=100"] = Page([new { version = "v2", state = "verified", assets = (object?)null }]);
+        var release = OnGitHub("v2","sha256:"+Sha256(bytes)); launcher.Network.Files[release.assets[0].browser_download_url] = bytes;
+        var player = new Dialogs(false);
+        await GameDownloadInstallService.DownloadAndInstallAsync(app,launcher.Manager.HttpClient,launcher.Manager.GamesFolder,
+            release,launcher.Store.Current,GameStatus.UpdateAvailable,new AutomaticGameDownloadDialogs(player),releaseMode:ReleaseInstallMode.ExplicitRelease);
+        Assert.Equal("alpha",app.CatalogSlug); Assert.Equal(0,launcher.Network.Downloads);
+        AssertStillV1(app,launcher.Manager.GamesFolder); Assert.Empty(player.Confirmations); Assert.Empty(player.Errors);
+    }
+
+    [AvaloniaFact]
+    public async Task Previously_linked_identity_is_not_forgotten_by_automatic_revalidation()
+    {
+        using var launcher = new Launcher(); var repo = Repo(); var bytes = Zip("v2.txt");
+        var app = InstalledApp(launcher,repo,"v2");
+        launcher.Network.Site["/release-status?limit=100"] = Page([Status("alpha",repo,"v2")]);
+        launcher.Network.Site["/apps?limit=100&sort=added"] = Page([]);
+        await launcher.Manager.CatalogReleases.RefreshAsync([app],TestContext.Current.CancellationToken);
+        Assert.Equal("alpha",app.CatalogSlug); Assert.Null(app.CatalogEntryId);
+        launcher.Network.Site["/release-status?limit=100"] = Page([]);
+        using var manager = new GameManager(launcher.Store,new HttpClient(launcher.Network),new AppCatalogService(dataDirectory:RelicadePaths.UserDataRoot));
+        app.GameManager = manager;
+        // The status snapshot no longer contains this formerly linked app; refresh is a real public lifecycle operation.
+        await manager.CatalogReleases.RefreshAsync([app],TestContext.Current.CancellationToken);
+        var release = OnGitHub("v2","sha256:"+Sha256(bytes)); launcher.Network.Files[release.assets[0].browser_download_url] = bytes;
+        launcher.Network.GitHub[$"/repos/{repo}/releases/latest"] = Json(release);
+        launcher.Network.GitHub[$"/repos/{repo}/releases"] = Json(new[] {release});
+        var player = new Dialogs(false);
+        await GameDownloadInstallService.DownloadAndInstallAsync(app,manager.HttpClient,manager.GamesFolder,
+            null,launcher.Store.Current,GameStatus.UpdateAvailable,new AutomaticGameDownloadDialogs(player));
+        Assert.Equal(0,launcher.Network.Downloads); AssertStillV1(app,manager.GamesFolder); Assert.Empty(player.Confirmations); Assert.Empty(player.Errors);
+    }
+
     [AvaloniaTheory]
     [InlineData(false)]
     [InlineData(true)]

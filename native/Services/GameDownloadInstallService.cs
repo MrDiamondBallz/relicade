@@ -677,7 +677,7 @@ public static class GameDownloadInstallService
         catch (Exception ex)
         {
             Debug.WriteLine($"Release check failed for {game.Name}: {ex.Message}");
-            return knownIdentity ? CatalogReleases.UnconfirmedIdentity() : null;
+            return knownIdentity || CatalogReleases.HasCatalogIdentity(game) ? CatalogReleases.UnconfirmedIdentity() : null;
         }
     }
 

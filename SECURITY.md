@@ -95,4 +95,6 @@ malformed status evidence, unavailable check services and a missing explicit ID
 produce an unconfirmed diagnostic instead of implicit noncatalog permission.
 Exact cached identity remains usable; unknown independent repositories retain
 separate policy. This is not complete metadata schema, freshness, authentication
-or catalog identity-migration acceptance.
+or catalog identity-migration acceptance. Identity learned during a failed check
+or retained on the current library object still requires confirmation; a later
+empty refresh does not erase it. Legacy saved IDs are not silently rewritten.

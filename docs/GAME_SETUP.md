@@ -32,7 +32,10 @@ before asking. An absent explicit ID does not borrow another entry's approval ju
 because its repository or folder matches. Saved exact-ID status can still be used
 offline with a valid selected digest. Independent repositories without catalog
 identity retain their separate policy; complete catalog freshness, authentication
-and explicit identity migration remain unaccepted.
+and explicit identity migration remain unaccepted. Links learned on the current
+library object survive a later empty refresh; errors after linking do not permit
+automatic installation. Legacy entries without saved IDs are not migrated across
+restarts by this runtime safeguard.
 
 ## Choosing a launch file before installation
 

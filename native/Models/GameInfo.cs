@@ -736,6 +736,10 @@ namespace Relicade.Models
         /// <summary>The quiverlauncher.com app this is, when it is in the catalog. Looked up, not saved.</summary>
         public string? CatalogSlug { get; set; }
 
+        // Retain a learned identity when a later refresh has no matching row. This
+        // is runtime evidence, not an implicit migration of the saved library.
+        internal string? LearnedCatalogEntryId { get; set; }
+
         /// <summary>The release the source catalog verified for this app. Updates go to it unless the player pinned a version.</summary>
         public string? CatalogVerifiedVersion
         {

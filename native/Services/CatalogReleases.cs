@@ -125,6 +125,7 @@ public sealed class CatalogReleases
     public void ApplyKnown(GameInfo app)
     {
         var link = Find(app);
+        if (!string.IsNullOrWhiteSpace(link?.Id)) app.LearnedCatalogEntryId = link.Id;
         app.CatalogSlug = link?.Slug;
         app.CatalogVerifiedVersion = string.IsNullOrWhiteSpace(link?.Verified?.Version) ? null : link.Verified.Version;
         app.CatalogVerifiedAt = app.CatalogVerifiedVersion == null ? null : _statusCheckedAt;
@@ -142,7 +143,7 @@ public sealed class CatalogReleases
     {
         var knownIdentity = HasCatalogIdentity(app);
         await EnsureLinkedAsync(app, token).ConfigureAwait(false);
-        if (app.CatalogSlug is not { } slug) return knownIdentity ? UnconfirmedIdentity() : null;
+        if (app.CatalogSlug is not { } slug) return knownIdentity || HasCatalogIdentity(app) ? UnconfirmedIdentity() : null;
         var verified = app.CatalogVerifiedVersion;
         IReadOnlyList<QuiverCatalogRelease>? releases;
         try { releases = await HistoryAsync(slug, token).ConfigureAwait(false); }
@@ -365,7 +366,8 @@ public sealed class CatalogReleases
     }
 
     internal static bool HasCatalogIdentity(GameInfo app) => Linkable(app) &&
-        (!string.IsNullOrWhiteSpace(app.CatalogEntryId) || !string.IsNullOrWhiteSpace(app.CatalogSlug));
+        (!string.IsNullOrWhiteSpace(app.CatalogEntryId) || !string.IsNullOrWhiteSpace(app.CatalogSlug) ||
+         !string.IsNullOrWhiteSpace(app.LearnedCatalogEntryId));
 
     internal static ReleaseCheck UnconfirmedIdentity() => new(ReleaseCheckState.Unverified,
         ["Relicade cannot confirm this saved catalog identity against the available catalog metadata."],
@@ -385,8 +387,9 @@ public sealed class CatalogReleases
     private QuiverCatalogStatus? Find(GameInfo app)
     {
         // The entry the app was added from, or was last linked to: its id doesn't change when the catalog renames things.
-        if (Linkable(app) && !string.IsNullOrWhiteSpace(app.CatalogEntryId))
-            return _status.FirstOrDefault(s => string.Equals(s.Id, app.CatalogEntryId, StringComparison.Ordinal));
+        var knownId = !string.IsNullOrWhiteSpace(app.CatalogEntryId) ? app.CatalogEntryId : app.LearnedCatalogEntryId;
+        if (Linkable(app) && !string.IsNullOrWhiteSpace(knownId))
+            return _status.FirstOrDefault(s => string.Equals(s.Id, knownId, StringComparison.Ordinal));
         var candidates = Candidates(app).ToList();
         if (candidates.Count == 0)
         {
