@@ -72,7 +72,8 @@ Each document has exactly one policy:
   digest; the tool cannot bless them. Do not rewrite old entries to look current.
 
 `protected_files` pins immutable evidence reports. Image/brand masters and the
-single-orange-R/Ocarina presentation are never write targets. Their actual bytes
+single-orange-R identity and curated native product captures are never generator
+write targets. Their actual bytes
 are part of presentation/preview source digests, so legitimate changes require
 review of corresponding prose and visual guards rather than generator edits.
 No document policy, source root, status field or generated output is inferred

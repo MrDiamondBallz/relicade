@@ -9,7 +9,7 @@ unimplemented/unaccepted. Source progress is not a packaged/native release.
 - [ ] Ran `python tools/docs_sync.py --audit` and `--write`; checked the real source diff since the last reviewed registry revision.
 - [ ] Reviewed every affected document in the source responsibility map; fixed semantic prose or explained why it remains accurate.
 - [ ] Explicitly updated only justified review acknowledgements; generation did not auto-approve prose.
-- [ ] Registered newly authored docs; preserved legal/notices/trademarks, historical changelog/evidence and brand/Ocarina presentation.
+- [ ] Registered newly authored docs; preserved legal/notices/trademarks, historical changelog/evidence, brand identity and authentic current native product captures.
 - [ ] `python tools/docs_sync.py --check` and `--audit` pass; second `--write` produces zero diff.
 - [ ] Inspected actual README desktop/mobile pixels in light/dark themes and ran applicable regression checks.
 

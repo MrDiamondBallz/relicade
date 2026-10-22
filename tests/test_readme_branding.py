@@ -48,19 +48,20 @@ class ReadmeBrandingTests(unittest.TestCase):
 
     @unittest.skipUnless(importlib.util.find_spec('PIL'),
                          'Optional image QA dependency not installed')
-    def test_curated_interface_preview_uses_the_same_single_r(self):
+    def test_actual_native_capture_uses_the_same_single_r(self):
         from PIL import Image
-        image = Image.open(ROOT / 'docs/assets/relicade-interface-ocarina.png').convert('RGB')
+        image = Image.open(ROOT / 'docs/assets/relicade-native-linux.png').convert('RGB')
         # The orange initial replaces R; exactly seven light-coloured letters follow.
-        columns = [any(min(cast(tuple[int, int, int], image.getpixel((x, y)))) > 180 for y in range(34, 74))
-                   for x in range(24, 198)]
+        # Bounds are the suffix in the actual native capture, above its subtitle.
+        columns = [any(min(cast(tuple[int, int, int], image.getpixel((x, y)))) > 180 for y in range(64, 92))
+                   for x in range(80, 215)]
         runs = sum(active and (i == 0 or not columns[i - 1]) for i, active in enumerate(columns))
         self.assertEqual(runs, 7, 'Preview still contains an extra light-coloured R')
 
     def test_interface_preview_and_tagline_remain(self):
         readme = (ROOT / 'README.md').read_text()
         self.assertIn('### Old legends. New life.', readme)
-        self.assertIn('docs/assets/relicade-interface-ocarina.png', readme)
+        self.assertIn('docs/assets/relicade-native-linux.png', readme)
 
 if __name__ == '__main__':
     unittest.main()

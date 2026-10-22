@@ -21,11 +21,15 @@ Relicade is becoming one coherent home for **community-revived classics, retro g
 
 The goal is a clear path from “What can I play?” to the right version, game files, mods and recovery options. Controller-first and keyboard-complete journeys should make power features accessible, not remove them. Local and offline library use must remain possible without a required account.
 
-Emulation is **future scope, not yet implemented**. Each emulator/core needs its own licensing and compatibility review; players must supply any required game data or BIOS lawfully. Relicade will not distribute unlicensed ROMs, BIOS or keys. This direction does not waive or silently expand the existing native release gates.
+Catalog coverage is part of that goal: support the full upstream community-port catalog, with project sources, setup requirements and installation and launch behavior checked per game. The twelve-project browser preview is a sample, not the finished catalog.
+
+Emulation is **future scope, not yet implemented**. Each emulator/core needs its own licensing and compatibility review; players must supply any required game data or BIOS lawfully. Relicade will not distribute unlicensed ROMs, BIOS or keys.
 
 ## Current progress
 
 **No packaged launcher release.** This is development source and a browser design preview, not full functional parity or accepted native platform support.
+
+Recent merged work adds [separate CPU-rendered native UI tests](https://github.com/MrDiamondBallz/relicade/pull/11) for the library, offline catalog and settings views. The [latest maintenance update](https://github.com/MrDiamondBallz/relicade/pull/12) aligns the Avalonia dependencies on the official 12.1.4 patch and adds input-session cleanup and application-lifetime regressions. These changes have independent local review and test coverage; they are development milestones, not a packaged release or a claim that every target platform has been tested.
 
 - **Merged development source:** reviewed staged installation and recovery, explicit vault-backed credential migration, offline instance shortcuts and process lifetime handling, managed-removal safeguards, and [previewed, hash-confirmed redundant-backup payload cleanup](https://github.com/MrDiamondBallz/relicade/pull/3). Cleanup retains all previous generations, data snapshots and the current operation's entire backup; it is not credential erasure, general history pruning or managed uninstall. These are bounded source milestones, not a production-safe installer or a promise of compatibility with every game. See [the earlier source milestone](https://github.com/MrDiamondBallz/relicade/pull/1) and the [native guide](native/README.md).
 - **Included in this source:** the native library context menu exposes a redundant-backup preview, explicit displayed-plan confirmation, cancellation, truthful results and explicit same-plan resume. This UI is not packaged or native-platform accepted. **In progress:** full behavior reconciliation, packaged installation, security/rights checks and real platform/controller/accessibility acceptance remain open.
@@ -52,11 +56,11 @@ Source status: merged development source includes [reviewed safety work](https:/
 
 [How documentation stays current](docs/DOCUMENTATION.md): contribution-time checks and periodic maintainer reconciliation keep generated facts and source-sensitive prose under review. The tool checks facts mechanically; it does not approve prose. Cloning the repository does not install a timer or service.
 
-### Interface preview
+### Current native application
 
-![Relicade interface preview featuring Ocarina of Time artwork](docs/assets/relicade-interface-ocarina.png?v=single-r)
+![Actual Relicade native Linux development build showing an empty local library](docs/assets/relicade-native-linux.png)
 
-*Browser-rendered interface design preview with Ocarina of Time artwork inside the hero. This illustrates the visual design, not a native launcher release or installed-game state. Third-party artwork remains with its respective rights holders; see [NOTICE.md](NOTICE.md).*
+*Captured from the actual native Linux development build with an empty local library. This is the running application, not a browser mockup or generated interface. It does not show installed games or establish packaged-release or hardware compatibility.*
 
 [Identity system](brand/BRAND.md) · [Brand presentation](docs/assets/relicade-brand.png) · [Architecture](docs/ARCHITECTURE.md)
 

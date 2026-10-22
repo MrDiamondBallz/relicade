@@ -1,5 +1,21 @@
 # Runtime game artwork
 
+## Product screenshots
+
+Public product screenshots must come from the actual current native application.
+Do not substitute browser design previews, generated interfaces, composited game
+libraries or images that imply unimplemented features. Identify empty libraries,
+synthetic test data and development builds in their captions. Never include
+credentials, personal paths or private user data.
+
+The README's native Linux capture shows a real empty-library development build.
+Brand artwork and the historical browser prototype remain design assets, not
+evidence of native features or a released product. Preserve actual interface
+content and accurate upstream attribution rather than editing a screenshot to
+make the product appear more complete.
+
+## Catalog artwork
+
 The browser reference prefers actual game imagery from the catalog's retained
 `referenceArtSources.libraryArt` URLs. Original local tiles are bounded fallback,
 not a substitute presented as a successfully loaded game image. Game images do
@@ -131,8 +147,9 @@ exposes separate online source links and original-tile provenance.
 `fetch_catalog.py` remains metadata-only plus original-tile rendering: it does
 not fetch artwork or provide an arbitrary downloader. Original renderer, tile
 bytes, font sources and OFL notices are unchanged. New runtime third-party image
-bytes and live QA screenshots must not be committed. The separately curated,
-credited README design preview is not overwritten by automated QA. Source links,
+bytes and unreviewed live QA screenshots must not be committed. Only explicitly
+reviewed, privacy-safe captures of the actual native product belong in the public
+showcase; automated browser QA must not overwrite them. Source links,
 runtime availability and credit do not grant a license; see [NOTICE](../NOTICE.md).
 
 ## Verification commands
