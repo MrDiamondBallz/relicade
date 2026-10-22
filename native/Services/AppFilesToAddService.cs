@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Relicade.Models;
+using Relicade.Core.Services;
 
 namespace Relicade.Services;
 
@@ -55,47 +56,72 @@ public static class AppFilesToAddService
             return false;
         }
 
+        try { PortableInstallationTransaction.ValidateRelative(trimmed); }
+        catch (InvalidDataException) { return false; }
+        if (trimmed.StartsWith(".relicade-", StringComparison.OrdinalIgnoreCase) ||
+            GameInstallationService.IsLauncherMetadataFile(trimmed) ||
+            trimmed.Equals(WindowsInstallerService.ReceiptFileName, StringComparison.OrdinalIgnoreCase))
+            return false;
+
         fileName = trimmed;
         return true;
     }
 
-    public static void Sync(string? installPath, IEnumerable<string>? previous, IEnumerable<string>? next, bool throwOnFailure = false)
+    /// <summary>
+    /// Creates missing empty markers without overwriting existing paths. Removed
+    /// metadata is not ownership evidence: existing files are retained and returned.
+    /// Strict callers receive an explicit preservation error before any creation.
+    /// </summary>
+    public static IReadOnlyList<string> Sync(string? installPath, IEnumerable<string>? previous, IEnumerable<string>? next, bool throwOnFailure = false)
     {
         if (string.IsNullOrWhiteSpace(installPath) || !Directory.Exists(installPath))
-            return;
-        if (WindowsInstallerService.HasReceipt(installPath)) return;
+            return [];
+        try { PortableInstallationTransaction.CheckLinks(installPath); }
+        catch when (!throwOnFailure) { return []; }
+        if (WindowsInstallerService.HasReceipt(installPath)) return [];
 
         var previousNames = Normalize(previous);
         var nextNames = Normalize(next);
         var nextSet = new HashSet<string>(nextNames, StringComparer.OrdinalIgnoreCase);
-
+        var preserved = new List<string>();
         foreach (var removed in previousNames.Where(name => !nextSet.Contains(name)))
         {
             var path = Path.Combine(installPath, removed);
-            try
-            {
-                if (File.Exists(path))
-                    File.Delete(path);
-            }
-            catch when (!throwOnFailure)
-            {
-                // Best-effort cleanup; leave the file if locked or inaccessible.
-            }
+            // Do not follow, truncate or delete removed entries, even empty ones.
+            // Legacy lists and files from packages cannot establish our ownership.
+            if (Path.Exists(path)) preserved.Add(removed);
         }
+        if (throwOnFailure && preserved.Count > 0)
+            throw new IOException("Existing marker files were preserved because their ownership is unknown: " +
+                string.Join(", ", preserved) + ". No marker files were created or removed. Review these files before removing them yourself.");
 
         foreach (var fileName in nextNames)
         {
-            var path = Path.Combine(installPath, fileName);
             try
             {
-                if (!File.Exists(path))
-                    File.WriteAllText(path, string.Empty);
+                var path = PortableInstallationTransaction.SafePath(installPath, fileName);
+                FileStream created;
+                try
+                {
+                    // CreateNew is atomic with respect to another creator. Never use
+                    // an existence check followed by a truncating write here.
+                    created = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                }
+                catch (IOException) when (File.Exists(path))
+                {
+                    // An existing or concurrently created file belongs to its owner.
+                    // Recheck links so a newly introduced link is not treated as success.
+                    PortableInstallationTransaction.CheckLinks(path);
+                    continue;
+                }
+                using (created) created.Flush(true);
             }
             catch when (!throwOnFailure)
             {
-                // Best-effort create; skip if the path cannot be written.
+                // Best-effort creation does not establish a complete setup result.
             }
         }
+        return preserved.AsReadOnly();
     }
 
     public static void SyncForGame(GameInfo game, string appsFolder, IEnumerable<string>? previous = null, bool throwOnFailure = false)

@@ -62,3 +62,11 @@ Source changes affecting security must trigger the [documentation review gate](d
 Download, extraction, update, launch and mod operations require trust, signature/digest, path/link containment, transactional recovery, permissions and fault-injection tests. Executed games run with user authority unless a separately tested sandbox explicitly says otherwise.
 
 Provider credentials belong in platform credential storage, never repository files or library exports. Importing another application's credentials requires informed user consent. Diagnostics must be reviewed and redacted before sharing.
+
+## Empty marker files
+
+Catalog marker preparation does not trust metadata as deletion authority. It
+retains removed entries, refuses linked paths and creates missing empty files
+without overwriting existing paths. These checks do not certify hostile
+concurrent filesystem-writer resistance, owned-marker cleanup or game-data
+readiness. See [the native marker boundary](native/README.md#catalog-marker-files).
