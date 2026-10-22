@@ -254,6 +254,58 @@
       "artifact": "docs/GAME_SETUP.md",
       "hardware": "Linux x64 own-source .NET 10 tests with synthetic local HTTP transport; no AppImage or acquired engine execution.",
       "kind": "unit"
+    },
+    {
+      "id": "portable-zip-layout-unit",
+      "feature": "install.portable",
+      "platform": "linux-x64-appimage",
+      "commit": "9d776f96f97ced02e20f82f275fb18108490f811",
+      "fixture": "valid-zip",
+      "command": "Relicade.Tests.GameInstallationServiceZipTests.InstallOrUpdateGameAsync_keeps_nested_executable_and_unix_mode",
+      "result": "pass",
+      "output": "One synthetic ZIP installation case passed: the nested payload bytes and Unix executable mode were preserved. No acquired executable ran.",
+      "artifact": "native/Relicade.Tests/GameInstallationServiceZipTests.cs",
+      "hardware": "Linux x64 .NET 10 source tests with synthetic local fixtures; no AppImage, acquired engine or gameplay execution.",
+      "kind": "unit"
+    },
+    {
+      "id": "mod-dependency-refusal-unit",
+      "feature": "mods.dependencies",
+      "platform": "linux-x64-appimage",
+      "commit": "9d776f96f97ced02e20f82f275fb18108490f811",
+      "fixture": "mod-cases",
+      "command": "Relicade.Tests.ModsPreservationDependencyTests.Unresolvable_dependency_graph_is_rejected_before_any_mutation",
+      "result": "pass",
+      "output": "Three synthetic cases passed for fault=cycle, missing and version. Each rejected the dependency graph before mutation; this is not provider or gameplay acceptance.",
+      "artifact": "native/Relicade.Tests/ModsPreservationDependencyTests.cs",
+      "hardware": "Linux x64 .NET 10 source tests with synthetic local fixtures; no AppImage, acquired engine or gameplay execution.",
+      "kind": "unit"
+    },
+    {
+      "id": "keyboard-binding-roundtrip-unit",
+      "feature": "input.rebinding",
+      "platform": "linux-x64-appimage",
+      "commit": "96a2f4edb085cd9c397e5d4a79de8ad3950d0793",
+      "fixture": "input-cases",
+      "command": "Relicade.Tests.KeyboardBindingsTests.KeyboardBindings_json_round_trip_preserves_modifiers",
+      "result": "pass",
+      "output": "One settings serialization case passed: the rebound keyboard modifier and an unaffected default binding survived a JSON round trip.",
+      "artifact": "native/Relicade.Tests/KeyboardBindingsTests.cs",
+      "hardware": "Linux x64 .NET 10 source tests with synthetic local fixtures; no AppImage, acquired engine or gameplay execution. The input-owner case uses the Avalonia headless host with device polling disabled; no physical controller or desktop input API certification.",
+      "kind": "unit"
+    },
+    {
+      "id": "keyboard-owner-lifetime-unit",
+      "feature": "input.keyboard",
+      "platform": "linux-x64-appimage",
+      "commit": "96a2f4edb085cd9c397e5d4a79de8ad3950d0793",
+      "fixture": "input-cases",
+      "command": "Relicade.Tests.LauncherInputControllerTests.Closing_replaced_input_owner_preserves_new_callbacks_and_unsubscribes_keys",
+      "result": "pass",
+      "output": "One headless input ownership case passed: disposing the old controller preserved the current resolver, detached old key events and left the new owner active until disposal.",
+      "artifact": "native/Relicade.Tests/LauncherInputControllerTests.cs",
+      "hardware": "Linux x64 .NET 10 source tests with synthetic local fixtures; no AppImage, acquired engine or gameplay execution. The input-owner case uses the Avalonia headless host with device polling disabled; no physical controller or desktop input API certification.",
+      "kind": "unit"
     }
   ],
   "features": [
@@ -1860,10 +1912,12 @@
         },
         "linux-x64-appimage": {
           "applicability": "required",
-          "reason": "OS-specific adapter required on this target.",
-          "implementation": "planned",
-          "validation": "not_run",
-          "evidence": []
+          "reason": "OS-specific adapter required on this target. The linked source test covers only its described subcase; complete feature, package and native-runtime acceptance remain unverified.",
+          "implementation": "wip",
+          "validation": "inconclusive",
+          "evidence": [
+            "portable-zip-layout-unit"
+          ]
         },
         "linux-arm64-appimage": {
           "applicability": "required",
@@ -2653,10 +2707,12 @@
         },
         "linux-x64-appimage": {
           "applicability": "conditional",
-          "reason": "Project/package capability dependent; adapter must declare support and supply native evidence.",
-          "implementation": "planned",
-          "validation": "not_run",
-          "evidence": []
+          "reason": "Project/package capability dependent; adapter must declare support and supply native evidence. The linked source test covers only its described subcase; complete feature, package and native-runtime acceptance remain unverified.",
+          "implementation": "wip",
+          "validation": "inconclusive",
+          "evidence": [
+            "mod-dependency-refusal-unit"
+          ]
         },
         "linux-arm64-appimage": {
           "applicability": "conditional",
@@ -3228,10 +3284,12 @@
         },
         "linux-x64-appimage": {
           "applicability": "required",
-          "reason": "Shared behavior requires independent native acceptance on this target.",
-          "implementation": "planned",
-          "validation": "not_run",
-          "evidence": []
+          "reason": "Shared behavior requires independent native acceptance on this target. The linked source test covers only its described subcase; complete feature, package and native-runtime acceptance remain unverified.",
+          "implementation": "wip",
+          "validation": "inconclusive",
+          "evidence": [
+            "keyboard-owner-lifetime-unit"
+          ]
         },
         "linux-arm64-appimage": {
           "applicability": "required",
@@ -3370,10 +3428,12 @@
         },
         "linux-x64-appimage": {
           "applicability": "conditional",
-          "reason": "Project/package capability dependent; adapter must declare support and supply native evidence.",
-          "implementation": "planned",
-          "validation": "not_run",
-          "evidence": []
+          "reason": "Project/package capability dependent; adapter must declare support and supply native evidence. The linked source test covers only its described subcase; complete feature, package and native-runtime acceptance remain unverified.",
+          "implementation": "wip",
+          "validation": "inconclusive",
+          "evidence": [
+            "keyboard-binding-roundtrip-unit"
+          ]
         },
         "linux-arm64-appimage": {
           "applicability": "conditional",

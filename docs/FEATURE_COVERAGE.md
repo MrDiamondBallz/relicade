@@ -92,13 +92,21 @@ before recording acceptance. Do not use a successful schema check as sign-off.
 
 ## Recorded partial source evidence
 
-Two unit records at the immutable free-data source checkpoint cover pinned
-download retention/reuse and mid-transfer cancellation. Their public test links
-and sanitized results are in [the setup guide](GAME_SETUP.md). They apply only to
-that source-tested subset: the corresponding Linux x64 AppImage target cells
-remain `wip` / `inconclusive`, not supported or accepted. No package, live-network,
-engine execution or gameplay result is inferred. Other feature and platform
-acceptance rows are unchanged.
+The ledger records narrowly scoped unit results at immutable source commits:
+
+- Pinned free-data download retention/reuse and mid-transfer cancellation, with
+  public test links and sanitized results in [the setup guide](GAME_SETUP.md).
+- Synthetic ZIP installation preserving a nested payload and Unix executable mode.
+- Dependency-cycle, missing-dependency and version-conflict refusal before mutation.
+- Keyboard-binding modifier serialization and replaced input-owner key cleanup.
+
+The latter records link directly to their public test fixtures. They do not sum
+historical test totals or claim that every assertion in an entire feature has
+passed. The linked Linux x64 AppImage target cells remain `wip` / `inconclusive`,
+not supported or accepted. The tests ran source code, not an AppImage package;
+headless controls do not certify a physical controller or desktop input APIs.
+No package, live-network, acquired-engine or gameplay result is inferred. Other
+feature and platform acceptance rows are unchanged.
 
 ## Platform boundaries
 
