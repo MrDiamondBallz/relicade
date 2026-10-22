@@ -67,11 +67,25 @@ internal sealed class OwnedGameSetupSession
         appsRoot = Path.GetFullPath(manager.GamesFolder); install = game.GetInstallPath(appsRoot);
         dataRoot = RelicadePaths.UserDataRoot; repository = game.Repository!;
         libraryPath = manager.CatalogService.AppsConfigPath;
-        PortableInstallationTransaction.CheckLinks(libraryPath);
-        if (new FileInfo(libraryPath).Length > 8 * 1024 * 1024) throw new IOException("The local library exceeds the setup inspection limit.");
-        library = File.ReadAllBytes(libraryPath);
+        library = ReadLibrary();
         ManagedShortcutLaunch.ValidateLocalIdentities(library);
         Validate();
+    }
+
+    byte[] ReadLibrary(int? expectedLength = null)
+    {
+        PortableInstallationTransaction.CheckLinks(libraryPath);
+        using var file = new FileStream(libraryPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var length = file.Length;
+        if (length > 8 * 1024 * 1024) throw new IOException("The local library exceeds the setup inspection limit.");
+        if (expectedLength is { } expected && length != expected)
+            throw new IOException("The saved library changed. Reopen game setup before continuing.");
+        // Allocate only the bounded opened-file length, never ReadAllBytes after a
+        // separate path-size check. Growth cannot expand this read's allocation.
+        var bytes = new byte[checked((int)length)];
+        file.ReadExactly(bytes);
+        if (file.ReadByte() != -1) throw new IOException("The saved library changed during inspection. Reopen game setup.");
+        return bytes;
     }
 
     void Validate()
@@ -89,8 +103,7 @@ internal sealed class OwnedGameSetupSession
             game.GetInstallPath(manager.GamesFolder) != install || !string.IsNullOrEmpty(game.InstallPath) ||
             game.IsManuallyManaged || game.IsFlatpak || game.IsWindowsInstaller)
             throw new IOException("Library or setup permissions changed. Reopen game setup before continuing.");
-        PortableInstallationTransaction.CheckLinks(libraryPath);
-        if (!File.ReadAllBytes(libraryPath).AsSpan().SequenceEqual(library))
+        if (!ReadLibrary(library.Length).AsSpan().SequenceEqual(library))
             throw new IOException("The saved library changed. Reopen game setup before continuing.");
         // The persisted row, not a potentially stale card alone, must identify the
         // same root and project. Strict identity validation already ran above.

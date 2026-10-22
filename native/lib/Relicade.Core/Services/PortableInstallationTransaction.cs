@@ -247,7 +247,7 @@ public sealed partial class PortableInstallationTransaction
     // even when corrupt; missing markers cannot revoke retained history. Existing
     // ancestor writer identities are opened, not recreated, and held until the
     // entire allowed callback/metadata mutation completes. No Recover is used.
-    void AcquireRemovalAncestorLeases(Dictionary<string, IDisposable> held)
+    void AcquireRemovalAncestorLeases(Dictionary<string, IDisposable> held, bool includeRoot = false)
     {
         var chain = new List<string>();
         for (string? path = root; path != null; path = Path.GetDirectoryName(path))
@@ -255,7 +255,7 @@ public sealed partial class PortableInstallationTransaction
             CheckLinks(path);
             if (Path.GetFileName(path).StartsWith(".relicade-", StringComparison.OrdinalIgnoreCase))
                 throw new IOException(RemovalRefusal); // transaction/staging tree, not an install
-            if (path != root) chain.Add(path);
+            if (includeRoot || path != root) chain.Add(path);
         }
         foreach (var ancestor in chain.AsEnumerable().Reverse())
         {

@@ -97,6 +97,22 @@ public sealed class OwnedGameSetupUiTests
     }
 
     [AvaloniaFact]
+    public async Task Oversized_library_replacement_is_rejected_before_bulk_allocation_or_copy()
+    {
+        using var f = new OwnedSetupFixture(); await f.Initialize(); var setup = f.Setup();
+        var plan = setup.Preview(f.Source, CancellationToken.None);
+        using (var replacement = new FileStream(f.Manager.CatalogService.AppsConfigPath, FileMode.Open, FileAccess.Write))
+            replacement.SetLength(9 * 1024 * 1024);
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var error = Assert.ThrowsAny<IOException>(() => setup.Apply(plan, CancellationToken.None));
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        Assert.Contains("inspection limit", error.Message);
+        Assert.InRange(allocated, 0, 1024 * 1024);
+        Assert.False(File.Exists(plan.Destination)); Assert.Equal(f.Data, File.ReadAllBytes(f.Source));
+        Assert.Equal(0, f.NetworkCalls);
+    }
+
+    [AvaloniaFact]
     public async Task Closing_during_inspection_drains_without_late_preview_or_copy()
     {
         await using var session = new LauncherSession(); var started = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);

@@ -225,3 +225,10 @@ The initial definition covers one Perfect Dark US 1.1 Linux x64 package only.
 Synthetic fixtures exercise the source workflow; they do not establish gameplay,
 rights or platform acceptance. Other project/build prerequisites remain unconfirmed,
 and data migration/cleanup remain unimplemented. [Setup guide](GAME_SETUP.md).
+
+Owned-data destination checks include the exact folder, not only its ancestors.
+Preview inspects existing authority without creating history. Confirmed import
+revalidates the input before creating writer history, then holds the destination
+lease through both copy and receipt commit. Library evidence reads use a bounded
+opened-file length and reject growth, rather than a path-size check followed by
+an unbounded read.

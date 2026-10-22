@@ -23,7 +23,7 @@ public sealed partial class PortableInstallationTransaction
     {
         using var authority = AcquireRollbackAuthority(null);
         var manifest = InspectCleanup().Current;
-        using var dataAuthority = AcquireOwnedDataAncestors(requirement, dataRoot);
+        using var dataAuthority = AcquireOwnedDataAuthority(requirement, dataRoot);
         return InspectOwnedData(requirement, dataRoot, source, manifest, token);
     }
 
@@ -33,9 +33,14 @@ public sealed partial class PortableInstallationTransaction
         token.ThrowIfCancellationRequested();
         using var authority = AcquireRollbackAuthority(null);
         var manifest = InspectCleanup().Current;
-        using var dataAuthority = AcquireOwnedDataAncestors(requirement, dataRoot);
-        var current = InspectOwnedData(requirement, dataRoot, expected.Source, manifest, token);
-        if (current != expected) throw new IOException("Game setup changed. Review a fresh import preview before confirming.");
+        OwnedDataPreview current = expected;
+        using var dataAuthority = AcquireOwnedDataAuthority(requirement, dataRoot, createWriter: true, inspectBeforeWriter: () =>
+        {
+            // Reject changed input/approval before creating even writer history.
+            // Existing destination/ancestor authority remains held during inspection.
+            current = InspectOwnedData(requirement, dataRoot, expected.Source, manifest, token);
+            if (current != expected) throw new IOException("Game setup changed. Review a fresh import preview before confirming.");
+        });
         var folder = Path.GetDirectoryName(current.Destination)!;
         CheckLinks(folder);
         Directory.CreateDirectory(folder, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
@@ -140,7 +145,7 @@ public sealed partial class PortableInstallationTransaction
     {
         using var authority = AcquireRollbackAuthority(null);
         var manifest = InspectCleanup().Current;
-        using var dataAuthority = AcquireOwnedDataAncestors(requirement, dataRoot);
+        using var dataAuthority = AcquireOwnedDataAuthority(requirement, dataRoot);
         return ValidateOwnedData(requirement, dataRoot, manifest, token);
     }
 
@@ -161,16 +166,22 @@ public sealed partial class PortableInstallationTransaction
         return destination;
     }
 
-    IDisposable AcquireOwnedDataAncestors(OwnedDataRequirement requirement, string dataRoot)
+    IDisposable AcquireOwnedDataAuthority(OwnedDataRequirement requirement, string dataRoot, bool createWriter = false, Action? inspectBeforeWriter = null)
     {
         var folder = Path.GetDirectoryName(OwnedDataDestination(requirement, dataRoot))!;
         var held = new Dictionary<string, IDisposable>(OperatingSystem.IsWindows()
             ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
         try
         {
-            // Read-only ancestor discovery, before creating the private data store.
-            // The installation lease already serializes this install-key namespace.
-            new PortableInstallationTransaction(folder).AcquireRemovalAncestorLeases(held);
+            // Inspect the exact destination as well as its ancestors before any
+            // creation. An unrelated managed root or initial writer is authority,
+            // even when no payload manifest has been committed yet.
+            var target = new PortableInstallationTransaction(folder);
+            target.AcquireRemovalAncestorLeases(held, includeRoot: true);
+            // Preview/readiness never create history. Confirmed import additionally
+            // holds the destination's stable writer lease through copy and receipt.
+            // The shared lease map avoids opening an already-held writer twice.
+            if (createWriter) { inspectBeforeWriter?.Invoke(); target.AcquireRemovalAuthority(held); }
             return new RemovalAuthorityLeases(held.Values.ToList());
         }
         catch { foreach (var lease in held.Values.Reverse()) lease.Dispose(); throw; }

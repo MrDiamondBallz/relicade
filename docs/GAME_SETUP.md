@@ -23,8 +23,8 @@ for one exact **Linux x64** portable package:
   `e03b088b6ac9e0080440efed07c1e40f`.
 
 The [pinned upstream instructions](https://github.com/perfect-dark-pc-port/perfect_dark/blob/32a1cb9f268dd3ac73016801025c6bbbfa20130f/README.md)
-identify the variant. The [pinned ROM loader](https://github.com/perfect-dark-pc-port/perfect_dark/blob/32a1cb9f268dd3ac73016801025c6bbbfa20130f/src/pc/romdata.c)
-implements `--rom-file`; its [file-handling source](https://github.com/perfect-dark-pc-port/perfect_dark/blob/32a1cb9f268dd3ac73016801025c6bbbfa20130f/src/pc/fs.c)
+identify the variant. The [pinned ROM loader](https://github.com/perfect-dark-pc-port/perfect_dark/blob/32a1cb9f268dd3ac73016801025c6bbbfa20130f/port/src/romdata.c)
+implements `--rom-file`; its [file-handling source](https://github.com/perfect-dark-pc-port/perfect_dark/blob/32a1cb9f268dd3ac73016801025c6bbbfa20130f/port/src/fs.c)
 accepts the absolute path used by this adapter. The rolling
 [release](https://github.com/perfect-dark-pc-port/perfect_dark/releases/tag/ci-dev-build)
 can change: the tag or filename alone is not acceptance of a replacement asset.
@@ -66,7 +66,10 @@ receipts remain. Failure does not mean nothing changed. Resolve conflicting file
 or recovery evidence before confirming a new preview.
 
 Setup refuses active writers, retained launch receipts and incomplete or unknown
-installation history rather than recovering it implicitly. Library identity and
+installation history rather than recovering it implicitly. The exact data-store
+folder and its ancestors must also be free of conflicting installation authority;
+a confirmed copy holds the destination writer lease through the receipt commit.
+Preview does not create that history. Library identity and
 writable settings are rechecked during the operation. Unknown requirements never
 become confirmed merely because an executable exists.
 
