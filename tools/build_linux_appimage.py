@@ -16,7 +16,12 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 import build_linux_appdir as appdir
+
+
+PROCESS_MARKER = ".relicade-tool-active"
 
 
 def _pins():
@@ -46,39 +51,76 @@ def _staging(parent):
         preserve = True
         raise
     finally:
-        if not preserve:
+        if not preserve and not (directory / PROCESS_MARKER).exists():
             shutil.rmtree(directory)
+
+
+def _wait_for_group(process, timeout):
+    """Wait for actual group disappearance, not just the leader's exit status."""
+    deadline = time.monotonic() + max(0, timeout)
+    wake = threading.Event()
+    while True:
+        leader_done = process.poll() is not None  # Reap our direct child.
+        try:
+            os.killpg(process.pid, 0)
+        except ProcessLookupError:
+            if leader_done:
+                return
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise subprocess.TimeoutExpired('build process group', timeout)
+        # The condition is kernel group disappearance; elapsed time is never a pass.
+        wake.wait(min(0.05, remaining))
+
+
+def _signal_group(process, value):
+    try:
+        os.killpg(process.pid, value)
+    except ProcessLookupError:
+        pass
+
+
+def _print_log(log):
+    try:
+        print(log.read_text(errors='replace'), file=sys.stderr, end='')
+    except OSError as exc:
+        # Diagnostic failure must not replace an uncertain-lifetime exception.
+        print('Could not read build diagnostic: ' + str(exc), file=sys.stderr)
 
 
 def _run(command, environment, directory, timeout):
     log = directory / 'tool.log'
     with log.open('xb') as output:
+        marker = directory / PROCESS_MARKER
+        # Retain staging even if a later diagnostic or repeated interruption masks
+        # the original exception. Only confirmed group disappearance clears this.
+        with marker.open('x') as pending:
+            pending.write('Build process group is not yet confirmed drained.\n')
         process = subprocess.Popen(command, cwd=directory, env=environment,
                                    stdout=output, stderr=subprocess.STDOUT, start_new_session=True)
+        deadline = time.monotonic() + timeout
         try:
             result = process.wait(timeout=timeout)
+            _wait_for_group(process, deadline - time.monotonic())
+            marker.unlink()
         except BaseException:
             try:
-                if process.poll() is None:
-                    try:
-                        os.killpg(process.pid, signal.SIGTERM)
-                    except ProcessLookupError:
-                        pass
-                    try:
-                        process.wait(timeout=5)
-                    except subprocess.TimeoutExpired:
-                        try:
-                            os.killpg(process.pid, signal.SIGKILL)
-                        except ProcessLookupError:
-                            pass
-                        process.wait(timeout=5)
-            except (OSError, subprocess.TimeoutExpired) as exc:
-                raise UndrainedBuild('Build child ' + str(process.pid) +
+                # A reaped leader does not prove its descendants stopped using staging.
+                _signal_group(process, signal.SIGTERM)
+                try:
+                    _wait_for_group(process, 5)
+                except subprocess.TimeoutExpired:
+                    _signal_group(process, signal.SIGKILL)
+                    _wait_for_group(process, 5)
+            except BaseException as exc:
+                raise UndrainedBuild('Build process group ' + str(process.pid) +
                                      ' did not drain; retain staging at ' + str(directory)) from exc
+            else:
+                marker.unlink()
             finally:
-                print(log.read_text(errors='replace'), file=sys.stderr, end='')
+                _print_log(log)
             raise
-    print(log.read_text(errors='replace'), file=sys.stderr, end='')
+    _print_log(log)
     if result != 0:
         raise ValueError('AppImage build tool failed with exit ' + str(result))
 

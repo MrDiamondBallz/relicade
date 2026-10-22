@@ -144,7 +144,7 @@ class LinuxAppImageProcessTests(unittest.TestCase):
         child = Mock(pid=12345)
         child.wait.side_effect = [subprocess.TimeoutExpired('fixture', 1), subprocess.TimeoutExpired('fixture', 5), subprocess.TimeoutExpired('fixture', 5)]
         child.poll.return_value = None
-        with tempfile.TemporaryDirectory() as root, patch.object(builder.subprocess, 'Popen', return_value=child), patch.object(builder.os, 'killpg') as kill, contextlib.redirect_stderr(io.StringIO()):
+        with tempfile.TemporaryDirectory() as root, patch.object(builder.subprocess, 'Popen', return_value=child), patch.object(builder.os, 'killpg') as kill, patch.object(builder, '_wait_for_group', side_effect=subprocess.TimeoutExpired('fixture group', 5)), contextlib.redirect_stderr(io.StringIO()):
             with self.assertRaises(builder.UndrainedBuild): builder._run(['fixture'], {}, Path(root), 1)
             self.assertEqual([(12345, signal.SIGTERM), (12345, signal.SIGKILL)], [c.args for c in kill.call_args_list])
 
@@ -156,3 +156,106 @@ class LinuxAppImageProcessTests(unittest.TestCase):
         for pin in pins:
             self.assertEqual(40, len(pin['source_commit']))
             self.assertEqual('https://github.com/' + pin['repository'] + '/releases/download/' + pin['tag'] + '/' + pin['name'], pin['url'])
+
+
+@unittest.skipUnless(sys.platform == 'linux', 'Linux process-group build host required')
+class LinuxAppImageGroupLifetimeTests(unittest.TestCase):
+    def exercise(self, mode):
+        import ctypes
+        import tempfile
+        library = ctypes.CDLL(None, use_errno=True)
+        previous = ctypes.c_int()
+        self.assertEqual(0, library.prctl(37, ctypes.byref(previous), 0, 0, 0))
+        self.assertEqual(0, library.prctl(36, 1, 0, 0, 0))
+        child = None
+        code = '''import os,signal,sys
+read,write=os.pipe()
+pid=os.fork()
+if pid==0:
+ os.close(read)
+ signal.signal(signal.SIGTERM,signal.SIG_IGN)
+ with open(sys.argv[1],"w") as f: f.write(str(os.getpid()))
+ os.write(write,b"r");os.close(write)
+ if sys.argv[2]=="joined": os._exit(0)
+ while True: signal.pause()
+os.close(write);os.read(read,1);os.close(read)
+if sys.argv[2]=="joined": os.waitpid(pid,0);os._exit(0)
+if sys.argv[2]=="success": os._exit(0)
+while True: signal.pause()
+'''
+        try:
+            with tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                pidfile = root / 'descendant.pid'
+                outcome = 'returned'
+                try:
+                    try:
+                        with contextlib.redirect_stderr(io.StringIO()), builder._staging(root) as staging:
+                            builder._run([sys.executable, '-c', code, str(pidfile), mode],
+                                         {'PATH': '/usr/bin:/bin'}, staging, 1)
+                    except (subprocess.TimeoutExpired, builder.UndrainedBuild) as exc:
+                        outcome = type(exc).__name__
+                    self.assertTrue(pidfile.exists(), 'Owned descendant did not signal readiness')
+                    child = int(pidfile.read_text())
+                    proc = Path('/proc') / str(child) / 'stat'
+                    live = proc.exists() and proc.read_text().rsplit(') ', 1)[1].split()[0] != 'Z'
+                    self.assertFalse(live, 'Owned descendant survived bounded group shutdown')
+                    if mode == 'joined':
+                        self.assertEqual('returned', outcome)
+                        self.assertFalse(staging.exists())
+                    else:
+                        # This test adopts but intentionally has not yet reaped the child.
+                        # A group still present in the kernel is not confirmed drained.
+                        self.assertEqual('UndrainedBuild', outcome)
+                        self.assertTrue(staging.exists())
+                finally:
+                    if child is None and pidfile.exists():
+                        child = int(pidfile.read_text())
+                    if child is not None:
+                        try: os.kill(child, signal.SIGKILL)
+                        except ProcessLookupError: pass
+                        try: os.waitpid(child, 0)
+                        except ChildProcessError: pass
+                        self.assertFalse((Path('/proc') / str(child)).exists())
+        finally:
+            self.assertEqual(0, library.prctl(36, previous.value, 0, 0, 0))
+
+    def test_timeout_does_not_clean_staging_while_descendant_group_remains(self):
+        self.exercise('timeout')
+
+    def test_successful_leader_does_not_prove_descendant_group_is_finished(self):
+        self.exercise('success')
+
+    def test_normally_joined_descendant_group_allows_success_and_cleanup(self):
+        self.exercise('joined')
+
+    def test_interrupted_shutdown_and_unreadable_diagnostic_retain_staging(self):
+        import tempfile
+        child = Mock(pid=12345)
+        child.wait.side_effect = subprocess.TimeoutExpired('fixture', 1)
+        with tempfile.TemporaryDirectory() as folder:
+            with patch.object(builder.subprocess, 'Popen', return_value=child), patch.object(builder.os, 'killpg'), patch.object(builder, '_wait_for_group', side_effect=KeyboardInterrupt), patch.object(Path, 'read_text', side_effect=OSError('synthetic diagnostic failure')), contextlib.redirect_stderr(io.StringIO()) as diagnostic:
+                with self.assertRaises(builder.UndrainedBuild), builder._staging(Path(folder)) as staging:
+                    builder._run(['fixture'], {}, staging, 1)
+                self.assertTrue(staging.exists())
+                self.assertIn('Could not read build diagnostic', diagnostic.getvalue())
+
+
+class LinuxAppImageRetentionTests(unittest.TestCase):
+    def test_active_marker_survives_a_masked_lifetime_error(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(OSError, 'diagnostic'), builder._staging(Path(folder)) as staging:
+                (staging / builder.PROCESS_MARKER).write_text('pending own child')
+                raise OSError('diagnostic failed after an uncertain child')
+            self.assertTrue(staging.exists())
+            self.assertTrue((staging / builder.PROCESS_MARKER).exists())
+
+    def test_failed_process_creation_retains_pending_evidence(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as folder:
+            with patch.object(builder.subprocess, 'Popen', side_effect=OSError('synthetic creation error')):
+                with self.assertRaises(OSError), builder._staging(Path(folder)) as staging:
+                    builder._run(['fixture'], {}, staging, 1)
+            self.assertTrue(staging.exists())
+            self.assertTrue((staging / builder.PROCESS_MARKER).exists())

@@ -87,8 +87,12 @@ and does not inherit account tokens, signing settings or an unrelated VERSION.
 No signing, update feed, AppImageHub submission, automatic installation or network
 fetch is requested. The tool uses extraction instead of mounting itself through
 FUSE. The default work deadline is 120 seconds, with bounded termination/drain.
-A child that cannot be confirmed stopped leaves its staging directory in place
-and reports that condition; do not retry or remove that directory blindly.
+A successful leader exit is not enough: the entire process group must disappear.
+Shutdown allows up to five seconds after TERM and another five after KILL.
+An unconfirmed group, including an adopted but unreaped descendant, leaves
+staging in place. A pending-process marker also protects it if a later diagnostic
+or interruption masks the lifetime error. Do not retry or remove retained
+staging blindly; reconcile the original process ownership first.
 Ordinary failures emit the build diagnostic and do not publish a partial image.
 
 Use new output names for repeatability comparisons. Matching SHA-256 values
