@@ -349,6 +349,7 @@
 						<TextBlock x:Name="BrowseDetailsReleasesNote" Text="Release status is reported by the external source catalog, not independently verified by Relicade. A catalog verdict, a matching digest, a publisher signature and a malware scan are different evidence. An unknown or unverified package is not known safe. Native installation and execution use your account's permissions."
 								   FontSize="13" Foreground="{DynamicResource ThemeTextSecondary}" TextWrapping="Wrap"/>
 						<TextBlock x:Name="BrowseDetailsReleasesStatus" FontSize="12" Foreground="{DynamicResource ThemeTextSecondary}" TextWrapping="Wrap"/>
+						<Button x:Name="BrowseDetailsReleaseRetryButton" Content="Retry release notes" MinHeight="44" HorizontalAlignment="Left" IsVisible="False" Click="RetryReleases_Click"/>
 						<StackPanel x:Name="BrowseDetailsReleaseList" Spacing="14"/>
 					</StackPanel>
 					<StackPanel x:Name="BrowseDetailsFeedback" Grid.Column="0" Margin="0,0,28,0" Spacing="14" IsVisible="False">

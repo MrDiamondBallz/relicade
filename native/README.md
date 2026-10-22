@@ -453,3 +453,10 @@ separate retained backup before replacing the active copy with verified data.
 Missing or conflicting receipts do not authorize replacement; errors can leave
 a committed backup or replacement and require a fresh inspection. See the
 [recovery limits](../docs/GAME_SETUP.md#cancellation-recovery-and-limits).
+
+Project details offer an explicit **Retry release notes** action after a transient
+catalog or repository read failure. The current project stays open, duplicate
+in-flight reads are suppressed, and cancelled or superseded requests cannot
+publish old notes into a different page. Successfully loaded or empty histories
+are retained; missing or removed repositories do not become retry loops. This
+is a read-only recovery path, not a release download or installation action.

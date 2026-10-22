@@ -348,3 +348,12 @@ requiring a fresh inspection rather than automatic retry or rollback. Unknown
 ownership, conflicting evidence and oversized inputs refuse without replacement.
 This is not general data migration, backup cleanup, hostile-writer isolation or
 platform power-loss certification.
+
+## Release-note loading
+
+Release-note loading in project details has explicit loading and retry state,
+separate from display text. One request belongs to the current page generation;
+closing or switching pages invalidates its result. Transient failures expose a
+user-initiated retry, while successful loaded/empty histories remain cached for
+that page and HTTP missing/removed sources do not create a retry loop. Catalog
+and repository reads preserve their existing provenance and do not install files.

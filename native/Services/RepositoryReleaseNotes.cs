@@ -30,7 +30,7 @@ public static class RepositoryReleaseNotes
             request.Headers.TryAddWithoutValidation("Authorization", $"token {settings.GitHubApiToken}");
         using var response = await client.SendAsync(request, token);
         if (!response.IsSuccessStatusCode)
-            throw new HttpRequestException($"{(gitLab ? "GitLab" : "GitHub")} answered {(int)response.StatusCode}.");
+            throw new HttpRequestException($"{(gitLab ? "GitLab" : "GitHub")} answered {(int)response.StatusCode}.", null, response.StatusCode);
         using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
         if (document.RootElement.ValueKind != JsonValueKind.Array) return [];
         return document.RootElement.EnumerateArray().Take(Count).Select(release => new QuiverCatalogRelease
