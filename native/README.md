@@ -337,21 +337,26 @@ and independent review. Generated repository counts are not runtime acceptance.
 
 ## Managed installation entry edits
 
-Entry editing holds the portable writer authority before checking installation
-history or changing an existing entry. A conflicting initial install, update or
-recovery writer prevents the edit. Moving an unmanaged entry also checks the
-destination authority and refuses existing managed recovery history.
+Entry edits coordinate with portable installation writers before changing library
+metadata. Folder, source, management-mode and setup changes require conservative
+unmanaged authority over both original and destination roots. Managed history,
+unknown transaction state and any launch receipt, including uncertain or stale
+receipts, prevent these changes. The check does not recover operations or remove
+receipts. Enclosing managed roots and active ancestor writers are checked before
+creating child history, including for linked paths inside another installation.
 
-For managed installations, display names, project labels, artwork and tags can
-still be edited without rewriting payload files or preparing markers. Folder,
-repository/provider, management mode, marker, release-filter and mod-setup changes
-are refused before the entry stores change. A folder rename is not a migration:
-portable manifests and retained history are keyed to their original location.
-This boundary does not implement managed migration or setup changes. Those need
-an explicit recoverable transaction spanning both root identities, retained
-versions/history, data policy, settings and library metadata, with interruption
-and running-game coverage before being enabled.
+Display names, project labels, artwork and tags remain editable at the actual
+installation root without marker or instruction preparation. This presentation-only
+path retains the root's own recovery and launch records. Both authority scopes
+span metadata commit and compensation; only setup edits may prepare files.
+
+Managed migration remains unsupported and unaccepted. It needs a recoverable
+transaction spanning root identities, manifests, retained versions/history, data,
+settings and library metadata, with interruption and running-game coverage.
+Hostile concurrent directory replacement and platform certification remain
+separate obligations.
 
 Linked installation paths use their actual root for presentation-edit authority.
 Changing a linked entry’s folder name is refused rather than moving an unrelated
-default-folder path. Linked-root migration remains unsupported.
+default-folder path, even when the explicit path currently equals that default.
+Linked-root migration remains unsupported.

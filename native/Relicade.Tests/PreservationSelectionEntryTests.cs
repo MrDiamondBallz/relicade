@@ -236,6 +236,83 @@ public sealed class PreservationSelectionEntryTests : IDisposable
         Assert.Contains("Linked", Assert.Single(notices).Message);
     }
 
+    [Fact]
+    public async Task Explicit_default_install_path_cannot_be_left_pointing_at_a_moved_folder()
+    {
+        original.InstallPath = OldPath;
+        await manager.CatalogService.SaveLocalAppsAsync([original]);
+        Assert.False(await Edit());
+        await AssertOld();
+        Assert.Equal(OldPath, Assert.Single(await manager.CatalogService.LoadLocalAppsAsync()).InstallPath);
+    }
+
+    [Fact]
+    public async Task Uncertain_launch_receipt_blocks_unmanaged_folder_move_without_receipt_cleanup()
+    {
+        using (var launch = PortableInstallationLifetime.Begin(OldPath)) launch.PreserveUncertain();
+        var receipt = Path.Combine(new PortableInstallationTransaction(OldPath).OperationsPath, "launch.json");
+        var bytes = File.ReadAllBytes(receipt);
+        Assert.False(PortableInstallationTransaction.HasEvidence(OldPath));
+        Assert.False(await Edit());
+        await AssertOld();
+        Assert.Equal(bytes, File.ReadAllBytes(receipt));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Unmanaged_presentation_edit_retains_launch_receipt_and_does_not_prepare_files(bool manual)
+    {
+        if (manual) original.Repository = "";
+        original.FilesToAdd = ["portable.txt"];
+        await manager.CatalogService.SaveLocalAppsAsync([original]);
+        using (var launch = PortableInstallationLifetime.Begin(OldPath)) launch.PreserveUncertain();
+        var receipt = Path.Combine(new PortableInstallationTransaction(OldPath).OperationsPath, "launch.json");
+        var bytes = File.ReadAllBytes(receipt);
+        var draft = new AppEntryDraft("New title", original.Repository, "github", "Old", "", "", "", "",
+            "portable.txt", "", "", "", false, manual, original.InstanceKey, original.Repository);
+        Assert.True(await new AppEntryService(manager, settings).SaveAsync(draft, notices.Add,
+            _ => throw new Exception("Must not open folder"), CancellationToken.None));
+        Assert.Equal("New title", Assert.Single(await manager.CatalogService.LoadLocalAppsAsync()).Name);
+        Assert.Equal(bytes, File.ReadAllBytes(receipt));
+        Assert.Equal(new[] { "payload" }, Directory.GetFiles(OldPath).Select(Path.GetFileName).ToArray());
+        Assert.Equal("old-working", File.ReadAllText(Path.Combine(OldPath, "payload")));
+    }
+
+    [Theory]
+    [InlineData("managed", false)]
+    [InlineData("managed", true)]
+    [InlineData("managed-writer", false)]
+    [InlineData("managed-writer", true)]
+    [InlineData("initial-writer", false)]
+    [InlineData("initial-writer", true)]
+    public async Task Nested_install_path_refuses_before_creating_child_history(string state, bool presentationOnly)
+    {
+        var parent = Path.Combine(root, "Apps", "Parent");
+        var tx = new PortableInstallationTransaction(parent, new() { PreservedDataPaths = ["saves"] });
+        if (state != "initial-writer")
+            await tx.InstallAsync(stage =>
+            {
+                File.WriteAllBytes(Path.Combine(stage, "fixture.AppImage"), PortableInstallationFixtures.NativePayload("parent"));
+                return Task.CompletedTask;
+            }, "parent");
+        using var writer = state.EndsWith("writer", StringComparison.Ordinal) ? tx.AcquireLease() : null;
+        var nested = Path.Combine(parent, "saves");
+        Directory.CreateDirectory(nested);
+        File.WriteAllText(Path.Combine(nested, "save.dat"), "retained save");
+        original.InstallPath = nested;
+        await manager.CatalogService.SaveLocalAppsAsync([original]);
+        var library = File.ReadAllBytes(manager.CatalogService.AppsConfigPath);
+        var draft = new AppEntryDraft("New title", original.Repository, "github", "Old", "", "", "", "",
+            presentationOnly ? "" : "new-marker", "", "", "", false, false, original.InstanceKey, original.Repository);
+        Assert.False(await new AppEntryService(manager, settings).SaveAsync(draft, notices.Add,
+            _ => throw new Exception("Must not open folder"), CancellationToken.None));
+        Assert.Equal(library, File.ReadAllBytes(manager.CatalogService.AppsConfigPath));
+        Assert.Equal("retained save", File.ReadAllText(Path.Combine(nested, "save.dat")));
+        Assert.False(File.Exists(Path.Combine(nested, "new-marker")));
+        Assert.False(Directory.Exists(Path.Combine(parent, ".relicade-game-transactions")));
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

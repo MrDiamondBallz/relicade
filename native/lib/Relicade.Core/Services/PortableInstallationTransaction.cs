@@ -167,6 +167,29 @@ public sealed partial class PortableInstallationTransaction
             throw;
         }
     }
+    /// <summary>
+    /// Coordinate presentation-only library edits without recovering or changing
+    /// installation data. Reject enclosing managed roots before creating child
+    /// history. The root's own history is retained, including launch receipts.
+    /// This lease does not authorize payload, setup, path or identity changes.
+    /// </summary>
+    public IDisposable AcquireMetadataEditLease()
+    {
+        var held = new Dictionary<string, IDisposable>(OperatingSystem.IsWindows()
+            ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+        try
+        {
+            AcquireRemovalAncestorLeases(held);
+            HoldRemovalLease(held, SafePath(operations, "writer.lock"), AcquireLease);
+            return new RemovalAuthorityLeases(held.Values.ToList());
+        }
+        catch
+        {
+            foreach (var lease in held.Values.Reverse()) lease.Dispose();
+            throw;
+        }
+    }
+
     void AcquireRemovalAuthority(Dictionary<string, IDisposable> held)
     {
         // A selected/located directory can be current data inside another managed

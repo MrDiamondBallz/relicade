@@ -86,18 +86,9 @@ public sealed class AppEntryService(GameManager manager, SettingsViewModel setti
                         return false;
                     }
 
-                    // Coordinate with installers even before the first manifest exists.
-                    // Managed roots are path-keyed: moving their folder is not a migration.
-                    IDisposable? originalWriter = null;
-                    IDisposable? destinationWriter = null;
-                    bool managedEntry;
-                    try
-                    {
-                        var originalPath = appToUpdate.GetInstallPath(_settings.AppsPath);
-                        originalWriter = new PortableInstallationTransaction(originalPath).AcquireLease();
-                        managedEntry = PortableInstallationTransaction.HasEvidence(originalPath);
-                        if (managedEntry &&
-                            (oldFolderName != folderName || appToUpdate.IsManuallyManaged != manuallyManaged ||
+                    // Setup changes need conservative authority over every affected root,
+                    // including retained launch receipts and enclosing managed installations.
+                    var changesSetup = (oldFolderName != folderName || appToUpdate.IsManuallyManaged != manuallyManaged ||
                              !string.Equals(oldRepository, repository, StringComparison.Ordinal) ||
                              !string.Equals(RepositorySourceHelper.Normalize(oldRepositorySource), RepositorySourceHelper.Normalize(repositorySource), StringComparison.OrdinalIgnoreCase) ||
                              !AppFilesToAddService.Normalize(appToUpdate.FilesToAdd).SequenceEqual(filesToAdd, StringComparer.Ordinal) ||
@@ -105,30 +96,26 @@ public sealed class AppEntryService(GameManager manager, SettingsViewModel setti
                              !string.Equals(GameModsConfig.NormalizePath(appToUpdate.ModsPath), modsPath, StringComparison.Ordinal) ||
                              !string.Equals(GameModsConfig.NormalizeLayout(appToUpdate.ModsLayout), GameModsConfig.NormalizeLayout(modsLayout), StringComparison.Ordinal) ||
                              !System.Text.Json.JsonSerializer.Serialize(GameModsConfig.NormalizeSources(appToUpdate.ModsSources))
-                                 .Equals(System.Text.Json.JsonSerializer.Serialize(modsSources), StringComparison.Ordinal)))
-                            throw new IOException("Managed installation folder, source and setup changes are not supported by entry editing. Keep the existing installation and recovery history; presentation fields can still be edited.");
-                        if (oldFolderName != folderName && !string.Equals(Path.GetFullPath(originalPath),
-                                Path.GetFullPath(Path.Combine(_settings.AppsPath, oldFolderName)),
-                                OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+                                 .Equals(System.Text.Json.JsonSerializer.Serialize(modsSources), StringComparison.Ordinal));
+                    IDisposable? entryAuthority = null;
+                    try
+                    {
+                        var originalPath = appToUpdate.GetInstallPath(_settings.AppsPath);
+                        if (oldFolderName != folderName && !string.IsNullOrWhiteSpace(appToUpdate.InstallPath))
                             throw new IOException("Linked installation folder changes require an explicit migration and are not supported by entry editing.");
-                        if (oldFolderName != folderName && !string.Equals(originalPath, Path.Combine(_settings.AppsPath, folderName),
-                                OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
-                        {
-                            var destinationPath = Path.Combine(_settings.AppsPath, folderName);
-                            destinationWriter = new PortableInstallationTransaction(destinationPath).AcquireLease();
-                            if (PortableInstallationTransaction.HasEvidence(destinationPath))
-                                throw new IOException("The destination has managed installation or recovery history and cannot be used for this entry move.");
-                        }
+                        entryAuthority = changesSetup
+                            ? PortableInstallationTransaction.AcquireUnmanagedRemovalLeases(oldFolderName != folderName
+                                ? new[] { originalPath, Path.Combine(_settings.AppsPath, folderName) }
+                                : new[] { originalPath })
+                            : new PortableInstallationTransaction(originalPath).AcquireMetadataEditLease();
                     }
                     catch (Exception error)
                     {
-                        destinationWriter?.Dispose();
-                        originalWriter?.Dispose();
+                        entryAuthority?.Dispose();
                         Notify($"The entry was not changed. Its managed installation authority could not be secured: {error.Message}", "Entry Update Unavailable");
                         return false;
                     }
-                    using var originalWriterScope = originalWriter;
-                    using var destinationWriterScope = destinationWriter;
+                    using var entryAuthorityScope = entryAuthority;
 
                     // Work only on staged metadata and a deep settings copy until both stores commit.
                     var originalSettings = _settings;
@@ -247,7 +234,7 @@ public sealed class AppEntryService(GameManager manager, SettingsViewModel setti
                         GitHubApiCache.RemoveCache(oldRepositorySource, oldRepository);
                     try
                     {
-                        if (managedEntry)
+                        if (!changesSetup)
                         {
                             // Presentation-only edits must not mutate the committed payload.
                         }
