@@ -174,11 +174,11 @@ internal sealed class OwnedGameSetupSession
         return new PortableInstallationTransaction(install).ImportOwnedData(requirement, dataRoot, plan, token,
             point => { if (point != "Copying") Validate(); });
     }
-    internal void ValidateReady()
+    internal void ValidateReady(CancellationToken token = default)
     {
-        Validate();
-        new PortableInstallationTransaction(install).ReadOwnedData(requirement, dataRoot);
-        Validate();
+        token.ThrowIfCancellationRequested(); Validate();
+        new PortableInstallationTransaction(install).ReadOwnedData(requirement, dataRoot, token);
+        token.ThrowIfCancellationRequested(); Validate();
     }
     internal Task RefreshAsync() => OwnedGameSetupService.RefreshAsync(game, appsRoot);
 }

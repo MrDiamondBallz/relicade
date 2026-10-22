@@ -11,17 +11,33 @@ public static class GameLaunchService
 
     // Shortcut dispatch binds the generation it validated before entering this service.
     internal static Task<bool> LaunchAsync(GameInfo game, string gamesFolder, string? expectedOperationId,
-        ManagedShortcutChildLifetime? shortcutObserver = null) => LaunchCoreAsync(game, gamesFolder, expectedOperationId, shortcutObserver, false);
+        ManagedShortcutChildLifetime? shortcutObserver = null) => LaunchCoreAsync(game, gamesFolder, expectedOperationId, shortcutObserver, false, CancellationToken.None);
 
-    internal static Task<bool> LaunchFreedoomAsync(GameInfo game, string gamesFolder)
+    internal static Process? StartProcessAttempt(PortableInstallationLifetime lifetime, CancellationToken cancellation,
+        Func<Process?> start, Action<Process> recordAndTrack)
+    {
+        // A cancelled pre-start has no child to preserve. Once the OS attempt begins,
+        // failures remain uncertain and must retain recovery authority.
+        cancellation.ThrowIfCancellationRequested();
+        try
+        {
+            var process = start();
+            if (process != null) recordAndTrack(process);
+            return process;
+        }
+        catch { lifetime.PreserveUncertain(); throw; }
+    }
+
+    internal static Task<bool> LaunchFreedoomAsync(GameInfo game, string gamesFolder, CancellationToken cancellation = default)
     {
         if (!OwnedGameSetupService.OffersFreedoom(game)) throw new IOException("Freedoom setup is unavailable for this project.");
-        return LaunchCoreAsync(game, gamesFolder, null, null, true);
+        return LaunchCoreAsync(game, gamesFolder, null, null, true, cancellation);
     }
 
     static async Task<bool> LaunchCoreAsync(GameInfo game, string gamesFolder, string? expectedOperationId,
-        ManagedShortcutChildLifetime? shortcutObserver, bool freedoom)
+        ManagedShortcutChildLifetime? shortcutObserver, bool freedoom, CancellationToken launchCancellation)
     {
+        launchCancellation.ThrowIfCancellationRequested();
         if (string.IsNullOrEmpty(game.FolderName))
         {
             await GameDialogService.ShowMessageBoxAsync("Cannot launch game: folder name is not configured.", "Configuration Error");
@@ -135,7 +151,7 @@ public static class GameLaunchService
                 var exactManifest = portableLifetime.CommittedManifest
                     ?? throw new IOException("Game setup requires a supported managed package. Open Finish game setup from the library.");
                 ownedGameData = await Task.Run(() => new PortableInstallationTransaction(gamePath)
-                    .ValidateOwnedData(requirement, RelicadePaths.UserDataRoot, exactManifest));
+                    .ValidateOwnedData(requirement, RelicadePaths.UserDataRoot, exactManifest, launchCancellation));
             }
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                 !executablePath.EndsWith(".app") &&
@@ -191,20 +207,16 @@ public static class GameLaunchService
                 : LaunchDebugReport.SnapshotStartInfoEnvironment(startInfo);
             var selectedExecutableFile = TryReadSelectedExecutableFile(gamePath);
 
-            System.Diagnostics.Process? gameProcess;
-            try
-            {
-                gameProcess = shortcutObserver == null ? HostGameSession.Start(startInfo) : shortcutObserver.Start(startInfo);
-                if (gameProcess != null)
+            var gameProcess = StartProcessAttempt(portableLifetime, launchCancellation,
+                () => shortcutObserver == null ? HostGameSession.Start(startInfo) : shortcutObserver.Start(startInfo),
+                process =>
                 {
                     void RecordStarted() => game.UpdateLastPlayedTime(
                         game.IsManagedPortable || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && executablePath.EndsWith(".app")
                             ? gamePath : (Path.GetDirectoryName(executablePath) ?? gamePath));
-                    if (shortcutObserver == null) RecordAndTrackStartedProcess(portableLifetime, gameProcess, RecordStarted);
+                    if (shortcutObserver == null) RecordAndTrackStartedProcess(portableLifetime, process, RecordStarted);
                     else RecordStarted(); // The owned child-tree observer retains the initial lease.
-                }
-            }
-            catch { portableLifetime.PreserveUncertain(); throw; }
+                });
             if (gameProcess == null)
             {
                 WriteLaunchReport(
@@ -273,6 +285,7 @@ public static class GameLaunchService
                 throw;
             }
         }
+        catch (OperationCanceledException) when (launchCancellation.IsCancellationRequested) { return false; }
         catch (Exception ex)
         {
             Telemetry.Current.CaptureException(ex, handled: true, "app_launch");

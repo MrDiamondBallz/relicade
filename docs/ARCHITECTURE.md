@@ -294,8 +294,12 @@ engine's mandatory-data gate or alter ordinary Launch.
 
 The dialog requires explicit Play after data setup. It checks the saved library,
 settings and retained data before dispatch, and the launch service revalidates
-the exact generation and data under the existing portable launch lifetime. A
-fixed `-iwad` argument carries the literal absolute file path; working directory
+the exact generation and data under the existing portable launch lifetime. The
+dialog's linked cancellation token reaches readiness hashing and the final process
+attempt boundary. Cancellation before that boundary disposes the unstarted launch
+receipt; failures after an OS attempt still preserve uncertain lifetime evidence.
+Closing a dialog drains pending work, and successful open-dialog completion
+forwards the existing Close After Launch preference. A fixed `-iwad` argument carries the literal absolute file path; working directory
 and engine configuration/save locations are unchanged. No game/reference binary
 execution, universal WAD compatibility or native-platform acceptance follows from
 synthetic tests or static package inspection.

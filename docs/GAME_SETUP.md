@@ -156,7 +156,11 @@ then select `freedoom2.wad`. Review the local source, destination and storage
 estimate before confirming the copy. The original is retained. Select **Play
 Freedoom Phase 2** to start explicitly; subsequent visits can use the verified
 retained copy. Package, file and installation identity are checked again before
-launch. Normal engine **Launch** continues to use its existing behavior.
+launch. Closing the dialog cancels pending validation and prevents a later process
+attempt; work is drained before the dialog state is disposed. A process attempt
+that has already begun still retains its normal tracking and recovery authority.
+Successful optional play respects **Close After Launch**. Normal engine **Launch**
+continues to use its existing behavior.
 
 The pinned [argument definition](https://github.com/UZDoom/UZDoom/blob/7910df7102033fd7754a317f3254f24101135926/src/d_main.cpp)
 and [IWAD loader](https://github.com/UZDoom/UZDoom/blob/7910df7102033fd7754a317f3254f24101135926/src/d_iwad.cpp)

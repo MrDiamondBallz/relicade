@@ -14,14 +14,16 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     readonly CancellationTokenSource cancellation;
     bool busy, closed;
     Func<Task<bool>>? play;
+    Action<bool>? afterLaunch;
+    internal CancellationToken OperationCancellation => cancellation.Token;
     internal bool IsFreedoom => play != null;
     internal string FileTypeLabel => IsFreedoom ? "Freedoom Phase 2 data" : "Nintendo 64 big-endian data";
     internal string FilePattern => IsFreedoom ? "*.wad" : "*.z64";
     internal string Title => IsFreedoom ? "Play Freedoom Phase 2" : "Finish game setup";
     internal bool CanPlay => IsFreedoom && !IsClosed && !busy && State == OwnedGameSetupUiState.Completed;
-    internal void ConfigureFreedoom(Func<Task<bool>> launch, bool ready)
+    internal void ConfigureFreedoom(Func<Task<bool>> launch, bool ready, Action<bool>? completed = null)
     {
-        play = launch;
+        play = launch; afterLaunch = completed;
         if (ready) State = OwnedGameSetupUiState.Completed;
         Message = ready ? "The retained Freedoom copy is verified for this package. Play rechecks it before starting."
             : "Download Freedoom v0.13.0 from its official release, extract the ZIP and choose freedoom2.wad. This dialog does not download files.";
@@ -34,7 +36,14 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
         busy = true; Changed();
         return session.RunAsync(async () =>
         {
-            try { var started = await play!(); await UpdateAsync(() => Message = started ? "Launch started. Gameplay compatibility is not certified." : "Launch did not complete. Review the reported error before retrying."); }
+            try
+            {
+                cancellation.Token.ThrowIfCancellationRequested();
+                var started = await play!();
+                if (started && !IsClosed) afterLaunch?.Invoke(true);
+                await UpdateAsync(() => Message = started ? "Launch started. Gameplay compatibility is not certified." : "Launch did not complete. Review the reported error before retrying.");
+            }
+            catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
             catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }
             finally { await UpdateAsync(() => busy = false); }
         });

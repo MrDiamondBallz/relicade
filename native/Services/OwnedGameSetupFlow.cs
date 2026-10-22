@@ -7,7 +7,7 @@ using Relicade.Views;
 
 namespace Relicade.Services;
 
-internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel settings, LauncherSession session, LauncherDialogLifetime dialogs)
+internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel settings, LauncherSession session, LauncherDialogLifetime dialogs, Action<bool>? afterLaunch = null)
 {
     bool active;
     internal Task OpenAsync(GameInfo? game, Control? origin) => OpenCoreAsync(game, origin, false);
@@ -30,15 +30,12 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
                 if (freedoom)
                 {
                     var ready = false;
-                    try { await Task.Run(setup.ValidateReady); ready = true; }
+                    try { await Task.Run(() => setup.ValidateReady(session.Token)); ready = true; }
                     catch (FileNotFoundException) { }
                     catch (DirectoryNotFoundException) { }
-                    model.ConfigureFreedoom(async () =>
-                    {
-                        await Task.Run(setup.ValidateReady);
-                        session.Token.ThrowIfCancellationRequested();
-                        return await GameLaunchService.LaunchFreedoomAsync(game!, manager.GamesFolder);
-                    }, ready);
+                    ConfigureFreedoomPlay(model, ready,
+                        token => Task.Run(() => setup.ValidateReady(token)),
+                        token => GameLaunchService.LaunchFreedoomAsync(game!, manager.GamesFolder, token), afterLaunch);
                 }
                 dialog = new OwnedGameSetupDialog(model); dialogs.Track(dialog);
                 await GameDialogService.ShowWindowAsync(dialog, session.Token);
@@ -54,4 +51,17 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
             }
         });
     }
+    internal static void ConfigureFreedoomPlay(OwnedGameSetupViewModel model, bool ready,
+        Func<CancellationToken, Task> validate, Func<CancellationToken, Task<bool>> launch, Action<bool>? afterLaunch)
+    {
+        model.ConfigureFreedoom(async () =>
+        {
+            var token = model.OperationCancellation;
+            token.ThrowIfCancellationRequested();
+            await validate(token);
+            token.ThrowIfCancellationRequested();
+            return await launch(token);
+        }, ready, afterLaunch);
+    }
+
 }

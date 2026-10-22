@@ -258,7 +258,7 @@ namespace Relicade
             LibraryPanel.ConfigureBackupCleanup(backupCleanup.OpenAsync);
             var portableRollback = new PortableRollbackFlow(_gameManager, _settingsViewModel, _session, _dialogs);
             LibraryPanel.ConfigurePortableRollback(portableRollback.OpenAsync);
-            var ownedGameSetup = new OwnedGameSetupFlow(_gameManager, _settingsViewModel, _session, _dialogs);
+            var ownedGameSetup = new OwnedGameSetupFlow(_gameManager, _settingsViewModel, _session, _dialogs, CloseAfterLaunchIfNeeded);
             LibraryPanel.ConfigureOwnedGameSetup(ownedGameSetup.OpenAsync);
             LibraryPanel.ConfigureFreedoomSetup(ownedGameSetup.OpenFreedoomAsync);
             _libraryLaunch.ConfigureOwnedGameSetup(ownedGameSetup.OpenAsync);
