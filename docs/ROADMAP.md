@@ -20,6 +20,11 @@ A buildable .NET 10/Avalonia source foundation now retains the shared native cap
 
 Next gates remain complete catalog and behavior coverage, project requirements/owned-data setup, truthful Ready/Needs setup/Repair states, complete install/launch/recovery journeys and independent functional/platform acceptance. Local launch must not require a catalog account or network round trip. Keep real available game imagery, including Ocarina, with accurate credits and explicit offline/error fallbacks; do not bundle unlicensed third-party pixels or replace normal available artwork with generic brand tiles.
 
+A first package-bound local game-data setup flow is included in the development
+source, with explicit copy confirmation and shared launch revalidation. It covers
+one exact Perfect Dark Linux x64 package, not complete catalog setup or tested
+gameplay. [The setup guide](GAME_SETUP.md) lists the supported input and limits.
+
 ## 3. Installation, credentials and recovery — bounded source progress
 
 Merged source includes staged portable installation, manifests/journaled generation replacement and recovery; explicit vault-backed credential migration; offline per-instance shortcuts/lifetime handling; and managed-removal loss-prevention safeguards. These are reviewed development-source milestones, not complete packaged journeys or universal crash/power-loss safety. Managed uninstall and game/mod integration remain limited; see the [native guide](../native/README.md). [Redundant-backup payload cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) adds explicit preview/hash-confirmation and interruption/resume for older committed duplicate immutable files only. All previous generations, data snapshots and the current operation's backup remain; this is not credential erasure, general retention or managed uninstall, which remain open work.

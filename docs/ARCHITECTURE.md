@@ -209,3 +209,19 @@ Linked installation paths use their actual root for presentation-edit authority.
 Changing a linked entry’s folder name is refused rather than moving an unrelated
 default-folder path, even when the explicit path currently equals that default.
 Linked-root migration remains unsupported.
+
+## Package-bound game-data setup
+
+Compiled project definitions, rather than remote metadata instructions, bind the
+initial local-data adapter to a release, package digest, executable digest and
+input variant. The native library has an explicit file-selection, preview and
+confirmation flow. Data lives outside immutable generations in an installation-
+keyed user-data namespace; originals and committed copies are never overwritten.
+A nonrecovering installation authority spans confirmation and copy. Retained
+launch receipts and unresolved history refuse setup. The shared launch path
+revalidates the exact local data receipt and fixed argument under launch authority.
+
+The initial definition covers one Perfect Dark US 1.1 Linux x64 package only.
+Synthetic fixtures exercise the source workflow; they do not establish gameplay,
+rights or platform acceptance. Other project/build prerequisites remain unconfirmed,
+and data migration/cleanup remain unimplemented. [Setup guide](GAME_SETUP.md).

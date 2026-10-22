@@ -180,6 +180,7 @@ public static class GameStatusService
         }
         finally
         {
+            await OwnedGameSetupService.RefreshAsync(game, gamesFolder).ConfigureAwait(false);
             game.IsLoading = false;
         }
     }

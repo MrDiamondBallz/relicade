@@ -22,7 +22,9 @@ public sealed class PortableInstallationLifetime : IDisposable
     readonly string operations;
     IDisposable? lease;
     bool transferred;
-    PortableInstallationLifetime(string operations, IDisposable lease) { this.operations = operations; this.lease = lease; }
+    internal PortableInstallationTransaction.Manifest? CommittedManifest { get; }
+    PortableInstallationLifetime(string operations, IDisposable lease, PortableInstallationTransaction.Manifest? manifest)
+    { this.operations = operations; this.lease = lease; CommittedManifest = manifest; }
     static string ReceiptPath(string operations) => PortableInstallationTransaction.SafePath(operations, "launch.json");
     public static PortableInstallationLifetime Begin(string root, string? expectedOperationId = null)
     {
@@ -33,7 +35,7 @@ public sealed class PortableInstallationLifetime : IDisposable
             var manifest = tx.ReadManifest(root, true); tx.ValidateCommittedIdentity(manifest);
             if (expectedOperationId != null && manifest?.OperationId != expectedOperationId)
                 throw new IOException("The portable generation changed while preparing launch. Refresh local state and retry.");
-            var lifetime = new PortableInstallationLifetime(tx.OperationsPath, lease); lifetime.Write(new()); return lifetime;
+            var lifetime = new PortableInstallationLifetime(tx.OperationsPath, lease, manifest); lifetime.Write(new()); return lifetime;
         }
         catch { lease.Dispose(); throw; }
     }

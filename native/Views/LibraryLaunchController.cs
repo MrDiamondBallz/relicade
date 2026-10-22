@@ -28,6 +28,17 @@ public sealed class LibraryLaunchController
     private readonly Func<double> _width;
     public Action? FocusRestorationRequested { get; set; }
 
+    private Func<GameInfo?, Control?, Task>? _ownedGameSetup;
+    internal void ConfigureOwnedGameSetup(Func<GameInfo?, Control?, Task> open) => _ownedGameSetup = open;
+    private async Task<bool> OpenRequiredSetupAsync(GameInfo game, Control? anchor)
+    {
+        if (!game.HasOwnedDataAdapter || !game.IsInstalled || game.OwnedDataReady) return false;
+        if (_settingsModel.KioskLocked || _settingsModel.IsReadOnly || _ownedGameSetup == null)
+            await ShowMessageBoxAsync("Game data needs setup. Open the writable, unlocked library and choose Finish game setup.", "Game setup required");
+        else await _ownedGameSetup(game, anchor);
+        return true;
+    }
+
     private void RestoreFocus()
     {
         if (!_session.IsClosed)
@@ -44,6 +55,7 @@ public sealed class LibraryLaunchController
             return;
         }
 
+        if (await OpenRequiredSetupAsync(game, _resolveAnchor(game, null))) return;
         var launched = false;
         try
         {
@@ -118,6 +130,7 @@ public sealed class LibraryLaunchController
 
     private async Task PerformGamePrimaryActionCoreAsync(GameInfo game, Control anchor)
     {
+        if (await OpenRequiredSetupAsync(game, anchor)) return;
         using var priority = ReleaseRequestCoordinator.PrioritizeInteractiveChecks();
         var launched = false;
         try
@@ -731,6 +744,7 @@ public sealed class LibraryLaunchController
 
     private async Task PerformSelectedGameActionCoreAsync(GameInfo game)
     {
+        if (await OpenRequiredSetupAsync(game, _resolveAnchor(game, null))) return;
         using var priority = ReleaseRequestCoordinator.PrioritizeInteractiveChecks();
         var launched = false;
         try
@@ -841,6 +855,8 @@ public sealed class LibraryLaunchController
                 await ShowMessageBoxAsync("Unable to identify the selected app.", "Error");
                 return;
             }
+
+            if (await OpenRequiredSetupAsync(game, anchor)) return;
 
             try
             {

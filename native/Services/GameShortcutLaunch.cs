@@ -22,6 +22,8 @@ public static class GameShortcutLaunch
             var launcher = ManagedShortcutLaunch.ValidateLauncher(launcherResolver(), gamesFolder, gamePath);
             return new(launcher, [ManagedShortcutLaunch.Command, game.InstanceKey], Path.GetDirectoryName(launcher)!);
         }
+        if (OwnedGameSetupService.Requirement(game) != null)
+            throw new IOException("This project's shortcut must launch through a supported managed Relicade installation so game-data checks cannot be bypassed.");
         if (WindowsInstallerService.HasReceipt(gamePath))
         {
             if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("This installation requires Windows desktop.");

@@ -70,3 +70,15 @@ retains removed entries, refuses linked paths and creates missing empty files
 without overwriting existing paths. These checks do not certify hostile
 concurrent filesystem-writer resistance, owned-marker cleanup or game-data
 readiness. See [the native marker boundary](native/README.md#catalog-marker-files).
+
+## Local game-data setup
+
+The first compiled adapter pins a package and selected executable; remote catalog
+metadata cannot override its file rules or destinations. Local selection is
+followed by a preview and explicit copy confirmation. Originals, committed copies
+and prior receipts are retained. Input variant hashes do not establish ownership
+or publisher authenticity. Setup creates no remote data transfer; product-wide
+network behavior remains separate. Copies and receipts use owner-only Linux file
+permissions, not encryption. Hostile concurrent filesystem writers, full power-loss
+recovery, migration and real-game compatibility remain unaccepted. See
+[the setup guide](docs/GAME_SETUP.md).

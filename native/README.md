@@ -360,3 +360,13 @@ Linked installation paths use their actual root for presentation-edit authority.
 Changing a linked entry’s folder name is refused rather than moving an unrelated
 default-folder path, even when the explicit path currently equals that default.
 Linked-root migration remains unsupported.
+
+## Local game-data setup
+
+The native library includes a package-bound **Finish game setup** flow for the
+specified Perfect Dark US 1.1 Linux x64 build. It previews and confirms a local
+copy of lawful user-supplied data, preserves originals and retained copies, and
+revalidates data on the shared launch path. Installation and game-data readiness
+are separate. Unknown package variants remain unconfirmed; this is not gameplay,
+platform or complete catalog acceptance. See [supported input, provenance and
+recovery limits](../docs/GAME_SETUP.md).

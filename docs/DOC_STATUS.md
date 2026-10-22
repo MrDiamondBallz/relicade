@@ -23,6 +23,7 @@ This inventory is generated from the explicit maintenance registry. Semantic rev
 | [docs/DOCUMENTATION.md](DOCUMENTATION.md) | review | tooling, contracts |
 | [docs/DOC_STATUS.md](DOC_STATUS.md) | generated |  |
 | [docs/FEATURE_COVERAGE.md](FEATURE_COVERAGE.md) | review | contracts, tooling, native |
+| [docs/GAME_SETUP.md](GAME_SETUP.md) | review | native, contracts |
 | [docs/PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md) | review | native, preview, presentation, tooling, contracts |
 | [docs/ROADMAP.md](ROADMAP.md) | review | native, preview, presentation, tooling, contracts |
 | [native/LICENSE](../native/LICENSE) | protected |  |

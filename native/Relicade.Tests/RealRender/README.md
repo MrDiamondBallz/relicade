@@ -32,3 +32,10 @@ and automatic initialization. This exercises actual `MainView` plus
 `MainWindow` or production desktop entrypoint. It is local development rendering
 evidence, not physical-platform, game/controller, accessibility, rights, package
 or release acceptance.
+
+The separate setup-dialog capture renders actual native controls before file
+selection with a synthetic library identity and no installed game or user input.
+It writes `04-owned-game-setup-before-selection.png` with create-new semantics
+when an output directory is supplied. Use a new output directory for every
+capture; do not overwrite historical evidence. It does not certify the platform
+file picker, data import, native desktop host or gameplay.

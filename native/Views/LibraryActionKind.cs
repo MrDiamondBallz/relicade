@@ -33,4 +33,5 @@ public enum LibraryActionKind
     UpdateNowMenu,
     CleanPortableBackups,
     RollbackPortableVersion,
+    FinishOwnedGameSetup,
 }

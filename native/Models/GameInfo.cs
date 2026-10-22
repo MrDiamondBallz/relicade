@@ -590,7 +590,23 @@ namespace Relicade.Models
             get => _isManagedPortable;
             internal set { if (_isManagedPortable == value) return; _isManagedPortable = value; DispatchPropertyChanged(); DispatchPropertyChanged(nameof(CanManageMods)); }
         }
-        public bool CanLaunch => PortableRecoveryError == null && Status == GameStatus.Installed;
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool HasOwnedDataAdapter => OwnedGameSetupService.Requirement(this) != null;
+        private bool _ownedDataReady;
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool OwnedDataReady
+        {
+            get => _ownedDataReady;
+            internal set { _ownedDataReady = value; DispatchPropertyChanged(); DispatchPropertyChanged(nameof(CanLaunch)); DispatchPropertyChanged(nameof(ButtonText)); DispatchPropertyChanged(nameof(StatusText)); }
+        }
+        private string _ownedDataSetupMessage = "Game-data requirements have not been checked yet.";
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string OwnedDataSetupMessage
+        {
+            get => _ownedDataSetupMessage;
+            internal set { _ownedDataSetupMessage = value; DispatchPropertyChanged(); DispatchPropertyChanged(nameof(StatusText)); }
+        }
+        public bool CanLaunch => PortableRecoveryError == null && Status == GameStatus.Installed && (!HasOwnedDataAdapter || OwnedDataReady);
         public bool CanDownload => PortableRecoveryError == null && Status == GameStatus.NotInstalled && !IsManuallyManaged;
         public bool CanLocateInstall => !IsWindowsInstaller && Status == GameStatus.NotInstalled;
         public bool CanUpdate => PortableRecoveryError == null && Status == GameStatus.UpdateAvailable;
@@ -895,6 +911,7 @@ namespace Relicade.Models
             {
                 if (PortableRecoveryError != null) return "Recovery needed";
                 if (IsPortableCommitInProgress) return "Finishing safely";
+                if (HasOwnedDataAdapter && IsInstalled && !OwnedDataReady) return "Finish game setup";
                 if (IsManuallyManaged && Status == GameStatus.NotInstalled)
                     return "Open Folder";
 
@@ -962,6 +979,7 @@ namespace Relicade.Models
             {
                 if (PortableRecoveryError != null) return PortableRecoveryError;
                 if (IsPortableCommitInProgress) return "Finishing safely — cancellation will not interrupt generation activation";
+                if (HasOwnedDataAdapter && IsInstalled && !OwnedDataReady) return OwnedDataSetupMessage;
                 if (IsManuallyManaged)
                 {
                     return Status == GameStatus.Installed

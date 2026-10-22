@@ -3,6 +3,7 @@
 <!-- One menu for every card: built per card, it cost about 0.5 MB of memory per app. -->
 <ContextMenu x:Key="LibraryCardMenu" x:DataType="models:GameInfo" Opening="LibraryCardMenu_Opening">
     <MenuItem Name="CleanPortableBackupsMenu" Header="Clean redundant backups…" Click="CleanPortableBackups_Click" CommandParameter="{Binding}"/>
+    <MenuItem Name="FinishOwnedGameSetupMenu" Header="Finish game setup…" Click="FinishOwnedGameSetup_Click" CommandParameter="{Binding}" IsVisible="{Binding HasOwnedDataAdapter}"/>
     <MenuItem Name="RollbackPortableVersionMenu" Header="Restore previous portable version…" Click="RollbackPortableVersion_Click" CommandParameter="{Binding}"/>
 										<MenuItem Header="Launch"
 												  Click="LaunchGameMenu_Click"

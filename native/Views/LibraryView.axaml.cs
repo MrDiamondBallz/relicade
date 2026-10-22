@@ -35,6 +35,8 @@ public partial class LibraryView : UserControl
     internal void ConfigureBackupCleanup(Func<GameInfo?, Control?, Task> open) => _cleanPortableBackups = open;
     private Func<GameInfo?, Control?, Task> _rollbackPortableVersion = (_, _) => Task.CompletedTask;
     internal void ConfigurePortableRollback(Func<GameInfo?, Control?, Task> open) => _rollbackPortableVersion = open;
+    private Func<GameInfo?, Control?, Task> _ownedGameSetup = (_, _) => Task.CompletedTask;
+    internal void ConfigureOwnedGameSetup(Func<GameInfo?, Control?, Task> open) => _ownedGameSetup = open;
     public void ConfigureActions(LibraryActions actions, LibraryCustomizationService customization, Func<GameInfo, Task> autoUpdate, Func<string, string, Task> message)
     {
         _actions = actions;
@@ -149,6 +151,9 @@ public partial class LibraryView : UserControl
             var anchor = game == null ? null : ResolveDownloadMenuAnchor(game, FindGameMenuAnchor(game));
             switch (action)
             {
+                case LibraryActionKind.FinishOwnedGameSetup:
+                    if (!Model.Settings.IsReadOnly) await _ownedGameSetup(game, anchor);
+                    break;
                 case LibraryActionKind.RollbackPortableVersion:
                     if (!Model.Settings.IsReadOnly)
                         await _rollbackPortableVersion(game, anchor);
@@ -252,6 +257,7 @@ public partial class LibraryView : UserControl
     private void CreateShortcut_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.CreateShortcut);
     private void DeleteGameFromLibrary_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.DeleteGameFromLibrary);
     private void CleanPortableBackups_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.CleanPortableBackups);
+    private void FinishOwnedGameSetup_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.FinishOwnedGameSetup);
     private void RollbackPortableVersion_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.RollbackPortableVersion);
     private void EditCustomDisplayNameMenu_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.EditCustomDisplayNameMenu);
     private void EditGameEntry_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.EditGameEntry);

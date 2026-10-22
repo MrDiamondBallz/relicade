@@ -30,6 +30,10 @@ public static class GameLaunchService
             if (expectedOperationId != null && shortcutObserver == null)
                 throw new NotSupportedException("Managed shortcut child-tree observation must be established before launch.");
 
+            if (OwnedGameSetupService.Requirement(game) != null &&
+                (portableManifest == null || FlatpakService.HasReceipt(gamePath) || WindowsInstallerService.HasReceipt(gamePath)))
+                throw new IOException("Requirements are not confirmed for this installation. Finish game setup requires a supported managed portable package.");
+
             if (FlatpakService.HasReceipt(gamePath))
                 return await LaunchFlatpakAsync(game, gamePath);
 
@@ -116,6 +120,14 @@ public static class GameLaunchService
             }
 
             using var portableLifetime = PortableInstallationLifetime.Begin(gamePath, expectedOperationId ?? portableManifest?.OperationId);
+            string? ownedGameData = null;
+            if (OwnedGameSetupService.Requirement(game) is { } requirement)
+            {
+                var exactManifest = portableLifetime.CommittedManifest
+                    ?? throw new IOException("Game setup requires a supported managed package. Open Finish game setup from the library.");
+                ownedGameData = await Task.Run(() => new PortableInstallationTransaction(gamePath)
+                    .ValidateOwnedData(requirement, RelicadePaths.UserDataRoot, exactManifest));
+            }
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) &&
                 !executablePath.EndsWith(".app") &&
                 !needsWine)
@@ -159,6 +171,8 @@ public static class GameLaunchService
                 if (!startInfo.UseShellExecute)
                     HostProcessEnvironment.Sanitize(startInfo);
             }
+
+            ConfigureOwnedDataArguments(startInfo, ownedGameData);
 
             // No-ops unless Relicade itself is running inside a Flatpak sandbox.
             HostProcessEnvironment.RouteToHostIfSandboxed(startInfo);
@@ -258,6 +272,13 @@ public static class GameLaunchService
 
             return false;
         }
+    }
+
+    internal static void ConfigureOwnedDataArguments(ProcessStartInfo startInfo, string? validatedDataPath)
+    {
+        if (validatedDataPath == null) return;
+        startInfo.ArgumentList.Add("--rom-file");
+        startInfo.ArgumentList.Add(validatedDataPath);
     }
 
     // Shared production completion boundary, exercised with benign OWN test
