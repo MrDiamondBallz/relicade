@@ -252,6 +252,8 @@ public static class GameDownloadInstallService
 
             try
             {
+                // Consent dialogs may outlive the entry or its saved write permission.
+                firstInstall?.ValidateContext?.Invoke();
                 using var request = new HttpRequestMessage(HttpMethod.Get, asset.browser_download_url);
                 using var downloadResponse = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, LauncherSession.OperationCancellation)
                     .ConfigureAwait(false);

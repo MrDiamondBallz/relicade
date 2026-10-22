@@ -137,6 +137,31 @@ public sealed class FreedoomEngineHandoffTests
         Assert.Equal(accept ? 1 : 0, f.DownloadCalls); Assert.Equal(accept, File.Exists(Path.Combine(f.Live, Fixture.Asset)));
     }
 
+    [AvaloniaTheory]
+    [InlineData("unchanged")]
+    [InlineData("saved-kiosk")]
+    [InlineData("removed-entry")]
+    public async Task Catalog_consent_revalidates_current_authority_before_package_request(string change)
+    {
+        using var f = new Fixture(); await f.Initialize(); await using var session = new LauncherSession();
+        f.Game.GameManager = f.Manager; f.Game.CatalogEntryId = "doom-uzdoom";
+        await f.Manager.CatalogService.SaveLocalAppsAsync([f.Game]);
+        f.Dialogs.BeforeConsent = () =>
+        {
+            if (change == "saved-kiosk") { f.Store.Current.KioskMode = true; f.Store.Save(f.Store.Current); }
+            if (change == "removed-entry") f.Manager.Games.Remove(f.Game);
+            return Task.CompletedTask;
+        };
+        var installed = false;
+        var refusal = await Record.ExceptionAsync(async () => installed = await session.RunAsync(
+            () => f.Install(session.Token, (_, _) => Task.FromResult(true))));
+        if (change == "unchanged") Assert.Null(refusal); else Assert.IsAssignableFrom<IOException>(refusal);
+        Assert.Equal(1, f.Dialogs.UnverifiedPrompts);
+        Assert.Equal(change == "unchanged", installed);
+        Assert.Equal(change == "unchanged" ? 1 : 0, f.DownloadCalls);
+        Assert.Equal(change == "unchanged", File.Exists(Path.Combine(f.Live, Fixture.Asset)));
+    }
+
     sealed class Fixture : IDisposable
     {
         internal const string Asset = "Linux-UZDoom-Release-x86_64.AppImage";

@@ -213,13 +213,14 @@ public sealed class FirstInstallPackageTests : IDisposable
     }
     internal sealed class Dialogs : IGameDownloadDialogs
     {
+        internal Func<Task>? BeforeConsent;
         internal string? Error; internal int Fallbacks; internal int UnverifiedPrompts; internal bool AcceptUnverified = true;
         public Task<bool> ConfirmDownloadWithoutRunnerAsync() => Task.FromResult(false);
         public Task<LinuxWindowsRunnerConfig?> ConfigureWindowsRunnerAsync(string p, LinuxWindowsRunnerConfig? c = null, bool isInstall = true) => throw new InvalidOperationException("Unexpected runner request");
         public Task ShowRateLimitExceededAsync() => throw new InvalidOperationException("Unexpected rate limit");
         public Task ShowGitLabRateLimitExceededAsync() => throw new InvalidOperationException("Unexpected provider");
         public Task ShowErrorAsync(string message, string title) { Error = title + ": " + message; return Task.CompletedTask; }
-        public Task<bool> ConfirmUnverifiedReleaseAsync(string a, string v, ReleaseCheck c) { UnverifiedPrompts++; return Task.FromResult(AcceptUnverified); }
+        public async Task<bool> ConfirmUnverifiedReleaseAsync(string a, string v, ReleaseCheck c) { UnverifiedPrompts++; if (BeforeConsent != null) await BeforeConsent(); return AcceptUnverified; }
         public Task<bool> OfferOtherReleaseAsync(string a, string p, string v) { Fallbacks++; return Task.FromResult(true); }
     }
 }

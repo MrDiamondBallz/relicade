@@ -185,6 +185,8 @@ The selected release, asset name and official download address must still match;
 the downloaded bytes must match the compiled adapter hash even if remote metadata
 reports a different digest. Header and streamed bytes are bounded to the pinned
 package size before writing beyond it. There is no fallback to another release or asset.
+Saved write permissions and the current library entry are revalidated after catalog
+consent dialogs and immediately before requesting the engine package.
 After installation, the existing data dialog opens for a separately confirmed
 free-data download or local-file selection. Nothing is played automatically.
 
