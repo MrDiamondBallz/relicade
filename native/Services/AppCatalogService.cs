@@ -301,6 +301,7 @@ namespace Relicade.Services
                         FolderName = (appElement.TryGetProperty("folderName", out var folderElement) ? folderElement.GetString() : null) ?? string.Empty,
                         InstallPath = appElement.TryGetProperty("installPath", out var installPathElement) ? installPathElement.GetString() : null,
                         GameIconUrl = GetIconUrl(appElement),
+                        CatalogCover = CatalogCover.Read(appElement, strict),
                         PreferredVersion = appElement.TryGetProperty("preferredVersion", out var preferredVersionElement) ? preferredVersionElement.GetString() : null,
                         SkippedUpdateVersion = appElement.TryGetProperty("skippedUpdateVersion", out var skippedUpdateVersionElement) ? skippedUpdateVersionElement.GetString() : null,
                         AutoUpdate = appElement.TryGetProperty("autoUpdate", out var autoUpdateElement) &&
@@ -547,6 +548,7 @@ namespace Relicade.Services
                 ["folderName"] = app.FolderName,
                 ["installPath"] = app.InstallPath,
                 ["appIconUrl"] = app.GameIconUrl,
+                ["catalogCover"] = app.CatalogCover?.ToJson(),
             };
 
             if (!app.IsManuallyManaged && !string.IsNullOrWhiteSpace(app.Repository))

@@ -363,6 +363,7 @@ public static class QuiverCatalogMapping
         var entry = new JsonObject
         {
             ["catalogEntryId"] = string.IsNullOrWhiteSpace(app.Id) ? null : app.Id,
+            ["catalogCover"] = CatalogCover.FromEntry(app)?.ToJson(),
             ["name"] = app.Name,
             ["project"] = app.ProjectName,
             ["folderName"] = folder,

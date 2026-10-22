@@ -348,3 +348,16 @@ requiring a fresh inspection rather than automatic retry or rollback. Unknown
 ownership, conflicting evidence and oversized inputs refuse without replacement.
 This is not general data migration, backup cleanup, hostile-writer isolation or
 platform power-loss certification.
+
+## Library cover identity
+
+`CatalogCover` keeps catalog entry, source URL, variant and baseline icon separate
+from the project's icon. Mapping, strict local-library mutation parsing and
+catalog synchronization retain that record. Unknown stored shapes refuse a
+mutation rather than being silently rewritten. `GameInfo.CardImageUrl` resolves
+only a matching record and yields to custom local art or an edited icon.
+Cache-only Add checks precede session-owned enrichment; cancelled or changed
+entries cannot publish late shared-loader results. The three library templates
+bind the effective image and its attribution without changing primary actions.
+This reuses the existing image transport, not a new security-certified downloader;
+see [native artwork scope](ARTWORK.md#native-library-cover-references).

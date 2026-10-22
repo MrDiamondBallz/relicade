@@ -145,6 +145,15 @@ do not grant an artwork redistribution license. Browsing images can disclose an
 IP to their providers. This milestone does not implement a complete product-wide
 network-disabled setting; offline smoke uses external network isolation.
 
+Library cards can retain a separate catalog header/capsule reference, bound to
+the exact catalog entry and original project icon. Custom local images and
+player-edited icons stay in control. Add checks existing cache only; later
+session-owned enrichment uses the shared image loader and falls back to the icon
+when the cover is unavailable. All three layouts show source attribution in the
+image tooltip. The initial static SteamGridDB URL subset is not full artwork
+coverage, a rights grant or product-wide offline-network acceptance. See
+[artwork boundaries](../docs/ARTWORK.md#native-library-cover-references).
+
 ## Platform status and remaining acceptance
 
 | Target | Foundation status | Still required |

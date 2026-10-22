@@ -69,3 +69,10 @@ at normal and minimum logical sizes, including 200% interface scaling. Its
 receipt, paths and four-byte data are explicitly synthetic; it performs no copy,
 download or game execution. Footer geometry and controller focus are checked
 separately from the real-data-operation synthetic fixtures.
+
+`CatalogCoverRenderingTests` uses one class-owned dispatcher across all three
+native library layouts. Procedural synthetic pixels are saved to a disposable
+local cache and read through the actual image pipeline with an injected rejecting
+HTTP transport. Captures are explicitly synthetic, not real game artwork or an
+installed game. Local cache validation, attribution and visible primary actions
+are asserted before capture; no remote images or acquired executables are used.
