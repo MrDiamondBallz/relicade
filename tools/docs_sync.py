@@ -288,7 +288,7 @@ def generated(root, data, counts):
                '**{scenarios} synthetic fixture scenarios**. Counts describe repository inputs, not working games or passing tests.\n\n'
                'Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/{merged}); '
                '[backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/{cleanup_pr}) {cleanup}. '
-               'No packaged release, full-parity acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.').format(
+               'No packaged release, complete-functionality acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.').format(
                    **counts, merged=status['merged_source_pr'], cleanup_pr=status['cleanup_pr'], cleanup=cleanup)
     inventory = ['This inventory is generated from the explicit maintenance registry. Semantic review is a separate gate, never inferred from these counts.',
                  '', '| Document | Policy | Source responsibilities |', '| --- | --- | --- |']

@@ -3,7 +3,7 @@
 This is an acceptance contract, not a native compatibility announcement. The
 [product requirements](PRODUCT_REQUIREMENTS.md) remain normative, including all
 subcriteria in a referenced section. P0/P1 sequence delivery; P1 baseline items
-are not optional at final parity. `FEATURE_COVERAGE.json` expands the contract
+are not optional at final release. `FEATURE_COVERAGE.json` expands the contract
 into stable feature IDs and explicit target cells. It deliberately contains no
 accepted native results. Passing the validator accepts the document's integrity,
 not the launcher.
@@ -173,4 +173,4 @@ all hardware/performance/accessibility acceptance remain open.
 The existing browser preview regression suites remain useful for their own
 surface only. Their results must not populate native acceptance cells. No feature
 count, passing document validator or successful synthetic fixture generation
-means full parity, universal compatibility or measured performance improvement.
+means complete functionality, universal compatibility or measured performance improvement.

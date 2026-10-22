@@ -14,6 +14,13 @@ The phases sequence implementation, not permanent omissions. Baseline capabiliti
 
 Discovery, setup and library journeys should eventually cover community-revived classics and retro games through native ports/recompilations/recreations and explicitly emulated project types. Future emulation requires compatible emulator/core identity, separate license review, transparent setup and lawfully user-supplied game data/BIOS. No ROM, BIOS or key distribution is implied. Account-optional offline use and controller/keyboard-complete journeys remain the direction.
 
+Future setup should offer one clear, player-approved action to obtain and configure
+trustworthy, lawfully available emulator/core/runtime dependencies, then one clear
+Play action when readiness is verified. Show download and setup status, cancellation,
+failure recovery and exact compatibility. Do not silently install unknown binaries or
+fetch commercial ROMs, BIOS or keys from unauthorized sources. Required personal game
+data uses a minimal guided local import/validation flow, not covert remote retrieval.
+
 Emulation is not implemented, accepted or added as an automatic condition of the existing native release gate. Define its own adapters and evidence before claiming support. The current feature matrix and all existing native acceptance requirements remain unchanged.
 
 Merged development source includes bounded staged-installation/recovery, explicit vault-backed credential migration, offline instance shortcut/lifetime, managed-removal safeguards and explicit preview/hash-confirmed cleanup of older committed redundant immutable backup payload files. Cleanup preserves all previous generations, data snapshots and current-operation backups; it is not credential erasure, general retention or managed uninstall. Those milestones do not accept all R1–R10 journeys or any packaged/native platform release. [Documentation maintenance](DOCUMENTATION.md) keeps facts separate from semantic and release review.
@@ -26,37 +33,49 @@ packaged or native-platform accepted. It accepts no additional R1–R10 or platf
 
 | Milestone | Deliverable | Claim permitted only after acceptance |
 | --- | --- | --- |
-| Foundation | Original identity, public-metadata discovery/detail browser prototype, locally persisted saved-library state, explicit unavailable native actions, source/binary/runtime evidence ledger | “Product prototype”; no “installed,” “playable,” fake downloads/playtime or launcher replacement claim |
+| Foundation | Original identity, public-metadata discovery/detail browser prototype, locally persisted saved-library state, explicit unavailable native actions, source/binary/runtime evidence ledger | “Product prototype”; no “installed,” “playable,” fake downloads/playtime or finished-launcher claim |
 | Native alpha — Windows first | Real local library + signed release ingestion + download/install/launch for an explicit portable-package compatibility set; readiness/import, recovery and controller/keyboard core journeys | “Windows alpha” with per-project support/limitations; no silent unsupported package fallback |
-| Windows release gate | All P0 requirements, Windows parity items, fault/security/accessibility/hardware tests, migration/export/recovery, signed package/update feed | “Windows launcher”; “better” requires comparative task/performance evidence, not feature counting |
-| Full-platform parity | Windows, Linux x64/ARM64, macOS x64/ARM64 and Android; all applicable baseline capabilities and package adapters; additive improvements separately measured | Final release requires tracked parity tests and build/runtime evidence across every required platform; blocked or unavailable hardware is not a pass |
+| Windows release gate | All P0 requirements, Windows capability requirements, fault/security/accessibility/hardware tests, migration/export/recovery, signed package/update feed | “Windows launcher”; quality claims require recorded task/performance evidence, not feature counting |
+| Full-platform coverage | Windows, Linux x64/ARM64, macOS x64/ARM64 and Android; all applicable baseline capabilities and package adapters; additive improvements separately measured | Final release requires tracked capability tests and build/runtime evidence across every required platform; blocked or unavailable hardware is not a pass |
 
-**P0:** required for the Windows milestone. **P1:** staged implementation after that milestone; baseline-parity items remain mandatory for the final product. A supported-project matrix must identify OS, architecture, format, release channel, mod adapter and game-data prerequisites. Temporarily unimplemented MSI/Flatpak/APK/DMG/runner cases get a factual explanation and project-site link, not an enabled install button. Full baseline-equivalent platform breadth is not the first Windows milestone, but is a final release gate. Android launches supported APK applications, not desktop binaries.
+**P0:** required for the Windows milestone. **P1:** staged implementation after that milestone; baseline capability items remain mandatory for the final product. A supported-project matrix must identify OS, architecture, format, release channel, mod adapter and game-data prerequisites. Temporarily unimplemented MSI/Flatpak/APK/DMG/runner cases get a factual explanation and project-site link, not an enabled install button. Complete required platform breadth is not the first Windows milestone, but is a final release gate. Android launches supported APK applications, not desktop binaries.
+
+### Complete catalog coverage
+
+Coverage includes the complete provenance-qualified upstream catalog, not a selected
+browser sample. Track every project and catalog identity, source repository, release
+asset, platform/architecture variant and required player-supplied input. Reconcile
+pagination, renamed or removed projects and metadata changes without dropping
+unresolved rows. Discovery, supported installation, setup and actual gameplay are
+separate acceptance states. A catalog listing, review flag or download link alone
+accepts none of the latter states. Preserve lawful attribution and independently
+validate untrusted setup paths, checksums and executable suggestions before use.
 
 ## 2. Player-facing information architecture
 
+- **Visual direction:** retain the orange cut-R, full RELICADE wordmark and dark interface. Game cards should prominently display real, rights-reviewed game imagery with readable title and status overlays. Missing/offline art gets an honest labeled fallback, not a blank tile or fabricated gameplay. Historical reveal designs are goals, not current product screenshots.
 - **Discover:** original-game and project views, platform/type filters, concise project status and attribution; no storefront/account funnel. A project page states source URL, release/version, platform, package, verification evidence, game-data requirements and last metadata refresh.
 - **Library:** continue/recent only from real launch records, search, sort, filters/collections, explicit readiness, selected version/profile and primary next action. Preserve focus/scroll during background updates. No full-screen metadata wait for local launch.
 - **Downloads:** one durable queue for game/mod payloads with per-item stage and action; never conflate downloading, verifying, extracting and committing.
 - **Game workspace:** Play / Finish setup / Repair reflect actual state. Versions, data, mods, files and recovery are contextual sections, not unrelated modal chains.
 - **Settings:** input/accessibility, storage, network/privacy, update policy, export/recovery and diagnostics. Advanced controls are disclosed, not required to start. No default music or involuntary autoplay.
 
-## 3. Minimum parity contract
+## 3. Minimum capability contract
 
 | Area | Baseline capabilities to respect | Relicade release requirement |
 | --- | --- | --- |
-| Catalog | Paginated browse, detail/readme/reviews, platform filters, original-game grouping, custom lists | P0 discover/detail/search/filter and source attribution; custom list import with validation/provenance; readme/review parity required for final release, with lawful data sourcing/moderation access an explicit dependency |
+| Catalog | Paginated browse, detail/readme/reviews, platform filters, original-game grouping, custom lists | P0 discover/detail/search/filter and source attribution; custom list import with validation/provenance; complete readme/review functionality required for final release, with lawful data sourcing/moderation access an explicit dependency |
 | Library | Manual apps, existing folders, per-instance identity, search/sort/tags/custom presentation, offline startup | P0 add/link/manual entry, remove without deleting data, search/sort/filter/custom names/art, per-project stable IDs and duplicate/folder conflict handling |
 | Storage/recovery | Fail-closed apps.json, deduplicated snapshots, legacy migration, export primitives | P0 equivalent durability plus visible restore/import preview and tests; never silently replace a corrupt library |
 | Releases | Preferred/verified/latest releases, asset choice, skip and per-app auto-update, rolling-build detection | P0 explicit version/channel/pin/skip/update review; expose missing pin instead of silently changing intended version; preserve exact release/asset identity |
 | Trust | Verified/unverified/blocked states, SHA-256 checks, warnings and reported scan verdicts | P0 separate provenance/digest/review/scan/unknown states; mismatch blocks; unavailable verification never becomes “verified” |
 | Install/launch | Archive/single binary; OS-specific MSI/Flatpak and runners; executable selection | P0 supported Windows portable formats + real native launch/repair; MSI P1 until OS-ownership adapter tested; all other formats explicitly unsupported until accepted |
-| Mods | Thunderstore/GameBanana, dependencies, update/remove, file/layout selection | P0 supported-provider browse/install/remove/dependency parity with failure preservation; P1 full multi-profile/conflict-resolution gate below |
+| Mods | Thunderstore/GameBanana, dependencies, update/remove, file/layout selection | P0 supported-provider browse/install/remove/dependency support with failure preservation; P1 full multi-profile/conflict-resolution gate below |
 | Input | Rebindable gamepad/keyboard, menus/modals, text entry/Steam OSK | P0 mouse/keyboard + controller-complete core journeys; Steam OSK/Deck P1 native Linux gate |
 | Kiosk/desktop | Fullscreen/optional PIN, tray, close-after-launch, shortcuts | P0 intentional fullscreen/controller mode, application-level kiosk, safe exit, Windows desktop shortcuts; Steam/tray conveniences P1 unless needed by committed journeys |
 | Updates/privacy | Launcher self-update with metadata backup; opt-in usage data | P0 signed isolated self-update, recovery, no accounts required, telemetry off by default and documented operational traffic |
 
-A deliberate deferral must be listed in release notes. Quietly omitting an existing competitor capability does not satisfy parity.
+A deliberate deferral must be listed in release notes. Deferral does not remove a capability from the final-product contract; every applicable baseline capability still requires evidence.
 
 ## 4. Differentiators as measurable targets
 
@@ -118,7 +137,7 @@ Reference acceptance device: documented Windows 11 x64, six physical CPU cores, 
 
 - Targets: cold local library actionable **p95 ≤2 seconds**; warm **≤1 second**; search/filter response **p95 ≤100 ms after debounce**; no blocking network call before local Play. Target render interaction frame time **p95 ≤16.7 ms at 60 Hz** during a fixed scroll; trace separately from load timing. Idle CPU target ≤1% of total machine CPU over 60 seconds after settling; idle working set target ≤300 MiB, cached-art fixture fixed.
 - Retain item identity/focus/selection/scroll while metadata arrives. No unbounded image downloads/caches; lazy/virtualized artwork and deterministic sorting. Render 10,000-entry stress fixture without crash, even if performance targets initially cover 1,000.
-- **Accept:** offline/DNS blackhole/slow API/429 cases; library remains navigable and native launch works. Record instrumented timings plus native process/render metrics. Compare the same journeys/fixtures against the reference launcher where legally and operationally feasible; do not publish “faster” from unmeasured impressions.
+- **Accept:** offline/DNS blackhole/slow API/429 cases; library remains navigable and native launch works. Record instrumented timings plus native process/render metrics. Measure improvements with equivalent journeys, fixtures and environments; do not publish “faster” from unmeasured impressions.
 
 ### R7 — Accessibility and DPI are release criteria (P0)
 
@@ -151,7 +170,7 @@ Versioned human-readable metadata export includes stable IDs, local library pres
 - Explicitly distinguish publisher signature, trusted manifest signature, expected digest match, catalog human review and scan result. SHA-256 from the same untrusted source is not independent publisher authentication. No “verified” without recorded evidence/version/time. Unknown verification requires clear user decision; digest mismatch never silently overrides or installs. Blocked releases are not eligible for auto-update.
 - Validate archive paths, drive/UNC/device/ADS forms, normalization/case behavior, traversal, links and destination ownership **before writes**; enforce expansion/file-count/size budgets and free-space policy. Isolate extraction; no network catalog/import entry may choose arbitrary destructive destinations. User-linked existing folders remain explicitly scoped and never receive blind whole-folder deletion.
 - Allow only supported URL schemes; constrain credential forwarding across redirects; separate host metadata policy from asset CDN policy. No arbitrary command construction from remote metadata. Portable launch is not sandboxed; tell the user executables run with their account authority.
-- Own application/package/data/update identities. Signed native installer and authenticated update feed with documented trust root/key rotation, checksum verification, prerelease policy, consent/defer and safe failure/restart recovery. Do not consume the reference launcher's updater or telemetry channels as Relicade. Self-update must not run while commits are active or include user-game-data migration silently.
+- Own application/package/data/update identities. Signed native installer and authenticated update feed with documented trust root/key rotation, checksum verification, prerelease policy, consent/defer and safe failure/restart recovery. Do not use externally owned updater or telemetry channels under Relicade’s identity. Self-update must not run while commits are active or include user-game-data migration silently.
 - **Accept:** adversarial synthetic ZIP/7z/RAR/tar fixtures for supported formats, links/preexisting junctions, traversal, zip bombs/size limits, locked destinations and unexpected executables; no writes outside granted roots. Test altered installer/feed/package, wrong product ID, obsolete/replayed versions, interrupted download/restart, antivirus/UAC and data-root migration on a clean Windows user. Produce SBOM/licenses, signed-package verification and dependency review. No unsupported archive format gets an optimistic fallback.
 
 ## 5. Implementation dependencies — not a frontend promise
@@ -160,7 +179,7 @@ Versioned human-readable metadata export includes stable IDs, local library pres
 | --- | --- | --- |
 | Browser prototype | Metadata snapshot, local saved IDs, UI state, original brand; no arbitrary native filesystem/process privilege | Browser interaction/storage-failure/a11y/render tests; visibly unavailable installs/launch |
 | Queue/install/rollback/readiness | Native privileged host/service APIs, operation journal, durable manifests, extraction policy, project adapters; browser UI alone cannot provide these | Unit/fault/security fixtures + packaged Windows integration + actual launch |
-| Catalog/trust | Licensed/reusable catalog provenance; optional independently operated API or signed static feed/cache. Reference backend source/operations are separate, not present in this audit | Schema contract, moderation/verification/key policy, stale/offline tests, rights review; do not claim own backend is live |
+| Catalog/trust | Licensed/reusable catalog provenance; optional independently operated API or signed static feed/cache. Externally operated catalog backend source/operations are separate, not present in this audit | Schema contract, moderation/verification/key policy, stale/offline tests, rights review; do not claim own backend is live |
 | Mod profiles | Provider integration/terms, available historical artifacts, constraint/file-ownership resolver and profile activation | Dependency/collision/provider fixtures; supported-game adapter + Windows runtime tests |
 | Owned-data setup | Per-project requirements/recognized variants, local hashing/import permission and protected data directory | Synthetic tests and consented native tests; no ROM service required or permitted by this specification |
 | Controller/a11y/performance | Native focus/input/OSK/automation integration, virtualization/instrumentation and physical devices | Hardware runs, Narrator/DPI evidence and recorded benchmarks |

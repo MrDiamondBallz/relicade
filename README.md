@@ -17,7 +17,7 @@
 
 ## The vision
 
-Relicade is becoming one coherent home for **community-revived classics, retro games and emulation**—including native ports, recompilations and recreations. Discover the community project behind a favourite game, understand its setup and compatibility, and keep discovery, library and play together.
+Relicade is becoming one coherent home for **community-revived classics, retro games and emulation**—including native ports, recompilations and recreations. Discover the community project behind a favourite game, understand its setup and compatibility, and keep discovery, library, setup, versions, mods, recovery and play together.
 
 The goal is a clear path from “What can I play?” to the right version, game files, mods and recovery options. Controller-first and keyboard-complete journeys should make power features accessible, not remove them. Local and offline library use must remain possible without a required account.
 
@@ -27,7 +27,7 @@ Emulation is **future scope, not yet implemented**. Each emulator/core needs its
 
 ## Current progress
 
-**No packaged launcher release.** This is development source and a browser design preview, not full functional parity or accepted native platform support.
+**No packaged launcher release.** This is development source and a browser design preview, not complete functionality or accepted native platform support.
 
 Recent merged work adds [separate CPU-rendered native UI tests](https://github.com/MrDiamondBallz/relicade/pull/11) for the library, offline catalog and settings views. The [latest maintenance update](https://github.com/MrDiamondBallz/relicade/pull/12) aligns the Avalonia dependencies on the official 12.1.4 patch and adds input-session cleanup and application-lifetime regressions. These changes have independent local review and test coverage; they are development milestones, not a packaged release or a claim that every target platform has been tested.
 
@@ -51,7 +51,7 @@ The [native development source](native/README.md) uses .NET 10/Avalonia. Linux x
 <!-- docs-sync:begin facts -->
 Repository facts (not acceptance results): **12 catalog projects**, **71 required feature rows**, **8 platform/package targets** and **23 synthetic fixture scenarios**. Counts describe repository inputs, not working games or passing tests.
 
-Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/3); [backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) is recorded as merged development source, not release acceptance. No packaged release, full-parity acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.
+Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/3); [backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) is recorded as merged development source, not release acceptance. No packaged release, complete-functionality acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.
 <!-- docs-sync:end facts -->
 
 [How documentation stays current](docs/DOCUMENTATION.md): contribution-time checks and periodic maintainer reconciliation keep generated facts and source-sensitive prose under review. The tool checks facts mechanically; it does not approve prose. Cloning the repository does not install a timer or service.

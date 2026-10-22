@@ -1,6 +1,6 @@
 # Contributing to Relicade
 
-Relicade has a brand/browser development preview and native development source with reviewed bounded safety milestones. Packaged distribution, complete parity and native platform acceptance remain unfinished. The vision spans community-revived classics, retro games and future emulation; source presence is not implemented emulation or a license to distribute game data. Before contributing material, confirm that you have the rights to submit it; source availability is not an open-source license grant.
+Relicade has a brand/browser development preview and native development source with reviewed bounded safety milestones. Packaged distribution, complete functionality and native platform acceptance remain unfinished. The vision spans community-revived classics, retro games and future emulation; source presence is not implemented emulation or a license to distribute game data. Before contributing material, confirm that you have the rights to submit it; source availability is not an open-source license grant.
 
 ## Product and design
 

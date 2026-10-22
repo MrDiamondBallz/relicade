@@ -18,7 +18,7 @@ Hosted CI remains pending activation. No native launcher release is implied.
 
 A buildable .NET 10/Avalonia source foundation now retains the shared native capability baseline, with independent application/data identities, local-library persistence/headless fixtures, real runtime artwork loading/cache and disabled inherited self-update/telemetry/reporting channels. Linux self-contained startup and Windows cross-publish are development checks, not complete native/platform acceptance; see [native status](../native/README.md).
 
-Next gates remain complete reference-behavior reconciliation, project requirements/owned-data setup, truthful Ready/Needs setup/Repair states, complete install/launch/recovery journeys and independent functional/platform acceptance. Local launch must not require a catalog account or network round trip. Keep real available game imagery, including Ocarina, with accurate credits and explicit offline/error fallbacks; do not bundle unlicensed third-party pixels or replace normal available artwork with generic brand tiles.
+Next gates remain complete catalog and behavior coverage, project requirements/owned-data setup, truthful Ready/Needs setup/Repair states, complete install/launch/recovery journeys and independent functional/platform acceptance. Local launch must not require a catalog account or network round trip. Keep real available game imagery, including Ocarina, with accurate credits and explicit offline/error fallbacks; do not bundle unlicensed third-party pixels or replace normal available artwork with generic brand tiles.
 
 ## 3. Installation, credentials and recovery — bounded source progress
 
@@ -54,11 +54,13 @@ The [machine-readable coverage contract](FEATURE_COVERAGE.json) and [developer g
 
 ## 5. Measurable quality improvements — pending
 
-Clearer setup, unified operations, staged mod replacement, reproducible profiles, stable offline-first library performance and accessible controller-first workflows. Claims of better performance or reliability need comparative task evidence.
+Clearer setup, unified operations, staged mod replacement, reproducible profiles, stable offline-first library performance and accessible controller-first workflows. Performance and reliability improvements need reproducible before/after task evidence with equivalent inputs and clearly stated limits.
 
 ## 6. Broader discovery, retro games and emulation — future scope
 
 The north star is one coherent home for community-revived classics, retro games and emulation, including native ports, recompilations and recreations. Discovery should explain the project, compatibility and setup; library, versions, mods, recovery and controller/keyboard play should remain understandable and local/offline-account-optional.
+
+The intended setup is a clear, player-approved download/configuration flow for authorized emulator/core/runtime assets, with progress, cancellation, recovery and a verified Play action. Required personal game data remains a guided local import, not an unauthorized background download.
 
 Emulation is not implemented. Future adapters need emulator/core license review, explicit compatibility and lawfully user-supplied game data/BIOS; no unlicensed ROM/BIOS/key distribution. This staged direction does not add or waive existing native release gates or imply a hosted service.
 

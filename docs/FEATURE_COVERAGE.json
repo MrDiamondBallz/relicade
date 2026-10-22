@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "product": "Relicade",
-  "scope": "Final-product acceptance contract, not completed native parity. Browser preview results are separate.",
+  "scope": "Final-product acceptance contract, not accepted native functionality. Browser preview results are separate.",
   "categories": [
     "accessibility",
     "catalog",
@@ -38,7 +38,7 @@
     ],
     "search_scope": [
       "Selected settings, commands, persistence, install, mods, shortcut and Android adapter implementations, not every branch/provider/dependency.",
-      "Requirements sections 1-6 including minimum parity and R1-R10 are normative; broad rows require every listed subcriterion.",
+      "Requirements sections 1-6 including the minimum capability contract and R1-R10 are normative; broad rows require every listed subcriterion.",
       "No native build/runtime, protected device, backend/service validation or binary-semantic completeness is implied."
     ],
     "unknowns": [

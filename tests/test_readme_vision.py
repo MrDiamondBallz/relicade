@@ -23,6 +23,21 @@ class ReadmeVisionTests(unittest.TestCase):
                        'not yet implemented', 'pull/1', 'pull/3']:
             self.assertIn(phrase, current)
 
+    def test_product_goals_keep_catalog_breadth_and_honest_visual_setup_scope(self):
+        requirements = (ROOT / 'docs/PRODUCT_REQUIREMENTS.md').read_text()
+        for phrase in ['complete provenance-qualified upstream catalog',
+                       'not a selected', 'separate acceptance states',
+                       'required player-supplied input', 'Emulation is not implemented',
+                       'unauthorized sources', 'readable title and status overlays']:
+            self.assertIn(phrase, requirements)
+        artwork = (ROOT / 'docs/ARTWORK.md').read_text()
+        self.assertIn('actual current native application', artwork)
+        self.assertIn('future interface, not evidence of the current application', artwork)
+        for path in ['README.md', 'docs/PRODUCT_REQUIREMENTS.md', 'docs/ROADMAP.md']:
+            text = (ROOT / path).read_text().lower()
+            for framing in ['reference launcher', 'competitor capability', 'full-parity acceptance']:
+                self.assertNotIn(framing, text, path)
+
     def test_local_readme_links_exist(self):
         text = (ROOT / 'README.md').read_text()
         targets = re.findall(r'\]\(([^)]+)\)', text)
