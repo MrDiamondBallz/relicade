@@ -2,6 +2,8 @@ namespace Relicade.Services;
 
 public interface IGameDownloadDialogs
 {
+    Task<string?> ChoosePortableExecutableAsync(string appName, IReadOnlyList<string> candidates, CancellationToken token)
+        => Task.FromResult<string?>(null);
     Task<bool> ConfirmWindowsInstallerAsync(string appName) =>
         throw new InvalidOperationException("MSI installation requires the Windows desktop interface. Open Relicade and run the installer there.");
     Task<string?> PickWindowsExecutableAsync(string appName, string? previousPath) =>
@@ -35,6 +37,8 @@ public interface IGameDownloadDialogs
 /// <summary>Automatic updates install only verified releases and never ask; a Windows setup wizard never runs on its own.</summary>
 public sealed class AutomaticGameDownloadDialogs(IGameDownloadDialogs inner) : IGameDownloadDialogs
 {
+    public Task<string?> ChoosePortableExecutableAsync(string appName, IReadOnlyList<string> candidates, CancellationToken token)
+        => Task.FromResult<string?>(null);
     public Task<bool> ConfirmWindowsInstallerAsync(string appName) => Task.FromResult(false);
     public Task<bool> ConfirmDownloadWithoutRunnerAsync() => inner.ConfirmDownloadWithoutRunnerAsync();
     public Task<LinuxWindowsRunnerConfig?> ConfigureWindowsRunnerAsync(string gamePath, LinuxWindowsRunnerConfig? existing = null, bool isInstall = true) =>
@@ -53,6 +57,8 @@ public sealed class AutomaticGameDownloadDialogs(IGameDownloadDialogs inner) : I
 
 public sealed class AvaloniaGameDownloadDialogs : IGameDownloadDialogs
 {
+    public Task<string?> ChoosePortableExecutableAsync(string appName, IReadOnlyList<string> candidates, CancellationToken token)
+        => GameDialogService.ChoosePortableExecutableAsync(appName, candidates, token);
     public Task<bool> ConfirmWindowsInstallerAsync(string appName) => GameDialogService.ConfirmWindowsInstallerAsync(appName);
     public Task<string?> PickWindowsExecutableAsync(string appName, string? previousPath) => GameDialogService.PickWindowsExecutableAsync(appName, previousPath);
     public static AvaloniaGameDownloadDialogs Instance { get; } = new();

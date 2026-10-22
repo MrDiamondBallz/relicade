@@ -372,3 +372,14 @@ revalidates data on the shared launch path. Installation and game-data readiness
 are separate. Unknown package variants remain unconfirmed; this is not gameplay,
 platform or complete catalog acceptance. See [supported input, provenance and
 recovery limits](../docs/GAME_SETUP.md).
+
+## Portable launch-file choice
+
+The desktop installer asks which staged launch file to use when a portable package
+has several unresolved candidates. Relative paths distinguish the game from tools;
+**Install** confirms the choice without running it. Cancellation preserves the
+prior installation, and background/headless operations decline unresolved choices
+without prompting. Existing valid selections and verified package defaults remain
+in effect. Staged bytes are checked again before activation. This is development
+source with synthetic UI/transaction evidence, not game or platform acceptance.
+See the [setup guide](../docs/GAME_SETUP.md) for the separate game-data step.

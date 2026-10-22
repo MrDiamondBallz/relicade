@@ -392,6 +392,22 @@ public sealed partial class PortableInstallationTransaction
             if (!executables.Contains(SafePath(candidate, selected), StringComparer.Ordinal)) throw new InvalidDataException("The selected executable is absent from the staged release.");
         }
         else if (executables.Count == 1) selected = Path.GetRelativePath(candidate, executables[0]).Replace('\\', '/');
+        else if (executables.Count > 1 && options.ChooseExecutableAsync is { } choose)
+        {
+            var choices = Array.AsReadOnly(executables.Select(p => Path.GetRelativePath(candidate, p).Replace('\\', '/'))
+                .Order(StringComparer.Ordinal).ToArray());
+            try { selected = await choose(choices, cancellationToken).ConfigureAwait(false); }
+            catch (OperationCanceledException ex) when (cancellationToken.IsCancellationRequested)
+            { throw new PortableExecutableSelectionCancelledException(cancellationToken, ex); }
+            if (cancellationToken.IsCancellationRequested || selected == null)
+                throw new PortableExecutableSelectionCancelledException(cancellationToken);
+            ValidateRelative(selected);
+            if (!choices.Contains(selected, StringComparer.Ordinal))
+                throw new InvalidDataException("The selected launch file was not one of the staged choices.");
+            // A dialog may remain open while other software changes files. Never
+            // silently accept a different staged payload after the displayed choice.
+            AssertInventory(candidate, payload);
+        }
         else if (executables.Count(e => Path.GetDirectoryName(e) == candidate) == 1)
             selected = Path.GetFileName(executables.Single(e => Path.GetDirectoryName(e) == candidate));
         else throw new InvalidDataException("The installation did not leave a launchable app with one selected target. Select one unambiguous executable before installing this release.");

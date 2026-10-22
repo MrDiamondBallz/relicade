@@ -39,3 +39,9 @@ It writes `04-owned-game-setup-before-selection.png` with create-new semantics
 when an output directory is supplied. Use a new output directory for every
 capture; do not overwrite historical evidence. It does not certify the platform
 file picker, data import, native desktop host or gameplay.
+
+The staged launch-file dialog capture writes `05-staged-launch-file-choice.png`.
+It renders the actual native chooser with clearly labeled synthetic package paths
+and a selected row before confirmation. No package is installed or executed by the
+render test. This is a separate headless rendering check, not a desktop host,
+physical controller or gameplay acceptance result.

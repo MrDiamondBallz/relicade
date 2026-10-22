@@ -28,6 +28,8 @@ public sealed class GameInstallationOptions
     public string? SelectedExecutableRelativePath { get; init; }
     /// <summary>Trusted adapter default for a first installation only; never replaces an existing launch selection.</summary>
     public string? InitialExecutableRelativePath { get; init; }
+    /// <summary>Explicit choice among staged relative paths. Null declines; the operation retains authority until this task drains.</summary>
+    public Func<IReadOnlyList<string>, CancellationToken, Task<string?>>? ChooseExecutableAsync { get; init; }
     public string? ReleaseIdentity { get; init; }
     public string? AssetIdentity { get; init; }
     public string? InstalledBuildText { get; init; }

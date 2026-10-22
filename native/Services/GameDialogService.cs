@@ -14,6 +14,24 @@ namespace Relicade.Services;
 
 public static class GameDialogService
 {
+    public static async Task<string?> ChoosePortableExecutableAsync(string appName, IReadOnlyList<string> candidates, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        if (TryGetDesktopMainWindow() == null)
+        {
+            if (HasInteractiveUi())
+                await ShowMessageBoxAsync("This package needs a launch-file choice. Open the desktop interface to select it; this installation was not activated.", "Launch file selection unavailable");
+            return null;
+        }
+        return await Dispatcher.UIThread.InvokeAsync(async () =>
+        {
+            token.ThrowIfCancellationRequested();
+            var dialog = new Views.PortableExecutableChoiceDialog(appName, candidates);
+            try { await ShowWindowAsync(dialog, token); return dialog.SelectedRelativePath; }
+            finally { dialog.Close(); }
+        });
+    }
+
     public static async Task<bool> ConfirmWindowsInstallerAsync(string appName)
     {
         return await Dispatcher.UIThread.InvokeAsync(async () =>

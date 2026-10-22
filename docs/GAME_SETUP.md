@@ -6,6 +6,23 @@ Relicade's native development source includes a first package-bound local setup
 flow. It is not a packaged release, gameplay certification or complete catalog
 setup support.
 
+## Choosing a launch file before installation
+
+For a portable package with several unresolved launch files, the desktop download
+flow now shows the staged relative paths before activating the installation.
+Choose a file, then confirm **Install**. Selecting a row alone does not activate
+or run anything. Cancel closes the choice and leaves the prior installation intact;
+private staging and recovery history can remain. The transaction holds its writer
+authority until the dialog finishes and rechecks staged bytes before activation.
+
+Existing valid launch selections, single-file packages and the exact compiled
+package default below do not require this prompt. Remote preferred-file hints are
+not trusted as selections. Automatic/background and headless flows decline an
+unresolved choice without opening a dialog; they do not guess. This desktop
+choice has synthetic transaction, controller-navigation and native-render
+coverage, not physical-controller or mobile certification. Choosing an executable
+does not establish that its required game data is present or that it can run.
+
 ## First supported setup definition
 
 The initial definition recognizes **Perfect Dark US 1.1**, big-endian `.z64` data,

@@ -1,0 +1,129 @@
+using Relicade.Core.Services;
+
+namespace Relicade.Tests;
+
+public sealed class StagedExecutableChoiceTests : IDisposable
+{
+    readonly string root = Path.Combine(Path.GetTempPath(), "staged-choice-" + Guid.NewGuid().ToString("N"));
+    string Live => Path.Combine(root, "Game");
+    static Task Stage(string path)
+    {
+        File.WriteAllText(Path.Combine(path, "game.exe"), "owned non-runnable game fixture");
+        File.WriteAllText(Path.Combine(path, "editor.exe"), "owned non-runnable editor fixture");
+        return Task.CompletedTask;
+    }
+    public void Dispose() { if (Directory.Exists(root)) Directory.Delete(root, true); }
+    void AssertNoActivation()
+    {
+        Assert.False(File.Exists(Path.Combine(Live, PortableInstallationTransaction.ManifestFileName)));
+        Assert.Equal(new[] { ".relicade-mod-writer.lock" }, Directory.GetFileSystemEntries(Live).Select(Path.GetFileName));
+        Assert.Equal(0, new FileInfo(Path.Combine(Live, ".relicade-mod-writer.lock")).Length);
+    }
+
+    [Fact]
+    public async Task Callback_receives_immutable_relative_choices_and_no_live_payload()
+    {
+        var calls = 0;
+        var tx = new PortableInstallationTransaction(Live, new() { ChooseExecutableAsync = async (choices, token) =>
+        {
+            calls++; AssertNoActivation(); Assert.Equal(new[] { "editor.exe", "game.exe" }, choices);
+            Assert.Throws<NotSupportedException>(() => ((IList<string>)choices)[0] = "other.exe");
+            Assert.ThrowsAny<IOException>(() => new PortableInstallationTransaction(Live).AcquireLease());
+            await Task.Yield(); return "game.exe";
+        } });
+        await tx.InstallAsync(Stage, "v1");
+        Assert.Equal(1, calls); Assert.Equal("game.exe", tx.ReadCommitted()!.SelectedExecutable);
+    }
+
+    [Theory]
+    [InlineData(null)][InlineData("../outside.exe")][InlineData("missing.exe")][InlineData("GAME.exe")]
+    public async Task Declined_or_invalid_choice_never_activates(string? choice)
+    {
+        var tx = new PortableInstallationTransaction(Live, new() { ChooseExecutableAsync = (_, _) => Task.FromResult(choice) });
+        var error = await Record.ExceptionAsync(() => tx.InstallAsync(Stage, "v1"));
+        if (choice == null) Assert.IsType<PortableExecutableSelectionCancelledException>(error);
+        else Assert.IsType<InvalidDataException>(error);
+        AssertNoActivation();
+    }
+
+    [Fact]
+    public async Task Cancellation_keeps_authority_until_the_actual_callback_drains()
+    {
+        using var cancel = new CancellationTokenSource();
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var reply = new TaskCompletionSource<string?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var tx = new PortableInstallationTransaction(Live, new() { ChooseExecutableAsync = (_, _) => { entered.SetResult(); return reply.Task; } });
+        var operation = tx.InstallAsync(Stage, "v1", cancel.Token);
+        await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        try
+        {
+            cancel.Cancel(); Assert.False(operation.IsCompleted);
+            Assert.ThrowsAny<IOException>(() => new PortableInstallationTransaction(Live).AcquireLease());
+            AssertNoActivation();
+        }
+        finally
+        {
+            reply.TrySetResult("game.exe");
+            await Assert.ThrowsAsync<PortableExecutableSelectionCancelledException>(() => operation);
+        }
+        using var released = new PortableInstallationTransaction(Live).AcquireLease();
+        AssertNoActivation();
+    }
+
+    [Theory]
+    [InlineData("edit")][InlineData("add")][InlineData("remove")][InlineData("link")]
+    public async Task Changed_staging_during_the_choice_preserves_the_old_generation(string change)
+    {
+        var initial = new PortableInstallationTransaction(Live);
+        await initial.InstallAsync(path => { File.WriteAllText(Path.Combine(path, "old.exe"), "old payload"); return Task.CompletedTask; }, "v1");
+        var originalManifest = File.ReadAllBytes(Path.Combine(Live, PortableInstallationTransaction.ManifestFileName));
+        string staged = "";
+        var tx = new PortableInstallationTransaction(Live, new() { ChooseExecutableAsync = (_, _) =>
+        {
+            var file = Path.Combine(staged, "editor.exe");
+            if (change == "edit") File.WriteAllText(file, "changed payload");
+            if (change == "add") File.WriteAllText(Path.Combine(staged, "unknown.exe"), "extra payload");
+            if (change is "remove" or "link") File.Delete(file);
+            if (change == "link") File.CreateSymbolicLink(file, Path.Combine(staged, "game.exe"));
+            return Task.FromResult<string?>("game.exe");
+        } });
+        var error = await Record.ExceptionAsync(() => tx.InstallAsync(path => { staged = path; return Stage(path); }, "v2"));
+        Assert.NotNull(error); Assert.True(error is IOException or InvalidDataException, error.ToString());
+        Assert.Equal(originalManifest, File.ReadAllBytes(Path.Combine(Live, PortableInstallationTransaction.ManifestFileName)));
+        Assert.Equal("old payload", File.ReadAllText(Path.Combine(Live, "old.exe")));
+    }
+
+    [Theory]
+    [InlineData("single")][InlineData("explicit")][InlineData("initial")][InlineData("retained")]
+    public async Task Unambiguous_or_authorized_selection_does_not_prompt(string mode)
+    {
+        if (mode == "retained") await new PortableInstallationTransaction(Live, new() { SelectedExecutableRelativePath = "editor.exe" }).InstallAsync(Stage, "v1");
+        var tx = new PortableInstallationTransaction(Live, new()
+        {
+            SelectedExecutableRelativePath = mode == "explicit" ? "editor.exe" : null,
+            InitialExecutableRelativePath = mode == "initial" ? "editor.exe" : null,
+            ChooseExecutableAsync = (_, _) => throw new Exception("Resolved selection must not prompt")
+        });
+        await tx.InstallAsync(path =>
+        {
+            if (mode == "single") { File.WriteAllText(Path.Combine(path, "editor.exe"), "fixture"); return Task.CompletedTask; }
+            return Stage(path);
+        }, "v2");
+        Assert.Equal("editor.exe", tx.ReadCommitted()!.SelectedExecutable);
+    }
+
+    [Fact]
+    public async Task Interactive_choice_does_not_silently_prefer_a_root_helper_over_a_nested_game()
+    {
+        var calls = 0;
+        var tx = new PortableInstallationTransaction(Live, new() { ChooseExecutableAsync = (choices, _) =>
+        { calls++; Assert.Equal(new[] { "bin/game.exe", "helper.exe" }, choices); return Task.FromResult<string?>("bin/game.exe"); } });
+        await tx.InstallAsync(path =>
+        {
+            Directory.CreateDirectory(Path.Combine(path, "bin"));
+            File.WriteAllText(Path.Combine(path, "helper.exe"), "helper");
+            File.WriteAllText(Path.Combine(path, "bin", "game.exe"), "game"); return Task.CompletedTask;
+        }, "v1");
+        Assert.Equal(1, calls); Assert.Equal("bin/game.exe", tx.ReadCommitted()!.SelectedExecutable);
+    }
+}

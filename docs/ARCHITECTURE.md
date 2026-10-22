@@ -227,6 +227,15 @@ compiled length and SHA256 before activation. The portable transaction uses that
 default only without a prior manifest or explicit selection; updates retain the
 existing choice. Unknown ambiguous packages still require explicit selection.
 
+For unresolved multi-file packages, the download caller supplies an awaited
+selection callback over an immutable snapshot of relative executable paths. The
+transaction validates exact membership and rechecks the staged inventory after
+selection. Writer authority remains held until the callback actually drains,
+including cancellation; no abandoned UI task can activate a later choice.
+The desktop modal supports keyboard/controller navigation. Automatic and headless
+callers decline instead of prompting or trusting remote preferred-file metadata.
+Cancellation preserves any prior generation and can retain private staging/history.
+
 The initial definition covers one Perfect Dark US 1.1 Linux x64 package only.
 Synthetic fixtures exercise the source workflow; they do not establish gameplay,
 rights or platform acceptance. Other project/build prerequisites remain unconfirmed,

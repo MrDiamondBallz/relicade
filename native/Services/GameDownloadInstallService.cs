@@ -392,6 +392,7 @@ public static class GameDownloadInstallService
                         ReleaseIdentity = latestRelease.tag_name,
                         AssetIdentity = assetIdentity,
                         InitialExecutableRelativePath = setupTarget?.RelativePath,
+                        ChooseExecutableAsync = (choices, token) => dialogs.ChoosePortableExecutableAsync(game.DisplayName, choices, token),
                         InstalledBuildText = $"{asset.name}\n{actual}\n",
                         PrepareCandidate = path =>
                         {
@@ -537,6 +538,15 @@ public static class GameDownloadInstallService
                     "Network Error");
             }
 
+        }
+        catch (PortableExecutableSelectionCancelledException)
+        {
+            // Selection happens before activation. Private staging/history may remain;
+            // the current committed installation is reconciled by the finally block.
+            Telemetry.Current.Track("app_install_cancelled", Usage(("stage", "launch_file_selection")));
+            game.Status = triggerStatus;
+            game.DownloadProgress = 0;
+            game.ClearDownloadSelection();
         }
         catch (LicenseDeclinedException)
         {
