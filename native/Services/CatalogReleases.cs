@@ -310,12 +310,17 @@ public sealed class CatalogReleases
         {
             if (!force && DateTime.UtcNow - _statusAt < StatusAge) return;
             var items = new List<QuiverCatalogStatus>();
+            var cursors = new HashSet<string>(StringComparer.Ordinal);
             string? cursor = null;
             do
             {
                 var page = await _client.GetReleaseStatusAsync(cursor, token).ConfigureAwait(false);
+                token.ThrowIfCancellationRequested();
                 items.AddRange(page.Items);
+                // This endpoint encodes its cursor unchanged, unlike the app-list query.
                 cursor = page.NextCursor;
+                if (cursor != null && !cursors.Add(cursor))
+                    throw new InvalidDataException("Catalog release-status pagination did not advance.");
             } while (cursor != null);
             _status = items;
             _statusAt = DateTime.UtcNow;
@@ -340,16 +345,21 @@ public sealed class CatalogReleases
             if (DateTime.UtcNow - _linksAt < StatusAge) return;
             var links = new Dictionary<string, CatalogLink>(StringComparer.OrdinalIgnoreCase);
             var listing = new Dictionary<string, QuiverCatalogApp>(StringComparer.OrdinalIgnoreCase);
+            var cursors = new HashSet<string>(StringComparer.Ordinal);
             string? cursor = null;
             do
             {
                 var page = await _client.GetAppsAsync(new QuiverCatalogQuery(), cursor, token, QuiverCatalogClient.MaxPageSize).ConfigureAwait(false);
+                token.ThrowIfCancellationRequested();
                 foreach (var app in page.Items)
                 {
                     links[app.Slug] = new(QuiverCatalogMapping.FolderFor(app), app.Launcher.ReleaseAssetFilter);
                     listing[app.Slug] = app;
                 }
-                cursor = page.NextCursor;
+                // GetAppsAsync trims query values before encoding them; compare the wire identity.
+                cursor = page.NextCursor?.Trim();
+                if (cursor != null && (cursor.Length == 0 || !cursors.Add(cursor)))
+                    throw new InvalidDataException("Catalog app-list pagination did not advance.");
             } while (cursor != null);
             foreach (var (slug, link) in links) _links[slug] = link;
             _listing = listing;

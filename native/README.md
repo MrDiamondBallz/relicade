@@ -429,6 +429,14 @@ Exact cached links still work; this is not a complete catalog migration or metad
 authentication system. A link learned in this session is retained across empty
 refreshes and checked after failures, without silently migrating legacy saved IDs.
 
+Background release-status and app-link refreshes detect repeated continuation
+cursors using each endpoint's transmitted identity. A failed partial traversal
+does not replace that feed's last complete cached metadata; the existing retry
+backoff remains. Cancellation drains the operation and releases its refresh
+lock, so a later valid read can proceed. The two feeds remain independent, not
+an atomic combined snapshot. Short or empty pages with advancing cursors remain
+valid; this is not metadata authentication or full catalog acceptance.
+
 The optional **Play Freedoom Phase 2…** library action is a second package-bound
 setup path, for UZDoom 5.0.3 Linux x64 and Freedoom 0.13.0 Phase 2 only. Players
 can explicitly download the pinned official free-data archive or choose an
