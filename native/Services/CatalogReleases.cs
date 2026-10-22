@@ -70,6 +70,9 @@ public sealed class CatalogReleases
     private Dictionary<string, QuiverCatalogApp> _listing = new(StringComparer.OrdinalIgnoreCase);
     private DateTime _linksAt = DateTime.MinValue;
     private readonly Dictionary<string, (DateTime At, IReadOnlyList<QuiverCatalogRelease> Releases)> _history = new(StringComparer.OrdinalIgnoreCase);
+    // Denial-only evidence is not a completed history and never supplies approvals, downloads or version-menu rows.
+    // It lasts for this session until a complete successful refresh of the same catalog app supersedes it.
+    private readonly Dictionary<string, List<QuiverCatalogRelease>> _historyDenials = new(StringComparer.OrdinalIgnoreCase);
     private IReadOnlyList<QuiverCatalogStatus> _status;
     private DateTime _statusAt = DateTime.MinValue;
     // When the release status was read from the site (or saved, for a copy read from disk).
@@ -150,13 +153,45 @@ public sealed class CatalogReleases
         catch (Exception ex) when (!token.IsCancellationRequested)
         {
             System.Diagnostics.Debug.WriteLine($"Release history for {slug} unavailable: {ex.Message}");
-            releases = null;
+            var denied = (ex as QuiverCatalogClient.IncompleteHistoryException)?.KnownBlocks
+                .FirstOrDefault(r => SameHistoryVersion(r.Version, version));
+            lock (_history)
+            {
+                if (denied == null && _historyDenials.TryGetValue(slug, out var observed))
+                    denied = observed.FirstOrDefault(r => SameHistoryVersion(r.Version, version));
+                if (denied == null && _history.TryGetValue(slug, out var retained))
+                    denied = retained.Releases.FirstOrDefault(r => r.State == "blocked" && SameHistoryVersion(r.Version, version));
+            }
+            if (denied != null)
+                return new(ReleaseCheckState.Blocked, (denied.Reasons ?? []).Append("A known block remains in effect while the complete release history is unavailable.").ToArray(), verified, new Dictionary<string, string>());
+            // Preserve the existing status-only offline fallback when no history page was received.
+            // Partial or malformed history, and any known block, must never borrow that approval.
+            if (ex is QuiverCatalogClient.IncompleteHistoryException
+                { NoHistoryPageReceived: true, InnerException: HttpRequestException or TimeoutException } &&
+                SameHistoryVersion(verified, version))
+                return new(ReleaseCheckState.Verified, [], verified, new Dictionary<string, string>());
+            return new(ReleaseCheckState.Unverified,
+                [Unreachable, "The catalog identity is known, but its complete release history could not be confirmed."],
+                verified, new Dictionary<string, string>());
         }
-        var release = releases?.FirstOrDefault(r => ReleaseVersionIdentity.AreVersionsEquivalent(r.Version, version));
+        var matches = releases?.Where(r => string.Equals(r.Version, version, StringComparison.Ordinal)).ToArray() ?? [];
+        if (matches.Length == 0) matches = releases?.Where(r => SameHistoryVersion(r.Version, version)).ToArray() ?? [];
+        if (matches.Length > 1 && (matches.Select(r => r.Version).Distinct(StringComparer.Ordinal).Count() > 1 ||
+            matches.Skip(1).Any(r => !QuiverCatalogClient.SameHistoryRecord(matches[0], r))))
+        {
+            var conflictState = matches.Any(r => r.State == "blocked") ? ReleaseCheckState.Blocked : ReleaseCheckState.Unverified;
+            var reasons = matches.SelectMany(r => r.Reasons ?? []).Append("The catalog returned conflicting records for this release.").Distinct().ToArray();
+            var conflictScans = matches.SelectMany(r => r.Assets ?? []).Where(a => a.Scan != null)
+                .GroupBy(a => a.Filename, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.Select(a => a.Scan!).FirstOrDefault(s => s.Verdict == "flagged") ?? g.First().Scan!, StringComparer.OrdinalIgnoreCase);
+            return new(conflictState, reasons, verified, new Dictionary<string, string>(),
+                matches.Any(r => r.Scan?.Verdict == "flagged") ? "flagged" : null, FileScans: conflictScans);
+        }
+        var release = matches.FirstOrDefault();
         if (release == null)
         {
             // The status feed alone still knows which release is verified, though not its files.
-            if (ReleaseVersionIdentity.AreVersionsEquivalent(verified, version))
+            if (SameHistoryVersion(verified, version))
                 return new(ReleaseCheckState.Verified, [], verified, new Dictionary<string, string>());
             return new(ReleaseCheckState.Unverified, [releases == null ? Unreachable : NotSeen], verified, new Dictionary<string, string>());
         }
@@ -219,7 +254,12 @@ public sealed class CatalogReleases
         if (await ListedReleasesAsync(app, token).ConfigureAwait(false) is not { } listed) return null;
         // A pin the site doesn't list (older than the releases it knows) is for the repository to find.
         if (app.ReleaseTarget is { Length: > 0 } target)
-            return listed.FirstOrDefault(r => ReleaseVersionIdentity.AreVersionsEquivalent(r.Release.tag_name, target)).Release;
+        {
+            var exact = listed.FirstOrDefault(r => string.Equals(r.Release.tag_name, target, StringComparison.Ordinal)).Release;
+            if (exact != null) return exact;
+            var aliases = listed.Where(r => SameHistoryVersion(r.Release.tag_name, target)).ToList();
+            return aliases.Select(r => r.Release.tag_name).Distinct(StringComparer.Ordinal).Count() == 1 ? aliases[0].Release : null;
+        }
         return ReleaseSelection.SelectLatestRelease(listed.Where(r => r.State != "blocked").Select(r => r.Release).ToList());
     }
 
@@ -253,8 +293,14 @@ public sealed class CatalogReleases
         }
         var listed = history.Select(r => (Release: ToRelease(r), r.State)).Where(r => r.Release.assets.Length > 0).ToList();
         if (listed.Count == 0) return null;
-        var states = new Dictionary<string, ReleaseCheckState>(StringComparer.OrdinalIgnoreCase);
-        foreach (var (release, state) in listed) states[release.tag_name] = StateOf(state);
+        var states = new Dictionary<string, ReleaseCheckState>(StringComparer.Ordinal);
+        foreach (var (release, _) in listed)
+        {
+            var records = history.Where(r => r.Version == release.tag_name).ToArray();
+            states[release.tag_name] = records.Any(r => r.State == "blocked") ? ReleaseCheckState.Blocked
+                : records.Any(r => r.State != "verified") || records.Skip(1).Any(r => !QuiverCatalogClient.SameHistoryRecord(records[0], r))
+                    ? ReleaseCheckState.Unverified : ReleaseCheckState.Verified;
+        }
         return (listed.Select(r => r.Release).ToList(), states);
     }
 
@@ -268,6 +314,11 @@ public sealed class CatalogReleases
             catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Release prefetch failed: {ex.Message}"); }
         });
     }
+
+    private static bool SameHistoryVersion(string? left, string? right) =>
+        left?.Contains('+') == true || right?.Contains('+') == true
+            ? string.Equals(left, right, StringComparison.Ordinal)
+            : ReleaseVersionIdentity.AreVersionsEquivalent(left, right);
 
     private static ReleaseCheckState StateOf(string state) => state switch
     {
@@ -295,11 +346,30 @@ public sealed class CatalogReleases
     private async Task<IReadOnlyList<QuiverCatalogRelease>> HistoryAsync(string slug, CancellationToken token)
     {
         lock (_history)
-            if (_history.TryGetValue(slug, out var cached) && DateTime.UtcNow - cached.At < HistoryAge)
+            if (!_historyDenials.ContainsKey(slug) && _history.TryGetValue(slug, out var cached) && DateTime.UtcNow - cached.At < HistoryAge)
                 return cached.Releases;
-        var page = await _client.GetReleaseHistoryAsync(slug, token).ConfigureAwait(false);
-        lock (_history) _history[slug] = (DateTime.UtcNow, page.Items);
-        return page.Items;
+        try
+        {
+            var page = await _client.GetReleaseHistoryAsync(slug, token).ConfigureAwait(false);
+            token.ThrowIfCancellationRequested();
+            lock (_history)
+            {
+                _history[slug] = (DateTime.UtcNow, page.Items);
+                _historyDenials.Remove(slug);
+            }
+            return page.Items;
+        }
+        catch (Exception ex) when (ex is QuiverCatalogClient.IHistoryReadEvidence { KnownBlocks.Count: > 0 })
+        {
+            var evidence = (QuiverCatalogClient.IHistoryReadEvidence)ex;
+            lock (_history)
+            {
+                if (!_historyDenials.TryGetValue(slug, out var denied)) _historyDenials[slug] = denied = [];
+                foreach (var block in evidence.KnownBlocks)
+                    if (!denied.Any(r => r.Version == block.Version)) denied.Add(block);
+            }
+            throw;
+        }
     }
 
     private async Task RefreshStatusAsync(bool force, CancellationToken token)

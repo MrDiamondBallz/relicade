@@ -137,7 +137,8 @@ public sealed class BrowseDetailsViewModel(QuiverCatalogClient client, Func<Quiv
                     : $"Couldn't load releases from the app's repository. {ex.Message}";
                 // A transient read may be explicitly retried. Missing/removed sources
                 // and successfully empty histories do not become automatic retry loops.
-                CanRetryReleases = ex is not HttpRequestException { StatusCode: System.Net.HttpStatusCode.NotFound or System.Net.HttpStatusCode.Gone };
+                var failure = ex is QuiverCatalogClient.IncompleteHistoryException { InnerException: { } cause } ? cause : ex;
+                CanRetryReleases = failure is not HttpRequestException { StatusCode: System.Net.HttpStatusCode.NotFound or System.Net.HttpStatusCode.Gone };
             }
         }
         finally { if (generation == _generation) IsLoadingReleases = false; }

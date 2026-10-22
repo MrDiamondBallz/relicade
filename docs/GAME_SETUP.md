@@ -37,6 +37,14 @@ library object survive a later empty refresh; errors after linking do not permit
 automatic installation. Legacy entries without saved IDs are not migrated across
 restarts by this runtime safeguard.
 
+Release-history continuations must complete before they can supply approval.
+Failed or canceled partial reads retain known blocks separately from the last
+complete in-memory history, without treating partial data as a successful refresh.
+Exact source tags and build labels remain distinct; conflicting repeated records
+retain their metadata but cannot lend arbitrary approval or checksums. See
+[release-history completeness](../native/README.md#release-history-completeness)
+for cursor, resource, offline-cache and session-lifetime limits.
+
 ## Keeping a specific build
 
 A version pin with a `+build` label stays attached to that exact source tag across
