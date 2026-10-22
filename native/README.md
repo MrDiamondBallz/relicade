@@ -189,8 +189,8 @@ Do not treat this source as a production-safe installer or full readiness.
 
 A failed ordinary desktop process-creation attempt leaves existing last-played
 history unchanged and does not create a new recent-play record. History is
-recorded after a non-null process is returned and the existing portable-lifetime
-tracking accepts it. A started process is not evidence that a game reached its
+recorded after a non-null process is returned, while the initial portable writer
+lease is still held and before lifetime tracking can release it. A started process is not evidence that a game reached its
 menu or played successfully; game-specific readiness and native-platform checks
 remain separate. The launch failure still reports an error, and this ordering
 change does not relax recovery or process-lifetime authority.

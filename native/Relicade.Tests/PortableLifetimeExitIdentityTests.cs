@@ -118,6 +118,29 @@ public sealed class PortableLifetimeExitIdentityTests
         }
     }
     [Fact]
+    public async Task Short_lived_process_records_history_before_releasing_writer_authority()
+    {
+        using var f = new ManagedRemovalFixture(); await f.Install();
+        using var process = Child(f.Root);
+        await Barrier(process, f.Root);
+        Stop(process); // Deterministic already-exited child; no timing race.
+        using var lifetime = PortableInstallationLifetime.Begin(f.Live);
+        var recorded = false;
+        Relicade.Services.GameLaunchService.RecordAndTrackStartedProcess(lifetime, process, () =>
+        {
+            Held(f); // A concurrent update/rollback must still be excluded here.
+            new Relicade.Models.GameInfo().UpdateLastPlayedTime(f.Live);
+            recorded = true;
+        });
+        Assert.True(recorded);
+        Assert.NotEqual("synthetic play record", File.ReadAllText(Path.Combine(f.Live, "LastPlayed.txt")));
+        Released(f);
+        Assert.False(File.Exists(Receipt(f)));
+        Assert.Equal("current save old", File.ReadAllText(Path.Combine(f.Live, "saves", "slot")));
+        Assert.Equal("synthetic owned original", File.ReadAllText(Path.Combine(f.Live, "owned-data", "original")));
+    }
+
+    [Fact]
     public async Task Real_preopened_proc_read_proven_exit_releases_completed_lifetime()
     {
         using var f = new ManagedRemovalFixture(); await f.Install();
