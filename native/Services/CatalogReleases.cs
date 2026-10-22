@@ -140,8 +140,9 @@ public sealed class CatalogReleases
     /// <summary>Says whether the source catalog verified this release of the app; null when the app isn't in the catalog.</summary>
     public async Task<ReleaseCheck?> CheckAsync(GameInfo app, string version, CancellationToken token)
     {
+        var knownIdentity = HasCatalogIdentity(app);
         await EnsureLinkedAsync(app, token).ConfigureAwait(false);
-        if (app.CatalogSlug is not { } slug) return null;
+        if (app.CatalogSlug is not { } slug) return knownIdentity ? UnconfirmedIdentity() : null;
         var verified = app.CatalogVerifiedVersion;
         IReadOnlyList<QuiverCatalogRelease>? releases;
         try { releases = await HistoryAsync(slug, token).ConfigureAwait(false); }
@@ -363,6 +364,13 @@ public sealed class CatalogReleases
         finally { _linksRefresh.Release(); }
     }
 
+    internal static bool HasCatalogIdentity(GameInfo app) => Linkable(app) &&
+        (!string.IsNullOrWhiteSpace(app.CatalogEntryId) || !string.IsNullOrWhiteSpace(app.CatalogSlug));
+
+    internal static ReleaseCheck UnconfirmedIdentity() => new(ReleaseCheckState.Unverified,
+        ["Relicade cannot confirm this saved catalog identity against the available catalog metadata."],
+        null, new Dictionary<string, string>());
+
     private static bool Linkable(GameInfo app) => !app.IsManuallyManaged && !string.IsNullOrWhiteSpace(app.Repository);
 
     private IEnumerable<QuiverCatalogStatus> Candidates(GameInfo app)
@@ -377,9 +385,8 @@ public sealed class CatalogReleases
     private QuiverCatalogStatus? Find(GameInfo app)
     {
         // The entry the app was added from, or was last linked to: its id doesn't change when the catalog renames things.
-        if (Linkable(app) && !string.IsNullOrWhiteSpace(app.CatalogEntryId) &&
-            _status.FirstOrDefault(s => string.Equals(s.Id, app.CatalogEntryId, StringComparison.Ordinal)) is { } byId)
-            return byId;
+        if (Linkable(app) && !string.IsNullOrWhiteSpace(app.CatalogEntryId))
+            return _status.FirstOrDefault(s => string.Equals(s.Id, app.CatalogEntryId, StringComparison.Ordinal));
         var candidates = Candidates(app).ToList();
         if (candidates.Count == 0)
         {

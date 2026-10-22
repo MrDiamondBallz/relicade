@@ -266,3 +266,15 @@ The installer resolves catalog then publisher digest before confirmation/downloa
 missing integrity reaches the existing interactive consent seam, while automatic
 and headless implementations decline. Valid digests are compared before activation.
 This does not establish publisher trust, software safety, rights or playable setup.
+
+
+## Retained catalog identity
+
+The library Add copy preserves `CatalogEntryId` before saving or background
+requests. `CatalogReleases.Find` treats a retained entry ID as authoritative for
+matching: if absent, repository/folder heuristics cannot substitute a sibling.
+`CheckAsync` distinguishes that unknown identity from a repository never linked
+to the catalog. The installer also retains the distinction if its check service is
+unavailable or throws. Unknown evidence uses the existing explicit consent seam;
+automatic/headless flows decline. Exact cached links and independent repositories
+remain supported. This does not implement identity migration or authenticate feeds.

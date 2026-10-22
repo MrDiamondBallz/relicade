@@ -52,6 +52,27 @@ public class LibraryAddServiceTests
             "only the background lookups for the new app (its releases, and whether the source catalog verified one) may use the network, and closing the session cancels them");
     }
 
+    [AvaloniaFact]
+    public async Task Add_preserves_catalog_identity_before_background_enrichment()
+    {
+        await using var launcher = new IsolatedLauncher();
+        var external = new GameInfo { Name = "Fixture", Repository = "fixture/catalog", FolderName = "Fixture", CatalogEntryId = "entry-fixture" };
+        var result = await launcher.Service.AddAsync(external).WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+        result.App!.CatalogEntryId.Should().Be("entry-fixture");
+        var saved = (await new AppCatalogService(dataDirectory: launcher.Root).LoadLocalAppsAsync()).Should().ContainSingle().Subject;
+        saved.CatalogEntryId.Should().Be("entry-fixture");
+        await launcher.Session.DisposeAsync();
+    }
+
+    [Fact]
+    public void Manual_local_entries_do_not_inherit_a_catalog_download_identity()
+    {
+        var local = new GameInfo { Name = "Local", FolderName = "Local", CatalogEntryId = "stale-id" };
+        local.IsManuallyManaged.Should().BeTrue();
+        LibraryAddService.CloneForLocal(local).CatalogEntryId.Should().BeNull();
+        CatalogReleases.HasCatalogIdentity(local).Should().BeFalse();
+    }
+
     private sealed class Store : ISettingsStore
     {
         public AppSettings Current { get; } = new();

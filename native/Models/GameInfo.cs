@@ -253,8 +253,8 @@ namespace Relicade.Models
         /// <summary>What the catalog last set on this app, so the player's own changes are told apart from its.</summary>
         public CatalogSnapshot? CatalogSnapshot { get; set; }
         /// <summary>
-        /// The app's entry id on quiverlauncher.com, saved in apps.json. It links the app to its catalog entry first, before
-        /// its repository and then its folder, so the link survives the entry's folder or name changing.
+        /// The app's entry id on quiverlauncher.com, saved in apps.json. When present it must match that exact entry;
+        /// repository/folder heuristics only link entries without an id. A missing id match is unconfirmed, not another app.
         /// </summary>
         public string? CatalogEntryId { get; set; }
         public bool IsExperimental { get; set; }

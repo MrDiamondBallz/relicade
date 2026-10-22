@@ -395,3 +395,11 @@ install without either digest. Automatic/headless flows decline that unverified
 case. A mismatch preserves the previous installation; a malformed digest cannot
 invent a same-tag update. See [download integrity](../docs/GAME_SETUP.md#download-integrity-and-catalog-approval)
 for the boundaries. A matching digest is not a safety or gameplay certification.
+
+
+Catalog identity is saved as part of Add, without waiting for enrichment. Missing
+status metadata cannot silently turn that entry into an independent repository:
+interactive installs explain unconfirmed identity, while automatic installs wait.
+An absent explicit catalog ID cannot borrow a sibling entry's release approval.
+Exact cached links still work; this is not a complete catalog migration or metadata
+authentication system.
