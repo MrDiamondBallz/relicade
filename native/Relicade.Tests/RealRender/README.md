@@ -70,6 +70,16 @@ receipt, paths and four-byte data are explicitly synthetic; it performs no copy,
 download or game execution. Footer geometry and controller focus are checked
 separately from the real-data-operation synthetic fixtures.
 
+`OwnedPreviewNavigationRenderingTests` uses the shared renderer owner and actual
+modal windows at ordinary and minimum sizes, including 200% interface scaling.
+Natural controller navigation must expose every complete synthetic source,
+destination, hash and retained-backup fragment before confirmation. It checks
+44-logical-pixel inspection targets, viewport bounds and stable focus-ring layout with
+real fonts. Separate native fixtures exercise natural keyboard/controller copy
+and repair confirmation with disposable four-byte data. The render fixtures never
+copy, download or execute a game; these checks are not physical-controller,
+platform file-picker, native accessibility or gameplay acceptance.
+
 `BrowseReleaseRetryRenderingTests` renders the actual release-notes retry action
 at normal and minimum desktop layout sizes after an injected offline failure.
 Its project and failure are synthetic, with a throwing transport and no network,

@@ -104,6 +104,12 @@ package revisions and operating systems are not silently accepted by this rule.
    data before passing the fixed `--rom-file` argument. Shortcuts do not bypass
    this data check. Native gameplay and hardware compatibility still need testing.
 
+Long source paths, destinations, hashes and retained-backup details remain complete.
+The preview divides them into measured, focusable sections that fit the available
+window. Use Tab or controller Up/Down to inspect the ordered sections; the focus
+ring does not rewrap their text. Inspection is not copy confirmation. The separate
+confirmation and Cancel actions stay available at the supported dialog sizes.
+
 The original is never moved, linked or overwritten. Setup uses a separate
 `owned-game-data` directory under Relicade's user-data location, keyed to the
 installation. It is not injected into an immutable game generation. Existing
