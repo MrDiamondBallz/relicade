@@ -14,6 +14,12 @@ public static class ReleaseWarnings
         if (check.State == ReleaseCheckState.Blocked)
             return await ask(Blocked(app, version, check), "Blocked release") &&
                 await ask($"Are you sure? Relicade blocked {app} {version}.", "Install a blocked release?");
+        if (check.State == ReleaseCheckState.Verified && check.MissingAssetDigest)
+        {
+            var text = new StringBuilder($"The source catalog lists {app} {version} as verified, but that does not verify this download's bytes.");
+            Details(text, check);
+            return await ask(text.Append("\n\nContinue without published integrity verification? Only proceed if you trust the download source. A digest is not a guarantee that software is safe.").ToString(), "Download integrity not verified");
+        }
         return await ask(Unverified(app, version, check), "Not verified yet");
     }
 

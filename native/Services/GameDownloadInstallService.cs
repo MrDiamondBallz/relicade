@@ -168,10 +168,18 @@ public static class GameDownloadInstallService
                     Reasons = [.. check.Reasons, $"The source catalog checked this release's other files, not {asset.name}."],
                     Checksums = new Dictionary<string, string>(),
                 };
+            var catalogDigest = PublishedAssetDigest.Normalize(check?.ChecksumFor(asset.name));
+            var expectedDigest = catalogDigest ?? DigestOf(asset);
+            if (check != null && expectedDigest == null)
+                check = check with
+                {
+                    MissingAssetDigest = true,
+                    Reasons = [.. check.Reasons, $"{asset.name} has no usable published SHA-256. Relicade cannot verify the download bytes against a published digest."],
+                };
             // VirusTotal's verdict on the file downloaded, not the release's other files.
             check = check?.ForFile(asset.name);
             installingVersion = latestRelease.tag_name;
-            if (check is { State: not ReleaseCheckState.Verified } &&
+            if (check != null && (check.State != ReleaseCheckState.Verified || check.MissingAssetDigest) &&
                 !await dialogs.ConfirmUnverifiedReleaseAsync(game.DisplayName, latestRelease.tag_name, check))
             {
                 Telemetry.Current.Track("app_install_cancelled", Usage(("stage", "not_verified"), ("blocked", check.State == ReleaseCheckState.Blocked)));
@@ -296,13 +304,13 @@ public static class GameDownloadInstallService
                 }
 
                 // The file must be the one The source catalog checked (or, outside the catalog, the one GitHub published).
-                var expected = check?.ChecksumFor(asset.name) ?? DigestOf(asset);
+                var expected = expectedDigest;
                 var actual = await Sha256Async(downloadPath).ConfigureAwait(false);
                 if (expected != null && !string.Equals(actual, expected, StringComparison.OrdinalIgnoreCase) &&
                     // A rolling release is rebuilt under the same tag: the build GitHub publishes now is fine too.
                     !(check?.Rolling == true && string.Equals(actual, await LiveDigestAsync(game, httpClient, apiToken,
                         latestRelease.tag_name, asset.name).ConfigureAwait(false), StringComparison.OrdinalIgnoreCase)))
-                    throw new DownloadMismatchException(asset.name, latestRelease.tag_name, check?.ChecksumFor(asset.name) != null);
+                    throw new DownloadMismatchException(asset.name, latestRelease.tag_name, catalogDigest != null);
 
                 game.DownloadProgress = 90;
                 game.Status = GameStatus.Installing;
@@ -713,8 +721,7 @@ public static class GameDownloadInstallService
         return DigestOf(file);
     }
 
-    private static string? DigestOf(GitHubAsset asset) =>
-        asset.digest?.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase) == true ? asset.digest["sha256:".Length..].ToLowerInvariant() : null;
+    private static string? DigestOf(GitHubAsset asset) => PublishedAssetDigest.FromPublisher(asset.digest);
 
     private static async Task<string> Sha256Async(string path)
     {

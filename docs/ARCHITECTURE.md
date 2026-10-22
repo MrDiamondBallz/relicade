@@ -271,3 +271,14 @@ local object remains in the library. Pending search input is applied without its
 debounce before the target is revealed, so a delayed search cannot hide it after
 navigation. A native notice explains how to restore the normal filtered view.
 No new download, launch, remote request or prerequisite acceptance is introduced.
+
+
+## Selected-asset digest policy
+
+`PublishedAssetDigest` provides shared strict SHA-256 syntax normalization for the
+installer and same-tag rebuild detection. `ReleaseCheck.MissingAssetDigest` records
+selected-file integrity availability separately from the catalog's release state.
+The installer resolves catalog then publisher digest before confirmation/download;
+missing integrity reaches the existing interactive consent seam, while automatic
+and headless implementations decline. Valid digests are compared before activation.
+This does not establish publisher trust, software safety, rights or playable setup.

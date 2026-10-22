@@ -82,3 +82,13 @@ network behavior remains separate. Copies and receipts use owner-only Linux file
 permissions, not encryption. Hostile concurrent filesystem writers, full power-loss
 recovery, migration and real-game compatibility remain unaccepted. See
 [the setup guide](docs/GAME_SETUP.md).
+
+## Catalog download integrity
+
+A release review flag does not verify a selected package's bytes. Native catalog
+installation requires a usable published SHA-256 or explicit interactive consent
+to proceed without it; automatic/headless flows decline the missing-digest case.
+Valid nonrolling catalog digests retain precedence over publisher fallback digests,
+and mismatches block activation. Syntax validation and a matching digest are not
+publisher authentication, malware clearance or a sandbox. Catalog linkage and
+reachability policy and noncatalog source policy remain separate review boundaries.

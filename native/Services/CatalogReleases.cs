@@ -23,7 +23,9 @@ public sealed record ReleaseCheck(
     // Rebuilt under the same tag: a download that doesn't match is checked against the file's digest upstream now.
     bool Rolling = false,
     IReadOnlyDictionary<string, QuiverCatalogScan>? FileScans = null,
-    string? ScanFile = null)
+    string? ScanFile = null,
+    // Catalog approval and availability of a selected-file integrity digest are separate.
+    bool MissingAssetDigest = false)
 {
     /// <summary>The SHA-256 (hex) Relicade pinned for a file of this release, when it knows the file.</summary>
     public string? ChecksumFor(string fileName) => Checksums.GetValueOrDefault(fileName);
@@ -45,9 +47,9 @@ public sealed record ReleaseCheck(
 }
 
 /// <summary>
-/// Matches library apps to the quiverlauncher.com catalog and says which of their releases Relicade
-/// verified. Catalog apps update only to the verified release; their downloads are checked against
-/// the SHA-256 Relicade pinned. Apps that aren't in the catalog are left alone.
+/// Matches library apps to the quiverlauncher.com catalog and reports its release review states.
+/// Selected-file integrity is evaluated separately by the download flow, using a usable catalog
+/// or publisher digest. Apps that are not in the catalog are left alone.
 /// </summary>
 public sealed class CatalogReleases
 {

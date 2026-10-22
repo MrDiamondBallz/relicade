@@ -397,3 +397,14 @@ that one entry visible alongside normal results without saving different filters
 A visible notice explains the exception. Changing search/filters or switching to
 Browse restores the filtered view. This route has local synthetic native
 keyboard/controller coverage, not physical-device acceptance.
+
+
+## Selected download integrity
+
+Catalog release approval does not replace a selected file's integrity check.
+The native flow validates SHA-256 syntax, uses a valid publisher digest when the
+catalog digest is absent or malformed, and asks before an interactive catalog
+install without either digest. Automatic/headless flows decline that unverified
+case. A mismatch preserves the previous installation; a malformed digest cannot
+invent a same-tag update. See [download integrity](../docs/GAME_SETUP.md#download-integrity-and-catalog-approval)
+for the boundaries. A matching digest is not a safety or gameplay certification.
