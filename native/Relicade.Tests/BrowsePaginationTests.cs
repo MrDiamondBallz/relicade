@@ -12,8 +12,14 @@ public class BrowsePaginationTests
     private sealed class Handler(Func<int, CancellationToken, Task<string>> page) : HttpMessageHandler
     {
         public int Requests { get; private set; }
+        public List<string?> Cursors { get; } = [];
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
         {
+            if (!request.RequestUri!.AbsolutePath.EndsWith("/facets", StringComparison.Ordinal))
+            {
+                var cursor = request.RequestUri.Query.TrimStart('?').Split('&').FirstOrDefault(value => value.StartsWith("cursor=", StringComparison.Ordinal));
+                Cursors.Add(cursor == null ? null : Uri.UnescapeDataString(cursor[7..]));
+            }
             var body = request.RequestUri!.AbsolutePath.EndsWith("/facets", StringComparison.Ordinal)
                 ? "{\"total\":511,\"consoles\":[]}" : await page(++Requests, token);
             return new(HttpStatusCode.OK) { Content = new StringContent(body) };
@@ -140,6 +146,40 @@ public class BrowsePaginationTests
         model.CanLoadMore.Should().BeTrue();
         (await model.LoadMoreAsync(TestContext.Current.CancellationToken)).Should().BeTrue();
         model.Items.Select(i => i.FolderName).Should().Equal("first", "last");
+    }
+
+    [Theory]
+    [InlineData(" ")]
+    [InlineData("\u2003")]
+    public async Task Cursor_identity_matches_the_query_value_actually_sent(string padding)
+    {
+        var handler = new Handler((n, _) => Task.FromResult(n <= 4
+            ? Page(string.Concat(Enumerable.Repeat(padding, n)) + "next" + string.Concat(Enumerable.Repeat(padding, n)), $"app{n}")
+            : throw new InvalidOperationException("Fixture stopped repeated wire requests.")));
+        var model = Model(handler);
+        await model.ReloadAsync(TestContext.Current.CancellationToken);
+        handler.Requests.Should().Be(2);
+        handler.Cursors.Should().Equal(new string?[] { null, "next" });
+        model.Items.Should().HaveCount(2);
+        model.CanLoadMore.Should().BeFalse();
+        model.Status.Should().Contain("pagination");
+    }
+
+    [Fact]
+    public async Task Case_distinct_and_interior_space_cursors_remain_opaque()
+    {
+        var handler = new Handler((n, _) => Task.FromResult(n switch
+        {
+            1 => Page(" A "), 2 => Page("a"), 3 => Page("a b"),
+            4 => Page("ab"), 5 => Page(null, "last"),
+            _ => throw new InvalidOperationException("Unexpected extra request.")
+        }));
+        var model = Model(handler);
+        await model.ReloadAsync(TestContext.Current.CancellationToken);
+        handler.Cursors.Should().Equal(new string?[] { null, "A", "a", "a b", "ab" });
+        model.Items.Select(item => item.FolderName).Should().Equal("last");
+        model.CanLoadMore.Should().BeFalse();
+        model.Status.Should().BeEmpty();
     }
 
 }

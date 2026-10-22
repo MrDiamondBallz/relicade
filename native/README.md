@@ -402,7 +402,9 @@ keyboard/controller coverage, not physical-device acceptance.
 ## Catalog pagination
 
 Browse follows continuation cursors rather than assuming a short or empty page
-ends the catalog. A repeated or cyclic cursor stops further requests and leaves
+ends the catalog. Cursor identity follows the value actually sent by the client,
+including its boundary-whitespace trimming, without folding case or interior
+content. A repeated or cyclic cursor stops further requests and leaves
 already received cards visible with a reload diagnostic. Reload starts a fresh
 query; ordinary network failures and cancellation retain the next-page retry.
 There is no fixed catalog-size or page-count cutoff. This protects discovery

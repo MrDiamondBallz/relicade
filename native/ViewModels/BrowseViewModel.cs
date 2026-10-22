@@ -289,7 +289,8 @@ public sealed class BrowseViewModel(QuiverCatalogClient client, Func<IReadOnlyLi
         // Keep already received cards, but never re-request a cursor in this query generation.
         // Empty and short pages are legitimate; only cursor progress determines continuation.
         AddCards(page.Items.Select(app => BrowseItem.FromCatalog(app, _consoleNames)).ToList());
-        _cursor = page.NextCursor;
+        // GetAppsAsync trims query values before encoding them; compare that same wire identity.
+        _cursor = page.NextCursor?.Trim();
         if (_cursor != null && (string.IsNullOrWhiteSpace(_cursor) || !_pageCursors.Add(_cursor)))
         {
             _cursor = null;
