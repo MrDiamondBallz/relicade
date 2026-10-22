@@ -64,6 +64,11 @@ dotnet publish Relicade.Desktop/Relicade.Desktop.csproj -c Release -r win-x64 \
   --self-contained true -p:PublishTrimmed=false -m:1 -o artifacts/win-x64
 ```
 
+The Linux x64 [runtime notice inventory](../docs/NATIVE_PACKAGE_CONTENTS.md)
+adds version-bound vendor notices and a read-only publish-content check. It does
+not establish distribution rights or platform support. Other targets retain
+separate unresolved package/notice obligations.
+
 Keep both opt-outs set before restore, build, test and publish. The official
 Avalonia.BuildServices package documents `AVALONIA_TELEMETRY_OPTOUT=1` for its
 independent build-time telemetry; the .NET variable alone does not disable it.

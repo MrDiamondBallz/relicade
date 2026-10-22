@@ -3,3 +3,8 @@
 # Preserve upstream OFL notice bytes, including inherited trailing spaces.
 brand/assets/fonts/Barlow-OFL.txt -text whitespace=-blank-at-eol
 brand/assets/fonts/Manrope-OFL.txt -text whitespace=-blank-at-eol
+
+# Preserve copied runtime notice bytes and inherited whitespace verbatim.
+native/licenses/linux-x64/packages/** -text whitespace=-blank-at-eol,-blank-at-eof
+native/licenses/linux-x64/upstream/** -text whitespace=-blank-at-eol,-blank-at-eof
+native/licenses/linux-x64/sdk/** -text whitespace=-blank-at-eol,-blank-at-eof

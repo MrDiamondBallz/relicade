@@ -32,7 +32,7 @@
         "contracts"
       ],
       "reviewed": {
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -51,10 +51,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "c161834658be7c26ae6c6742501801010db26d72d6210df70b0df7951223ce3d",
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -73,10 +73,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "c161834658be7c26ae6c6742501801010db26d72d6210df70b0df7951223ce3d",
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -91,10 +91,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "c161834658be7c26ae6c6742501801010db26d72d6210df70b0df7951223ce3d",
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -129,10 +129,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "c161834658be7c26ae6c6742501801010db26d72d6210df70b0df7951223ce3d",
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -147,7 +147,7 @@
       "reviewed": {
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "c161834658be7c26ae6c6742501801010db26d72d6210df70b0df7951223ce3d",
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -159,7 +159,7 @@
         "contracts"
       ],
       "reviewed": {
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
@@ -172,7 +172,7 @@
         "contracts"
       ],
       "reviewed": {
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -189,8 +189,8 @@
       ],
       "reviewed": {
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -204,10 +204,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "c161834658be7c26ae6c6742501801010db26d72d6210df70b0df7951223ce3d",
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -222,10 +222,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "c161834658be7c26ae6c6742501801010db26d72d6210df70b0df7951223ce3d",
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -242,9 +242,9 @@
         "tooling"
       ],
       "reviewed": {
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -270,7 +270,7 @@
       "reviewed": {
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "c161834658be7c26ae6c6742501801010db26d72d6210df70b0df7951223ce3d",
-        "tooling": "b3f13cc986a742967e3e75e0308c21f48027f2c1c33e7455e5744b88b064b42a",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -292,7 +292,7 @@
         "native"
       ],
       "reviewed": {
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -303,10 +303,142 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "69efb8c371ddff82cb9d58b94d0156af2f6a8695f9031ab4081bade1ceec1b44",
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
+    },
+    "native/licenses/linux-x64/packages/harfbuzzsharp/8.3.1.3/LICENSE.txt": {
+      "policy": "protected",
+      "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+    },
+    "native/licenses/linux-x64/packages/harfbuzzsharp.nativeassets.linux/8.3.1.3/LICENSE.txt": {
+      "policy": "protected",
+      "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+    },
+    "native/licenses/linux-x64/packages/harfbuzzsharp.nativeassets.linux/8.3.1.3/THIRD-PARTY-NOTICES.txt": {
+      "policy": "protected",
+      "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5",
+      "vendor_notice": {
+        "archive_url": "https://api.nuget.org/v3-flatcontainer/harfbuzzsharp.nativeassets.linux/8.3.1.3/harfbuzzsharp.nativeassets.linux.8.3.1.3.nupkg",
+        "archive_sha256": "7de58e9daffc9dcbe6aeaec2c670dccefd5f69c576a68655e51f8ec82b687295",
+        "member": "THIRD-PARTY-NOTICES.txt",
+        "upstream_relative_references": [
+          "README.ijg",
+          "turbojpeg.c",
+          "simd/jsimdext.inc"
+        ]
+      }
+    },
+    "native/licenses/linux-x64/packages/microsoft.netcore.app.runtime.linux-x64/10.0.13/LICENSE.TXT": {
+      "policy": "protected",
+      "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310"
+    },
+    "native/licenses/linux-x64/packages/microsoft.netcore.app.runtime.linux-x64/10.0.13/THIRD-PARTY-NOTICES.TXT": {
+      "policy": "protected",
+      "sha256": "66f1d4e44973185519bb4aa8a9718eb22fc7af2cc532e3ae9cfc4c127ee7fc54"
+    },
+    "native/licenses/linux-x64/packages/microsoft.win32.systemevents/10.0.3/THIRD-PARTY-NOTICES.TXT": {
+      "policy": "protected",
+      "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21"
+    },
+    "native/licenses/linux-x64/packages/skiasharp/3.119.4/LICENSE.txt": {
+      "policy": "protected",
+      "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+    },
+    "native/licenses/linux-x64/packages/skiasharp.nativeassets.linux/3.119.4/LICENSE.txt": {
+      "policy": "protected",
+      "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938"
+    },
+    "native/licenses/linux-x64/packages/skiasharp.nativeassets.linux/3.119.4/THIRD-PARTY-NOTICES.txt": {
+      "policy": "protected",
+      "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5",
+      "vendor_notice": {
+        "archive_url": "https://api.nuget.org/v3-flatcontainer/skiasharp.nativeassets.linux/3.119.4/skiasharp.nativeassets.linux.3.119.4.nupkg",
+        "archive_sha256": "fae0554059b1107ef7888e46c20bdfb548401ef7a7a6f7391ad4fadc7432d50a",
+        "member": "THIRD-PARTY-NOTICES.txt",
+        "upstream_relative_references": [
+          "README.ijg",
+          "turbojpeg.c",
+          "simd/jsimdext.inc"
+        ]
+      }
+    },
+    "native/licenses/linux-x64/packages/system.drawing.common/10.0.3/LICENSE.TXT": {
+      "policy": "protected",
+      "sha256": "a89886665765362eb77e0f8e26602c924520041d1711b2eedc136434fe4d01ab"
+    },
+    "native/licenses/linux-x64/packages/system.drawing.common/10.0.3/THIRD-PARTY-NOTICES.TXT": {
+      "policy": "protected",
+      "sha256": "2ffe89f325685881e9fb3a64451632abe784db07a193a2633b241ea8d85e7a85"
+    },
+    "native/licenses/linux-x64/sdk/10.0.402/ThirdPartyNotices.txt": {
+      "policy": "protected",
+      "sha256": "2dc8f8c5a39401e928b5784ab564eb8b3ceb99ead3df8f260e0cab7e0bbecc7a"
+    },
+    "native/licenses/linux-x64/upstream/AvaloniaUI--Avalonia/NOTICE.md": {
+      "policy": "protected",
+      "sha256": "dd6f80852d16320c865a2e403ffd1a8b07a0e34c5b37122c0bc2343639ff68e6"
+    },
+    "native/licenses/linux-x64/upstream/AvaloniaUI--Avalonia/licence.md": {
+      "policy": "protected",
+      "sha256": "213814d306090074d234d760239ff0f67eb9b8d20eefb4d5631bb39dbe0b769b"
+    },
+    "native/licenses/linux-x64/upstream/AvaloniaUtils--AsyncImageLoader.Avalonia/LICENSE": {
+      "policy": "protected",
+      "sha256": "b4ced122a34fcbb3ef1cfe3e81a9ad1e486f8fe96c836a63c87629a568ad07e9"
+    },
+    "native/licenses/linux-x64/upstream/adamhathcock--sharpcompress/LICENSE.txt": {
+      "policy": "protected",
+      "sha256": "b7ca2b6174cee11afe41d78b48527e3d7659a4435c25019a4a5e072299a2f8ed"
+    },
+    "native/licenses/linux-x64/upstream/dotnet--dotnet/LICENSE.TXT": {
+      "policy": "protected",
+      "sha256": "ae48df11a335dc1a615f4f938b69cba73bcf4485c4f97af49b38efb0f216353b"
+    },
+    "native/licenses/linux-x64/upstream/dotnet--dotnet/THIRD-PARTY-NOTICES.txt": {
+      "policy": "protected",
+      "sha256": "4bef6a7e7b359869d751c9ff70274a80a0f626927afa5a0681583c1b1861267b"
+    },
+    "native/licenses/linux-x64/upstream/kekekeks--MicroCom/LICENSE": {
+      "policy": "protected",
+      "sha256": "6ee769c9ac4dac9abb16b98b1341e9528ff9f4ab685481410d3376d14148f3a9"
+    },
+    "native/licenses/linux-x64/upstream/libsdl-org--SDL/LICENSE.txt": {
+      "policy": "protected",
+      "sha256": "1c040b8271b37e5076359f8fd54240e371114112924d2df81ef87c7d6a1dfdfd"
+    },
+    "native/licenses/linux-x64/upstream/ppy--SDL3-CS/SDL-license-header.txt": {
+      "policy": "protected",
+      "sha256": "696c4382bdc2b3d828a73fa2014fcb8c405a76621e4dbb9582bf07fde4bcd5ee"
+    },
+    "native/licenses/linux-x64/upstream/rsms--inter/LICENSE.txt": {
+      "policy": "protected",
+      "sha256": "4d7d9c95e7d7f2f0ebf76d5e0b344826b74e903a34028ee18ab54bb639e45906"
+    },
+    "native/licenses/linux-x64/upstream/tmds--Tmds.DBus/COPYING": {
+      "policy": "protected",
+      "sha256": "aca3b49277abcc7886ccb2f115603a9f5b15fc3f96019a10c00f2974098b210c"
+    },
+    "native/licenses/linux-x64/upstream/velopack--velopack/LICENSE": {
+      "policy": "protected",
+      "sha256": "91845db83551c877ebbb1118e0fb92e4e527290d23b995c55dcd438b3293943f"
+    },
+    "docs/NATIVE_PACKAGE_CONTENTS.md": {
+      "policy": "review",
+      "sources": [
+        "native",
+        "tooling"
+      ],
+      "reviewed": {
+        "native": "3f648d9552fdca6096a5859016ba9894a17ba9f31baf36c24b1d8d4adb55780d",
+        "tooling": "abd7e218560935817c17a9c3a30579703031066900a2954b44af86ba07ed4a23",
+        "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
+      }
+    },
+    "native/licenses/linux-x64/upstream/ppy--SDL3-CS/LICENCE.txt": {
+      "policy": "protected",
+      "sha256": "45e6d072aa8b425080dbcd6a96208feaf8f7dad0180ccc54fc0c97db6f5d86e0"
     }
   },
   "protected_files": {

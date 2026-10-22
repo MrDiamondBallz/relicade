@@ -70,6 +70,95 @@ class DocsSyncTests(unittest.TestCase):
     def snapshot(self):
         return {p.relative_to(self.root).as_posix(): p.read_bytes() for p in self.root.rglob('*') if p.is_file() and '.git' not in p.parts}
 
+    def vendor_fixture(self):
+        path = 'native/licenses/vendor/NOTICE.txt'
+        target = self.root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text('Preserved synthetic notice: [original](src/original.c)\n')
+        entry = {'policy': 'protected', 'sha256': hashlib.sha256(target.read_bytes()).hexdigest(),
+                 'vendor_notice': {'archive_url': 'https://api.nuget.org/v3-flatcontainer/example/1.0.0/example.1.0.0.nupkg',
+                                   'archive_sha256': 'a' * 64, 'member': 'NOTICE.txt',
+                                   'upstream_relative_references': ['src/original.c']}}
+        self.manifest['documents'][path] = entry
+        self.save()
+        return path, target, entry
+
+    def test_vendor_citations_are_explicit_unchecked_and_do_not_rewrite_notice(self):
+        path, target, entry = self.vendor_fixture()
+        before = target.read_bytes()
+        self.green()
+        result, report = self.run_tool('--check')
+        self.assertEqual(0, result.returncode, report)
+        self.assertEqual(before, target.read_bytes())
+        self.assertEqual([{'document': path, 'reference': 'src/original.c',
+                          'archive_url': entry['vendor_notice']['archive_url'],
+                          'target_availability': 'not_checked'}], report['vendor_upstream_references'])
+
+    def test_vendor_classification_does_not_excuse_broken_owned_document_links(self):
+        self.vendor_fixture()
+        self.green()
+        with (self.root / 'README.md').open('a') as stream:
+            stream.write('\n[broken](missing.md)\n')
+        result, report = self.run_tool('--check')
+        self.assertEqual(1, result.returncode)
+        self.assertTrue(any('README.md: missing.md' in error for error in report['errors']), report)
+
+    def test_vendor_new_and_stale_references_still_fail(self):
+        path, target, entry = self.vendor_fixture()
+        target.write_text(target.read_text() + '[other](missing.c)\n')
+        entry['sha256'] = hashlib.sha256(target.read_bytes()).hexdigest()
+        self.save()
+        _, report = self.run_tool('--audit')
+        self.assertTrue(any('missing.c (Missing local link)' in e for e in report['errors']), report)
+        entry['vendor_notice']['upstream_relative_references'].append('never-mentioned.c')
+        self.save()
+        _, report = self.run_tool('--audit')
+        self.assertTrue(any('stale vendor reference' in e for e in report['errors']), report)
+
+    def test_vendor_notice_must_be_registered_and_unchanged(self):
+        path, target, entry = self.vendor_fixture()
+        del self.manifest['documents'][path]
+        self.save()
+        _, report = self.run_tool('--audit')
+        self.assertIn(path, report['unregistered'])
+        self.manifest['documents'][path] = entry
+        self.save()
+        target.write_text('Changed notice')
+        _, report = self.run_tool('--audit')
+        self.assertTrue(any('Protected content changed' in e for e in report['errors']), report)
+
+    def test_vendor_reference_paths_cannot_escape_or_hide_arbitrary_links(self):
+        _, _, entry = self.vendor_fixture()
+        for value in ['../secret', '/absolute', 'a/../../x', 'a//b', 'a/./b', '%2e%2e/x',
+                      'https://example.com/x', 'a\\b', '*', 'a?query', 'a#fragment']:
+            with self.subTest(value=value):
+                entry['vendor_notice']['upstream_relative_references'] = [value]
+                self.save()
+                _, report = self.run_tool('--audit')
+                self.assertTrue(any('normalized and relative' in e for e in report['errors']), report)
+
+    def test_vendor_archive_provenance_rejects_credentials_unknown_hosts_and_members(self):
+        _, _, entry = self.vendor_fixture()
+        for value in ['https://user:secret@api.nuget.org/x', 'https://example.com/x',
+                      'http://api.nuget.org/x', 'https://api.nuget.org/v3-flatcontainer/example/1.0.0/wrong.nupkg', None]:
+            with self.subTest(value=value):
+                entry['vendor_notice']['archive_url'] = value
+                self.save()
+                _, report = self.run_tool('--audit')
+                self.assertTrue(report['errors'], report)
+        entry['vendor_notice']['archive_url'] = 'https://api.nuget.org/v3-flatcontainer/example/1.0.0/example.1.0.0.nupkg'
+        entry['vendor_notice']['member'] = '../NOTICE.txt'
+        self.save()
+        _, report = self.run_tool('--audit')
+        self.assertTrue(any('normalized and relative' in e for e in report['errors']), report)
+
+    def test_vendor_metadata_cannot_be_added_to_an_owned_review_document(self):
+        _, _, entry = self.vendor_fixture()
+        self.manifest['documents']['README.md']['vendor_notice'] = entry['vendor_notice']
+        self.save()
+        _, report = self.run_tool('--audit')
+        self.assertTrue(report['errors'], report)
+
     def test_real_source_change_stale_write_does_not_ack_then_explicit_review_passes(self):
         self.green()
         (self.root / 'src/app.py').write_text('value = 2\n')

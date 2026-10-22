@@ -11,4 +11,10 @@
     <None Include="$(MSBuildThisFileDirectory)THIRD_PARTY_NOTICES.md" Link="licenses/THIRD_PARTY_NOTICES.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Include="$(MSBuildThisFileDirectory)TRADEMARKS.md" Link="licenses/Upstream-TRADEMARKS.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
+  <!-- This inventory is deliberately limited to the inspected Linux x64 runtime. -->
+  <ItemGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+    <None Include="$(MSBuildThisFileDirectory)licenses/linux-x64/**/*"
+          Link="licenses/runtime/linux-x64/%(RecursiveDir)%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

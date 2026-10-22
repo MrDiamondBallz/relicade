@@ -71,6 +71,19 @@ Each document has exactly one policy:
   or historical updates need separate explicit review and a matching protection
   digest; the tool cannot bless them. Do not rewrite old entries to look current.
 
+A protected vendor notice may also declare `vendor_notice`: an exact public
+NuGet archive URL and SHA-256, its original member name, and at most 32 explicit
+`upstream_relative_references`. This narrowly classifies source-file citations
+preserved inside the vendor's original text, not links to Relicade guides. The
+notice remains byte-pinned and is never rewritten. Each declaration must match
+an actual link in that notice; undeclared links still receive ordinary checks.
+Absolute paths, traversal, wildcard exemptions, credential-bearing sources and
+this metadata on an owned review document are rejected. Audit output lists each
+upstream citation with `target_availability: not_checked`; classification is not
+proof that its target exists or that all distribution obligations are satisfied.
+The package inventory separately binds the declaration to the copied archive
+member and source hash. Do not use this mechanism to hide a broken owned guide.
+
 `protected_files` pins immutable evidence reports. Image/brand masters and the
 single-orange-R identity and curated native product captures are never generator
 write targets. Their actual bytes

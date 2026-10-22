@@ -110,6 +110,34 @@ def listed(root):
     return paths
 
 
+def vendor_notice(entry, path):
+    """Classify exact preserved upstream citations, never all links in a notice."""
+    if 'vendor_notice' not in entry:
+        return set()
+    value = entry['vendor_notice']
+    require(entry.get('policy') == 'protected' and inherently_protected(path),
+            'Vendor citations require a protected notice')
+    keys(value, ['archive_url', 'archive_sha256', 'member', 'upstream_relative_references'], path)
+    require(isinstance(value['archive_url'], str), 'Invalid vendor source URL')
+    url = urlsplit(value['archive_url'])
+    require(url.scheme == 'https' and url.netloc == 'api.nuget.org' and not url.query and not url.fragment,
+            'Vendor source must be a public NuGet archive')
+    match = re.fullmatch(r'/v3-flatcontainer/([a-z0-9][a-z0-9._-]*)/([0-9][a-z0-9.+-]*)/([^/]+)', url.path)
+    require(match is not None and match[3] == match[1] + '.' + match[2] + '.nupkg',
+            'Vendor source must identify an exact package archive')
+    require(isinstance(value['archive_sha256'], str) and HASH.fullmatch(value['archive_sha256']),
+            'Invalid vendor archive digest')
+    references = value['upstream_relative_references']
+    require(isinstance(references, list) and 0 < len(references) <= 32 and
+            all(isinstance(item, str) for item in references) and len(references) == len(set(references)),
+            'Invalid vendor reference list')
+    for item in [value['member']] + references:
+        require(isinstance(item, str) and item and all(
+            re.fullmatch(r'[A-Za-z0-9_.-]+', part) and part not in ('.', '..') for part in item.split('/')),
+            'Vendor reference path must be normalized and relative')
+    return set(references)
+
+
 def manifest(root, paths):
     data = load(root, MANIFEST)
     keys(data, ['version', 'source_groups', 'documents', 'protected_files'], MANIFEST)
@@ -136,7 +164,8 @@ def manifest(root, paths):
             require(isinstance(entry['reviewed'], dict) and set(entry['reviewed']) <= set(sources + ['status']), 'Invalid reviewed map: ' + path)
             require(all(isinstance(h, str) and HASH.fullmatch(h) for h in entry['reviewed'].values()), 'Invalid review digest: ' + path)
         elif policy == 'protected':
-            keys(entry, ['policy', 'sha256'], path)
+            keys(entry, ['policy', 'sha256'] + (['vendor_notice'] if 'vendor_notice' in entry else []), path)
+            vendor_notice(entry, path)
             require(isinstance(entry['sha256'], str) and HASH.fullmatch(entry['sha256']), 'Invalid protection digest: ' + path)
             require(digest(read(root, path)) == entry['sha256'], 'Protected content changed; explicit legal/history review required: ' + path)
         elif policy == 'generated':
@@ -241,8 +270,16 @@ def validate_links(root, docs, outputs=None):
         links += html.links
         links += re.findall(r'`[^`\n]*<([^>]+)>`_', text)
         links += re.findall(r'(?m)^\s*\.\. _[^:]+:\s*(\S+)', text)
+        vendor_references = vendor_notice(docs[path], path)
+        observed = {link.strip('<>') for link in links}
+        for missing in sorted(vendor_references - observed):
+            errors.append(path + ': stale vendor reference declaration: ' + missing)
         for link in links:
             link = link.strip('<>')
+            if link in vendor_references:
+                # These source-archive citations are reported, not asserted to
+                # resolve locally or to have been fetched/verified upstream.
+                continue
             try:
                 url = urlsplit(link)
                 if url.scheme or url.netloc:
@@ -360,6 +397,11 @@ def run(root, mode):
         report['source_digests'] = source_digests(root, paths, data['source_groups'])
         outputs = generated(root, data, counts)
         report['errors'].extend(validate_links(root, data['documents'], outputs))
+        report['vendor_upstream_references'] = [
+            {'document': path, 'reference': reference, 'archive_url': entry['vendor_notice']['archive_url'],
+             'target_availability': 'not_checked'}
+            for path, entry in data['documents'].items()
+            for reference in sorted(vendor_notice(entry, path))]
         # Validate every output inode before allowing any write. Generated links
         # are constructed only from the already validated registry paths.
         for path in OUTPUTS:

@@ -1,0 +1,2260 @@
+{
+  "schema_version": 1,
+  "runtime_identifier": "linux-x64",
+  "target_framework": ".NETCoreApp,Version=v10.0",
+  "sdk_version": "10.0.402",
+  "scope": "Version-bound shipped runtime files and preserved vendor notices, not a complete SBOM, license clearance, authenticity verdict or release acceptance. Package license expressions do not replace embedded-component terms.",
+  "notices": {
+    "packages/harfbuzzsharp.nativeassets.linux/8.3.1.3/LICENSE.txt": {
+      "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938",
+      "origin": {
+        "kind": "nuget",
+        "identity": "HarfBuzzSharp.NativeAssets.Linux/8.3.1.3",
+        "member": "LICENSE.txt",
+        "raw_archive_sha256": "7de58e9daffc9dcbe6aeaec2c670dccefd5f69c576a68655e51f8ec82b687295",
+        "canonical_content_sha512": "RI6A1LgmooU30+4QIyFt5rmBCzP0VzTR+587IJSGvYIsHHWlahFufihYxtraLfsIhW7I8dn6+xX+DZGygOPKWQ=="
+      }
+    },
+    "packages/harfbuzzsharp.nativeassets.linux/8.3.1.3/THIRD-PARTY-NOTICES.txt": {
+      "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5",
+      "origin": {
+        "kind": "nuget",
+        "identity": "HarfBuzzSharp.NativeAssets.Linux/8.3.1.3",
+        "member": "THIRD-PARTY-NOTICES.txt",
+        "raw_archive_sha256": "7de58e9daffc9dcbe6aeaec2c670dccefd5f69c576a68655e51f8ec82b687295",
+        "canonical_content_sha512": "RI6A1LgmooU30+4QIyFt5rmBCzP0VzTR+587IJSGvYIsHHWlahFufihYxtraLfsIhW7I8dn6+xX+DZGygOPKWQ=="
+      }
+    },
+    "packages/harfbuzzsharp/8.3.1.3/LICENSE.txt": {
+      "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938",
+      "origin": {
+        "kind": "nuget",
+        "identity": "HarfBuzzSharp/8.3.1.3",
+        "member": "LICENSE.txt",
+        "raw_archive_sha256": "ffe644863a4eb3c078b4c3f0def0f2b90a861991c9116bf2dd668a31a0f09ab5",
+        "canonical_content_sha512": "NGZ2+ZVNPM+NdHB/asW0/ykWngyHWwcqjrbN2nDeH1B/aptPGlCUl8wkQ2cSJxw5fdWgdmIPmNuTPWpLwNVXWg=="
+      }
+    },
+    "packages/microsoft.netcore.app.runtime.linux-x64/10.0.13/LICENSE.TXT": {
+      "sha256": "cfc21f5e8bd655ae997eec916138b707b1d290b83272c02a95c9f821b8c87310",
+      "origin": {
+        "kind": "nuget",
+        "identity": "runtimepack.Microsoft.NETCore.App.Runtime.linux-x64/10.0.13",
+        "member": "LICENSE.TXT",
+        "raw_archive_sha256": "28c62a37549d17009f457ac53cd4acdd60f1598ba3f00e22587bbac318c679c6",
+        "canonical_content_sha512": "KCl9De4zp5IMkuoRJWSbbNxoXL9FLj4RkFH5B6l6/xAMjFoqb9UScbxiTqwI01k0dkvIedPC0czxnG0ohkH+vQ=="
+      }
+    },
+    "packages/microsoft.netcore.app.runtime.linux-x64/10.0.13/THIRD-PARTY-NOTICES.TXT": {
+      "sha256": "66f1d4e44973185519bb4aa8a9718eb22fc7af2cc532e3ae9cfc4c127ee7fc54",
+      "origin": {
+        "kind": "nuget",
+        "identity": "runtimepack.Microsoft.NETCore.App.Runtime.linux-x64/10.0.13",
+        "member": "THIRD-PARTY-NOTICES.TXT",
+        "raw_archive_sha256": "28c62a37549d17009f457ac53cd4acdd60f1598ba3f00e22587bbac318c679c6",
+        "canonical_content_sha512": "KCl9De4zp5IMkuoRJWSbbNxoXL9FLj4RkFH5B6l6/xAMjFoqb9UScbxiTqwI01k0dkvIedPC0czxnG0ohkH+vQ=="
+      }
+    },
+    "packages/microsoft.win32.systemevents/10.0.3/THIRD-PARTY-NOTICES.TXT": {
+      "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21",
+      "origin": {
+        "kind": "nuget",
+        "identity": "Microsoft.Win32.SystemEvents/10.0.3",
+        "member": "THIRD-PARTY-NOTICES.TXT",
+        "raw_archive_sha256": "c89d6e3e2c33c0287ef5c5cb7d8ab052bc7e0b86542de7ae46a661510a599d55",
+        "canonical_content_sha512": "gYpwz5Gl0rs9pEFHBKctLbSi7SUGR4L1uRjXkU488nizWd2hvo2JP2+ATUsv0th7v6LDiXfdlUsnTbvC2MauFA=="
+      }
+    },
+    "packages/skiasharp.nativeassets.linux/3.119.4/LICENSE.txt": {
+      "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938",
+      "origin": {
+        "kind": "nuget",
+        "identity": "SkiaSharp.NativeAssets.Linux/3.119.4",
+        "member": "LICENSE.txt",
+        "raw_archive_sha256": "fae0554059b1107ef7888e46c20bdfb548401ef7a7a6f7391ad4fadc7432d50a",
+        "canonical_content_sha512": "UAyVzbqNfZsZbKbzj68zXLyUyF/SbTKmzTfOO6qDu++dtIUMMTzPBe8oOuzU/DiewpfKoUUlOSsJmqWc6blxBw=="
+      }
+    },
+    "packages/skiasharp.nativeassets.linux/3.119.4/THIRD-PARTY-NOTICES.txt": {
+      "sha256": "21504c46c4c58aa64c1055bd2dcbc5f9a136b4b8c412ed3cc6740e22c5b127f5",
+      "origin": {
+        "kind": "nuget",
+        "identity": "SkiaSharp.NativeAssets.Linux/3.119.4",
+        "member": "THIRD-PARTY-NOTICES.txt",
+        "raw_archive_sha256": "fae0554059b1107ef7888e46c20bdfb548401ef7a7a6f7391ad4fadc7432d50a",
+        "canonical_content_sha512": "UAyVzbqNfZsZbKbzj68zXLyUyF/SbTKmzTfOO6qDu++dtIUMMTzPBe8oOuzU/DiewpfKoUUlOSsJmqWc6blxBw=="
+      }
+    },
+    "packages/skiasharp/3.119.4/LICENSE.txt": {
+      "sha256": "89101e35a8c66fd4d6dffc1763259161d35cb564c169714ec227a768c89f2938",
+      "origin": {
+        "kind": "nuget",
+        "identity": "SkiaSharp/3.119.4",
+        "member": "LICENSE.txt",
+        "raw_archive_sha256": "e32a449d31945c0b9d169eb5bc676e1e3f589aab69888e49d703fdc1c384c176",
+        "canonical_content_sha512": "53NOSUZ1Us+91Sm0uCkIivh/k7jOowRErZT2sIWwPFN9mLUvdxnE6rS4sWo4255+Rd2MWUSF+j0NMZHD6Cke+Q=="
+      }
+    },
+    "packages/system.drawing.common/10.0.3/LICENSE.TXT": {
+      "sha256": "a89886665765362eb77e0f8e26602c924520041d1711b2eedc136434fe4d01ab",
+      "origin": {
+        "kind": "nuget",
+        "identity": "System.Drawing.Common/10.0.3",
+        "member": "LICENSE.TXT",
+        "raw_archive_sha256": "5416bd3840f57eb9a028dd11c1658e692cd6b7142c392c09adb1ac537e1b88e4",
+        "canonical_content_sha512": "bJlT89G7EqMpiLCvIPmb7BHpcSxjVeFsahRyQk3/mrUt5YgHKiFcEv88db97gKcpRn5opxfBwI0ohUmJlxuGJg=="
+      }
+    },
+    "packages/system.drawing.common/10.0.3/THIRD-PARTY-NOTICES.TXT": {
+      "sha256": "2ffe89f325685881e9fb3a64451632abe784db07a193a2633b241ea8d85e7a85",
+      "origin": {
+        "kind": "nuget",
+        "identity": "System.Drawing.Common/10.0.3",
+        "member": "THIRD-PARTY-NOTICES.TXT",
+        "raw_archive_sha256": "5416bd3840f57eb9a028dd11c1658e692cd6b7142c392c09adb1ac537e1b88e4",
+        "canonical_content_sha512": "bJlT89G7EqMpiLCvIPmb7BHpcSxjVeFsahRyQk3/mrUt5YgHKiFcEv88db97gKcpRn5opxfBwI0ohUmJlxuGJg=="
+      }
+    },
+    "sdk/10.0.402/ThirdPartyNotices.txt": {
+      "sha256": "2dc8f8c5a39401e928b5784ab564eb8b3ceb99ead3df8f260e0cab7e0bbecc7a",
+      "origin": {
+        "kind": "dotnet-sdk",
+        "version": "10.0.402",
+        "member": "ThirdPartyNotices.txt",
+        "scope": "Vendor aggregate; not every listed SDK component is part of the apphost."
+      }
+    },
+    "upstream/AvaloniaUI--Avalonia/NOTICE.md": {
+      "sha256": "dd6f80852d16320c865a2e403ffd1a8b07a0e34c5b37122c0bc2343639ff68e6",
+      "origin": {
+        "kind": "git",
+        "repository": "AvaloniaUI/Avalonia",
+        "commit": "2d79ba55fae1b1e71c69f93a668080c9029e6a31",
+        "path": "NOTICE.md",
+        "blob_sha1": "365f5223feb580838ab6521996c4c6ce92d9f7c5",
+        "url": "https://github.com/AvaloniaUI/Avalonia/blob/2d79ba55fae1b1e71c69f93a668080c9029e6a31/NOTICE.md"
+      }
+    },
+    "upstream/AvaloniaUI--Avalonia/licence.md": {
+      "sha256": "213814d306090074d234d760239ff0f67eb9b8d20eefb4d5631bb39dbe0b769b",
+      "origin": {
+        "kind": "git",
+        "repository": "AvaloniaUI/Avalonia",
+        "commit": "2d79ba55fae1b1e71c69f93a668080c9029e6a31",
+        "path": "licence.md",
+        "blob_sha1": "41951805ac6a5cdb91373db7725fbaa9c004d912",
+        "url": "https://github.com/AvaloniaUI/Avalonia/blob/2d79ba55fae1b1e71c69f93a668080c9029e6a31/licence.md"
+      }
+    },
+    "upstream/AvaloniaUtils--AsyncImageLoader.Avalonia/LICENSE": {
+      "sha256": "b4ced122a34fcbb3ef1cfe3e81a9ad1e486f8fe96c836a63c87629a568ad07e9",
+      "origin": {
+        "kind": "git",
+        "repository": "AvaloniaUtils/AsyncImageLoader.Avalonia",
+        "commit": "70bca7105bcf747725e7df0538e0815600a873f0",
+        "path": "LICENSE",
+        "blob_sha1": "da9f97e62c6ef6193cbd5cdd8b33ff4dbb9ccb79",
+        "url": "https://github.com/AvaloniaUtils/AsyncImageLoader.Avalonia/blob/70bca7105bcf747725e7df0538e0815600a873f0/LICENSE"
+      }
+    },
+    "upstream/adamhathcock--sharpcompress/LICENSE.txt": {
+      "sha256": "b7ca2b6174cee11afe41d78b48527e3d7659a4435c25019a4a5e072299a2f8ed",
+      "origin": {
+        "kind": "git",
+        "repository": "adamhathcock/sharpcompress",
+        "commit": "6062623dd8856b01d3afa18831bd5cfe1a58130f",
+        "path": "LICENSE.txt",
+        "blob_sha1": "94e2f5bc83ac404584fd92c25cfcc305ea2f8942",
+        "url": "https://github.com/adamhathcock/sharpcompress/blob/6062623dd8856b01d3afa18831bd5cfe1a58130f/LICENSE.txt"
+      }
+    },
+    "upstream/dotnet--dotnet/LICENSE.TXT": {
+      "sha256": "ae48df11a335dc1a615f4f938b69cba73bcf4485c4f97af49b38efb0f216353b",
+      "origin": {
+        "kind": "git",
+        "repository": "dotnet/dotnet",
+        "commit": "c2435c3e0f46de784341ac3ed62863ce77e117b4",
+        "path": "LICENSE.TXT",
+        "blob_sha1": "a616ed188dfce68ee308f674350ad242d8588c2b",
+        "url": "https://github.com/dotnet/dotnet/blob/c2435c3e0f46de784341ac3ed62863ce77e117b4/LICENSE.TXT"
+      }
+    },
+    "upstream/dotnet--dotnet/THIRD-PARTY-NOTICES.txt": {
+      "sha256": "4bef6a7e7b359869d751c9ff70274a80a0f626927afa5a0681583c1b1861267b",
+      "origin": {
+        "kind": "git",
+        "repository": "dotnet/dotnet",
+        "commit": "c2435c3e0f46de784341ac3ed62863ce77e117b4",
+        "path": "THIRD-PARTY-NOTICES.txt",
+        "blob_sha1": "d5b8eb06d5e9047fafc8449a253b3761d0447313",
+        "url": "https://github.com/dotnet/dotnet/blob/c2435c3e0f46de784341ac3ed62863ce77e117b4/THIRD-PARTY-NOTICES.txt"
+      }
+    },
+    "upstream/kekekeks--MicroCom/LICENSE": {
+      "sha256": "6ee769c9ac4dac9abb16b98b1341e9528ff9f4ab685481410d3376d14148f3a9",
+      "origin": {
+        "kind": "git",
+        "repository": "kekekeks/MicroCom",
+        "commit": "76785efcafd91b5902fd19dd11145f6dd655b7b4",
+        "path": "LICENSE",
+        "blob_sha1": "6bcf96f0b4029b873c3d9b55d4c1117bbd157e28",
+        "url": "https://github.com/kekekeks/MicroCom/blob/76785efcafd91b5902fd19dd11145f6dd655b7b4/LICENSE"
+      }
+    },
+    "upstream/libsdl-org--SDL/LICENSE.txt": {
+      "sha256": "1c040b8271b37e5076359f8fd54240e371114112924d2df81ef87c7d6a1dfdfd",
+      "origin": {
+        "kind": "git",
+        "repository": "libsdl-org/SDL",
+        "commit": "ea7a2dabfd1ab6b0a5720568ffd207f5825e47f1",
+        "path": "LICENSE.txt",
+        "blob_sha1": "e9adee4484511b4b1730461679fed21d9b13d88e",
+        "url": "https://github.com/libsdl-org/SDL/blob/ea7a2dabfd1ab6b0a5720568ffd207f5825e47f1/LICENSE.txt"
+      }
+    },
+    "upstream/ppy--SDL3-CS/SDL-license-header.txt": {
+      "sha256": "696c4382bdc2b3d828a73fa2014fcb8c405a76621e4dbb9582bf07fde4bcd5ee",
+      "origin": {
+        "kind": "git",
+        "repository": "ppy/SDL3-CS",
+        "commit": "442a5a2346600f574f654e95a12d6bf4305a4732",
+        "path": "SDL3-CS/SDL-license-header.txt",
+        "blob_sha1": "fa92b93dd10d620a7eb48ea968b117b19410e98b",
+        "url": "https://github.com/ppy/SDL3-CS/blob/442a5a2346600f574f654e95a12d6bf4305a4732/SDL3-CS/SDL-license-header.txt"
+      }
+    },
+    "upstream/rsms--inter/LICENSE.txt": {
+      "sha256": "4d7d9c95e7d7f2f0ebf76d5e0b344826b74e903a34028ee18ab54bb639e45906",
+      "origin": {
+        "kind": "git",
+        "repository": "rsms/inter",
+        "commit": "0a5106e0bde18df09374066bf3a7998e3546307d",
+        "path": "LICENSE.txt",
+        "blob_sha1": "ff80f8c615684e796c37ab5ff82a9b31d7390d6e",
+        "url": "https://github.com/rsms/inter/blob/0a5106e0bde18df09374066bf3a7998e3546307d/LICENSE.txt"
+      }
+    },
+    "upstream/tmds--Tmds.DBus/COPYING": {
+      "sha256": "aca3b49277abcc7886ccb2f115603a9f5b15fc3f96019a10c00f2974098b210c",
+      "origin": {
+        "kind": "git",
+        "repository": "tmds/Tmds.DBus",
+        "commit": "b4a7fed0b878f74cb54f7cca84d2889af4e596ba",
+        "path": "COPYING",
+        "blob_sha1": "d1060c2f634ad623ba500dff09ac3044c9747c82",
+        "url": "https://github.com/tmds/Tmds.DBus/blob/b4a7fed0b878f74cb54f7cca84d2889af4e596ba/COPYING"
+      }
+    },
+    "upstream/velopack--velopack/LICENSE": {
+      "sha256": "91845db83551c877ebbb1118e0fb92e4e527290d23b995c55dcd438b3293943f",
+      "origin": {
+        "kind": "git",
+        "repository": "velopack/velopack",
+        "commit": "f2edcbcafb81da5b3c884aaea330e225ad91d8b6",
+        "path": "LICENSE",
+        "blob_sha1": "e0ccfbd78cb28ff7a781ab5fb3852260e7b9c5b3",
+        "url": "https://github.com/velopack/velopack/blob/f2edcbcafb81da5b3c884aaea330e225ad91d8b6/LICENSE"
+      }
+    },
+    "upstream/ppy--SDL3-CS/LICENCE.txt": {
+      "sha256": "45e6d072aa8b425080dbcd6a96208feaf8f7dad0180ccc54fc0c97db6f5d86e0",
+      "origin": {
+        "kind": "git",
+        "repository": "ppy/SDL3-CS",
+        "commit": "442a5a2346600f574f654e95a12d6bf4305a4732",
+        "path": "LICENCE",
+        "blob_sha1": "679d2f91a10afcf9f026e1af77fb1e90fd1b000b",
+        "url": "https://github.com/ppy/SDL3-CS/blob/442a5a2346600f574f654e95a12d6bf4305a4732/LICENCE"
+      }
+    }
+  },
+  "packages": [
+    {
+      "identity": "AsyncImageLoader.Avalonia/3.8.0",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-5cFMhM7MUD7w3rH+n5pWyVR82loEFuFqANQ/EDDRg0lRKc91PoSq/4vro/ixW/ZQ1TYnXAD6jXRoTjcce2fbUg==",
+      "raw_archive_sha256": "b1f231317a7d0c0e74d8ef17ad822e51efc7e9413b99adb972ce82ffbdd7bd3f",
+      "canonical_content_sha512": "5cFMhM7MUD7w3rH+n5pWyVR82loEFuFqANQ/EDDRg0lRKc91PoSq/4vro/ixW/ZQ1TYnXAD6jXRoTjcce2fbUg==",
+      "notices": [
+        "upstream/AvaloniaUtils--AsyncImageLoader.Avalonia/LICENSE"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net8.0/AsyncImageLoader.Avalonia.dll",
+          "package_member": "lib/net8.0/AsyncImageLoader.Avalonia.dll",
+          "published_path": "AsyncImageLoader.Avalonia.dll",
+          "sha256": "da4204bb888007ccf400d0b3a431828a596132d7d64c6955098a4a27907b1a9c",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.Desktop/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-2vrr0Ao77r3BoZSZ5BTg6rEb8N0987hw5H6lxtZkR8tpagiOTaL9a31Pi02jJha8es7Y+jJR8Qwis7PMQRjytg==",
+      "raw_archive_sha256": "5da57df4f56d32f3894475da869d3555a968085f5d93b73b3f5ae89f70a5cd58",
+      "canonical_content_sha512": "2vrr0Ao77r3BoZSZ5BTg6rEb8N0987hw5H6lxtZkR8tpagiOTaL9a31Pi02jJha8es7Y+jJR8Qwis7PMQRjytg==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.Desktop.dll",
+          "package_member": "lib/net10.0/Avalonia.Desktop.dll",
+          "published_path": "Avalonia.Desktop.dll",
+          "sha256": "c5d2267f29cad93c3aed598083d286262c8fb160c464133b76cd66faefe77e17",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.Fonts.Inter/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-PqzIALObVJ3ZUpfYDkoNNkijaVBUGVrHqAyWPkE39aJrPukbMv49aGMhS+c5HiW1s+/iuo3fW+ISOk34GOc0iw==",
+      "raw_archive_sha256": "b6d9b4c4a6097099629553b400851e12127677c14118e82c042ff7aed37a548b",
+      "canonical_content_sha512": "PqzIALObVJ3ZUpfYDkoNNkijaVBUGVrHqAyWPkE39aJrPukbMv49aGMhS+c5HiW1s+/iuo3fW+ISOk34GOc0iw==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md",
+        "upstream/rsms--inter/LICENSE.txt"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.Fonts.Inter.dll",
+          "package_member": "lib/net10.0/Avalonia.Fonts.Inter.dll",
+          "published_path": "Avalonia.Fonts.Inter.dll",
+          "sha256": "99c1631309e6b11fe19b8f4b7a668759eb34be9059ab6f12eab821c55ec740b3",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.FreeDesktop.AtSpi/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-ulmTyv+D8euk4n4qFXTP9vyScNbRz+/SuMrdDeoGFLQW00Me1MGA1vBbaiDcdp8VgyfoeRDlq7tQGtwWOf8ZJg==",
+      "raw_archive_sha256": "d8d29680c17ae46e887775e6840f96c37e68016f9edacbbb7b62d453e5685649",
+      "canonical_content_sha512": "ulmTyv+D8euk4n4qFXTP9vyScNbRz+/SuMrdDeoGFLQW00Me1MGA1vBbaiDcdp8VgyfoeRDlq7tQGtwWOf8ZJg==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.FreeDesktop.AtSpi.dll",
+          "package_member": "lib/net10.0/Avalonia.FreeDesktop.AtSpi.dll",
+          "published_path": "Avalonia.FreeDesktop.AtSpi.dll",
+          "sha256": "93fdfb9124dfa3491eb728b99560c659e8dfe8a4d00cfbd429e1c1e0ac93c518",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.FreeDesktop/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-EDM2mqO+eU7/0gLrIyObkt/q6DiBRbGSbzZ72J87K2JHTYEXtOT/quOpWv6bOKsDQGBPBkjI+s0OwFUxPmCP2A==",
+      "raw_archive_sha256": "e689791338533943a246d3522055edb44229aa19eb7a8233801f0d89fb63da72",
+      "canonical_content_sha512": "EDM2mqO+eU7/0gLrIyObkt/q6DiBRbGSbzZ72J87K2JHTYEXtOT/quOpWv6bOKsDQGBPBkjI+s0OwFUxPmCP2A==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.FreeDesktop.dll",
+          "package_member": "lib/net10.0/Avalonia.FreeDesktop.dll",
+          "published_path": "Avalonia.FreeDesktop.dll",
+          "sha256": "eebbfec2de64ea47f91ba138aa749c586deefcd8040c7f0330be9733d552e752",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.HarfBuzz/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-PxaJL9P/Zn6w89kLokuLcWDnj+w4erpfp57SiDN4JhX4NI2qPLJEmxgogTwyXjCUE8vq7Jg7kjH/z5D2jeGAhA==",
+      "raw_archive_sha256": "f52e5c1b6a00886ef46816ed2fc9a2c28844289b1af30bd7ea247e220d20c0cb",
+      "canonical_content_sha512": "PxaJL9P/Zn6w89kLokuLcWDnj+w4erpfp57SiDN4JhX4NI2qPLJEmxgogTwyXjCUE8vq7Jg7kjH/z5D2jeGAhA==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.HarfBuzz.dll",
+          "package_member": "lib/net10.0/Avalonia.HarfBuzz.dll",
+          "published_path": "Avalonia.HarfBuzz.dll",
+          "sha256": "56a922f1dc979f120f2acb569b24ab643346775d74d5eafd1e379a921812574e",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.Native/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-to73yCbFWzRNs3gyuBG2QkRsrpjnGrEVwkhtAsJLbPAKFjP/M0YDeb4MPMN3wGlpwCFdz9L8R8iAivyNet5+5g==",
+      "raw_archive_sha256": "418dbf45252748c5295a948436d646ed90d54a5872e8352467d181587bc1b51d",
+      "canonical_content_sha512": "to73yCbFWzRNs3gyuBG2QkRsrpjnGrEVwkhtAsJLbPAKFjP/M0YDeb4MPMN3wGlpwCFdz9L8R8iAivyNet5+5g==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.Native.dll",
+          "package_member": "lib/net10.0/Avalonia.Native.dll",
+          "published_path": "Avalonia.Native.dll",
+          "sha256": "47972e538a1d73e56570e8c5c68c30e96615ce76ca0a8717997a9945c064f71a",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.Remote.Protocol/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-9ajC+Ff+U9S21JJKGbJgnwp9fY+zwJG+bSEC//o/vJU2M6IEMRGp+D1+AUoqTR79FAA/iDYgf4f4EF4PZKhZsg==",
+      "raw_archive_sha256": "e115f5143ef0fc745cf171bb926ad1083ed4c833ca977a0eb11bdb0c41605f5c",
+      "canonical_content_sha512": "9ajC+Ff+U9S21JJKGbJgnwp9fY+zwJG+bSEC//o/vJU2M6IEMRGp+D1+AUoqTR79FAA/iDYgf4f4EF4PZKhZsg==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.Remote.Protocol.dll",
+          "package_member": "lib/net10.0/Avalonia.Remote.Protocol.dll",
+          "published_path": "Avalonia.Remote.Protocol.dll",
+          "sha256": "9c002eedc2870fbbd5637b2c49181a26050fccc19ed07bcb4a063341e072136e",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.Skia/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-BA6B1Up9AcX4JmnskD6FyxF+ZEowXDhGvzw1lG+Xx6sQO0VyOE2yDoAmD/S2EsYZUukPfRUJmIyjeM//WdZAxA==",
+      "raw_archive_sha256": "f42e12d06df92ae116e5baaac5e0319cec090d990a303edc1afd0e7c202a6e69",
+      "canonical_content_sha512": "BA6B1Up9AcX4JmnskD6FyxF+ZEowXDhGvzw1lG+Xx6sQO0VyOE2yDoAmD/S2EsYZUukPfRUJmIyjeM//WdZAxA==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.Skia.dll",
+          "package_member": "lib/net10.0/Avalonia.Skia.dll",
+          "published_path": "Avalonia.Skia.dll",
+          "sha256": "ab801e03246f8fd39e0681888fed615cbe818313de5f74cf782154871171b334",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.Themes.Fluent/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-vx7P4as07WLQqA2mhMy4iBsqhkWEGwZI7g9Rd2DlJgz3uKS2tSvY6nZqHq3sWMFDBYBT65jkTsetPrgV8oprsQ==",
+      "raw_archive_sha256": "0b2c317ee4dbc9b12c9cb564d4f99b10872b655a450c91a66ac063d9056a3c38",
+      "canonical_content_sha512": "vx7P4as07WLQqA2mhMy4iBsqhkWEGwZI7g9Rd2DlJgz3uKS2tSvY6nZqHq3sWMFDBYBT65jkTsetPrgV8oprsQ==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.Themes.Fluent.dll",
+          "package_member": "lib/net10.0/Avalonia.Themes.Fluent.dll",
+          "published_path": "Avalonia.Themes.Fluent.dll",
+          "sha256": "66883c8eed675cdefa9f36b103b209b5351e815f579e1abb0e5a0f1299417e56",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.Win32/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-N/Ra73KLQBoQOcnpROWdCA49vCFij8MSyU7MFv8JWMxcQvkG98K19/hmdcyiqB/B1sBahyZuHgIsoO8ryajC0g==",
+      "raw_archive_sha256": "743abeae210f287b846a42d292b2d8cc85b345bef8df13a01e481d252090b81b",
+      "canonical_content_sha512": "N/Ra73KLQBoQOcnpROWdCA49vCFij8MSyU7MFv8JWMxcQvkG98K19/hmdcyiqB/B1sBahyZuHgIsoO8ryajC0g==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.Win32.Automation.dll",
+          "package_member": "lib/net10.0/Avalonia.Win32.Automation.dll",
+          "published_path": "Avalonia.Win32.Automation.dll",
+          "sha256": "11a8cab62229e76783d2f730f7d277c7ec04493cdd282c6825027617e60a3bad",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.Win32.dll",
+          "package_member": "lib/net10.0/Avalonia.Win32.dll",
+          "published_path": "Avalonia.Win32.dll",
+          "sha256": "072310bf798d9b19d2b9575c173ad27abe9714808abe8f16c679e643c513c2f5",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia.X11/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-LMlL3GGN7l7VfdowNf4hz/zyZQeMvYe/HFphoobbq4o1C1thZRSC3dxfRlQxe2M259f18dXveEWduyZLycXCJg==",
+      "raw_archive_sha256": "c10179d2da3d0d7dfa75ba698a80674a3bed9b51a4d3a44ec829832c68e6d696",
+      "canonical_content_sha512": "LMlL3GGN7l7VfdowNf4hz/zyZQeMvYe/HFphoobbq4o1C1thZRSC3dxfRlQxe2M259f18dXveEWduyZLycXCJg==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.X11.dll",
+          "package_member": "lib/net10.0/Avalonia.X11.dll",
+          "published_path": "Avalonia.X11.dll",
+          "sha256": "7014e30270a67a7be321f6aa582e4bec07c62302a0d31b3b358351f620f24e23",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Avalonia/12.1.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-Vlz+ebY0PBVsTFXAPIpM+7ySgezMtyJ3GMMGmccHwxXXjgLF2x5+NMwO4AqrdM/lrUPZremnYNO6MSg1r1vuxw==",
+      "raw_archive_sha256": "90cf963a0e5fed7fc0e5cd9cefe3c159b78de086272c3ddde94c75cb83f9c4ac",
+      "canonical_content_sha512": "Vlz+ebY0PBVsTFXAPIpM+7ySgezMtyJ3GMMGmccHwxXXjgLF2x5+NMwO4AqrdM/lrUPZremnYNO6MSg1r1vuxw==",
+      "notices": [
+        "upstream/AvaloniaUI--Avalonia/NOTICE.md",
+        "upstream/AvaloniaUI--Avalonia/licence.md"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Avalonia.Base.dll",
+          "package_member": "lib/net10.0/Avalonia.Base.dll",
+          "published_path": "Avalonia.Base.dll",
+          "sha256": "99bf47f44f8e6b2c91f96f175dcf7efa8ba64267a1acd17faa05266d7210b72e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.Controls.dll",
+          "package_member": "lib/net10.0/Avalonia.Controls.dll",
+          "published_path": "Avalonia.Controls.dll",
+          "sha256": "24d36a48b0033e52313d1f7a2d8b69bcc18e5504d518bf56c23916558c4f1912",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.DesignerSupport.dll",
+          "package_member": "lib/net10.0/Avalonia.DesignerSupport.dll",
+          "published_path": "Avalonia.DesignerSupport.dll",
+          "sha256": "9605daf1df49f8f6a1b5dd009e5d56cb68d0db4479d1adbdd8abc4a066ec554e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.Dialogs.dll",
+          "package_member": "lib/net10.0/Avalonia.Dialogs.dll",
+          "published_path": "Avalonia.Dialogs.dll",
+          "sha256": "8814546c28ec69c5a9a8874cfbacdfa7fa64ec622a8854231eac51ccf5bbadbb",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.Markup.Xaml.dll",
+          "package_member": "lib/net10.0/Avalonia.Markup.Xaml.dll",
+          "published_path": "Avalonia.Markup.Xaml.dll",
+          "sha256": "407b2bd896e440e8f2133d55f77f6e83e25603a774a92a1723e7e974f406350d",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.Markup.dll",
+          "package_member": "lib/net10.0/Avalonia.Markup.dll",
+          "published_path": "Avalonia.Markup.dll",
+          "sha256": "e5a6d499f23845c1199ef4f53a52432e66947d1dc24f4452853561b970cf7f61",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.Metal.dll",
+          "package_member": "lib/net10.0/Avalonia.Metal.dll",
+          "published_path": "Avalonia.Metal.dll",
+          "sha256": "13ba916946ac2ad77eb4588c2f76727e8090356edf294fafd555649b9e52d77c",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.MicroCom.dll",
+          "package_member": "lib/net10.0/Avalonia.MicroCom.dll",
+          "published_path": "Avalonia.MicroCom.dll",
+          "sha256": "fe62d3f49cf4f5a3cb26262d0c1c74057f522deea553c79135b3e3fb5b0d9619",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.OpenGL.dll",
+          "package_member": "lib/net10.0/Avalonia.OpenGL.dll",
+          "published_path": "Avalonia.OpenGL.dll",
+          "sha256": "c14de1359f1cbaf0a67933d2b062f8d9064f457bef8d49870ea44c278c2866d8",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.Vulkan.dll",
+          "package_member": "lib/net10.0/Avalonia.Vulkan.dll",
+          "published_path": "Avalonia.Vulkan.dll",
+          "sha256": "c51e72518de1da6af6051b9d39b6aa8e5d70b4003e49b9befeadf6fb0ca494ab",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/Avalonia.dll",
+          "package_member": "lib/net10.0/Avalonia.dll",
+          "published_path": "Avalonia.dll",
+          "sha256": "c74260e117c6964ae9b7c12e203a9ac2edd9b08aecd22d2c298b2ce1f6457b14",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "HarfBuzzSharp.NativeAssets.Linux/8.3.1.3",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-RI6A1LgmooU30+4QIyFt5rmBCzP0VzTR+587IJSGvYIsHHWlahFufihYxtraLfsIhW7I8dn6+xX+DZGygOPKWQ==",
+      "raw_archive_sha256": "7de58e9daffc9dcbe6aeaec2c670dccefd5f69c576a68655e51f8ec82b687295",
+      "canonical_content_sha512": "RI6A1LgmooU30+4QIyFt5rmBCzP0VzTR+587IJSGvYIsHHWlahFufihYxtraLfsIhW7I8dn6+xX+DZGygOPKWQ==",
+      "notices": [
+        "packages/harfbuzzsharp.nativeassets.linux/8.3.1.3/LICENSE.txt",
+        "packages/harfbuzzsharp.nativeassets.linux/8.3.1.3/THIRD-PARTY-NOTICES.txt"
+      ],
+      "assets": [
+        {
+          "deps_path": "runtimes/linux-x64/native/libHarfBuzzSharp.so",
+          "package_member": "runtimes/linux-x64/native/libHarfBuzzSharp.so",
+          "published_path": "libHarfBuzzSharp.so",
+          "sha256": "1d5c3afef13545bf34bf8f068b14e25ee619c3b6dee235c44e260fe61cb24018",
+          "kind": "native"
+        }
+      ]
+    },
+    {
+      "identity": "HarfBuzzSharp/8.3.1.3",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-NGZ2+ZVNPM+NdHB/asW0/ykWngyHWwcqjrbN2nDeH1B/aptPGlCUl8wkQ2cSJxw5fdWgdmIPmNuTPWpLwNVXWg==",
+      "raw_archive_sha256": "ffe644863a4eb3c078b4c3f0def0f2b90a861991c9116bf2dd668a31a0f09ab5",
+      "canonical_content_sha512": "NGZ2+ZVNPM+NdHB/asW0/ykWngyHWwcqjrbN2nDeH1B/aptPGlCUl8wkQ2cSJxw5fdWgdmIPmNuTPWpLwNVXWg==",
+      "notices": [
+        "packages/harfbuzzsharp/8.3.1.3/LICENSE.txt"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net8.0/HarfBuzzSharp.dll",
+          "package_member": "lib/net8.0/HarfBuzzSharp.dll",
+          "published_path": "HarfBuzzSharp.dll",
+          "sha256": "55e72ac23263f8e12484f3435e02ec22fac9eff6e6d169bb0a8c246be6b99d29",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "MicroCom.Runtime/0.11.6",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-NdNWGDiZ6eS/Mf/9+QHR91cj1K7Hy+PX9yrHI/zM7xFYuj9IWT2uxtB6sCHjrnxAeLV9fut1R6zHDUGKX6f9lQ==",
+      "raw_archive_sha256": "453af6d34477b19bb2c62d17436e68c76a75915b7947509b1ff601b36d7e78d8",
+      "canonical_content_sha512": "NdNWGDiZ6eS/Mf/9+QHR91cj1K7Hy+PX9yrHI/zM7xFYuj9IWT2uxtB6sCHjrnxAeLV9fut1R6zHDUGKX6f9lQ==",
+      "notices": [
+        "upstream/kekekeks--MicroCom/LICENSE"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net8.0/MicroCom.Runtime.dll",
+          "package_member": "lib/net8.0/MicroCom.Runtime.dll",
+          "published_path": "MicroCom.Runtime.dll",
+          "sha256": "2538ec6f3c24e901a90e33c37788b9a4e4b6ae8158cab7328a00a00bb28eab9e",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Microsoft.Win32.SystemEvents/10.0.3",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-gYpwz5Gl0rs9pEFHBKctLbSi7SUGR4L1uRjXkU488nizWd2hvo2JP2+ATUsv0th7v6LDiXfdlUsnTbvC2MauFA==",
+      "raw_archive_sha256": "c89d6e3e2c33c0287ef5c5cb7d8ab052bc7e0b86542de7ae46a661510a599d55",
+      "canonical_content_sha512": "gYpwz5Gl0rs9pEFHBKctLbSi7SUGR4L1uRjXkU488nizWd2hvo2JP2+ATUsv0th7v6LDiXfdlUsnTbvC2MauFA==",
+      "notices": [
+        "packages/microsoft.win32.systemevents/10.0.3/THIRD-PARTY-NOTICES.TXT",
+        "upstream/dotnet--dotnet/LICENSE.TXT",
+        "upstream/dotnet--dotnet/THIRD-PARTY-NOTICES.txt"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Microsoft.Win32.SystemEvents.dll",
+          "package_member": "lib/net10.0/Microsoft.Win32.SystemEvents.dll",
+          "published_path": "Microsoft.Win32.SystemEvents.dll",
+          "sha256": "54bdedccff8b2202e99bd39d0c024d9fe36238cfed1d83f529ef8a4de8f83468",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "SharpCompress/0.50.1",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-VY90K8BBvaAMvvRDJ8EvsfI/GgoIYxlgxMpxdgwpzaesJ0pGSHTLbZ7SD4JYxsGCnOibzua/+8HvDjV6KTw4jA==",
+      "raw_archive_sha256": "00d8cc8306441317464186a654655f32868b0045e3e6c2f81bf2c39df80ad0f3",
+      "canonical_content_sha512": "VY90K8BBvaAMvvRDJ8EvsfI/GgoIYxlgxMpxdgwpzaesJ0pGSHTLbZ7SD4JYxsGCnOibzua/+8HvDjV6KTw4jA==",
+      "notices": [
+        "upstream/adamhathcock--sharpcompress/LICENSE.txt"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/SharpCompress.dll",
+          "package_member": "lib/net10.0/SharpCompress.dll",
+          "published_path": "SharpCompress.dll",
+          "sha256": "9daca210e1a72461037af83308341f0625f7df780f5b5454c6bdf7d79187660e",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "SkiaSharp.NativeAssets.Linux/3.119.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-UAyVzbqNfZsZbKbzj68zXLyUyF/SbTKmzTfOO6qDu++dtIUMMTzPBe8oOuzU/DiewpfKoUUlOSsJmqWc6blxBw==",
+      "raw_archive_sha256": "fae0554059b1107ef7888e46c20bdfb548401ef7a7a6f7391ad4fadc7432d50a",
+      "canonical_content_sha512": "UAyVzbqNfZsZbKbzj68zXLyUyF/SbTKmzTfOO6qDu++dtIUMMTzPBe8oOuzU/DiewpfKoUUlOSsJmqWc6blxBw==",
+      "notices": [
+        "packages/skiasharp.nativeassets.linux/3.119.4/LICENSE.txt",
+        "packages/skiasharp.nativeassets.linux/3.119.4/THIRD-PARTY-NOTICES.txt"
+      ],
+      "assets": [
+        {
+          "deps_path": "runtimes/linux-x64/native/libSkiaSharp.so",
+          "package_member": "runtimes/linux-x64/native/libSkiaSharp.so",
+          "published_path": "libSkiaSharp.so",
+          "sha256": "66c856eaf1a47a00b23204c30c6ee407987bf5086ecc0a1a6b4fd67526b0cd02",
+          "kind": "native"
+        }
+      ]
+    },
+    {
+      "identity": "SkiaSharp/3.119.4",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-53NOSUZ1Us+91Sm0uCkIivh/k7jOowRErZT2sIWwPFN9mLUvdxnE6rS4sWo4255+Rd2MWUSF+j0NMZHD6Cke+Q==",
+      "raw_archive_sha256": "e32a449d31945c0b9d169eb5bc676e1e3f589aab69888e49d703fdc1c384c176",
+      "canonical_content_sha512": "53NOSUZ1Us+91Sm0uCkIivh/k7jOowRErZT2sIWwPFN9mLUvdxnE6rS4sWo4255+Rd2MWUSF+j0NMZHD6Cke+Q==",
+      "notices": [
+        "packages/skiasharp/3.119.4/LICENSE.txt"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/SkiaSharp.dll",
+          "package_member": "lib/net10.0/SkiaSharp.dll",
+          "published_path": "SkiaSharp.dll",
+          "sha256": "aaaaa18c68ba1f3a3408b00dff28b11d5705198e17ba9d3aa59222bfd35407c8",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "System.Drawing.Common/10.0.3",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-bJlT89G7EqMpiLCvIPmb7BHpcSxjVeFsahRyQk3/mrUt5YgHKiFcEv88db97gKcpRn5opxfBwI0ohUmJlxuGJg==",
+      "raw_archive_sha256": "5416bd3840f57eb9a028dd11c1658e692cd6b7142c392c09adb1ac537e1b88e4",
+      "canonical_content_sha512": "bJlT89G7EqMpiLCvIPmb7BHpcSxjVeFsahRyQk3/mrUt5YgHKiFcEv88db97gKcpRn5opxfBwI0ohUmJlxuGJg==",
+      "notices": [
+        "packages/system.drawing.common/10.0.3/LICENSE.TXT",
+        "packages/system.drawing.common/10.0.3/THIRD-PARTY-NOTICES.TXT"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/System.Drawing.Common.dll",
+          "package_member": "lib/net10.0/System.Drawing.Common.dll",
+          "published_path": "System.Drawing.Common.dll",
+          "sha256": "bef34d20a98ae1abf582e59dea83940c4a5a65ce7ca5fd2ffc9125bcad4fa5da",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/System.Private.Windows.Core.dll",
+          "package_member": "lib/net10.0/System.Private.Windows.Core.dll",
+          "published_path": "System.Private.Windows.Core.dll",
+          "sha256": "1fdb52175443a27a3bc3ed175cf6c9a7774633edce3852c5a39a071d31537a23",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "lib/net10.0/System.Private.Windows.GdiPlus.dll",
+          "package_member": "lib/net10.0/System.Private.Windows.GdiPlus.dll",
+          "published_path": "System.Private.Windows.GdiPlus.dll",
+          "sha256": "2e6df51d4e518c26306c046ec2cb6b6594c64de4695a60a9719b816a37f73617",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Tmds.DBus.Protocol/0.94.1",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-11YMr7FnAbL83bQmVxlhbIKHvSLxjO81D12Ej0QMSGXMDTxNA9MTOa4MQxx43nv5el/efuPHwzyrj6a5ha2gug==",
+      "raw_archive_sha256": "4f71d06ac40e725ffbcf1b79853dd93218695a84f23d36fafc85f477a4c9580f",
+      "canonical_content_sha512": "11YMr7FnAbL83bQmVxlhbIKHvSLxjO81D12Ej0QMSGXMDTxNA9MTOa4MQxx43nv5el/efuPHwzyrj6a5ha2gug==",
+      "notices": [
+        "upstream/tmds--Tmds.DBus/COPYING"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net9.0/Tmds.DBus.Protocol.dll",
+          "package_member": "lib/net9.0/Tmds.DBus.Protocol.dll",
+          "published_path": "Tmds.DBus.Protocol.dll",
+          "sha256": "60a1c5255731d8ac843cab53108be8ba1ed02759ce3db0da5b49939ebe97bd8a",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "Velopack/1.2.0",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-Rz67gJL619fSBS6omaSINUxyDuwhIxkm5mmubf7uLd5Qgi6LLKaKCha+QFP6n+Bw/UjA0vutnH4JQfYzn6ANtw==",
+      "raw_archive_sha256": "b97a28814938b58e4a34c47ef6e84baa3e436b0fc9b1f417089f28c8be522193",
+      "canonical_content_sha512": "Rz67gJL619fSBS6omaSINUxyDuwhIxkm5mmubf7uLd5Qgi6LLKaKCha+QFP6n+Bw/UjA0vutnH4JQfYzn6ANtw==",
+      "notices": [
+        "upstream/velopack--velopack/LICENSE"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/Velopack.dll",
+          "package_member": "lib/net10.0/Velopack.dll",
+          "published_path": "Velopack.dll",
+          "sha256": "f22e845bc153e9f7859c36de9df074bb3831db7db08c68739f0cd1e356352ed1",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "ppy.SDL3-CS/2026.1002.1",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-8E+A+xUJJCTcCQbSgFFYd90HfHoFUGzhx/QlXQ7wxLCkFjTPQZNjW8FvyGII0CgstvogNqFMaAy2plvqmob9mg==",
+      "raw_archive_sha256": "c5450151ffb6abf479d9cf6d36f331ff53ae3fbd4c6335f4ca86e6e104963568",
+      "canonical_content_sha512": "8E+A+xUJJCTcCQbSgFFYd90HfHoFUGzhx/QlXQ7wxLCkFjTPQZNjW8FvyGII0CgstvogNqFMaAy2plvqmob9mg==",
+      "notices": [
+        "upstream/libsdl-org--SDL/LICENSE.txt",
+        "upstream/ppy--SDL3-CS/LICENCE.txt",
+        "upstream/ppy--SDL3-CS/SDL-license-header.txt"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net8.0/SDL3-CS.dll",
+          "package_member": "lib/net8.0/SDL3-CS.dll",
+          "published_path": "SDL3-CS.dll",
+          "sha256": "6a2a6551dfab3083bd65a6aa726516b3d4ab99139d786123a9cdd6d042352591",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "runtimes/linux-x64/native/libSDL3.so",
+          "package_member": "runtimes/linux-x64/native/libSDL3.so",
+          "published_path": "libSDL3.so",
+          "sha256": "1d1285e20f7f2cfa1d12bfca26503bf0dc67ba4fcd78a138804836a1386f3394",
+          "kind": "native"
+        }
+      ]
+    },
+    {
+      "identity": "runtimepack.Microsoft.NETCore.App.Runtime.linux-x64/10.0.13",
+      "kind": "runtimepack",
+      "declared_package_license": "MIT",
+      "deps_sha512": "",
+      "raw_archive_sha256": "28c62a37549d17009f457ac53cd4acdd60f1598ba3f00e22587bbac318c679c6",
+      "canonical_content_sha512": "KCl9De4zp5IMkuoRJWSbbNxoXL9FLj4RkFH5B6l6/xAMjFoqb9UScbxiTqwI01k0dkvIedPC0czxnG0ohkH+vQ==",
+      "notices": [
+        "packages/microsoft.netcore.app.runtime.linux-x64/10.0.13/LICENSE.TXT",
+        "packages/microsoft.netcore.app.runtime.linux-x64/10.0.13/THIRD-PARTY-NOTICES.TXT"
+      ],
+      "assets": [
+        {
+          "deps_path": "Microsoft.CSharp.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/Microsoft.CSharp.dll",
+          "published_path": "Microsoft.CSharp.dll",
+          "sha256": "4a99825b3345cee71c9a18f95921edeec0199d36359690b0b00b67f74a09fa3c",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "Microsoft.VisualBasic.Core.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/Microsoft.VisualBasic.Core.dll",
+          "published_path": "Microsoft.VisualBasic.Core.dll",
+          "sha256": "f5d76b33d2acde27ea83b2a6846c2c8ccbb0fced26a63b86418abb5a0e706697",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "Microsoft.VisualBasic.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/Microsoft.VisualBasic.dll",
+          "published_path": "Microsoft.VisualBasic.dll",
+          "sha256": "b5869ff6e0c6df9801662785ac58f278a6799c813c573103a75c310d5a377a79",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "Microsoft.Win32.Primitives.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/Microsoft.Win32.Primitives.dll",
+          "published_path": "Microsoft.Win32.Primitives.dll",
+          "sha256": "5fa2bfb4d3d7022cfc11957617e9989e5fa61a471a720ff26b1bfc7d1d9d6406",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "Microsoft.Win32.Registry.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/Microsoft.Win32.Registry.dll",
+          "published_path": "Microsoft.Win32.Registry.dll",
+          "sha256": "7d0c170816f319325da46541e4f37f4fa749d34dcfd3b7abfdacdc6f24ee33b1",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.AppContext.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.AppContext.dll",
+          "published_path": "System.AppContext.dll",
+          "sha256": "825778128e91f3e65f1e2df0e972f1ca827518ce589120231ee13d481e696c5d",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Buffers.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Buffers.dll",
+          "published_path": "System.Buffers.dll",
+          "sha256": "015009d81a7f0100146a2ce904121684a11af304100710058bf6a7e8bb2826f4",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Collections.Concurrent.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Collections.Concurrent.dll",
+          "published_path": "System.Collections.Concurrent.dll",
+          "sha256": "7d7e3b3cc26b1d6a473bfcad2b6f26f47da1c7fcd987b9f33ddf03715916e0dc",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Collections.Immutable.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Collections.Immutable.dll",
+          "published_path": "System.Collections.Immutable.dll",
+          "sha256": "436274e38b0d4ef6c3e375fbe7a7d464bdba020dfca2ae7fe63de87f6796c87f",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Collections.NonGeneric.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Collections.NonGeneric.dll",
+          "published_path": "System.Collections.NonGeneric.dll",
+          "sha256": "1f92ea3c230d2b4cef1d4eb9327b3cd6516fded8e70f91e40ffceda17fe41559",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Collections.Specialized.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Collections.Specialized.dll",
+          "published_path": "System.Collections.Specialized.dll",
+          "sha256": "1778a3dbfdfd9f2303b21db1919bb4ad7f7cf3b36294c4b170a84a727eb8ade8",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Collections.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Collections.dll",
+          "published_path": "System.Collections.dll",
+          "sha256": "7ae47f8046afb2517bced030b168a6c97c204b8bfa003a28e1ab6b743cf8f24d",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.ComponentModel.Annotations.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.ComponentModel.Annotations.dll",
+          "published_path": "System.ComponentModel.Annotations.dll",
+          "sha256": "dd7e80e916063085b9c058fb495166f4dffe9b2b502a598589eda730dcc417b5",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.ComponentModel.DataAnnotations.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.ComponentModel.DataAnnotations.dll",
+          "published_path": "System.ComponentModel.DataAnnotations.dll",
+          "sha256": "51b101b79f68fd702ffcee9eae4aff09737798b5c42a70bfe9788155b64ad256",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.ComponentModel.EventBasedAsync.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.ComponentModel.EventBasedAsync.dll",
+          "published_path": "System.ComponentModel.EventBasedAsync.dll",
+          "sha256": "22346a3aee9ce1961fa36ca9816b4ed17b7835c4b32283af05dc4c3c90e716b6",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.ComponentModel.Primitives.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.ComponentModel.Primitives.dll",
+          "published_path": "System.ComponentModel.Primitives.dll",
+          "sha256": "bd3c3a35e14172a986d56e8e24407ba7643204ad995b6ecde60689d7b550a973",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.ComponentModel.TypeConverter.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.ComponentModel.TypeConverter.dll",
+          "published_path": "System.ComponentModel.TypeConverter.dll",
+          "sha256": "341ffacd21ff006d538472038e1c4d42cc75b26ddd95a6cf6006b5b24f114a87",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.ComponentModel.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.ComponentModel.dll",
+          "published_path": "System.ComponentModel.dll",
+          "sha256": "2abe3fd998af0eeb082c3bde444995be44cf94f7875888886d4732a8462874fb",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Configuration.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Configuration.dll",
+          "published_path": "System.Configuration.dll",
+          "sha256": "e5ffa6409446e8a608e4cc7f0c0d39562a075230fbf61d32ec314e02462fe7d3",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Console.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Console.dll",
+          "published_path": "System.Console.dll",
+          "sha256": "7c6a8fd880909130f0279e9669d162e45e5db0e0963d5e32495c3c2a3305dffc",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Core.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Core.dll",
+          "published_path": "System.Core.dll",
+          "sha256": "6011b6cd6591d7c4c48468513340c477f04ca2765808e9c7e80ed98891858f0b",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Data.Common.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Data.Common.dll",
+          "published_path": "System.Data.Common.dll",
+          "sha256": "6122e9bc97d432bddb146b490510b160f0c8ab7e0ce89fa8847fd858166123a1",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Data.DataSetExtensions.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Data.DataSetExtensions.dll",
+          "published_path": "System.Data.DataSetExtensions.dll",
+          "sha256": "1530720d4393a63514621734001a04597d0e35fc16f4b8a774c938d47883e34c",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Data.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Data.dll",
+          "published_path": "System.Data.dll",
+          "sha256": "0b94d8b29c34e4ddad1bb5fd304be28dc3e08aef017b56c5b0624b07af588c62",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Diagnostics.Contracts.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Diagnostics.Contracts.dll",
+          "published_path": "System.Diagnostics.Contracts.dll",
+          "sha256": "fc479f589078ddd7a63b2635ac1d6a0e02ea4318cfe8af680961bf666ad0d8e2",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Diagnostics.Debug.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Diagnostics.Debug.dll",
+          "published_path": "System.Diagnostics.Debug.dll",
+          "sha256": "7f5040c44d6704d6d92227d6cde5ece2fc22176c93e217f2c5fda969c8e84ea1",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Diagnostics.DiagnosticSource.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Diagnostics.DiagnosticSource.dll",
+          "published_path": "System.Diagnostics.DiagnosticSource.dll",
+          "sha256": "da7d3f3c04ef61d5d6304021a37e5ee51a576641b6652161b1b677b06ef2bb2e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Diagnostics.FileVersionInfo.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Diagnostics.FileVersionInfo.dll",
+          "published_path": "System.Diagnostics.FileVersionInfo.dll",
+          "sha256": "143088ea89e901ca2df59a27ac1e561bd42bd78ae8c203a18d39d7a761e818d6",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Diagnostics.Process.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Diagnostics.Process.dll",
+          "published_path": "System.Diagnostics.Process.dll",
+          "sha256": "ebbe6500ec760ab9557163f08c0b02f13fc7c121d77ea36d6872bbea8e7e25fa",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Diagnostics.StackTrace.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Diagnostics.StackTrace.dll",
+          "published_path": "System.Diagnostics.StackTrace.dll",
+          "sha256": "6028761e864eade1753d06bd2c4ded5cc80d70b3280a6bc85152efdb4a0960b0",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Diagnostics.TextWriterTraceListener.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Diagnostics.TextWriterTraceListener.dll",
+          "published_path": "System.Diagnostics.TextWriterTraceListener.dll",
+          "sha256": "f5015ca5faeebafc669dd704f6c3f601cb6d924f64f11bbf5625df4152f21540",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Diagnostics.Tools.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Diagnostics.Tools.dll",
+          "published_path": "System.Diagnostics.Tools.dll",
+          "sha256": "85f4e9022380bfe46bd568f6a6c8b05a670b4645e356e6a77f164031ead05121",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Diagnostics.TraceSource.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Diagnostics.TraceSource.dll",
+          "published_path": "System.Diagnostics.TraceSource.dll",
+          "sha256": "e39881aac61bcb9aad4fed94a1bd8d814f04ccda35adc8686683b5a6aabd17d4",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Diagnostics.Tracing.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Diagnostics.Tracing.dll",
+          "published_path": "System.Diagnostics.Tracing.dll",
+          "sha256": "e1553a04888fd9348b9ba23c920fed05fdddf4cdd47ad347dc887af84521eabe",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Drawing.Primitives.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Drawing.Primitives.dll",
+          "published_path": "System.Drawing.Primitives.dll",
+          "sha256": "185c993a7250abf82cc7eb20a8f53e51acc04e661feef7d69721d9d69d1bff3a",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Drawing.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Drawing.dll",
+          "published_path": "System.Drawing.dll",
+          "sha256": "874d8da155fa07b634a6934e697427503d52baad15c5789b03b8dace7433bcd3",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Dynamic.Runtime.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Dynamic.Runtime.dll",
+          "published_path": "System.Dynamic.Runtime.dll",
+          "sha256": "548b68eecccbc1e8b9e35615f135226481062fa4954a63c8951518ea89c3ba59",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Formats.Asn1.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Formats.Asn1.dll",
+          "published_path": "System.Formats.Asn1.dll",
+          "sha256": "ec5721f93002f245c620276e428452dfabdf21d0c26e7008abefcafff5ce507d",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Formats.Tar.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Formats.Tar.dll",
+          "published_path": "System.Formats.Tar.dll",
+          "sha256": "575afe10e59dab59953022ac54d30d21aef3bbe99eb4268e742a0edabe3d9f2e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Globalization.Calendars.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Globalization.Calendars.dll",
+          "published_path": "System.Globalization.Calendars.dll",
+          "sha256": "2b2b4e75c58b05c714a04c62ba41fde8a5c688fad7c48048ec343ddb575e3396",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Globalization.Extensions.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Globalization.Extensions.dll",
+          "published_path": "System.Globalization.Extensions.dll",
+          "sha256": "05ce842dea973cf70f2fb9e44ff269664fd96ace0b3837cde6c1493184915390",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Globalization.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Globalization.dll",
+          "published_path": "System.Globalization.dll",
+          "sha256": "4b8da3084a26108766911f9a6f4954fd9e8ccb8472f34d3970013b2fa77692db",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.Compression.Brotli.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.Compression.Brotli.dll",
+          "published_path": "System.IO.Compression.Brotli.dll",
+          "sha256": "c66fda55aa019b90b5cb50a6ec069079532e2d9f3c0b2720aad1220b1c2a0110",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.Compression.FileSystem.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.Compression.FileSystem.dll",
+          "published_path": "System.IO.Compression.FileSystem.dll",
+          "sha256": "53dff201b1e28329b02e319fcb6ded173498087ff5705d05d178d2cdeffcc89b",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.Compression.ZipFile.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.Compression.ZipFile.dll",
+          "published_path": "System.IO.Compression.ZipFile.dll",
+          "sha256": "8cffb5898c0d53b4f6d945f1380b76ee0ef6327ded77856716ae65b91749d79f",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.Compression.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.Compression.dll",
+          "published_path": "System.IO.Compression.dll",
+          "sha256": "716370ae55fc018735479dc38d30c43770a194f4795b5f9cdc5ad2dc713b8fd9",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.FileSystem.AccessControl.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.FileSystem.AccessControl.dll",
+          "published_path": "System.IO.FileSystem.AccessControl.dll",
+          "sha256": "6beeea4a8d9fbbd83dca3f5e6591faf2a69d5abb6befa4cb27e9d73bc74c65a1",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.FileSystem.DriveInfo.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.FileSystem.DriveInfo.dll",
+          "published_path": "System.IO.FileSystem.DriveInfo.dll",
+          "sha256": "57f8e5c8d9304817e9f78bcdd3621c11bc7765484e44f0e95b0cfb2f2e899a1e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.FileSystem.Primitives.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.FileSystem.Primitives.dll",
+          "published_path": "System.IO.FileSystem.Primitives.dll",
+          "sha256": "2fab65c881d5b62c1dc14e8031c210ddd7328cc092319f276011965c7f2c2acf",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.FileSystem.Watcher.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.FileSystem.Watcher.dll",
+          "published_path": "System.IO.FileSystem.Watcher.dll",
+          "sha256": "954731b1d94a4e94d5d1ca13d6b3be84693231edd206dcfcd0b3923d5b695b8e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.FileSystem.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.FileSystem.dll",
+          "published_path": "System.IO.FileSystem.dll",
+          "sha256": "581cff7d4aa7e525c1a4ba4e4c0155e2588be796480916a28e1e1f049f9f9321",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.IsolatedStorage.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.IsolatedStorage.dll",
+          "published_path": "System.IO.IsolatedStorage.dll",
+          "sha256": "a8970b1b961040091c110b2d9a9cb7ed1f84d150acecacc5f27fde2e48e44374",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.MemoryMappedFiles.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.MemoryMappedFiles.dll",
+          "published_path": "System.IO.MemoryMappedFiles.dll",
+          "sha256": "926cacd97b6731c1c002c29a6b21caeb9af0f6c42457f2724c26af4d664685d6",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.Pipelines.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.Pipelines.dll",
+          "published_path": "System.IO.Pipelines.dll",
+          "sha256": "c8f7085e346d460c0f5f003f3f8cbc8662e6972481bf0646c60094b93232c312",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.Pipes.AccessControl.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.Pipes.AccessControl.dll",
+          "published_path": "System.IO.Pipes.AccessControl.dll",
+          "sha256": "5f2cbd7375e512dc2dee1e2cc2e22ed0fcf9178a93159af308113a227310e2af",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.Pipes.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.Pipes.dll",
+          "published_path": "System.IO.Pipes.dll",
+          "sha256": "d2ee83ae33ad50657e07332c3e666ef1a0d896bbccbd44485b71ded832cbea41",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.UnmanagedMemoryStream.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.UnmanagedMemoryStream.dll",
+          "published_path": "System.IO.UnmanagedMemoryStream.dll",
+          "sha256": "58f9eb7c1884f051d2e1d5ec0b9508e888a88beec8fe22967edb1d10f9cbe327",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.IO.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.IO.dll",
+          "published_path": "System.IO.dll",
+          "sha256": "7c7c9d25d712cffa9e0dc93e752c616249a7098ff39ee179b6c953a1007f1607",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Linq.AsyncEnumerable.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Linq.AsyncEnumerable.dll",
+          "published_path": "System.Linq.AsyncEnumerable.dll",
+          "sha256": "969c4c4a5cbbb4768f4c4f70fd0b9d5ba8c1963c0c491a8787404e45d1f74e02",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Linq.Expressions.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Linq.Expressions.dll",
+          "published_path": "System.Linq.Expressions.dll",
+          "sha256": "ec7e0543b745953353502545498e850f913c4ef619d7f5278d6f0f150b34dee8",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Linq.Parallel.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Linq.Parallel.dll",
+          "published_path": "System.Linq.Parallel.dll",
+          "sha256": "edfa7c67ba99ff43c09e9e5600bcc6831233e73a2332133646c1041d567ffadb",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Linq.Queryable.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Linq.Queryable.dll",
+          "published_path": "System.Linq.Queryable.dll",
+          "sha256": "3b801db20a98073d5d228ed8f64a89653895bf5e864ec13c320ff3db009d1886",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Linq.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Linq.dll",
+          "published_path": "System.Linq.dll",
+          "sha256": "f4f4667910c7070f3ce8707cf84faf55ab71cdfaee17f4a019fd31fe69fb09f4",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Memory.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Memory.dll",
+          "published_path": "System.Memory.dll",
+          "sha256": "f194e001b2d2769c135df86b95120524b8c66b3a2c421c445567d5283b053c9e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.Http.Json.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.Http.Json.dll",
+          "published_path": "System.Net.Http.Json.dll",
+          "sha256": "7c7a42eab42ee32c3a0c208f52e3470407ccd1f119bf012f6808eb2463374e7c",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.Http.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.Http.dll",
+          "published_path": "System.Net.Http.dll",
+          "sha256": "d616060cfe1f0583d029a442e39d8e565c6e034899ca414733858f87df0c4bbf",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.HttpListener.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.HttpListener.dll",
+          "published_path": "System.Net.HttpListener.dll",
+          "sha256": "0762e2950fb65e0929cff2606f16ca840e0e123ffab1d3e2b5ec3248a9f6a83d",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.Mail.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.Mail.dll",
+          "published_path": "System.Net.Mail.dll",
+          "sha256": "cb1aec873fd404c286b63b2555cb11e91cf0eb84e57ab467295523bc0d0b4d7c",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.NameResolution.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.NameResolution.dll",
+          "published_path": "System.Net.NameResolution.dll",
+          "sha256": "4e941fa8bfe44ba7f8fccbf46ef49b19e819f8c4dd4a8784d43779d889920aa8",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.NetworkInformation.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.NetworkInformation.dll",
+          "published_path": "System.Net.NetworkInformation.dll",
+          "sha256": "4a444a4317748bafd8cef1a37894872f03db2e17dd7b998a7d665e9d54438468",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.Ping.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.Ping.dll",
+          "published_path": "System.Net.Ping.dll",
+          "sha256": "10581f0e543aac641048a194422f12ec9264b74b2f253d68e5f3eabb92ecc40b",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.Primitives.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.Primitives.dll",
+          "published_path": "System.Net.Primitives.dll",
+          "sha256": "ba4f28ebed7c1fdb6394165c49039b69b245410ae35d408225b8808e0a62fade",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.Quic.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.Quic.dll",
+          "published_path": "System.Net.Quic.dll",
+          "sha256": "e16666e27190dff7ffd058ea678b12f07e8b0d4d4f84cf3a45ca9cdad99d9046",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.Requests.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.Requests.dll",
+          "published_path": "System.Net.Requests.dll",
+          "sha256": "7e120951e14b69eacbbba198fbfe2a964291947c787f81d922d7c0bc834e4f7e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.Security.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.Security.dll",
+          "published_path": "System.Net.Security.dll",
+          "sha256": "b0356021a68be0cdf570dac0c99fcabccf66d945ba1e047bdf058ac85dba85ef",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.ServerSentEvents.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.ServerSentEvents.dll",
+          "published_path": "System.Net.ServerSentEvents.dll",
+          "sha256": "404323f0c57c0cfbd9ad7203170731459cfa5ec559ee2efb7d0c9614abffa387",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.ServicePoint.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.ServicePoint.dll",
+          "published_path": "System.Net.ServicePoint.dll",
+          "sha256": "555f55a6f6be3110666224258488371f9baee1c47c09ba6eaf5245998aa03f7a",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.Sockets.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.Sockets.dll",
+          "published_path": "System.Net.Sockets.dll",
+          "sha256": "6d38f6e3001494e745043fc6c73a8a59cde3cf745e9039752cb5c236c5d67a57",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.WebClient.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.WebClient.dll",
+          "published_path": "System.Net.WebClient.dll",
+          "sha256": "675e55e21ffba3a1ee72f6cd01383f4ce0566db23f12e6acd317d6efd1d53413",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.WebHeaderCollection.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.WebHeaderCollection.dll",
+          "published_path": "System.Net.WebHeaderCollection.dll",
+          "sha256": "4103d505574a4bfd9c0663d6636aa3828571e5f3793aab6ee1d2b6bd859c78e3",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.WebProxy.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.WebProxy.dll",
+          "published_path": "System.Net.WebProxy.dll",
+          "sha256": "776c09716c22562be4fce87a15922f8f09b95b568f7e526041d2d2ef75f1dfb2",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.WebSockets.Client.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.WebSockets.Client.dll",
+          "published_path": "System.Net.WebSockets.Client.dll",
+          "sha256": "acaf453cab16eda9f6cb263e4948c22d9fe5a649b20f06a3b1805bd7ec5e9289",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.WebSockets.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.WebSockets.dll",
+          "published_path": "System.Net.WebSockets.dll",
+          "sha256": "616d052f75ae675bc898d07379083f351b070c3b12dda8364a829501347a0ffc",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Net.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Net.dll",
+          "published_path": "System.Net.dll",
+          "sha256": "ae45f3df8e37ed1983f42fcb0e7ca732b83aa03696594ec2d5697c9c41e2b34d",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Numerics.Vectors.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Numerics.Vectors.dll",
+          "published_path": "System.Numerics.Vectors.dll",
+          "sha256": "cfb25ffd087ec5697f25cf2b2c46882a88e1757a715325e165620f434a21b0cd",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Numerics.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Numerics.dll",
+          "published_path": "System.Numerics.dll",
+          "sha256": "c64ec24fb698a427fcc2ecfa98920772b98135c0c0618448ba286446ca432d80",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.ObjectModel.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.ObjectModel.dll",
+          "published_path": "System.ObjectModel.dll",
+          "sha256": "fad05b1bcf6fccc4f236c47647d3815e621146012cabd2d78848053a5e936082",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Private.CoreLib.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Private.CoreLib.dll",
+          "published_path": "System.Private.CoreLib.dll",
+          "sha256": "11a0f23df9fbb128743f372b0583528aac702f6b534706bfc28bfcd54dae6907",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Private.DataContractSerialization.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Private.DataContractSerialization.dll",
+          "published_path": "System.Private.DataContractSerialization.dll",
+          "sha256": "6f2ac2441dc3190bda8bf74992eea2dd46a06089cd54d75bc744a4861cdedb99",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Private.Uri.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Private.Uri.dll",
+          "published_path": "System.Private.Uri.dll",
+          "sha256": "3db52e8ff0b57d77303a25bcf852f80f5a9dc3fcf2e0fe3f9536b9bd1f0989cc",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Private.Xml.Linq.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Private.Xml.Linq.dll",
+          "published_path": "System.Private.Xml.Linq.dll",
+          "sha256": "48e7f4b8f203ab4e0c8ab271de8d8a6fec3364568f4a81d60d21a0ed3ecaa536",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Private.Xml.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Private.Xml.dll",
+          "published_path": "System.Private.Xml.dll",
+          "sha256": "025330653ce1cb5d4b41352cb8e7ea337e88cf046ea82d8011af8bc3957df994",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Reflection.DispatchProxy.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Reflection.DispatchProxy.dll",
+          "published_path": "System.Reflection.DispatchProxy.dll",
+          "sha256": "53e06ce4aa091d4348f8adc300bab05799db26f2143e7d91d1f6944c16a7387d",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Reflection.Emit.ILGeneration.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Reflection.Emit.ILGeneration.dll",
+          "published_path": "System.Reflection.Emit.ILGeneration.dll",
+          "sha256": "9d63159625a4cd0378e2984bacc1f7e9d6ae4bcf6786a9b8c0f180357b0f2fc2",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Reflection.Emit.Lightweight.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Reflection.Emit.Lightweight.dll",
+          "published_path": "System.Reflection.Emit.Lightweight.dll",
+          "sha256": "e7160ee9ab391aba3b785d2d6bb6238e53fcfbb79eb2b5b6152d39df0789c08e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Reflection.Emit.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Reflection.Emit.dll",
+          "published_path": "System.Reflection.Emit.dll",
+          "sha256": "751d63e2fb917b1957af5097050a8c7d6a33b90af1111ea1cba827557599681e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Reflection.Extensions.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Reflection.Extensions.dll",
+          "published_path": "System.Reflection.Extensions.dll",
+          "sha256": "1e235491854738c8422a272a56e1e57b4b7b5bbf2aa9986f59c91c74122e8947",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Reflection.Metadata.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Reflection.Metadata.dll",
+          "published_path": "System.Reflection.Metadata.dll",
+          "sha256": "44c9bdc9f55531ed61d89d2bc36adbf40739e5d76e3ecca5f08fe76cf9ed376d",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Reflection.Primitives.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Reflection.Primitives.dll",
+          "published_path": "System.Reflection.Primitives.dll",
+          "sha256": "bba28fedec22aa9da25d9bced1403d7f8dcb488e0ba8d1b18d8f2db85e62e804",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Reflection.TypeExtensions.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Reflection.TypeExtensions.dll",
+          "published_path": "System.Reflection.TypeExtensions.dll",
+          "sha256": "a061a301692c7e338930cbcf8a939ecd7874bc1007d9bc756f050d6056a45de9",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Reflection.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Reflection.dll",
+          "published_path": "System.Reflection.dll",
+          "sha256": "a9eea73af75dc6eb6400ad5ff68389684b6595cb9678fda705272cb52eceeaa0",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Resources.Reader.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Resources.Reader.dll",
+          "published_path": "System.Resources.Reader.dll",
+          "sha256": "172e841890c789233913c1a7b5556ec6d30193578c23a59bb6c87611ac1094ca",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Resources.ResourceManager.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Resources.ResourceManager.dll",
+          "published_path": "System.Resources.ResourceManager.dll",
+          "sha256": "ad249c9695c7bee250397c4eab58f5d3a94804c290d304699946f4b7b495e235",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Resources.Writer.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Resources.Writer.dll",
+          "published_path": "System.Resources.Writer.dll",
+          "sha256": "1081a1a2094183f6153b0b025a5a5a82031a593f54327c15033498c6661a4eb2",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.CompilerServices.Unsafe.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.CompilerServices.Unsafe.dll",
+          "published_path": "System.Runtime.CompilerServices.Unsafe.dll",
+          "sha256": "11cd582ee1438b3ea6cd4f5ccce319ef7d0e9d32e2d68a73f4c3f6de8250ef40",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.CompilerServices.VisualC.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.CompilerServices.VisualC.dll",
+          "published_path": "System.Runtime.CompilerServices.VisualC.dll",
+          "sha256": "351473a37c97a8a6c02b563e9c3c2789e40354063d15ada5ba065cb9f5c51247",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.Extensions.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.Extensions.dll",
+          "published_path": "System.Runtime.Extensions.dll",
+          "sha256": "5e7f59d42c2aef4ecc4d3944348daef1d139c0ab79abcbdc5ac200d9176baa5b",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.Handles.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.Handles.dll",
+          "published_path": "System.Runtime.Handles.dll",
+          "sha256": "ee1a74dc142fa9e237ad766033fd91b7d3eac683867ac728dc59b7c94f0eb96e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.InteropServices.JavaScript.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.InteropServices.JavaScript.dll",
+          "published_path": "System.Runtime.InteropServices.JavaScript.dll",
+          "sha256": "395388521964063ad6231a7a680dd19916b4c64c53199253db7080c615462ac1",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.InteropServices.RuntimeInformation.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.InteropServices.RuntimeInformation.dll",
+          "published_path": "System.Runtime.InteropServices.RuntimeInformation.dll",
+          "sha256": "a2e76c6a1df200db9c33609e05b492fe9e119f3141bb12938bbc5469b28a4cf6",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.InteropServices.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.InteropServices.dll",
+          "published_path": "System.Runtime.InteropServices.dll",
+          "sha256": "6fb98df38126bc44a49fadc3623077f55f74dc2057e31e3ee36b42d6276cb071",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.Intrinsics.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.Intrinsics.dll",
+          "published_path": "System.Runtime.Intrinsics.dll",
+          "sha256": "53a868629ac22a62432b9e2fd2596521b88360bc135e11c9bbd8e95b57b10309",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.Loader.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.Loader.dll",
+          "published_path": "System.Runtime.Loader.dll",
+          "sha256": "fc50300de5a99bce14051c80591e07e8ec24955f726ef7523d4c250f65209a80",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.Numerics.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.Numerics.dll",
+          "published_path": "System.Runtime.Numerics.dll",
+          "sha256": "e39f7e18a1e8e55909ccb55a8fcbe72d7dc517bf7a917831f41789ac11dfa62c",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.Serialization.Formatters.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.Serialization.Formatters.dll",
+          "published_path": "System.Runtime.Serialization.Formatters.dll",
+          "sha256": "a2d3859b5031ec72f966997ad481f44764fef0ca5f80478ef7f154d4ca7ed3d4",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.Serialization.Json.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.Serialization.Json.dll",
+          "published_path": "System.Runtime.Serialization.Json.dll",
+          "sha256": "cd1103b9715f1d6cfeccf287456f8731abfe9cf500be03c453df1038fcf97139",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.Serialization.Primitives.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.Serialization.Primitives.dll",
+          "published_path": "System.Runtime.Serialization.Primitives.dll",
+          "sha256": "c13bb29ca25d2a1ecbd5e2095a0d78193b4d63a1334f40e0d0e08c3362363e50",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.Serialization.Xml.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.Serialization.Xml.dll",
+          "published_path": "System.Runtime.Serialization.Xml.dll",
+          "sha256": "f27a4b89db02da4de3696a42d6e74312f3544549e8591f2861f946df63ab1e65",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.Serialization.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.Serialization.dll",
+          "published_path": "System.Runtime.Serialization.dll",
+          "sha256": "52e45c5d0810c6e25fc0ed6762cd09f8f3878a086feef4ba16c38b8d0b2b63ca",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Runtime.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Runtime.dll",
+          "published_path": "System.Runtime.dll",
+          "sha256": "39b2fd77c6a959dda812bd73ef87150f509712ade8da2b60ac6e82810236feeb",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.AccessControl.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.AccessControl.dll",
+          "published_path": "System.Security.AccessControl.dll",
+          "sha256": "d2b6ab47475c9aef8c3177b532fd81ba180d3c57a86c6b5b6651897bc9569488",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Claims.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Claims.dll",
+          "published_path": "System.Security.Claims.dll",
+          "sha256": "cccf1d533e2b8139cf55310340f8002d15db86c53c744e968e69f46596416723",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Cryptography.Algorithms.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Cryptography.Algorithms.dll",
+          "published_path": "System.Security.Cryptography.Algorithms.dll",
+          "sha256": "bbad66460d11b1bde60161aedbc42655d20d2a573f8b5d4f2647e346434504d9",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Cryptography.Cng.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Cryptography.Cng.dll",
+          "published_path": "System.Security.Cryptography.Cng.dll",
+          "sha256": "e5a9970f00c8fe2c0b50fb14116f8752cc342fa668ff4fcf45e66770db45e833",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Cryptography.Csp.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Cryptography.Csp.dll",
+          "published_path": "System.Security.Cryptography.Csp.dll",
+          "sha256": "0319a9161a4645e0e1cffe302849732eda05e56de9069d231a5e2e7a7f560351",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Cryptography.Encoding.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Cryptography.Encoding.dll",
+          "published_path": "System.Security.Cryptography.Encoding.dll",
+          "sha256": "9d717154066ac95d8df466d793a7c0cd65fad87bf6d1ddcd9cd438727f1e3895",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Cryptography.OpenSsl.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Cryptography.OpenSsl.dll",
+          "published_path": "System.Security.Cryptography.OpenSsl.dll",
+          "sha256": "01661e912b3146079087ee3b6ef16c206b6d4466a71f797b8931d27f65ce6508",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Cryptography.Primitives.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Cryptography.Primitives.dll",
+          "published_path": "System.Security.Cryptography.Primitives.dll",
+          "sha256": "04b96686a046a5b8a66b168a6c207075000a0270eb952c66c09b68f86fb4f98b",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Cryptography.X509Certificates.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Cryptography.X509Certificates.dll",
+          "published_path": "System.Security.Cryptography.X509Certificates.dll",
+          "sha256": "b8e71837cc08f0dd13284f4952213171969fcde3f3ca69604746a81a4e924ccd",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Cryptography.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Cryptography.dll",
+          "published_path": "System.Security.Cryptography.dll",
+          "sha256": "0cdbec5378d85c5841ec8d1b01a794888e003d184e62171e32ec60b4738874e4",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Principal.Windows.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Principal.Windows.dll",
+          "published_path": "System.Security.Principal.Windows.dll",
+          "sha256": "365ed81510826806f6a31590891fe9c0bd6229d17fd7af2e3f2a3198d51a112c",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.Principal.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.Principal.dll",
+          "published_path": "System.Security.Principal.dll",
+          "sha256": "d8c6f239f31f6832b67eab9acc3bdca8e76b7bf6121d78fb44fa578ca1d5b4ff",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.SecureString.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.SecureString.dll",
+          "published_path": "System.Security.SecureString.dll",
+          "sha256": "4d7f30b3477f47b8e9b9b3b8db2cb159ac4de8cb6cb637a204088d31a1150fe4",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Security.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Security.dll",
+          "published_path": "System.Security.dll",
+          "sha256": "64caaca40c9e7a9ba090cb494b4eb8d513f7beb1e7a160336f3ae5bb3808c2d6",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.ServiceModel.Web.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.ServiceModel.Web.dll",
+          "published_path": "System.ServiceModel.Web.dll",
+          "sha256": "bc1e72f16c5e5c78881c8338d90fe1266fde8e7a887931af475981c14f7e753c",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.ServiceProcess.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.ServiceProcess.dll",
+          "published_path": "System.ServiceProcess.dll",
+          "sha256": "065486be60303350e39f2ff2b16b28d0d984658ad5ab11e3d7e43b91e1db5d15",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Text.Encoding.CodePages.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Text.Encoding.CodePages.dll",
+          "published_path": "System.Text.Encoding.CodePages.dll",
+          "sha256": "63d97454efdbec082e3c53211eeeddbd5fde3c5b127bc610f373a198df18115e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Text.Encoding.Extensions.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Text.Encoding.Extensions.dll",
+          "published_path": "System.Text.Encoding.Extensions.dll",
+          "sha256": "2ae51d14b16c04f2102f828f0ff7fe42ecc0ac73ed88139ead380d557c457fb8",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Text.Encoding.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Text.Encoding.dll",
+          "published_path": "System.Text.Encoding.dll",
+          "sha256": "f1e65ab033db89f70009f32472bd0e06600e4cb5dd9cee9641967d89882927f6",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Text.Encodings.Web.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Text.Encodings.Web.dll",
+          "published_path": "System.Text.Encodings.Web.dll",
+          "sha256": "dbbfc41d1b15f426c77d74fffea99aafbeb327ac9cfc4cd6e298f89ecaad882d",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Text.Json.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Text.Json.dll",
+          "published_path": "System.Text.Json.dll",
+          "sha256": "14eedb06fd8e45bf2a8ab823b43ae8ce5bdfc57e86dbe92fc8dfe0c5b089ab75",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Text.RegularExpressions.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Text.RegularExpressions.dll",
+          "published_path": "System.Text.RegularExpressions.dll",
+          "sha256": "d6aa536e4f318533743499a726b12ff550aebc34afd8324d2267406f02e14fe9",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.AccessControl.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.AccessControl.dll",
+          "published_path": "System.Threading.AccessControl.dll",
+          "sha256": "f05ec8a355815611f50d872dff15a5a520a7c1d56fe811d426049c8d031a5e67",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.Channels.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.Channels.dll",
+          "published_path": "System.Threading.Channels.dll",
+          "sha256": "5496ed6c71488f7a401f48169dc2e5d57b81d74a61cfc55c6584c3aa80017f3a",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.Overlapped.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.Overlapped.dll",
+          "published_path": "System.Threading.Overlapped.dll",
+          "sha256": "25f4494bfc19f751910a5d3b957be26791817385b7b0651372b3c6fe2dda4cd8",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.Tasks.Dataflow.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.Tasks.Dataflow.dll",
+          "published_path": "System.Threading.Tasks.Dataflow.dll",
+          "sha256": "97e669e2695403624a602972838cb02a0e2b9cfcf18786535b3f5e0c516a1435",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.Tasks.Extensions.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.Tasks.Extensions.dll",
+          "published_path": "System.Threading.Tasks.Extensions.dll",
+          "sha256": "4eddddc951e7a3c0470e315392d4f5b626632cf801d9e4f5a1f675fbf2e00f62",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.Tasks.Parallel.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.Tasks.Parallel.dll",
+          "published_path": "System.Threading.Tasks.Parallel.dll",
+          "sha256": "4c47db285546521b8836a7bb7e38b9ca8c069c01ed3a3bb2978b0dd14ba83357",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.Tasks.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.Tasks.dll",
+          "published_path": "System.Threading.Tasks.dll",
+          "sha256": "d5560344816be3b8b44cebedb0e73fe9bd7d4b44c222c27a55ba871d0ba813bc",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.Thread.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.Thread.dll",
+          "published_path": "System.Threading.Thread.dll",
+          "sha256": "8f73f688d6f8079d0a642481a7dd7a47d6119948d2e09fcb9129d2aa615d5836",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.ThreadPool.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.ThreadPool.dll",
+          "published_path": "System.Threading.ThreadPool.dll",
+          "sha256": "e18e9a162959a6266217dfa4970de21a198936a47a1cd5ed50a97932f8554840",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.Timer.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.Timer.dll",
+          "published_path": "System.Threading.Timer.dll",
+          "sha256": "8fd30fa4c41dcc0204e536227ce1cb6d1757cef74e6cc6e15566b54bc207bdc8",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Threading.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Threading.dll",
+          "published_path": "System.Threading.dll",
+          "sha256": "944033ad4d0cffb8de02a4de904261db08b0e7af4032adc0d22a9655bf239278",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Transactions.Local.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Transactions.Local.dll",
+          "published_path": "System.Transactions.Local.dll",
+          "sha256": "9866eb15d0d0ee67216284f97a05e8248858084eaa046231cfb9ca0ba133019f",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Transactions.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Transactions.dll",
+          "published_path": "System.Transactions.dll",
+          "sha256": "7c2737b7f266cb412a8641a85e9c997d044ec1c685dec08d05c1c15303aeb22e",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.ValueTuple.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.ValueTuple.dll",
+          "published_path": "System.ValueTuple.dll",
+          "sha256": "9973d402bd95ba55e3d7df227ea95f13ea9a06c12199ace06e2ffcac53a3a38a",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Web.HttpUtility.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Web.HttpUtility.dll",
+          "published_path": "System.Web.HttpUtility.dll",
+          "sha256": "c5c00a6ab2dc118f9901b0b790a0f7519ba44c57e97b34e72e294ba623c64751",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Web.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Web.dll",
+          "published_path": "System.Web.dll",
+          "sha256": "7b9a77eb1efe24b7d6cd07101d436eb0476e971d575ee624d8cde4e387bbf6f1",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Windows.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Windows.dll",
+          "published_path": "System.Windows.dll",
+          "sha256": "33a56068a814f4fcccadc2208a08ebeea2fc714335a440e517f5c4801f1d0c7d",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Xml.Linq.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Xml.Linq.dll",
+          "published_path": "System.Xml.Linq.dll",
+          "sha256": "3dec21015684a1f348703dec85794f9eeb0f5ef9ad5fde834df6163d08c0d202",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Xml.ReaderWriter.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Xml.ReaderWriter.dll",
+          "published_path": "System.Xml.ReaderWriter.dll",
+          "sha256": "c4f6229b72e5a9eeebaad8105a3c2ad7021b7cb45f80fee194d6abbab4998b6a",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Xml.Serialization.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Xml.Serialization.dll",
+          "published_path": "System.Xml.Serialization.dll",
+          "sha256": "c10f91fd65f050e3b594564924ef938549ffed71e7cdceb8281c23507e249f1c",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Xml.XDocument.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Xml.XDocument.dll",
+          "published_path": "System.Xml.XDocument.dll",
+          "sha256": "3cda941cd272afa7683831a962ee7ec9bb4280b54d33597e51650e7ba9988b86",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Xml.XPath.XDocument.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Xml.XPath.XDocument.dll",
+          "published_path": "System.Xml.XPath.XDocument.dll",
+          "sha256": "672967cc8cd817dc17101eb640bc52254e843846dbde43920f21652f9203da50",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Xml.XPath.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Xml.XPath.dll",
+          "published_path": "System.Xml.XPath.dll",
+          "sha256": "7dccae585a421796d2d8f5d45ad4a696ae88303d9a42a32aa60bc1cf16cd31ae",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Xml.XmlDocument.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Xml.XmlDocument.dll",
+          "published_path": "System.Xml.XmlDocument.dll",
+          "sha256": "2f0859fadc2032b94ae09b5cf2fa0dfd58d2da9a100e302a7642f3d144365638",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Xml.XmlSerializer.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Xml.XmlSerializer.dll",
+          "published_path": "System.Xml.XmlSerializer.dll",
+          "sha256": "4d6b4a4632964a5c920bd57adf71f070ba87fe1542ab90c8a456b30e633aa4cc",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.Xml.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.Xml.dll",
+          "published_path": "System.Xml.dll",
+          "sha256": "64a55c6f24bde4332bdf30847d10d27b95359f8988b889abd9b6a2a7b989ceb2",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "System.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/System.dll",
+          "published_path": "System.dll",
+          "sha256": "8b25e3d3336a364d5c44dbc5052a0879e85348aea5a6e2a3763379ad65098f61",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "WindowsBase.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/WindowsBase.dll",
+          "published_path": "WindowsBase.dll",
+          "sha256": "11b1d0cff8b2fb0e0f73d7de44e5d9dc0ee092575c1ccddb2cc15ae3a5e4cbd0",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "mscorlib.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/mscorlib.dll",
+          "published_path": "mscorlib.dll",
+          "sha256": "955ac1b81e52216facf457609a7178f97dac72104dedc3cb3e469aaa7f613aa0",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "netstandard.dll",
+          "package_member": "runtimes/linux-x64/lib/net10.0/netstandard.dll",
+          "published_path": "netstandard.dll",
+          "sha256": "bd752a47f24b1c26c960e19271e740c7301ad9fbdaa3718ed4b65c05473f6486",
+          "kind": "runtime"
+        },
+        {
+          "deps_path": "createdump",
+          "package_member": "runtimes/linux-x64/native/createdump",
+          "published_path": "createdump",
+          "sha256": "af012f1adb29bfe3fc866887071ae4d58fb1ba97fd3be400edb007e482f3260f",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libSystem.Globalization.Native.so",
+          "package_member": "runtimes/linux-x64/native/libSystem.Globalization.Native.so",
+          "published_path": "libSystem.Globalization.Native.so",
+          "sha256": "0f2e238ffcb1cec0e330413bbf6d8219b8ceb0e506f28d1a26a7df407be74d4f",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libSystem.IO.Compression.Native.so",
+          "package_member": "runtimes/linux-x64/native/libSystem.IO.Compression.Native.so",
+          "published_path": "libSystem.IO.Compression.Native.so",
+          "sha256": "c565a755c20dbd3e1d6d33ed0b5e978b5974a90fe3ef86cba4bf4c4814543f12",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libSystem.Native.so",
+          "package_member": "runtimes/linux-x64/native/libSystem.Native.so",
+          "published_path": "libSystem.Native.so",
+          "sha256": "153a2e5fc2c71d4909fbb7a478ad5a3cf7e599f9235196c8fca5022250d14047",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libSystem.Net.Security.Native.so",
+          "package_member": "runtimes/linux-x64/native/libSystem.Net.Security.Native.so",
+          "published_path": "libSystem.Net.Security.Native.so",
+          "sha256": "bbae394b30519c2b85a6fdedc8b2839d37cd487680d66327ff7f8550d5785923",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libSystem.Security.Cryptography.Native.OpenSsl.so",
+          "package_member": "runtimes/linux-x64/native/libSystem.Security.Cryptography.Native.OpenSsl.so",
+          "published_path": "libSystem.Security.Cryptography.Native.OpenSsl.so",
+          "sha256": "3fa65a43cdee5edfd2cc450978355bf72c8af800346a15d4565c79f36ff5ce70",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libclrgc.so",
+          "package_member": "runtimes/linux-x64/native/libclrgc.so",
+          "published_path": "libclrgc.so",
+          "sha256": "27dfa87201fb98eb990b88f3a4f90c425c51bbc961278334668eb10a8970b456",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libclrgcexp.so",
+          "package_member": "runtimes/linux-x64/native/libclrgcexp.so",
+          "published_path": "libclrgcexp.so",
+          "sha256": "a6d4b98c2e62dd9f320f5f18d6e9be111ce0695930a08caf3fdc839cb85dd07a",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libclrjit.so",
+          "package_member": "runtimes/linux-x64/native/libclrjit.so",
+          "published_path": "libclrjit.so",
+          "sha256": "39b743f983aee4e89d29a7a06728806045a0629391b63cbb199fa198b5710652",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libcoreclr.so",
+          "package_member": "runtimes/linux-x64/native/libcoreclr.so",
+          "published_path": "libcoreclr.so",
+          "sha256": "2d4d3f0b2698a74f186329510d93785e55d10934cb9ebe6e3edca6b24c624402",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libcoreclrtraceptprovider.so",
+          "package_member": "runtimes/linux-x64/native/libcoreclrtraceptprovider.so",
+          "published_path": "libcoreclrtraceptprovider.so",
+          "sha256": "9a052ff18675a7d2b41b192d866654b6fa303c8c038b2bb83d751ad68786036b",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libhostfxr.so",
+          "package_member": "runtimes/linux-x64/native/libhostfxr.so",
+          "published_path": "libhostfxr.so",
+          "sha256": "03147defc576e5a50a0f52b628d8b98a75fea83e1572956fcd48b5353c4657e5",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libhostpolicy.so",
+          "package_member": "runtimes/linux-x64/native/libhostpolicy.so",
+          "published_path": "libhostpolicy.so",
+          "sha256": "95061f94c2d2a95e668e02b97d53c4edb86665fa6e47e4877ceb28c63c9e35da",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libmscordaccore.so",
+          "package_member": "runtimes/linux-x64/native/libmscordaccore.so",
+          "published_path": "libmscordaccore.so",
+          "sha256": "82d8da07c78e268ccb822cfb2c0959048ac74574ee72e8e6caf26103d9cedf2c",
+          "kind": "native"
+        },
+        {
+          "deps_path": "libmscordbi.so",
+          "package_member": "runtimes/linux-x64/native/libmscordbi.so",
+          "published_path": "libmscordbi.so",
+          "sha256": "8e9445855c3e8553c0ee540b7de72e241d85fc53bff6c48ccbff7ec70482aebf",
+          "kind": "native"
+        }
+      ]
+    }
+  ],
+  "additional_components": [
+    {
+      "kind": "sdk-apphost",
+      "identity": "Microsoft.NETCore.App.Host.linux-x64/10.0.13",
+      "source_member": "runtimes/linux-x64/native/apphost",
+      "source_sha256": "1e9828251d83414685504929dd97d87239f843873c9fa77a8157984519bf1cef",
+      "published_paths": [
+        "Relicade",
+        "Relicade.Desktop"
+      ],
+      "notices": [
+        "packages/microsoft.netcore.app.runtime.linux-x64/10.0.13/LICENSE.TXT",
+        "packages/microsoft.netcore.app.runtime.linux-x64/10.0.13/THIRD-PARTY-NOTICES.TXT",
+        "sdk/10.0.402/ThirdPartyNotices.txt"
+      ],
+      "published_sha256": {
+        "Relicade": "479828615a2b9dcc234d6bd1a718ef9279ff5ef5efd6742948a1fbc8141a36d7",
+        "Relicade.Desktop": "479828615a2b9dcc234d6bd1a718ef9279ff5ef5efd6742948a1fbc8141a36d7"
+      }
+    },
+    {
+      "kind": "embedded-font",
+      "identity": "Inter/3.019",
+      "assembly": "Avalonia.Fonts.Inter.dll",
+      "binding": "Pinned Inter Regular font bytes occur verbatim in the inspected package assembly. Other vendor font content remains covered by the preserved upstream notice, not an independent full font audit.",
+      "source_commit": "0a5106e0bde18df09374066bf3a7998e3546307d",
+      "source_font_blob": "8d4eebf20665d5ae746c622a2bd42274b54d2bf1",
+      "notices": [
+        "upstream/rsms--inter/LICENSE.txt"
+      ]
+    },
+    {
+      "kind": "embedded-native",
+      "identity": "SDL",
+      "assembly": "libSDL3.so",
+      "source_commit": "ea7a2dabfd1ab6b0a5720568ffd207f5825e47f1",
+      "binding": "Submodule pinned by the package repository; not a reproduced SDL build or signature verification. The inspected Linux asset references GLIBC_2.34 symbols, which does not establish a complete host support range.",
+      "notices": [
+        "upstream/libsdl-org--SDL/LICENSE.txt"
+      ]
+    }
+  ],
+  "own_source_files": [
+    "Relicade.dll",
+    "Relicade.Core.dll",
+    "Relicade.Desktop.dll",
+    "Relicade.Desktop.deps.json",
+    "Relicade.Desktop.runtimeconfig.json",
+    "icon.ico",
+    "licenses/Core-MIT.txt",
+    "licenses/Native-MIT.txt",
+    "licenses/THIRD_PARTY_NOTICES.md",
+    "licenses/Upstream-TRADEMARKS.md"
+  ],
+  "own_metadata_identities": [
+    "Relicade.Desktop/0.1.0",
+    "Relicade/0.1.0",
+    "Relicade.Core/1.0.0",
+    "Relicade.Reference/0.1.0.0"
+  ],
+  "qualification": [
+    "Relicade.Reference is a metadata alias for the own-source Relicade.dll, not another shipped external assembly.",
+    "The runtimepack deps hash is empty; canonical content hash comparison is unavailable for that row. Raw signed archive hashes are separate values, never treated as canonical content hashes.",
+    "Existing original-material and inherited-code terms remain unchanged. Owner distribution authorization is separate from granting new source or branding reuse rights.",
+    "Notice preservation does not establish that every embedded component, system dependency or distribution obligation has been identified or accepted. Other platform/package targets remain outside this inventory."
+  ]
+}
