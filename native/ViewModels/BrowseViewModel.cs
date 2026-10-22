@@ -12,6 +12,7 @@ public sealed class BrowseViewModel(QuiverCatalogClient client, Func<IReadOnlyLi
     Func<string> customListLocation, Func<string, Task<(List<GameInfo> Apps, string? Error)>> loadCustomList) : ObservableViewModel
 {
     private string? _cursor;
+    private readonly HashSet<string> _pageCursors = new(StringComparer.Ordinal);
     private int _generation;
     private bool _isLoading;
     private bool _isLoadingMore;
@@ -73,6 +74,7 @@ public sealed class BrowseViewModel(QuiverCatalogClient client, Func<IReadOnlyLi
     {
         var generation = ++_generation;
         _cursor = null;
+        _pageCursors.Clear();
         IsLoading = true;
         IsLoadingMore = false;
         Status = "";
@@ -95,6 +97,7 @@ public sealed class BrowseViewModel(QuiverCatalogClient client, Func<IReadOnlyLi
             Total = _catalogTotal;
             var query = new QuiverCatalogQuery(Search, Platform, Console, ProjectType, Sort, Ai);
             var page = await client.GetAppsAsync(query, null, token);
+            token.ThrowIfCancellationRequested();
             if (generation != _generation) return;
             Show(page);
             if (!await FillAsync(query, generation, MinCards, token)) return;
@@ -175,6 +178,7 @@ public sealed class BrowseViewModel(QuiverCatalogClient client, Func<IReadOnlyLi
         {
             var query = new QuiverCatalogQuery(Search, Platform, Console, ProjectType, Sort, Ai);
             var page = await client.GetAppsAsync(query, _cursor, token);
+            token.ThrowIfCancellationRequested();
             if (generation != _generation) return false;
             var shown = Items.Count;
             Show(page);
@@ -282,8 +286,15 @@ public sealed class BrowseViewModel(QuiverCatalogClient client, Func<IReadOnlyLi
 
     private void Show(QuiverCatalogPage<QuiverCatalogApp> page)
     {
-        _cursor = page.NextCursor;
+        // Keep already received cards, but never re-request a cursor in this query generation.
+        // Empty and short pages are legitimate; only cursor progress determines continuation.
         AddCards(page.Items.Select(app => BrowseItem.FromCatalog(app, _consoleNames)).ToList());
+        _cursor = page.NextCursor;
+        if (_cursor != null && (string.IsNullOrWhiteSpace(_cursor) || !_pageCursors.Add(_cursor)))
+        {
+            _cursor = null;
+            throw new InvalidDataException("Catalog pagination did not advance. Reload to try again.");
+        }
     }
 
     private void AddCards(List<BrowseItem> cards)
@@ -304,6 +315,7 @@ public sealed class BrowseViewModel(QuiverCatalogClient client, Func<IReadOnlyLi
         while (HideLibraryApps && Items.Count < wanted && _cursor != null)
         {
             var page = await client.GetAppsAsync(query, _cursor, token);
+            token.ThrowIfCancellationRequested();
             if (generation != _generation) return false;
             Show(page);
         }

@@ -399,6 +399,15 @@ Browse restores the filtered view. This route has local synthetic native
 keyboard/controller coverage, not physical-device acceptance.
 
 
+## Catalog pagination
+
+Browse follows continuation cursors rather than assuming a short or empty page
+ends the catalog. A repeated or cyclic cursor stops further requests and leaves
+already received cards visible with a reload diagnostic. Reload starts a fresh
+query; ordinary network failures and cancellation retain the next-page retry.
+There is no fixed catalog-size or page-count cutoff. This protects discovery
+progress, not metadata authenticity, installation or gameplay acceptance.
+
 ## Selected download integrity
 
 Catalog release approval does not replace a selected file's integrity check.
