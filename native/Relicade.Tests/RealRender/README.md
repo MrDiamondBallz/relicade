@@ -63,3 +63,9 @@ alternative are rendered with a throwing transport, never requested. It verifies
 these are native headless renders, not physical input or engine-runtime evidence.
 
 `FreedoomLibraryRenderingTests` captures the optional library action in list, grid and compact layouts. The installed-state entry is synthetic and uses the built-in placeholder, not real game artwork or an installed engine. These captures verify native geometry and readable actions, not gameplay or desktop-host acceptance.
+
+`OwnedDataRecoveryRenderingTests` captures the actual replacement-preview dialog
+at normal and minimum logical sizes, including 200% interface scaling. Its
+receipt, paths and four-byte data are explicitly synthetic; it performs no copy,
+download or game execution. Footer geometry and controller focus are checked
+separately from the real-data-operation synthetic fixtures.

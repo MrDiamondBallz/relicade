@@ -446,3 +446,10 @@ request without starting a game. Normal engine Launch and saves are unchanged.
 No unattended download, engine installation or automatic Play is implied. See
 [the exact package, data and rights boundaries](../docs/GAME_SETUP.md#optional-freedoom-phase-2).
 This is development source, not tested gameplay or accepted platform support.
+
+If a previously recorded imported copy changes, the setup dialog can show a
+bounded repair preview. Explicit confirmation preserves the changed bytes in a
+separate retained backup before replacing the active copy with verified data.
+Missing or conflicting receipts do not authorize replacement; errors can leave
+a committed backup or replacement and require a fresh inspection. See the
+[recovery limits](../docs/GAME_SETUP.md#cancellation-recovery-and-limits).

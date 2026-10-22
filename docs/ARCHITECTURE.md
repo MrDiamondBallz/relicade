@@ -216,7 +216,8 @@ Compiled project definitions, rather than remote metadata instructions, bind the
 initial local-data adapter to a release, package digest, executable digest and
 input variant. The native library has an explicit file-selection, preview and
 confirmation flow. Data lives outside immutable generations in an installation-
-keyed user-data namespace; originals and committed copies are never overwritten.
+keyed user-data namespace; originals are never overwritten and existing copies
+are not silently replaced.
 A nonrecovering installation authority spans confirmation and copy. Retained
 launch receipts and unresolved history refuse setup. The shared launch path
 revalidates the exact local data receipt and fixed argument under launch authority.
@@ -332,3 +333,18 @@ staging is disposable. The actual dialog rechecks local library/settings authori
 before requesting, tracks cancellation/drain, and passes the retained source into
 the existing explicit preview/import protocol. Neither download completion nor a
 cache hit authorizes the separate game-data import or starting a process.
+
+## Confirmed game-data repair
+
+A bounded repair preview requires the canonical receipt for the exact current
+generation, a verified replacement matching that receipt, and a regular unlinked
+changed copy within twice the adapter input size. It binds the changed bytes and
+retained destination to the confirmation. The existing installation and data
+writer authority spans staging, preservation, revalidation and commit. A
+create-new sibling backup is flushed before atomic replacement of the active
+copy; existing matching backups are reused, never overwritten. Receipts remain
+unchanged. Errors and cancellation retain committed replacements and backups,
+requiring a fresh inspection rather than automatic retry or rollback. Unknown
+ownership, conflicting evidence and oversized inputs refuse without replacement.
+This is not general data migration, backup cleanup, hostile-writer isolation or
+platform power-loss certification.

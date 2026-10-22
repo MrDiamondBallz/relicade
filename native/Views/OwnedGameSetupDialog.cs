@@ -93,6 +93,14 @@ internal sealed class OwnedGameSetupDialog : Window
                 "Additional space needed: " + plan.BytesToCopy.ToString("N0") + " bytes, plus a small local receipt.",
                 plan.ReuseExisting ? "An identical retained copy exists; confirmation adopts it for this generation without overwriting it." : "The selected file will be copied, not moved or linked.",
                 "Local copy SHA256: " + plan.SourceSha256 }) AddInspection(text);
+        if (Model.Plan?.Repair is { } repair)
+        {
+            AddInspection("Replacement requires explicit confirmation. The changed copy is preserved before the verified replacement becomes visible.");
+            AddInspection("Previous data SHA256: " + repair.PreviousSha256);
+            AddInspection("Retained copy: " + repair.RetainedDestination);
+            AddInspection(repair.ReuseRetained ? "An identical retained backup already exists and will not be overwritten." : "A separate retained backup will be created. It will not be automatically deleted.");
+        }
+        ConfirmButton.Content = Model.Plan?.Repair != null ? "Confirm lawful use and replace" : "Confirm lawful use and copy";
         PlayButton.IsVisible = Model.IsFreedoom && Model.State == OwnedGameSetupUiState.Completed; PlayButton.IsEnabled = Model.CanPlay;
         DownloadButton.Content = Model.HasFreeDataDownload ? "Get free game data" : "Official download";
         DownloadButton.IsVisible = Model.IsFreedoom && Model.State != OwnedGameSetupUiState.Completed; DownloadButton.IsEnabled = Model.CanChoose;

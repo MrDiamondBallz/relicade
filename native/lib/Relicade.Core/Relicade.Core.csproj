@@ -18,5 +18,6 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="Relicade" />
 		<InternalsVisibleTo Include="Relicade.Tests" />
+		<InternalsVisibleTo Include="Relicade.RenderTests" />
 	</ItemGroup>
 </Project>

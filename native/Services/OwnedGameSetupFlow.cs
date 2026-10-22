@@ -29,14 +29,8 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
                 model = new OwnedGameSetupViewModel(session, key, setup);
                 if (freedoom)
                 {
-                    var ready = false;
-                    try { await Task.Run(() => setup.ValidateReady(session.Token)); ready = true; }
-                    catch (FileNotFoundException) { }
-                    catch (DirectoryNotFoundException) { }
-                    ConfigureFreedoomPlay(model, ready,
-                        token => Task.Run(() => setup.ValidateReady(token)),
+                    await InitializeFreedoomAsync(model, setup, session.Token,
                         token => GameLaunchService.LaunchFreedoomAsync(game!, manager.GamesFolder, token), afterLaunch);
-                    ConfigureFreedoomDownload(model, setup, FreedoomDataDownload.DownloadAsync);
                 }
                 dialog = new OwnedGameSetupDialog(model); dialogs.Track(dialog);
                 await GameDialogService.ShowWindowAsync(dialog, session.Token);
@@ -51,6 +45,19 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
                 if (!session.IsClosed && origin != null && TopLevel.GetTopLevel(origin) != null && origin.IsEffectivelyVisible) origin.Focus();
             }
         });
+    }
+    internal static async Task InitializeFreedoomAsync(OwnedGameSetupViewModel model, OwnedGameSetupSession setup,
+        CancellationToken token, Func<CancellationToken, Task<bool>> launch, Action<bool>? afterLaunch)
+    {
+        var ready = false; string? repairMessage = null;
+        try { await Task.Run(() => setup.ValidateReady(token)); ready = true; }
+        catch (FileNotFoundException) { }
+        catch (DirectoryNotFoundException) { }
+        catch (Relicade.Core.Services.OwnedDataNeedsRepairException ex) { repairMessage = ex.Message; }
+        ConfigureFreedoomPlay(model, ready,
+            operation => Task.Run(() => setup.ValidateReady(operation)), launch, afterLaunch);
+        ConfigureFreedoomDownload(model, setup, FreedoomDataDownload.DownloadAsync);
+        if (repairMessage != null) model.ShowPreservedDataDiagnostic(repairMessage);
     }
     internal static void ConfigureFreedoomDownload(OwnedGameSetupViewModel model, OwnedGameSetupSession setup,
         Func<IProgress<double>?, CancellationToken, Task<FreeDataDownloadResult>> download)

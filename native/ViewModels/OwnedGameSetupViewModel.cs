@@ -41,6 +41,10 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
             Message = "Get Freedoom v0.13.0 from its official GitHub release, or choose your existing freedoom2.wad. The download retains a 24 MB ZIP and 29 MB WAD; confirming the later copy needs another 29 MB. Downloading does not install or start the engine.";
         Changed();
     }
+    internal void ShowPreservedDataDiagnostic(string message)
+    {
+        Message = message; Changed();
+    }
     internal Task DownloadAndPreviewAsync()
     {
         Dispatcher.UIThread.VerifyAccess();
@@ -63,7 +67,9 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
                 await UpdateAsync(() =>
                 {
                     Plan = plan; State = OwnedGameSetupUiState.Confirm;
-                    Message = "Free data verified. Review and confirm the separate local copy. The original ZIP, with COPYING and credits, is retained at: " + downloaded.Archive;
+                    Message = (plan.Repair == null ? "Free data verified. Review and confirm the separate local copy. "
+                        : "Replacement preview: preserve the changed copy in a separate backup before replacing it with verified free data. Review both destinations before confirming. ")
+                        + "The original ZIP, with COPYING and credits, is retained at: " + downloaded.Archive;
                 });
             }
             catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
@@ -141,7 +147,9 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
                 Message = "Checking the package and selected file locally…"; Changed();
                 var plan = await Task.Run(() => preview(source, cancellation.Token));
                 await UpdateAsync(() => { Plan = plan; State = OwnedGameSetupUiState.Confirm;
-                    Message = "Review the source, destination and storage below. Confirm only if you may lawfully use this file. The original is retained."; });
+                    Message = plan.Repair == null
+                        ? "Review the source, destination and storage below. Confirm only if you may lawfully use this file. The original is retained."
+                        : "Replacement preview: the changed copy will be preserved in a separate backup before the active copy is replaced. Review both destinations and the extra storage below. Nothing changes until you confirm."; });
             }
             catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
             catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }
@@ -153,7 +161,10 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
         Dispatcher.UIThread.VerifyAccess();
         if (!CanConfirm) return Task.CompletedTask;
         var plan = Plan!; busy = true; State = OwnedGameSetupUiState.Copying;
-        Message = "Copying verified game data locally. Cancel requests a safe stop; a committed copy is retained if completion is interrupted."; Changed();
+        Message = plan.Repair == null
+            ? "Copying verified game data locally. Cancel requests a safe stop; a committed copy is retained if completion is interrupted."
+            : "Preserving the changed copy before replacing it with verified data. Cancel requests a safe stop; any retained backup or committed replacement remains available.";
+        Changed();
         return session.RunAsync(async () =>
         {
             try
@@ -162,7 +173,9 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
                 await refresh();
                 await UpdateAsync(() => { State = result.Completed ? OwnedGameSetupUiState.Completed : OwnedGameSetupUiState.Error;
                     Message = result.Completed ? (IsFreedoom ? "Freedoom verified and retained locally. Select Play Freedoom Phase 2. Ordinary engine Launch keeps your existing WAD configuration." : "Game data verified and retained locally. Close this window and select Launch. This does not certify gameplay or hardware compatibility.")
-                        : "Completion was not established. Keep the original and any retained copy; review setup before retrying."; });
+                        : "Completion was not established. Keep the original and any retained copy; review setup before retrying.";
+                    if (result.Completed && plan.Repair != null) Message += " Previous data retained at: " + plan.Repair.RetainedDestination;
+                });
             }
             catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }
             finally { await UpdateAsync(() => busy = false); }

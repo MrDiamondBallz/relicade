@@ -118,6 +118,24 @@ current operation can be removed; originals, committed copies and earlier setup
 receipts remain. Failure does not mean nothing changed. Resolve conflicting files
 or recovery evidence before confirming a new preview.
 
+A changed imported copy can be repaired only when its canonical local receipt
+still matches this exact installation generation and the verified replacement.
+The Freedoom setup dialog remains available with a diagnostic instead of treating
+changed data as playable. Choose a verified original or use the explicit free-data
+download, inspect the old-copy hash, retained-copy destination and required space,
+then confirm replacement separately. Relicade first preserves the changed bytes
+in a hash-named sibling backup and then atomically replaces the active copy. The
+original selected file, existing receipt and retained backup are not overwritten.
+An identical backup may be reused; a conflicting backup stops the operation.
+
+Preservation inspection is bounded to twice the adapter's expected input size.
+Larger files, linked or nonregular files, missing or conflicting receipts, and
+unrecognized ownership require separate inspection and are left unchanged.
+Cancellation or an error after preservation can leave a backup or a completed
+replacement. Reopen setup for a fresh inspection before retrying; do not assume
+failure means no change. Backups are not automatically deleted. These source
+checks do not certify power-loss recovery or hostile concurrent filesystem changes.
+
 Setup refuses active writers, retained launch receipts and incomplete or unknown
 installation history rather than recovering it implicitly. The exact data-store
 folder and its ancestors must also be free of conflicting installation authority;

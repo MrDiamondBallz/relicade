@@ -9,7 +9,9 @@ internal sealed record OwnedDataRequirement(string Id, string Label, string Rele
     string AssetIdentity, string ExecutableSha256, long Length, string Md5,
     string FileName = "game-data.z64", string? ExpectedSha256 = null);
 internal sealed record OwnedDataPreview(string PlanSha256, string Source, string Destination,
-    string OperationId, string SourceSha256, long BytesToCopy, bool ReuseExisting);
+    string OperationId, string SourceSha256, long BytesToCopy, bool ReuseExisting, OwnedDataRepair? Repair = null);
+internal sealed record OwnedDataRepair(string RetainedDestination, long PreviousLength, string PreviousSha256, bool ReuseRetained);
+internal sealed class OwnedDataNeedsRepairException(string message) : IOException(message);
 internal sealed record OwnedDataImportResult(string Destination, string Sha256, bool Completed);
 
 public sealed partial class PortableInstallationTransaction
@@ -54,9 +56,7 @@ public sealed partial class PortableInstallationTransaction
         // deletion, even if a previous import was interrupted after copying data.
         if (RemovalEntryExists(receipt))
         {
-            RequireCleanupKind(receipt, false);
-            if (new FileInfo(receipt).Length > 4096) throw new IOException("Unexpected setup evidence size.");
-            if (!File.ReadAllBytes(receipt).SequenceEqual(recordBytes))
+            if (!ReadOwnedReceiptBytes(receipt).SequenceEqual(recordBytes))
                 throw new IOException("Existing setup evidence conflicts. Keep both files and resolve the conflict before importing.");
         }
         string? staging = null;
@@ -91,9 +91,20 @@ public sealed partial class PortableInstallationTransaction
                 var actual = ReadManifest(root, true) ?? throw new IOException("Installation disappeared during setup.");
                 ValidateCommittedIdentity(actual);
                 if (actual.OperationId != manifest.OperationId) throw new IOException("Installation changed during setup.");
+                if (current.Repair is { } repair)
+                {
+                    PreserveChangedOwnedData(current, requirement, token, boundary);
+                    boundary?.Invoke("BeforeRepairCommit");
+                    // Recheck the exact confirmed bytes and canonical receipt after
+                    // preservation. The backup is durable before the atomic replace.
+                    RequireRepairReceipt(requirement, manifest, receipt, current.SourceSha256);
+                    if (ObserveChangedOwnedData(current.Destination, requirement, token) != (repair.PreviousLength, repair.PreviousSha256) ||
+                        ObserveChangedOwnedData(repair.RetainedDestination, requirement, token) != (repair.PreviousLength, repair.PreviousSha256))
+                        throw new IOException("The confirmed data or retained copy changed. Review a fresh replacement preview.");
+                }
                 CheckLinks(current.Destination);
                 token.ThrowIfCancellationRequested();
-                File.Move(staging, current.Destination, false); staging = null; Sync(folder);
+                File.Move(staging, current.Destination, current.Repair != null); staging = null; Sync(folder);
                 boundary?.Invoke("DataCommitted");
             }
             // Once data exists, cancellation leaves it retained, never falsely
@@ -109,6 +120,11 @@ public sealed partial class PortableInstallationTransaction
             }
             ValidateOwnedData(requirement, dataRoot, manifest, token);
             return new(current.Destination, current.SourceSha256, true);
+        }
+        catch (Exception ex) when (current.Repair != null && ex is not OperationCanceledException)
+        {
+            throw new IOException("Replacement did not finish normally. The selected original and any retained copy were preserved. " +
+                "A replacement may already be committed; reopen setup before retrying. Retained-copy destination: " + current.Repair.RetainedDestination, ex);
         }
         finally
         {
@@ -128,18 +144,40 @@ public sealed partial class PortableInstallationTransaction
             throw new IOException("Choose the original file, not Relicade's retained setup copy.");
         var hash = HashOwnedInput(source, requirement, token);
         var reuse = RemovalEntryExists(destination);
-        if (reuse && HashOwnedInput(destination, requirement, token) != hash)
-            throw new IOException("An existing setup copy differs. It was preserved; automatic replacement is not supported.");
-        if (!reuse)
+        OwnedDataRepair? repair = null;
+        if (reuse)
+        {
+            string existingHash;
+            try { existingHash = HashOwnedInput(destination, requirement, token); }
+            catch (IOException)
+            {
+                // Changed data is not ownership evidence. A canonical receipt for
+                // this exact generation must also match the verified replacement.
+                var receipt = SafePath(Path.GetDirectoryName(destination)!, manifest.OperationId + ".json");
+                RequireRepairReceipt(requirement, manifest, receipt, hash);
+                var old = ObserveChangedOwnedData(destination, requirement, token);
+                var retained = SafePath(Path.GetDirectoryName(destination)!, "retained-" + old.Sha256 + "-" + requirement.FileName);
+                var reuseRetained = RemovalEntryExists(retained);
+                if (reuseRetained && ObserveChangedOwnedData(retained, requirement, token) != old)
+                    throw new IOException("An existing retained-copy destination conflicts. Every file was preserved.");
+                repair = new(retained, old.Length, old.Sha256, reuseRetained);
+                existingHash = "";
+            }
+            if (repair == null && existingHash != hash)
+                throw new IOException("An existing valid setup copy differs. It was preserved; replacement is not authorized.");
+        }
+        var bytes = repair == null ? (reuse ? 0 : requirement.Length)
+            : checked(requirement.Length + (repair.ReuseRetained ? 0 : repair.PreviousLength));
+        if (bytes > 0)
         {
             var existing = new DirectoryInfo(Path.GetDirectoryName(destination)!);
             while (!existing.Exists) existing = existing.Parent ?? throw new IOException("No storage location is available for setup.");
-            if (new DriveInfo(existing.FullName).AvailableFreeSpace < checked(requirement.Length + 4096))
-                throw new IOException("Not enough available space for a preserved local copy and setup receipt.");
+            if (new DriveInfo(existing.FullName).AvailableFreeSpace < checked(bytes + 4096))
+                throw new IOException("Not enough available space for the verified copy, any retained old data and setup receipt.");
         }
-        var plan = Hash(JsonSerializer.SerializeToUtf8Bytes(new { action = "CopyOwnedGameData", requirement.Id,
-            root, key, manifest.OperationId, requirement.AssetIdentity, requirement.ExecutableSha256, source, destination, hash, reuse }));
-        return new(plan, source, destination, manifest.OperationId, hash, reuse ? 0 : requirement.Length, reuse);
+        var plan = Hash(JsonSerializer.SerializeToUtf8Bytes(new { action = repair == null ? "CopyOwnedGameData" : "PreserveAndReplaceOwnedGameData", requirement.Id,
+            root, key, manifest.OperationId, requirement.AssetIdentity, requirement.ExecutableSha256, source, destination, hash, reuse, repair }));
+        return new(plan, source, destination, manifest.OperationId, hash, bytes, reuse && repair == null, repair);
     }
 
     internal string ReadOwnedData(OwnedDataRequirement requirement, string dataRoot, CancellationToken token = default)
@@ -156,11 +194,18 @@ public sealed partial class PortableInstallationTransaction
         ValidateOwnedBinding(requirement, manifest);
         var destination = OwnedDataDestination(requirement, dataRoot);
         var receipt = SafePath(Path.GetDirectoryName(destination)!, manifest.OperationId + ".json");
-        RequireCleanupKind(receipt, false);
-        if (new FileInfo(receipt).Length > 4096) throw new IOException("Unexpected setup evidence size.");
-        var record = JsonSerializer.Deserialize<OwnedDataReceipt>(File.ReadAllBytes(receipt), Json)
+        var record = JsonSerializer.Deserialize<OwnedDataReceipt>(ReadOwnedReceiptBytes(receipt), Json)
             ?? throw new IOException("Missing setup evidence.");
-        var hash = HashOwnedInput(destination, requirement, token);
+        string hash;
+        try { hash = HashOwnedInput(destination, requirement, token); }
+        catch (IOException)
+        {
+            RequireRepairReceipt(requirement, manifest, receipt, requirement.ExpectedSha256);
+            var observed = ObserveChangedOwnedData(destination, requirement, token);
+            if (observed.Sha256 != record.Sha256)
+                throw new OwnedDataNeedsRepairException("Recorded setup data no longer verifies. It is retained. Choose a verified original to preview preservation and replacement; nothing changes until you confirm.");
+            throw;
+        }
         if (record != new OwnedDataReceipt(1, requirement.Id, key, manifest.OperationId, requirement.AssetIdentity,
                 requirement.ExecutableSha256, hash, requirement.Length))
             throw new IOException("Setup evidence does not match this installation. Review game setup again.");
