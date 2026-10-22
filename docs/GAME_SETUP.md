@@ -210,7 +210,9 @@ Keyboard focus can activate the separate action, and controller users can also
 reach it through the existing App options menu. Kiosk/read-only settings and
 uninstalled or recovery-blocked entries do not expose this shortcut. Opening the
 flow still validates the exact supported package; the card itself is not a
-compatibility guarantee.
+compatibility guarantee. A focused secondary action stays bound to its own entry
+when the visible collection changes; confirmation does not fall through to a
+different game at the old selection index.
 
 ## Source checks and remaining acceptance
 

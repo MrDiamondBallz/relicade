@@ -74,6 +74,21 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
     {
         if (_session.IsClosed || !_canSelect() || _gamepadNavigation.ActiveZone != GamepadNavigationZone.Library)
             return false;
+        // A live sort or insertion can move the focused card without another GotFocus event.
+        // Resolve that action's identity first; an invalid secondary focus must not launch
+        // whatever entry happens to occupy the previously selected index.
+        if (TopLevel.GetTopLevel(_view)?.FocusManager?.GetFocusedElement() is Button focused &&
+            focused.Classes.Contains("freedoom-action"))
+        {
+            if (!focused.IsEffectivelyVisible || !focused.IsEffectivelyEnabled ||
+                !_view.IsVisualAncestorOf(focused) || focused.DataContext is not GameInfo target)
+                return false;
+            var targetIndex = Games.IndexOf(target);
+            if (targetIndex < 0) return false;
+            _gamepadNavigation.LibrarySelectedIndex = targetIndex;
+            GamepadControlActivation.ActivateButton(focused);
+            return true;
+        }
         var emptyActions = EmptyActions;
         if (emptyActions.Count > 0)
         {
@@ -84,13 +99,6 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
         if (index < 0)
             return false;
         var game = Games[index];
-        if (TopLevel.GetTopLevel(_view)?.FocusManager?.GetFocusedElement() is Button focused &&
-            focused.Classes.Contains("freedoom-action") && focused.IsEffectivelyVisible && focused.IsEnabled &&
-            ReferenceEquals(focused.DataContext, game) && _view.IsVisualAncestorOf(focused))
-        {
-            GamepadControlActivation.ActivateButton(focused);
-            return true;
-        }
         _ = _session.RunAsync(() => _confirm(game));
         return true;
     }
