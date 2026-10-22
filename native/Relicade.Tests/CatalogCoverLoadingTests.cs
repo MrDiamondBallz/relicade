@@ -118,4 +118,66 @@ public sealed class CatalogCoverLoadingTests
         }
         finally { pending.TrySetResult(null); ImageLoader.AsyncImageLoader = previous; Directory.Delete(root, true); }
     }
+
+    [AvaloniaTheory]
+    [InlineData("corrupt", false)]
+    [InlineData("corrupt", true)]
+    [InlineData("symlink", false)]
+    [InlineData("directory", false)]
+    [InlineData("missing", false)]
+    public async Task Revalidation_revokes_a_previous_resolution_without_modifying_rejected_cache(string kind, bool online)
+    {
+        var root = Root(); var previous = ImageLoader.AsyncImageLoader;
+        using var fake = new Loader(() => throw new InvalidOperationException("No network allowed"));
+        ImageLoader.AsyncImageLoader = fake;
+        try
+        {
+            var path = LauncherArtworkLoader.CachedPath(root, CatalogLibraryCoverTests.Header);
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!); File.WriteAllBytes(path, Pixel);
+            using var game = Game();
+            await game.LoadCatalogCoverAsync(root, false, TestContext.Current.CancellationToken);
+            Assert.Equal(path, game.CardImageUrl); Assert.NotEmpty(game.CardArtworkSource);
+            var changed = new List<string?>(); game.PropertyChanged += (_, e) => changed.Add(e.PropertyName);
+            File.Delete(path);
+            var target = Path.Combine(root, "retained-target.png"); File.WriteAllBytes(target, Pixel);
+            if (kind == "corrupt") File.WriteAllText(path, "retained corrupt cover");
+            if (kind == "symlink") File.CreateSymbolicLink(path, target);
+            if (kind == "directory") Directory.CreateDirectory(path);
+            await game.LoadCatalogCoverAsync(root, online, TestContext.Current.CancellationToken);
+            Assert.Equal(game.IconUrl, game.CardImageUrl); Assert.Empty(game.CardArtworkSource);
+            Assert.Contains(nameof(GameInfo.CardImageUrl), changed);
+            Assert.Contains(nameof(GameInfo.CardArtworkSource), changed);
+            Assert.Empty(fake.Requests); Assert.Equal(Pixel, File.ReadAllBytes(target));
+            if (kind == "corrupt") Assert.Equal("retained corrupt cover", File.ReadAllText(path));
+            if (kind == "symlink") Assert.NotNull(new FileInfo(path).LinkTarget);
+            if (kind == "directory") Assert.True(Directory.Exists(path));
+        }
+        finally { ImageLoader.AsyncImageLoader = previous; Directory.Delete(root, true); }
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Revalidation_keeps_a_valid_alternate_alias_and_preserves_rejected_bytes(bool online)
+    {
+        var root = Root(); var previous = ImageLoader.AsyncImageLoader;
+        using var fake = new Loader(() => throw new InvalidOperationException("No network allowed"));
+        ImageLoader.AsyncImageLoader = fake;
+        try
+        {
+            var resized = LauncherArtworkLoader.CachedPath(root, LauncherArtworkLoader.CardUrl(CatalogLibraryCoverTests.Header));
+            var original = LauncherArtworkLoader.CachedPath(root, CatalogLibraryCoverTests.Header);
+            Directory.CreateDirectory(Path.GetDirectoryName(resized)!); File.WriteAllBytes(resized, Pixel);
+            using var game = Game();
+            await game.LoadCatalogCoverAsync(root, false, TestContext.Current.CancellationToken);
+            Assert.Equal(resized, game.CardImageUrl);
+            File.WriteAllText(resized, "retained rejected alias"); File.WriteAllBytes(original, Pixel);
+            await game.LoadCatalogCoverAsync(root, online, TestContext.Current.CancellationToken);
+            Assert.Equal(original, game.CardImageUrl); Assert.NotEmpty(game.CardArtworkSource);
+            Assert.Empty(fake.Requests); Assert.Equal("retained rejected alias", File.ReadAllText(resized));
+            Assert.Equal(Pixel, File.ReadAllBytes(original));
+        }
+        finally { ImageLoader.AsyncImageLoader = previous; Directory.Delete(root, true); }
+    }
+
 }

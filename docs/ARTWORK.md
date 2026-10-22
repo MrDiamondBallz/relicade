@@ -54,8 +54,10 @@ is not the product-wide network-disabled mode required below.
 
 Cache-only checks refuse linked/nonregular files, files larger than 16 MiB,
 unsupported headers and undecodable images without deleting or overwriting the
-retained entry. Valid cached covers remain usable offline; missing/failed covers
-fall back to the project icon. The encoded-file limit is not a decoded-pixel or
+retained entry. If revalidation rejects a previously displayed cache, its resolved
+path and source label are revoked; a valid alternate cache alias still takes
+priority. Valid cached covers remain usable offline; missing/failed covers fall
+back to the project icon. The encoded-file limit is not a decoded-pixel or
 memory budget. The broader transport, redirect, DNS, pixel, atomic-cache and
 rights-review obligations below remain open; this change does not certify them.
 Synthetic image fixtures exercise mapping, persistence, fallback and native

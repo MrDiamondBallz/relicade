@@ -76,6 +76,15 @@ public partial class GameInfo
                 retainedInvalidCache = true;
             }
         }
+        // A prior resolution is not evidence that the current cache still validates.
+        // Keep a valid alternate alias above, but revoke stale paths and attribution
+        // before returning to the icon fallback. Never change the retained files.
+        if (_catalogCover != cover || !cover.Matches(this)) return;
+        if (_resolvedCatalogCover != null)
+        {
+            _resolvedCatalogCover = null;
+            NotifyCardArtwork();
+        }
         // Do not delete or overwrite an unknown/corrupt cache entry to make a cover appear.
         if (retainedInvalidCache) return;
         if (!allowDownload) return;
