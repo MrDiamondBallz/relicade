@@ -159,7 +159,7 @@ public class SteamOnScreenKeyboardTests
 
         var act = () => GamepadControlActivation.ActivateTextBox(box);
 
-        act.Should().NotThrow();
+        WithTextInputCleanup(() => act.Should().NotThrow());
     }
 
     [AvaloniaFact]
@@ -173,11 +173,30 @@ public class SteamOnScreenKeyboardTests
             CaretIndex = 0,
         };
 
-        GamepadControlActivation.ActivateTextBox(box);
+        WithTextInputCleanup(() =>
+        {
+            GamepadControlActivation.ActivateTextBox(box);
 
-        box.CaretIndex.Should().Be(box.Text!.Length);
-        box.SelectionStart.Should().Be(box.Text.Length);
-        box.SelectionEnd.Should().Be(box.Text.Length);
+            box.CaretIndex.Should().Be(box.Text!.Length);
+            box.SelectionStart.Should().Be(box.Text.Length);
+            box.SelectionEnd.Should().Be(box.Text.Length);
+        });
+    }
+
+    // Unhosted activation fixtures need an explicit owner-thread lifetime.
+    internal static void WithTextInputCleanup(Action action)
+    {
+        Avalonia.Threading.Dispatcher.UIThread.VerifyAccess();
+        try
+        {
+            action();
+        }
+        finally
+        {
+            // These boxes never load/unload. Release the edit and restore visuals
+            // here, before AvaloniaFact disposes their owning application.
+            GamepadTextInput.Reset();
+        }
     }
 
     [AvaloniaFact]
