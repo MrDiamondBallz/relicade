@@ -29,6 +29,19 @@ Exact source origin, license/copyright and asset boundaries are in
 
 ## Build locally
 
+The Avalonia family is pinned consistently to the official **12.1.4** patch
+release in the shared, desktop, Android and both test projects. In the published
+`Avalonia.Headless` package, `HeadlessUnitTestSession.StartNew` constructs and
+publishes its dispatch task before scheduling it. This fixes the 12.1.1 race
+that could leave the session's readonly task null and fail ordinary async disposal.
+The NuGet package identifies upstream commit
+`2d79ba55fae1b1e71c69f93a668080c9029e6a31` in
+[AvaloniaUI/Avalonia](https://github.com/AvaloniaUI/Avalonia/tree/2d79ba55fae1b1e71c69f93a668080c9029e6a31).
+The read-only publication/completion regression checks real session dispatch and
+disposal; the separate renderer must produce current-version frames rather than
+inherit pixel approval from an older dependency. This patch is not Android,
+physical-platform, dependency-security, accessibility or release acceptance.
+
 Use the official .NET 10 SDK pinned by `global.json`, from
 https://dotnet.microsoft.com/download/dotnet/10.0 . Verify the download's SHA-512
 against Microsoft's official release metadata before extracting it to your own
