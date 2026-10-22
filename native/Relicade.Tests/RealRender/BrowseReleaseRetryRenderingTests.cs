@@ -7,14 +7,24 @@ using Relicade.Services;
 using Relicade.ViewModels;
 using Relicade.Views;
 namespace Relicade.Tests;
-public sealed class BrowseReleaseRetryRenderingTests
+// PlatformIcons owns process-static geometries. Both sizes must use the same
+// renderer dispatcher, rather than move those geometries between UI threads.
+public sealed class BrowseReleaseRetryRenderer : IAsyncLifetime
+{
+    internal HeadlessUnitTestSession Session { get; } = HeadlessUnitTestSession.StartNew(
+        typeof(RealRenderTestApp), AvaloniaTestIsolationLevel.PerAssembly);
+    public ValueTask InitializeAsync() => ValueTask.CompletedTask;
+    public ValueTask DisposeAsync() => Session.DisposeAsync();
+}
+
+public sealed class BrowseReleaseRetryRenderingTests(BrowseReleaseRetryRenderer renderer)
+    : IClassFixture<BrowseReleaseRetryRenderer>
 {
     [Theory]
     [InlineData(1000,760)][InlineData(750,490)]
     public async Task Native_release_notes_retry_is_visible_after_offline_failure(int width, int height)
     {
-        await using var renderer = HeadlessUnitTestSession.StartNew(typeof(RealRenderTestApp));
-        await renderer.Dispatch<int>(async () =>
+        await renderer.Session.Dispatch<int>(async () =>
         {
             using var http = new HttpClient(new Offline());
             var client = new QuiverCatalogClient(http, "https://catalog.test/api/v1");

@@ -68,3 +68,8 @@ these are native headless renders, not physical input or engine-runtime evidence
 at normal and minimum desktop layout sizes after an injected offline failure.
 Its project and failure are synthetic, with a throwing transport and no network,
 download or game execution. It checks button bounds and real framebuffer pixels.
+
+The release-notes retry fixture keeps both size cases on one renderer dispatcher
+and application lifetime because the details view uses shared platform-icon
+geometries. Each case still owns and closes its own window. It awaits an actual
+composition batch before capturing once; no pixel retry or sleep is used.
