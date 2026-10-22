@@ -3,7 +3,7 @@
 Old legends. New life.
 
 This is a buildable .NET 10 / Avalonia development foundation, not a packaged
-release, full readiness, a proven launcher replacement or complete platform
+release, full readiness, a complete player experience or complete platform
 acceptance. Intensive development, reference-behavior reconciliation and the
 functional/platform gates in [the product requirements](../docs/PRODUCT_REQUIREMENTS.md)
 remain necessary. The browser prototype and original brand masters are separate
@@ -160,7 +160,7 @@ Synthetic fixtures exercise the native shell, missing/executable detection and
 offline restart; detecting a path is not proving game-data readiness, compatibility
 or a successful game launch. No downloaded game package is executed in this
 milestone. Existing advanced services remain available in source rather than
-being rewritten away, but source presence is not functional parity acceptance.
+being rewritten away, but source presence is not functional acceptance.
 
 ## Merged safety milestones and remaining work
 

@@ -14,6 +14,15 @@ evidence of native features or a released product. Preserve actual interface
 content and accurate upstream attribution rather than editing a screenshot to
 make the product appear more complete.
 
+## Interface direction
+
+The intended native card layout puts real game imagery first, with readable game
+names, setup/play status and focus indicators over the art. Retain the established
+dark palette, orange cut-R and complete RELICADE wordmark. Artwork needs recorded
+source and rights/provenance review; an attractive card never proves install or
+play support. Missing or offline art must keep a useful labeled fallback. Reveal
+concepts describe a future interface, not evidence of the current application.
+
 ## Catalog artwork
 
 The browser reference prefers actual game imagery from the catalog's retained

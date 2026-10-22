@@ -171,4 +171,4 @@ and a passing check. They cover no-write invalid inputs, protected/manual/histor
 preservation, tracked guide rename/removal, output-like directory discovery,
 prospective local references/anchors and idempotence. Existing
 preview/branding/safety suites remain required for their own surfaces, not native
-runtime or full parity. See [Contributing](../CONTRIBUTING.md).
+runtime or complete functionality. See [Contributing](../CONTRIBUTING.md).
