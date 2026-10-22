@@ -51,6 +51,7 @@ From this directory, with that SDK on `PATH`:
 
 ```sh
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
+export AVALONIA_TELEMETRY_OPTOUT=1
 export DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE=1
 export DOTNET_NOLOGO=1
 export NUGET_PACKAGES="$HOME/.cache/relicade-dev/nuget"
@@ -62,6 +63,13 @@ dotnet publish Relicade.Desktop/Relicade.Desktop.csproj -c Release -r linux-x64 
 dotnet publish Relicade.Desktop/Relicade.Desktop.csproj -c Release -r win-x64 \
   --self-contained true -p:PublishTrimmed=false -m:1 -o artifacts/win-x64
 ```
+
+Keep both opt-outs set before restore, build, test and publish. The official
+Avalonia.BuildServices package documents `AVALONIA_TELEMETRY_OPTOUT=1` for its
+independent build-time telemetry; the .NET variable alone does not disable it.
+These are build-process controls, not a network-disabled runtime setting or
+proof that earlier builds made no requests. Relicade's runtime privacy and
+network-isolation requirements remain separate.
 
 Restore/build concurrency is bounded by `Directory.Build.props`; keep `-m:1`.
 Windows compile constants and Windows-only dependencies follow the target RID,

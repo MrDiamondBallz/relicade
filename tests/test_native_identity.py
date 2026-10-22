@@ -16,6 +16,16 @@ class NativeIdentityTests(unittest.TestCase):
         android = ET.parse(NATIVE / 'Relicade.Android/Relicade.Android.csproj')
         self.assertEqual('io.github.mrdiamondballz.relicade', android.findtext('.//ApplicationId'))
 
+    def test_build_guide_disables_both_independent_telemetry_clients(self):
+        guide = (NATIVE / 'README.md').read_text()
+        first_publish = guide.index('dotnet publish Relicade.Desktop/')
+        for setting in ['DOTNET_CLI_TELEMETRY_OPTOUT', 'AVALONIA_TELEMETRY_OPTOUT']:
+            export = 'export ' + setting + '=1'
+            self.assertIn(export, guide)
+            self.assertLess(guide.index(export), first_publish)
+        self.assertIn('build-time telemetry', guide)
+        self.assertIn('not a network-disabled runtime setting', guide)
+
     def test_runtime_has_no_inherited_delivery_destinations(self):
         for name in ['Services/Telemetry.cs', 'Services/VelopackUpdateService.cs', 'Services/AnnouncementDefaults.cs']:
             text = (NATIVE / name).read_text()
