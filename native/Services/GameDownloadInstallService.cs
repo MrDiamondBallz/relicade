@@ -381,6 +381,8 @@ public static class GameDownloadInstallService
                     var sharedFolder = !string.IsNullOrWhiteSpace(game.InstallPath);
                     var folderHasOtherApps = LocatedInstallRemoval.FolderHasOtherApps(game, game.GameManager?.Games, gamesFolder);
                     var baseOptions = game.GetInstallationOptions();
+                    var assetIdentity = asset.name + "|sha256:" + actual;
+                    var setupTarget = OwnedGameSetupService.PinnedInstallTarget(game, latestRelease.tag_name, assetIdentity);
                     var installOptions = new GameInstallationOptions
                     {
                         Log = baseOptions.Log,
@@ -388,9 +390,14 @@ public static class GameDownloadInstallService
                         IsSharedFolder = sharedFolder || folderHasOtherApps,
                         PreviousInstallFileName = folderHasOtherApps ? null : InstalledBuild.Read(gamePath)?.FileName,
                         ReleaseIdentity = latestRelease.tag_name,
-                        AssetIdentity = asset.name + "|sha256:" + actual,
+                        AssetIdentity = assetIdentity,
+                        InitialExecutableRelativePath = setupTarget?.RelativePath,
                         InstalledBuildText = $"{asset.name}\n{actual}\n",
-                        PrepareCandidate = path => AppFilesToAddService.Sync(path, null, game.FilesToAdd, throwOnFailure: true),
+                        PrepareCandidate = path =>
+                        {
+                            setupTarget?.Validate(path);
+                            AppFilesToAddService.Sync(path, null, game.FilesToAdd, throwOnFailure: true);
+                        },
                         TransactionBoundary = point =>
                         {
                             if (point != "Applying") return;

@@ -38,7 +38,10 @@ package revisions and operating systems are not silently accepted by this rule.
 
 ## Player flow
 
-1. Install the supported managed portable package and select its US executable.
+1. Install the supported managed portable package. On its first installation,
+   Relicade selects the pinned US executable and checks its size and SHA256 before
+   activation. Updates retain an existing explicit launch selection; this default
+   does not choose for unknown or ambiguous packages.
    Linked, shared, OS-package and unresolved recovery installations require
    separate support. An unsupported package says its requirements are unconfirmed.
 2. Choose **Finish game setup** from the library card or its menu.
@@ -82,3 +85,6 @@ originals and the local data store separately; do not assume metadata exports
 include them. Full catalog and platform requirements remain in the
 [coverage contract](FEATURE_COVERAGE.md). Synthetic copy, failure and UI tests are
 not permission to execute external games or evidence of real gameplay acceptance.
+The exact pinned archive has also been checked through the download/install caller
+using a local test transport, without starting its executables. This establishes
+bounded extraction/activation evidence, not a working game or a packaged launcher.

@@ -26,6 +26,8 @@ public sealed class GameInstallationOptions
     /// <summary>Explicit project-adapter data locations, relative to this root. Unknown additions block updates.</summary>
     public IReadOnlyCollection<string> PreservedDataPaths { get; init; } = ["LastPlayed.txt"];
     public string? SelectedExecutableRelativePath { get; init; }
+    /// <summary>Trusted adapter default for a first installation only; never replaces an existing launch selection.</summary>
+    public string? InitialExecutableRelativePath { get; init; }
     public string? ReleaseIdentity { get; init; }
     public string? AssetIdentity { get; init; }
     public string? InstalledBuildText { get; init; }

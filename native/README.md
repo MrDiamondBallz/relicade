@@ -364,7 +364,9 @@ Linked-root migration remains unsupported.
 ## Local game-data setup
 
 The native library includes a package-bound **Finish game setup** flow for the
-specified Perfect Dark US 1.1 Linux x64 build. It previews and confirms a local
+specified Perfect Dark US 1.1 Linux x64 build. Its first installation selects and
+verifies the pinned US executable before activation, without overriding existing
+launch selections on updates. It previews and confirms a local
 copy of lawful user-supplied data, preserves originals and retained copies, and
 revalidates data on the shared launch path. Installation and game-data readiness
 are separate. Unknown package variants remain unconfirmed; this is not gameplay,

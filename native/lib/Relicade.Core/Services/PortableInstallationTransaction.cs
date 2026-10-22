@@ -385,6 +385,7 @@ public sealed partial class PortableInstallationTransaction
         var executables = GameInstallationService.FindExecutableCandidates(candidate, SearchOption.AllDirectories, null, out _);
         var selected = options.SelectedExecutableRelativePath;
         if (selected == null && old != null && executables.Contains(SafePath(candidate, old.SelectedExecutable), StringComparer.Ordinal)) selected = old.SelectedExecutable;
+        if (selected == null && old == null) selected = options.InitialExecutableRelativePath;
         if (selected != null)
         {
             ValidateRelative(selected);

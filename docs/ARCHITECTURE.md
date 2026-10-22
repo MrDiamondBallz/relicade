@@ -221,6 +221,12 @@ A nonrecovering installation authority spans confirmation and copy. Retained
 launch receipts and unresolved history refuse setup. The shared launch path
 revalidates the exact local data receipt and fixed argument under launch authority.
 
+A compiled package binding may provide a first-install executable default after
+release and downloaded-asset identity match. The staged target must match the
+compiled length and SHA256 before activation. The portable transaction uses that
+default only without a prior manifest or explicit selection; updates retain the
+existing choice. Unknown ambiguous packages still require explicit selection.
+
 The initial definition covers one Perfect Dark US 1.1 Linux x64 package only.
 Synthetic fixtures exercise the source workflow; they do not establish gameplay,
 rights or platform acceptance. Other project/build prerequisites remain unconfirmed,

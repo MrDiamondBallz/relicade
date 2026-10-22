@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using Relicade.Core.Services;
 using Relicade.Models;
@@ -14,6 +15,29 @@ internal static class OwnedGameSetupService
         "pd-x86_64-linux.tar.gz|sha256:0f28fd59b488e0a919aae4350083059faebd462fce52df7bfdc9a4aec26f92ae",
         "40e8e1317a712a0b29ebd715d25ab7ae366aa601444eb8dec45b97c308ddf9a5", 33554432,
         "e03b088b6ac9e0080440efed07c1e40f");
+
+    internal sealed record InstallTarget(string RelativePath, long Length, string Sha256)
+    {
+        internal void Validate(string candidate)
+        {
+            var path = PortableInstallationTransaction.SafePath(candidate, RelativePath);
+            PortableInstallationTransaction.RequireRegularEvidenceFile(path);
+            using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+            if (file.Length != Length || Convert.ToHexStringLower(SHA256.HashData(file)) != Sha256)
+                throw new InvalidDataException("The staged setup executable does not match this supported package. No generation was activated.");
+        }
+    }
+
+    internal static InstallTarget? PinnedInstallTarget(GameInfo game, string release, string asset)
+    {
+        var requirement = Requirement(game);
+        if (!OperatingSystem.IsLinux() || RuntimeInformation.ProcessArchitecture != Architecture.X64 ||
+            requirement == null || requirement.ReleaseIdentity != release || requirement.AssetIdentity != asset)
+            return null;
+        // This is the post-extraction relative path in the exact pinned archive,
+        // not a preferred executable supplied by remote metadata.
+        return new("pd.x86_64", 15329872, requirement.ExecutableSha256);
+    }
 
     internal static OwnedDataRequirement? Requirement(GameInfo game) =>
         RepositorySourceHelper.IsGitHub(game.RepositorySource) &&
