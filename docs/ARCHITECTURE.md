@@ -183,3 +183,24 @@ Manual preparation checks ancestor links before creating directories, retains
 existing committed-install validation ahead of marker writes, and creates its
 instruction file with create-new semantics. A failed instruction write can leave
 a partial newly created file; it is not silently overwritten on retry.
+
+## Entry edits and portable authority
+
+`AppEntryService` acquires the original portable writer lease before inspecting
+managed evidence, including when an initial installer has not written a manifest
+yet. A destination move also requires its writer lease and cannot adopt existing
+managed recovery history. The leases span settings/library commit, compensation
+and permitted follow-up preparation. They do not turn entry editing into a
+portable-generation migration.
+
+Managed entries permit presentation-only changes without marker or instruction
+writes. Changing their path, source identity, management mode or setup fields is
+unsupported and refused before entry mutation. Managed migration remains an
+unaccepted requirement: it must preserve path-keyed manifests, operation history,
+retained versions and data through interruption, rather than directly moving a
+folder and hoping recovery follows it. Hostile concurrent directory replacement
+and native-platform acceptance remain separate obligations.
+
+Linked installation paths use their actual root for presentation-edit authority.
+Changing a linked entry’s folder name is refused rather than moving an unrelated
+default-folder path. Linked-root migration remains unsupported.

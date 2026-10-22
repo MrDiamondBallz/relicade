@@ -1,4 +1,5 @@
 using Relicade.Models;
+using Relicade.Core.Services;
 using Relicade.Services;
 using Relicade.ViewModels;
 
@@ -55,6 +56,184 @@ public sealed class PreservationSelectionEntryTests : IDisposable
         Assert.Contains("fixture/old", new FileSettingsStore(Path.Combine(root, "settings.json")).Load().UserAppTags.Keys);
         Assert.Contains("fixture/old", settings.Current.UserAppTags.Keys);
         Assert.DoesNotContain(notices, n => n.Message.Contains("success", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Managed_folder_rename_is_refused_before_metadata_or_payload_changes(bool writerHeld)
+    {
+        File.Delete(Path.Combine(OldPath, "payload")); // Remove only this fixture constructor's unmanaged placeholder.
+        var tx = new PortableInstallationTransaction(OldPath, new() { PreservedDataPaths = ["saves"] });
+        await tx.InstallAsync(stage =>
+        {
+            File.WriteAllBytes(Path.Combine(stage, "fixture.AppImage"), PortableInstallationFixtures.NativePayload("old"));
+            return Task.CompletedTask;
+        }, "old");
+        Directory.CreateDirectory(Path.Combine(OldPath, "saves"));
+        File.WriteAllText(Path.Combine(OldPath, "saves", "slot.dat"), "synthetic save");
+        var committed = tx.ReadCommitted()!;
+        var settingsBytes = File.ReadAllBytes(Path.Combine(root, "settings.json"));
+        var libraryBytes = File.ReadAllBytes(manager.CatalogService.AppsConfigPath);
+        using var held = writerHeld ? tx.AcquireLease() : null;
+        var saved = await Edit();
+        var relocatedError = Directory.Exists(NewPath)
+            ? Record.Exception(() => new PortableInstallationTransaction(NewPath).ReadCommitted()) : null;
+        Console.WriteLine($"Save={saved}; old exists={Directory.Exists(OldPath)}; new exists={Directory.Exists(NewPath)}; relocated read={relocatedError?.GetType().Name}: {relocatedError?.Message}");
+        Assert.False(saved);
+        Assert.True(Directory.Exists(OldPath));
+        Assert.False(Directory.Exists(NewPath));
+        Assert.Equal(settingsBytes, File.ReadAllBytes(Path.Combine(root, "settings.json")));
+        Assert.Equal(libraryBytes, File.ReadAllBytes(manager.CatalogService.AppsConfigPath));
+        Assert.Equal("synthetic save", File.ReadAllText(Path.Combine(OldPath, "saves", "slot.dat")));
+        held?.Dispose();
+        Assert.Equal(committed.OperationId, tx.ReadCommitted()!.OperationId);
+        Assert.Contains("managed", Assert.Single(notices).Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Managed_presentation_edit_preserves_payload_and_does_not_prepare_missing_markers(bool manual)
+    {
+        File.Delete(Path.Combine(OldPath, "payload"));
+        if (manual) original.Repository = "";
+        original.FilesToAdd = ["portable.txt"];
+        await manager.CatalogService.SaveLocalAppsAsync([original]);
+        var tx = new PortableInstallationTransaction(OldPath);
+        await tx.InstallAsync(stage =>
+        {
+            File.WriteAllBytes(Path.Combine(stage, "fixture.AppImage"), PortableInstallationFixtures.NativePayload("old"));
+            return Task.CompletedTask;
+        }, "old");
+        var manifest = File.ReadAllBytes(Path.Combine(OldPath, PortableInstallationTransaction.ManifestFileName));
+        var draft = new AppEntryDraft("New title", original.Repository, "github", "Old", "", "", "My title", "favorite",
+            "portable.txt", "", "", "", false, manual, original.InstanceKey, original.Repository);
+        Assert.True(await new AppEntryService(manager, settings).SaveAsync(draft, notices.Add,
+            _ => throw new Exception("Must not open folder"), CancellationToken.None));
+        var saved = Assert.Single(await manager.CatalogService.LoadLocalAppsAsync());
+        Assert.Equal("My title", saved.CustomDisplayName);
+        Assert.Equal("New title", saved.Name);
+        Assert.Contains("favorite", saved.Tags);
+        Assert.False(File.Exists(Path.Combine(OldPath, "portable.txt")));
+        Assert.Equal(manifest, File.ReadAllBytes(Path.Combine(OldPath, PortableInstallationTransaction.ManifestFileName)));
+        Assert.Equal("old", tx.ReadCommitted()!.SelectedVersion);
+        Assert.Contains("updated", Assert.Single(notices).Title, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Theory]
+    [InlineData("repository")]
+    [InlineData("provider")]
+    [InlineData("manual")]
+    [InlineData("markers")]
+    [InlineData("release-filter")]
+    [InlineData("mods")]
+    [InlineData("mods-case")]
+    public async Task Managed_setup_edits_are_refused_without_changing_metadata_or_payload(string change)
+    {
+        if (change == "mods-case")
+        {
+            original.ModsPath = "Mods";
+            await manager.CatalogService.SaveLocalAppsAsync([original]);
+        }
+        File.Delete(Path.Combine(OldPath, "payload"));
+        var tx = new PortableInstallationTransaction(OldPath);
+        await tx.InstallAsync(stage =>
+        {
+            File.WriteAllBytes(Path.Combine(stage, "fixture.AppImage"), PortableInstallationFixtures.NativePayload("old"));
+            return Task.CompletedTask;
+        }, "old");
+        var manifest = File.ReadAllBytes(Path.Combine(OldPath, PortableInstallationTransaction.ManifestFileName));
+        var library = File.ReadAllBytes(manager.CatalogService.AppsConfigPath);
+        var draft = new AppEntryDraft("Fixture", original.Repository, "github", "Old", "", "", "", "",
+            "", "", "", "", false, false, original.InstanceKey, original.Repository);
+        draft = change switch
+        {
+            "repository" => draft with { Repository = "fixture/other" },
+            "provider" => draft with { RepositorySource = "gitlab" },
+            "manual" => draft with { ManuallyManaged = true },
+            "markers" => draft with { FilesToAdd = "new.txt" },
+            "release-filter" => draft with { ReleaseAssetFilter = "*.zip" },
+            "mods" or "mods-case" => draft with { ModsPath = "mods" },
+            _ => throw new ArgumentException(change)
+        };
+        Assert.False(await new AppEntryService(manager, settings).SaveAsync(draft, notices.Add,
+            _ => throw new Exception("Must not open folder"), CancellationToken.None));
+        Assert.Equal(library, File.ReadAllBytes(manager.CatalogService.AppsConfigPath));
+        Assert.Equal(manifest, File.ReadAllBytes(Path.Combine(OldPath, PortableInstallationTransaction.ManifestFileName)));
+        Assert.False(File.Exists(Path.Combine(OldPath, "new.txt")));
+        Assert.Equal("old", tx.ReadCommitted()!.SelectedVersion);
+        Assert.Contains("not supported", Assert.Single(notices).Message);
+    }
+
+    [Fact]
+    public async Task Initial_install_writer_blocks_entry_move_before_a_manifest_exists()
+    {
+        var tx = new PortableInstallationTransaction(OldPath);
+        using var writer = tx.AcquireLease();
+        Assert.False(PortableInstallationTransaction.HasEvidence(OldPath));
+        Assert.False(await Edit());
+        await AssertOld();
+        Assert.Contains("authority", Assert.Single(notices).Message);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Destination_writer_or_retained_history_prevents_unmanaged_move(bool retainedHistory)
+    {
+        var destination = new PortableInstallationTransaction(NewPath);
+        if (retainedHistory)
+        {
+            await destination.InstallAsync(stage =>
+            {
+                File.WriteAllBytes(Path.Combine(stage, "fixture.AppImage"), PortableInstallationFixtures.NativePayload("destination"));
+                return Task.CompletedTask;
+            }, "destination");
+            // Synthetic missing generation: retained outside-root history must still count.
+            Directory.Delete(NewPath, true);
+            Assert.True(PortableInstallationTransaction.HasEvidence(NewPath));
+        }
+        using var writer = retainedHistory ? null : destination.AcquireLease();
+        Assert.False(await Edit());
+        await AssertOld();
+        Assert.True(Directory.Exists(destination.OperationsPath));
+        Assert.Contains("authority", Assert.Single(notices).Message);
+    }
+
+    [Fact]
+    public async Task Linked_managed_presentation_edit_uses_actual_root_not_unrelated_default_folder()
+    {
+        original.InstallPath = NewPath;
+        await manager.CatalogService.SaveLocalAppsAsync([original]);
+        var actual = new PortableInstallationTransaction(NewPath);
+        await actual.InstallAsync(stage =>
+        {
+            File.WriteAllBytes(Path.Combine(stage, "fixture.AppImage"), PortableInstallationFixtures.NativePayload("linked"));
+            return Task.CompletedTask;
+        }, "linked");
+        using var unrelated = new PortableInstallationTransaction(OldPath).AcquireLease();
+        var draft = new AppEntryDraft("Linked title", original.Repository, "github", "Old", "", "", "", "",
+            "", "", "", "", false, false, original.InstanceKey, original.Repository);
+        Assert.True(await new AppEntryService(manager, settings).SaveAsync(draft, notices.Add,
+            _ => throw new Exception("Must not open folder"), CancellationToken.None));
+        Assert.Equal("Linked title", Assert.Single(await manager.CatalogService.LoadLocalAppsAsync()).Name);
+        Assert.Equal("old-working", File.ReadAllText(Path.Combine(OldPath, "payload")));
+        Assert.Equal("linked", actual.ReadCommitted()!.SelectedVersion);
+    }
+
+    [Fact]
+    public async Task Linked_unmanaged_folder_change_does_not_move_unrelated_default_folder()
+    {
+        var linked = Path.Combine(root, "linked");
+        Directory.CreateDirectory(linked);
+        File.WriteAllText(Path.Combine(linked, "data"), "linked data");
+        original.InstallPath = linked;
+        await manager.CatalogService.SaveLocalAppsAsync([original]);
+        Assert.False(await Edit());
+        await AssertOld();
+        Assert.Equal("linked data", File.ReadAllText(Path.Combine(linked, "data")));
+        Assert.Contains("Linked", Assert.Single(notices).Message);
     }
 
     [Theory]

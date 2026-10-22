@@ -334,3 +334,24 @@ keys are supplied, and existing native acceptance gates are unchanged.
 
 Source-sensitive guides are subject to [documentation maintenance](../docs/DOCUMENTATION.md)
 and independent review. Generated repository counts are not runtime acceptance.
+
+## Managed installation entry edits
+
+Entry editing holds the portable writer authority before checking installation
+history or changing an existing entry. A conflicting initial install, update or
+recovery writer prevents the edit. Moving an unmanaged entry also checks the
+destination authority and refuses existing managed recovery history.
+
+For managed installations, display names, project labels, artwork and tags can
+still be edited without rewriting payload files or preparing markers. Folder,
+repository/provider, management mode, marker, release-filter and mod-setup changes
+are refused before the entry stores change. A folder rename is not a migration:
+portable manifests and retained history are keyed to their original location.
+This boundary does not implement managed migration or setup changes. Those need
+an explicit recoverable transaction spanning both root identities, retained
+versions/history, data policy, settings and library metadata, with interruption
+and running-game coverage before being enabled.
+
+Linked installation paths use their actual root for presentation-edit authority.
+Changing a linked entry’s folder name is refused rather than moving an unrelated
+default-folder path. Linked-root migration remains unsupported.
