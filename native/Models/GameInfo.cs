@@ -592,6 +592,7 @@ namespace Relicade.Models
         }
         [System.Text.Json.Serialization.JsonIgnore]
         public bool OffersFreedoomSetup => OwnedGameSetupService.OffersFreedoom(this);
+        [System.Text.Json.Serialization.JsonIgnore]
         public bool HasOwnedDataAdapter => OwnedGameSetupService.Requirement(this) != null;
         private bool _ownedDataReady;
         [System.Text.Json.Serialization.JsonIgnore]
