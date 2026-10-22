@@ -149,7 +149,7 @@ At every scale check: navigation wrapping, focus rings, complete text, counter o
 **Confident, specific, respectful.** Speak like a good launcher, not an emulator forum argument or a luxury advertisement. Product facts before adjectives.
 
 - Approved tagline: **Old legends. New life.** Preserve words and punctuation.
-- Relicade stands on its own. Do not name reference launchers in product labels, marketing, README presentation, screenshots or comparative taglines. Preserve accurate technical provenance and all required third-party notices separately; never rename a real external endpoint or erase applicable attribution to satisfy a branding rule.
+- Relicade stands on its own. Do not use reference-launcher names as product labels, marketing claims or comparative taglines. Public product screenshots must reproduce the actual current interface: an accurate upstream address visible in the running product is not an affiliation claim and must not be renamed or painted out to make a cleaner marketing image. Preserve technical provenance and all required third-party notices separately.
 - Credit community projects and creators where players make decisions.
 - Use “Add to library”, “View project”, “Open project site”, “Remove from library”.
 - Say “Downloads are not available in this prototype.” Do not say “Ready to play” without a verified playable install.

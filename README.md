@@ -56,11 +56,11 @@ Source status: merged development source includes [reviewed safety work](https:/
 
 [How documentation stays current](docs/DOCUMENTATION.md): contribution-time checks and periodic maintainer reconciliation keep generated facts and source-sensitive prose under review. The tool checks facts mechanically; it does not approve prose. Cloning the repository does not install a timer or service.
 
-### Interface preview
+### Current native application
 
-![Relicade interface preview featuring Ocarina of Time artwork](docs/assets/relicade-interface-ocarina.png?v=single-r)
+![Actual Relicade native Linux development build showing an empty local library](docs/assets/relicade-native-linux.png)
 
-*Browser-rendered interface design preview with Ocarina of Time artwork inside the hero. This illustrates the visual design, not a native launcher release or installed-game state. Third-party artwork remains with its respective rights holders; see [NOTICE.md](NOTICE.md).*
+*Captured from the actual native Linux development build with an empty local library. This is the running application, not a browser mockup or generated interface. It does not show installed games or establish packaged-release or hardware compatibility.*
 
 [Identity system](brand/BRAND.md) · [Brand presentation](docs/assets/relicade-brand.png) · [Architecture](docs/ARCHITECTURE.md)
 
