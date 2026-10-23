@@ -23,6 +23,18 @@ internal static class OwnedGameSetupService
         "cd666466759b5e5f63af93c5f0ffd0a1", "freedoom2.wad",
         "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b");
 
+    // Official v0.6.0 release asset 664693912; the upstream source's body
+    // compatibility contract is pinned in GAME_SETUP.md. No ROM is supplied.
+    internal static readonly OwnedDataRequirement Z2rs = new("z2rs-0-6-0-usa-linux-x64",
+        "Zelda II USA ROM (.nes)", "v0.6.0",
+        "z2rs-0.6.0-x86_64-unknown-linux-gnu.tar.gz|sha256:356d9624eb1795179f2457e693901577b3343f931b162d24daca53dac9b99458",
+        "a064a4587b23f0a4276ea81a2824a1ccf2e89be962454f54cb425b2b871081df", 262144,
+        "", "zelda2.nes", NesBody: new("11333adb723a5975e0ecca3aee8f4747aa8d2d26", 0xba322865));
+
+    internal static string Describe(OwnedDataRequirement requirement) => requirement.NesBody is { } body
+        ? $"{requirement.Label}\n{requirement.Length:N0}-byte body, optionally preceded by a 16-byte iNES header. Body CRC32 {body.Crc32:X8}; SHA1 {body.Sha1}.\nUse your own lawful dump. Compatibility hashes do not establish rights.\nLaunch disables Discord presence. The engine may remember the ROM path in its config; existing save locations and overrides remain in use."
+        : $"{requirement.Label}\n{requirement.Length:N0} bytes; MD5 {requirement.Md5}{(requirement.ExpectedSha256 == null ? "" : "\nPinned SHA256 " + requirement.ExpectedSha256)}\nThis identifies a variant, not ownership or legal entitlement.";
+
     // Optional, explicit play choice. Ordinary engine Launch remains unchanged.
     internal static bool OffersFreedoom(GameInfo game) => !game.IsManuallyManaged &&
         RepositorySourceHelper.IsGitHub(game.RepositorySource) &&
@@ -48,11 +60,14 @@ internal static class OwnedGameSetupService
             return null;
         // This is the post-extraction relative path in the exact pinned archive,
         // not a preferred executable supplied by remote metadata.
-        return new("pd.x86_64", 15329872, requirement.ExecutableSha256);
+        return requirement == Z2rs ? new("z2rs", 37783632, requirement.ExecutableSha256)
+            : new("pd.x86_64", 15329872, requirement.ExecutableSha256);
     }
 
     internal static OwnedDataRequirement? Requirement(GameInfo game) =>
-        RepositorySourceHelper.IsGitHub(game.RepositorySource) &&
+        !RepositorySourceHelper.IsGitHub(game.RepositorySource) ? null :
+        string.Equals(game.Repository, "troyedwardsjr/z2rs", StringComparison.OrdinalIgnoreCase)
+            ? (game.IsManuallyManaged || !string.IsNullOrEmpty(game.InstallPath) ? null : Z2rs) :
         (string.Equals(game.Repository, "perfect-dark-pc-port/perfect_dark", StringComparison.OrdinalIgnoreCase) ||
          string.Equals(game.Repository, "fgsfdsfgs/perfect_dark", StringComparison.OrdinalIgnoreCase)) ? PerfectDark : null;
 
@@ -69,8 +84,8 @@ internal static class OwnedGameSetupService
             game.OwnedDataSetupMessage = "Required game data verified locally; gameplay compatibility still depends on this system.";
             game.OwnedDataReady = true;
         }
-        catch (FileNotFoundException) { game.OwnedDataSetupMessage = "Needs game files: select your lawful Perfect Dark US 1.1 .z64 file."; }
-        catch (DirectoryNotFoundException) { game.OwnedDataSetupMessage = "Needs game files: select your lawful Perfect Dark US 1.1 .z64 file."; }
+        catch (FileNotFoundException) { game.OwnedDataSetupMessage = $"Needs game files: select your lawful {requirement.Label}."; }
+        catch (DirectoryNotFoundException) { game.OwnedDataSetupMessage = $"Needs game files: select your lawful {requirement.Label}."; }
         catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or JsonException)
         { game.OwnedDataSetupMessage = "Requirements not confirmed: " + ex.Message; }
     }
@@ -89,6 +104,8 @@ internal sealed class OwnedGameSetupSession
     internal long RequiredBytes => requirement.Length;
     internal string VariantMd5 => requirement.Md5;
     internal string? ExpectedSha256 => requirement.ExpectedSha256;
+    internal bool IsNes => requirement.NesBody != null;
+    internal string Description => OwnedGameSetupService.Describe(requirement);
 
     internal OwnedGameSetupSession(GameManager manager, string instance) : this(manager, instance, null) { }
     // A definition is injectable only by trusted in-process compositions/tests;

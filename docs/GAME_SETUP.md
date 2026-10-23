@@ -2,8 +2,8 @@
 
 Some community projects provide an engine or recompilation, not the original game
 data. Installing an executable does not establish that the game is ready to play.
-Relicade's native development source includes a first package-bound local setup
-flow. It is not a packaged release, gameplay certification or complete catalog
+Relicade's native development source includes package-bound local setup
+flows. It is not a packaged release, gameplay certification or complete catalog
 setup support.
 
 ## Download integrity and catalog approval
@@ -327,7 +327,71 @@ compatibility guarantee. A focused secondary action stays bound to its own entry
 when the visible collection changes; confirmation does not fall through to a
 different game at the old selection index.
 
+## z2rs Zelda II USA setup
+
+For a dedicated managed **z2rs v0.6.0 Linux x64** installation, **Finish game
+setup** accepts your lawful Zelda II USA dump. Relicade supplies no ROM and does
+not fetch, upload or transform it. Review the original and destination paths,
+then explicitly confirm the local copy. The original stays untouched.
+
+The definition is bound to the [official v0.6.0 release](https://github.com/troyedwardsjr/z2rs/releases/tag/v0.6.0):
+
+- Archive `z2rs-0.6.0-x86_64-unknown-linux-gnu.tar.gz`, asset ID `664693912`,
+  SHA-256 `356d9624eb1795179f2457e693901577b3343f931b162d24daca53dac9b99458`.
+- Selected executable `z2rs`, 37,783,632 bytes,
+  SHA-256 `a064a4587b23f0a4276ea81a2824a1ccf2e89be962454f54cb425b2b871081df`.
+  The archive's separate launcher and signalling server are not substituted.
+- ROM body: 262,144 bytes, CRC32 `BA322865`,
+  SHA-1 `11333adb723a5975e0ecca3aee8f4747aa8d2d26`.
+  A 262,160-byte file is also accepted only when its first four bytes are
+  `NES` followed by `0x1a`; validation then checks the body after the complete
+  16-byte iNES header. Other header fields follow the upstream compatibility
+  rule, not a newly invented format certification.
+
+These checks come from the exact release's
+[ROM reader](https://github.com/troyedwardsjr/z2rs/blob/4c5e34418017cfda71ea0ca09c952ff93ba1591c/crates/z2-assets/src/rom.rs)
+and [asset policy](https://github.com/troyedwardsjr/z2rs/blob/4c5e34418017cfda71ea0ca09c952ff93ba1591c/LEGAL.md).
+CRC32 and SHA-1 identify the supported upstream variant; they are not modern
+publisher authentication or proof of ownership. Relicade additionally records
+the whole original file's SHA-256 and actual length, including any header, and
+rechecks them when copying and launching. Existing valid but different copies
+are preserved, not silently replaced. Repair still requires the originally
+recorded complete bytes; switching header forms does not authorize replacement.
+
+Launch passes the retained path as a literal `--rom` argument and adds
+`--no-discord`, without online co-op flags. Relicade does not rewrite the engine's
+config or save locations. The engine itself may remember the ROM path on a
+successful launch and continues using its existing data-directory override, or
+`$XDG_DATA_HOME/z2rs` / `~/.local/share/z2rs` by default. See the pinned
+[desktop guide](https://github.com/troyedwardsjr/z2rs/blob/4c5e34418017cfda71ea0ca09c952ff93ba1591c/guide/desktop.md)
+and [startup code](https://github.com/troyedwardsjr/z2rs/blob/4c5e34418017cfda71ea0ca09c952ff93ba1591c/crates/z2-native/src/app.rs).
+
+Static inspection of that exact Linux executable records required `libudev.so.1`,
+`libasound.so.2`, `libgcc_s.so.1`, `libm.so.6`, `libc.so.6` and the x86-64 loader,
+with non-weak GLIBC symbols through 2.34. A weak GLIBC 2.39 reference is not a
+hard 2.39 requirement. This is a dependency observation, not a tested distribution
+or graphics/audio compatibility claim.
+
+Unknown versions/platforms remain unconfirmed. Existing linked or manually
+managed entries retain their ordinary launch flow. This definition does not add
+engine auto-installation, general emulator setup or ROM downloads. Upstream's
+[provenance statement](https://github.com/troyedwardsjr/z2rs/blob/4c5e34418017cfda71ea0ca09c952ff93ba1591c/PROVENANCE.md)
+explains that z2rs remains a partial reconstruction with a ROM interpreter,
+not a complete standalone reimplementation. Synthetic input, copy/repair and
+native-dialog tests do not certify gameplay, controller hardware, platform
+support or distribution rights.
+
 ## Source checks and remaining acceptance
+
+The [z2rs setup tests](../native/Relicade.Tests/Z2rsSetupTests.cs) cover the compiled
+package identity and synthetic header/body inputs, changed or special files,
+copy cancellation, preserved originals, explicit repair and literal launch
+arguments. [Native UI tests](../native/Relicade.Tests/Z2rsSetupUiTests.cs) exercise
+explicit keyboard/controller confirmation without engine execution;
+[rendering tests](../native/Relicade.Tests/RealRender/Z2rsSetupRenderingTests.cs)
+check the actual requirements dialog at ordinary/minimum sizes and 200% scaling.
+They use synthetic data, never a commercial ROM, and do not establish gameplay.
+
 
 The [first-install package tests](../native/Relicade.Tests/FirstInstallPackageTests.cs)
 cover retained data/history, ancestor authority, immutable bytes and size bounds.

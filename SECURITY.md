@@ -73,8 +73,10 @@ readiness. See [the native marker boundary](native/README.md#catalog-marker-file
 
 ## Local game-data setup
 
-The first compiled adapter pins a package and selected executable; remote catalog
-metadata cannot override its file rules or destinations. Local selection is
+Compiled adapters pin a package and selected executable; remote catalog
+metadata cannot override their file rules or destinations. The z2rs body CRC32/SHA-1
+rule is a compatibility check, not modern authentication; a full-file SHA-256 and
+actual length bind the confirmed local copy and subsequent revalidation. Local selection is
 followed by a preview and explicit copy confirmation. Originals, committed copies
 and prior receipts are retained. Input variant hashes do not establish ownership
 or publisher authenticity. That local-import path creates no remote data transfer; product-wide

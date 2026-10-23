@@ -17,8 +17,9 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     Action<bool>? afterLaunch;
     internal CancellationToken OperationCancellation => cancellation.Token;
     internal bool IsFreedoom => play != null;
-    internal string FileTypeLabel => IsFreedoom ? "Freedoom Phase 2 data" : "Nintendo 64 big-endian data";
-    internal string FilePattern => IsFreedoom ? "*.wad" : "*.z64";
+    bool isNes;
+    internal string FileTypeLabel => isNes ? "NES game data" : IsFreedoom ? "Freedoom Phase 2 data" : "Nintendo 64 big-endian data";
+    internal string FilePattern => isNes ? "*.nes" : IsFreedoom ? "*.wad" : "*.z64";
     internal string Title => IsFreedoom ? "Play Freedoom Phase 2" : "Finish game setup";
     internal bool CanPlay => IsFreedoom && !IsClosed && !busy && State == OwnedGameSetupUiState.Completed;
     internal void ConfigureFreedoom(Func<Task<bool>> launch, bool ready, Action<bool>? completed = null)
@@ -123,7 +124,7 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     internal bool CanChoose => !IsClosed && !busy && State != OwnedGameSetupUiState.Completed;
     internal bool CanConfirm => !IsClosed && !busy && State == OwnedGameSetupUiState.Confirm && Plan != null;
     internal OwnedGameSetupViewModel(LauncherSession session, string key, OwnedGameSetupSession setup)
-        : this(session, key, $"{setup.Label}\n{setup.RequiredBytes:N0} bytes; MD5 {setup.VariantMd5}{(setup.ExpectedSha256 == null ? "" : "\nPinned SHA256 " + setup.ExpectedSha256)}\nThis identifies a variant, not ownership or legal entitlement.", setup.Preview, setup.Apply, setup.RefreshAsync) { }
+        : this(session, key, setup.Description, setup.Preview, setup.Apply, setup.RefreshAsync) { isNes = setup.IsNes; }
     internal OwnedGameSetupViewModel(LauncherSession session, string key, string requirement,
         Func<string, CancellationToken, OwnedDataPreview> preview,
         Func<OwnedDataPreview, CancellationToken, OwnedDataImportResult> apply, Func<Task> refresh)

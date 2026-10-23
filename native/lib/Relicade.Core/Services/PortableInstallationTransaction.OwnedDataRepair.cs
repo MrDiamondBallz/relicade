@@ -22,8 +22,9 @@ public sealed partial class PortableInstallationTransaction
         var record = JsonSerializer.Deserialize<OwnedDataReceipt>(bytes, Json)
             ?? throw new IOException("Missing setup evidence. Existing data was preserved.");
         if (record.Sha256 is not { Length: 64 } || record.Sha256.Any(c => !(c is >= '0' and <= '9' or >= 'a' and <= 'f')) ||
+            !requirement.AcceptsLength(record.Length) ||
             record != new OwnedDataReceipt(1, requirement.Id, key, manifest.OperationId, requirement.AssetIdentity,
-                requirement.ExecutableSha256, record.Sha256, requirement.Length) ||
+                requirement.ExecutableSha256, record.Sha256, record.Length) ||
             requirement.ExpectedSha256 is { } pinned && record.Sha256 != pinned ||
             replacementSha256 != null && record.Sha256 != replacementSha256 ||
             !bytes.AsSpan().SequenceEqual(JsonSerializer.SerializeToUtf8Bytes(record, Json)))
@@ -37,7 +38,7 @@ public sealed partial class PortableInstallationTransaction
         RequireCleanupKind(path, false);
         using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
         var length = file.Length;
-        var maximum = checked(requirement.Length * 2);
+        var maximum = checked(requirement.MaximumLength * 2);
         if (length > maximum) throw new IOException("Changed setup data exceeds the bounded preservation limit. Inspect it separately; it was not modified.");
         using var sha = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var buffer = new byte[64 * 1024]; long read = 0;

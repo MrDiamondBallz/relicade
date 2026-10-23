@@ -7,9 +7,14 @@ namespace Relicade.Core.Services;
 // Definitions are compiled, reviewed adapters, never instructions from catalog metadata.
 internal sealed record OwnedDataRequirement(string Id, string Label, string ReleaseIdentity,
     string AssetIdentity, string ExecutableSha256, long Length, string Md5,
-    string FileName = "game-data.z64", string? ExpectedSha256 = null);
+    string FileName = "game-data.z64", string? ExpectedSha256 = null, OwnedNesBodyRule? NesBody = null)
+{
+    internal bool AcceptsLength(long length) => length == Length || NesBody != null && length == checked(Length + 16);
+    internal long MaximumLength => NesBody == null ? Length : checked(Length + 16);
+}
+internal sealed record OwnedNesBodyRule(string Sha1, uint Crc32);
 internal sealed record OwnedDataPreview(string PlanSha256, string Source, string Destination,
-    string OperationId, string SourceSha256, long BytesToCopy, bool ReuseExisting, OwnedDataRepair? Repair = null);
+    string OperationId, string SourceSha256, long BytesToCopy, bool ReuseExisting, OwnedDataRepair? Repair = null, long SourceLength = 0);
 internal sealed record OwnedDataRepair(string RetainedDestination, long PreviousLength, string PreviousSha256, bool ReuseRetained);
 internal sealed class OwnedDataNeedsRepairException(string message) : IOException(message);
 internal sealed record OwnedDataImportResult(string Destination, string Sha256, bool Completed);
@@ -50,7 +55,7 @@ public sealed partial class PortableInstallationTransaction
         RequireCleanupKind(folder, true);
         var receipt = SafePath(folder, manifest.OperationId + ".json");
         var record = new OwnedDataReceipt(1, requirement.Id, key, manifest.OperationId,
-            requirement.AssetIdentity, requirement.ExecutableSha256, current.SourceSha256, requirement.Length);
+            requirement.AssetIdentity, requirement.ExecutableSha256, current.SourceSha256, current.SourceLength);
         var recordBytes = JsonSerializer.SerializeToUtf8Bytes(record, Json);
         // An existing receipt must agree byte-for-byte. No silent overwrite or
         // deletion, even if a previous import was interrupted after copying data.
@@ -77,11 +82,11 @@ public sealed partial class PortableInstallationTransaction
                         token.ThrowIfCancellationRequested();
                         var count = input.Read(buffer); if (count == 0) break;
                         copied = checked(copied + count);
-                        if (copied > requirement.Length) throw new IOException("The selected file changed during import.");
+                        if (copied > current.SourceLength) throw new IOException("The selected file changed during import.");
                         digest.AppendData(buffer, 0, count); output.Write(buffer, 0, count);
                         boundary?.Invoke("Copying");
                     }
-                    if (copied != requirement.Length || Convert.ToHexStringLower(digest.GetHashAndReset()) != current.SourceSha256)
+                    if (copied != current.SourceLength || Convert.ToHexStringLower(digest.GetHashAndReset()) != current.SourceSha256)
                         throw new IOException("The selected file changed during import. Its original was not modified.");
                     output.Flush(true);
                 }
@@ -142,13 +147,13 @@ public sealed partial class PortableInstallationTransaction
         var destination = OwnedDataDestination(requirement, dataRoot);
         if (string.Equals(source, destination, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
             throw new IOException("Choose the original file, not Relicade's retained setup copy.");
-        var hash = HashOwnedInput(source, requirement, token);
+        var hash = HashOwnedInput(source, requirement, token, out var sourceLength);
         var reuse = RemovalEntryExists(destination);
         OwnedDataRepair? repair = null;
         if (reuse)
         {
             string existingHash;
-            try { existingHash = HashOwnedInput(destination, requirement, token); }
+            try { existingHash = HashOwnedInput(destination, requirement, token, out _); }
             catch (IOException)
             {
                 // Changed data is not ownership evidence. A canonical receipt for
@@ -166,8 +171,8 @@ public sealed partial class PortableInstallationTransaction
             if (repair == null && existingHash != hash)
                 throw new IOException("An existing valid setup copy differs. It was preserved; replacement is not authorized.");
         }
-        var bytes = repair == null ? (reuse ? 0 : requirement.Length)
-            : checked(requirement.Length + (repair.ReuseRetained ? 0 : repair.PreviousLength));
+        var bytes = repair == null ? (reuse ? 0 : sourceLength)
+            : checked(sourceLength + (repair.ReuseRetained ? 0 : repair.PreviousLength));
         if (bytes > 0)
         {
             var existing = new DirectoryInfo(Path.GetDirectoryName(destination)!);
@@ -176,8 +181,8 @@ public sealed partial class PortableInstallationTransaction
                 throw new IOException("Not enough available space for the verified copy, any retained old data and setup receipt.");
         }
         var plan = Hash(JsonSerializer.SerializeToUtf8Bytes(new { action = repair == null ? "CopyOwnedGameData" : "PreserveAndReplaceOwnedGameData", requirement.Id,
-            root, key, manifest.OperationId, requirement.AssetIdentity, requirement.ExecutableSha256, source, destination, hash, reuse, repair }));
-        return new(plan, source, destination, manifest.OperationId, hash, bytes, reuse && repair == null, repair);
+            root, key, manifest.OperationId, requirement.AssetIdentity, requirement.ExecutableSha256, source, destination, hash, sourceLength, reuse, repair }));
+        return new(plan, source, destination, manifest.OperationId, hash, bytes, reuse && repair == null, repair, sourceLength);
     }
 
     internal string ReadOwnedData(OwnedDataRequirement requirement, string dataRoot, CancellationToken token = default)
@@ -196,8 +201,8 @@ public sealed partial class PortableInstallationTransaction
         var receipt = SafePath(Path.GetDirectoryName(destination)!, manifest.OperationId + ".json");
         var record = JsonSerializer.Deserialize<OwnedDataReceipt>(ReadOwnedReceiptBytes(receipt), Json)
             ?? throw new IOException("Missing setup evidence.");
-        string hash;
-        try { hash = HashOwnedInput(destination, requirement, token); }
+        string hash; long sourceLength;
+        try { hash = HashOwnedInput(destination, requirement, token, out sourceLength); }
         catch (IOException)
         {
             RequireRepairReceipt(requirement, manifest, receipt, requirement.ExpectedSha256);
@@ -207,7 +212,7 @@ public sealed partial class PortableInstallationTransaction
             throw;
         }
         if (record != new OwnedDataReceipt(1, requirement.Id, key, manifest.OperationId, requirement.AssetIdentity,
-                requirement.ExecutableSha256, hash, requirement.Length))
+                requirement.ExecutableSha256, hash, sourceLength))
             throw new IOException("Setup evidence does not match this installation. Review game setup again.");
         return destination;
     }
@@ -267,21 +272,41 @@ public sealed partial class PortableInstallationTransaction
         UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite
     });
 
-    static string HashOwnedInput(string path, OwnedDataRequirement requirement, CancellationToken token)
+    static string HashOwnedInput(string path, OwnedDataRequirement requirement, CancellationToken token, out long length)
     {
         RequireCleanupKind(path, false);
         using var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
-        if (file.Length != requirement.Length) throw new IOException($"Expected {requirement.Label}: {requirement.Length:N0} bytes. The selected file was not changed.");
+        length = file.Length;
+        if (!requirement.AcceptsLength(length)) throw new IOException($"Expected {requirement.Label}. The selected file has an unsupported length and was not changed.");
         using var sha = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        using var md5 = IncrementalHash.CreateHash(HashAlgorithmName.MD5);
+        using var variant = IncrementalHash.CreateHash(requirement.NesBody == null ? HashAlgorithmName.MD5 : HashAlgorithmName.SHA1);
+        uint crc = uint.MaxValue;
+        var skip = requirement.NesBody != null && length == requirement.Length + 16 ? 16 : 0;
+        if (requirement.NesBody != null)
+        {
+            Span<byte> magic = stackalloc byte[4]; file.ReadExactly(magic); file.Position = 0;
+            // Match the upstream magic-based header decision, not an arbitrary
+            // sixteen-byte skip. A header-shaped body alone is not a bare ROM.
+            if (magic.SequenceEqual("NES\u001a"u8) != (skip == 16))
+                throw new IOException("Expected a headerless body or a complete 16-byte iNES header beginning NES followed by 0x1a. The original was preserved.");
+        }
         var buffer = new byte[64 * 1024]; long read = 0;
         while (true)
         {
             token.ThrowIfCancellationRequested(); var count = file.Read(buffer); if (count == 0) break;
-            read = checked(read + count); if (read > requirement.Length) throw new IOException("Input changed while validating.");
-            sha.AppendData(buffer, 0, count); md5.AppendData(buffer, 0, count);
+            var offset = (int)Math.Clamp(skip - read, 0, count);
+            read = checked(read + count); if (read > length) throw new IOException("Input changed while validating.");
+            sha.AppendData(buffer, 0, count); variant.AppendData(buffer, offset, count - offset);
+            if (requirement.NesBody != null)
+                foreach (var value in buffer.AsSpan(offset, count - offset))
+                {
+                    crc ^= value;
+                    for (var bit = 0; bit < 8; bit++) crc = (crc >> 1) ^ ((crc & 1) != 0 ? 0xedb88320u : 0);
+                }
         }
-        if (read != requirement.Length || Convert.ToHexStringLower(md5.GetHashAndReset()) != requirement.Md5)
+        var expectedVariant = requirement.NesBody?.Sha1 ?? requirement.Md5;
+        if (read != length || Convert.ToHexStringLower(variant.GetHashAndReset()) != expectedVariant ||
+            requirement.NesBody is { } body && (crc ^ uint.MaxValue) != body.Crc32)
             throw new IOException($"This is not the supported {requirement.Label}. A hash identifies a variant, not ownership or legal entitlement. The original was preserved.");
         var digest = Convert.ToHexStringLower(sha.GetHashAndReset());
         if (requirement.ExpectedSha256 is { } expected && digest != expected)

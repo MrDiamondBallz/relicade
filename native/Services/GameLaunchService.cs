@@ -197,7 +197,7 @@ public static class GameLaunchService
                     HostProcessEnvironment.Sanitize(startInfo);
             }
 
-            ConfigureOwnedDataArguments(startInfo, ownedGameData, freedoom);
+            ConfigureOwnedDataArguments(startInfo, ownedGameData, freedoom, OwnedGameSetupService.Requirement(game));
 
             // No-ops unless Relicade itself is running inside a Flatpak sandbox.
             HostProcessEnvironment.RouteToHostIfSandboxed(startInfo);
@@ -296,11 +296,12 @@ public static class GameLaunchService
         }
     }
 
-    internal static void ConfigureOwnedDataArguments(ProcessStartInfo startInfo, string? validatedDataPath, bool freedoom = false)
+    internal static void ConfigureOwnedDataArguments(ProcessStartInfo startInfo, string? validatedDataPath, bool freedoom = false, OwnedDataRequirement? definition = null)
     {
         if (validatedDataPath == null) return;
-        startInfo.ArgumentList.Add(freedoom ? "-iwad" : "--rom-file");
+        startInfo.ArgumentList.Add(freedoom ? "-iwad" : definition?.NesBody != null ? "--rom" : "--rom-file");
         startInfo.ArgumentList.Add(validatedDataPath);
+        if (!freedoom && definition?.NesBody != null) startInfo.ArgumentList.Add("--no-discord");
     }
 
     // Shared production completion boundary, exercised with benign OWN test

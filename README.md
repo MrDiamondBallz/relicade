@@ -44,8 +44,8 @@ transaction-internal recovery on failure; an error is not an unchanged-state or
 safe-retry assurance. This is source-stage functionality,
 not a packaged or native-platform acceptance claim; see the [native guide](native/README.md).
 
-The native source also includes a first **Finish game setup** flow for one exact
-Perfect Dark Linux x64 package: choose a lawful local file, review the copy,
+The native source includes **Finish game setup** for specific Perfect Dark and
+z2rs Linux x64 packages: choose a lawful local file, review the copy,
 confirm explicitly and revalidate before launch. This is bounded development
 source, not gameplay certification or complete project support. See
 [local game-data setup](docs/GAME_SETUP.md) for the exact package and limits. The separate

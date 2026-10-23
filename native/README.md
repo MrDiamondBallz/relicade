@@ -395,6 +395,14 @@ are separate. Unknown package variants remain unconfirmed; this is not gameplay,
 platform or complete catalog acceptance. See [supported input, provenance and
 recovery limits](../docs/GAME_SETUP.md).
 
+A further compiled definition covers z2rs v0.6.0 Linux x64 with a lawful Zelda II
+USA dump, headered or headerless. It preserves the whole original, validates the
+upstream body hashes and binds the retained copy by full-file SHA-256 and length.
+Launch disables Discord presence; the engine may remember the ROM path while
+retaining its existing save locations. Linked/manual entries remain unchanged.
+See [the exact package and input contract](../docs/GAME_SETUP.md#z2rs-zelda-ii-usa-setup).
+This is source-stage setup, not gameplay or general emulation acceptance.
+
 ## Portable launch-file choice
 
 The desktop installer asks which staged launch file to use when a portable package

@@ -26,7 +26,9 @@ one exact Perfect Dark Linux x64 package, with a separate optional Freedoom
 Phase 2 flow bound to UZDoom 5.0.3 Linux x64, including an explicit pinned free-data
 download followed by separate copy confirmation and Play. New entries can confirm
 one pinned engine installation with setup-only progress/cancel and retained-state
-reporting. This is not a general durable download queue. Neither establishes complete catalog
+reporting. A separate z2rs v0.6.0 Linux x64 definition validates a lawful Zelda II
+USA body, preserves headered/headerless files and revalidates before launch.
+This is not a general durable download queue. These flows do not establish complete catalog
 setup or tested gameplay. [The setup guide](GAME_SETUP.md) lists the supported input and limits.
 
 ## 3. Installation, credentials and recovery — bounded source progress

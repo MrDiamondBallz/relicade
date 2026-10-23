@@ -128,3 +128,10 @@ minimum window sizes, with a light-theme control. The established tagline sits
 beneath the original wordmark, inside the sidebar bounds. The isolated profile
 has no games or external requests; these frames verify native product copy and
 layout, not desktop-host, accessibility-device or gameplay acceptance.
+
+`Z2rsSetupRenderingTests` uses that same shared renderer owner for the actual
+setup requirements dialog with compiled package/input descriptions, but no
+installed game or ROM. Natural controller navigation exposes the complete
+compatibility and engine-config/privacy disclosure at 760×660, 320×360 and
+200% interface scaling. Separate native UI tests exercise the confirmed local
+copy with synthetic bytes. No acquired engine is executed by these captures.

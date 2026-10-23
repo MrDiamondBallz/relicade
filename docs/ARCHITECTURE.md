@@ -242,7 +242,12 @@ and run before the candidate lease is created. Locks created by the transaction
 remain excluded from live and retained-generation inventories; this is not a
 sandbox against hostile concurrent filesystem replacement.
 
-The initial definition covers one Perfect Dark US 1.1 Linux x64 package only.
+The initial definition covers one Perfect Dark US 1.1 Linux x64 package.
+The z2rs v0.6.0 Linux x64 definition adds a compiled NES body-validation rule:
+only the known body length or that length plus a magic-identified 16-byte header
+is accepted. Body CRC32/SHA-1 check compatibility; full-file SHA-256 and actual
+length bind preview, copy, repair receipt and launch revalidation. No remote
+metadata can supply these rules, and bytes are never normalized or stripped.
 Synthetic fixtures exercise the source workflow; they do not establish gameplay,
 rights or platform acceptance. Other project/build prerequisites remain unconfirmed,
 and data migration/cleanup remain unimplemented. [Setup guide](GAME_SETUP.md).
