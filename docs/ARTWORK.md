@@ -88,6 +88,18 @@ Synthetic image fixtures exercise remote-cover mapping, persistence, fallback
 and native layouts without requesting third-party game pixels. The separately
 reviewed local portrait below has its own exact provenance and rights scope.
 
+## Native card resolution
+
+Desktop card thumbnails reserve a bounded 580×180 interface-pixel area for the
+responsive Discover grid, alongside larger player-selected library card sizes.
+The UI samples its existing display/interface scale before the first background
+image decode. The loader still preserves aspect ratio, never enlarges source
+pixels, and retains its existing bounded recent-image cache and disposal behavior.
+The responsive maximum prevents a resized window from exceeding a thumbnail
+chosen for the old fixed-width card. This does not certify live movement between
+physical displays or all DPI configurations; low-resolution upstream images can
+still lack enough detail for a large view.
+
 ## Reviewed Taisei portrait
 
 The exact Taisei Project catalog entry has one bundled, credited portrait by

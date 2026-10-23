@@ -12,6 +12,9 @@ public class LauncherArtworkLoaderTests
     private static readonly byte[] Png = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7S8AAAAASUVORK5CYII=");
 
     [Theory]
+    [InlineData(960, 540, 580, 180, 580, 326)]
+    [InlineData(960, 540, 1160, 360, 960, 540)]
+    [InlineData(200, 112, 580, 180, 200, 112)]
     [InlineData(600, 900, 256, 156, 256, 384)]
     [InlineData(920, 430, 256, 156, 334, 156)]
     [InlineData(512, 512, 256, 156, 256, 256)]

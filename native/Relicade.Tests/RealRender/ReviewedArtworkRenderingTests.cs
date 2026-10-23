@@ -18,9 +18,13 @@ namespace Relicade.Tests;
 public sealed class ReviewedArtworkRenderingTests(SharedCatalogRenderer renderer)
 {
     [Theory]
-    [InlineData(1280, 860, false)]
-    [InlineData(750, 490, true)]
-    public async Task Actual_catalog_Add_then_Open_in_Library_keeps_reviewed_portrait(int width, int height, bool light)
+    [InlineData(1280, 860, false, 100)]
+    [InlineData(890, 700, false, 100)]
+    [InlineData(878, 700, false, 100)]
+    [InlineData(1100, 760, false, 200)]
+    [InlineData(750, 490, true, 100)]
+    [InlineData(1100, 760, true, 200)]
+    public async Task Actual_catalog_Add_then_Open_in_Library_keeps_reviewed_portrait(int width, int height, bool light, int percent)
     {
         await renderer.Session.Dispatch<int>(async () =>
         {
@@ -30,10 +34,11 @@ public sealed class ReviewedArtworkRenderingTests(SharedCatalogRenderer renderer
             var previousLoader = ImageLoader.AsyncImageLoader;
             using var handler = new CatalogOnly(); using var http = new HttpClient(handler);
             using var loader = new LauncherArtworkLoader(root, http); ImageLoader.AsyncImageLoader = loader;
-            var store = new Store(root, light); var catalog = new AppCatalogService(dataDirectory: root);
+            var store = new Store(root, light); store.Current.InterfaceScalePercent = percent; var catalog = new AppCatalogService(dataDirectory: root);
             using var manager = new GameManager(store, http, catalog);
             var view = new MainView(RealRenderTestApp.Dependencies(store, manager));
             var window = new Window { Content = view, Width = width, Height = height };
+            using var scaling = new DesktopInterfaceScaling(window, new SettingsViewModel(store), () => new Size(3840, 2160));
             try
             {
                 Assert.False(Telemetry.Current.Available);
@@ -61,8 +66,24 @@ public sealed class ReviewedArtworkRenderingTests(SharedCatalogRenderer renderer
                 image.PropertyChanged += Changed;
                 try { if (image.Source != null) imageReady.TrySetResult(); await imageReady.Task.WaitAsync(TimeSpan.FromSeconds(10)); }
                 finally { image.PropertyChanged -= Changed; }
+                // A completed image request does not establish positive layout: commit the actual frame first.
+                await Capture(window, $"resolution-{width}x{height}-{percent}-{light}");
+                Assert.True(image.Bounds.Width > 0 && image.Bounds.Height > 0, $"Unrealized viewport: {image.Bounds}");
+                var columns = Assert.Single(browse.GetVisualDescendants().OfType<CardColumnsPanel>());
+                if (width == 878) { Assert.Equal(1, columns.ColumnsFor(columns.Bounds.Width)); Assert.True(image.Bounds.Width > 550); }
+                if (width == 890) Assert.Equal(2, columns.ColumnsFor(columns.Bounds.Width));
+                var maximumSingleColumn = 2 * columns.MinColumnWidth + columns.Spacing;
+                Assert.True(LauncherArtworkLoader.ThumbnailBox().Width >= maximumSingleColumn,
+                    "Decode bound must cover the responsive one-to-two-column threshold.");
+                var decoded = Assert.IsType<Avalonia.Media.Imaging.Bitmap>(image.Source);
+                var scale = LauncherArtworkLoader.DisplayScale();
+                Assert.True(scale >= percent / 100d);
+                Assert.True(decoded.PixelSize.Width >= Math.Min(960, Math.Ceiling(image.Bounds.Width * scale)) &&
+                            decoded.PixelSize.Height >= Math.Min(540, Math.Ceiling(image.Bounds.Height * scale)),
+                    $"Decoded {decoded.PixelSize}; positive viewport {image.Bounds.Size}; display/interface scale {scale}.");
+                Assert.InRange(decoded.PixelSize.Width, 1, 960); Assert.InRange(decoded.PixelSize.Height, 1, 540);
                 Assert.Contains("afensorm", item.ArtworkSource);
-                await Capture(window, $"23-taisei-discover-{width}x{height}-light-{light}");
+                await Capture(window, $"23-taisei-discover-{width}x{height}-light-{light}-scale-{percent}");
                 var added = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
                 void StateChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
                 { if (!item.IsAdding && item.InLibrary) added.TrySetResult(); }
@@ -79,7 +100,7 @@ public sealed class ReviewedArtworkRenderingTests(SharedCatalogRenderer renderer
                 card.FindControl<Button>("BrowseCardAddButton")!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
                 Assert.True(view.FindControl<LibraryView>("LibraryPanel")!.IsEffectivelyVisible);
-                await Capture(window, $"23-taisei-library-{width}x{height}-light-{light}");
+                await Capture(window, $"23-taisei-library-{width}x{height}-light-{light}-scale-{percent}");
                 var saved = Assert.Single(await catalog.LoadLocalAppsForMutationAsync());
                 await saved.LoadCatalogCoverAsync(root, false, TestContext.Current.CancellationToken);
                 Assert.Equal(ReviewedGameArtwork.TaiseiUrl, saved.CardImageUrl);

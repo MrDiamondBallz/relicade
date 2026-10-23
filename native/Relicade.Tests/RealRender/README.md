@@ -158,6 +158,12 @@ bitmap. The library is genuinely added and saved but remains uninstalled; no
 game process is executed. Its subsequent cache-only reload makes no image
 provider request. These headless captures are not desktop/gameplay acceptance.
 
+The Taisei journey checks strictly positive image bounds after compositor commit,
+then compares actual decoded pixels with the visible viewport and current scale.
+Normal, minimum, near-column-threshold and 200% inputs retain the original source
+resolution cap. These are headless initial-scale checks, not physical multi-monitor
+DPI-transition certification.
+
 `ProjectSetupGuidanceRenderingTests` renders the actual project Overview with
 controlled offline metadata, no installed games and no external image requests.
 Normal, minimum and 200% interface-scale inputs require positive viewport bounds
