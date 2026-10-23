@@ -403,6 +403,16 @@ support or distribution rights.
 
 ## Source checks and remaining acceptance
 
+The [catalog-to-library setup checks](../native/Relicade.Tests/CatalogOwnedSetupMappingTests.cs)
+exercise controlled catalog identity through the real Add service and durable
+library reload. The supported z2rs and Perfect Dark repository identities retain
+their compiled package rules; another provider, a manual entry or an unrelated
+repository does not acquire those rules. Library membership alone never means
+that the engine is installed or the required game data is ready. These checks
+use injected offline metadata and temporary synthetic state, not downloaded
+engines, real user data or gameplay. They complement, rather than replace, the
+separate installation and confirmed-copy tests below.
+
 The [z2rs setup tests](../native/Relicade.Tests/Z2rsSetupTests.cs) cover the compiled
 package identity and synthetic header/body inputs, changed or special files,
 copy cancellation, preserved originals, explicit repair and literal launch
