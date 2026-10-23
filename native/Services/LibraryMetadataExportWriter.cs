@@ -18,12 +18,46 @@ internal static class LibraryMetadataExportWriter
         if (!Directory.Exists(parent) || File.Exists(full) || Directory.Exists(full))
             throw new IOException("Choose a new file in an existing local folder. Existing files are never replaced.");
         var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+        var observedAncestors = new HashSet<string>(comparison == StringComparison.OrdinalIgnoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
         foreach (var root in protectedRoots)
         {
+            if (root.StartsWith("//", StringComparison.Ordinal) || root.StartsWith(@"\\", StringComparison.Ordinal) || !Path.IsPathFullyQualified(root))
+                throw new InvalidDataException("A protected library path cannot be safely inspected. Reopen a local library before exporting.");
             var normalized = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
-            if (string.Equals(full, normalized, comparison) || full.StartsWith(normalized + Path.DirectorySeparatorChar, comparison))
+            CheckProtectedAncestors(normalized, observedAncestors);
+            if (IsWithinProtectedRoot(full, normalized, Path.DirectorySeparatorChar, comparison))
                 throw new IOException("Export outside Relicade state, recovery and current game folders.");
         }
+    }
+    static void CheckProtectedAncestors(string path, HashSet<string> observed)
+    {
+        // Inspect from the filesystem root down: never resolve a linked protected
+        // alias or inspect its descendants before refusing it. No directory crawl.
+        var ancestors = new Stack<string>();
+        for (string? current = path; current != null; current = Path.GetDirectoryName(current))
+        {
+            if (ancestors.Count == 256) throw new InvalidDataException("A protected library path exceeds the inspection depth limit.");
+            ancestors.Push(current);
+        }
+        foreach (var ancestor in ancestors)
+        {
+            if (!observed.Add(ancestor)) continue;
+            try
+            {
+                if ((File.GetAttributes(ancestor) & FileAttributes.ReparsePoint) != 0)
+                    throw new InvalidDataException("Linked library or game folders require inspection before metadata export.");
+            }
+            catch (FileNotFoundException) { }
+            catch (DirectoryNotFoundException) { }
+        }
+        // This observation is repeated at commit, not a lock against external edits.
+    }
+    // Inputs are canonical paths from ValidateDestination; this is containment,
+    // not a second path parser. Separator is explicit for cross-platform lexical tests.
+    internal static bool IsWithinProtectedRoot(string full, string normalizedRoot, char separator, StringComparison comparison)
+    {
+        var prefix = normalizedRoot.EndsWith(separator) ? normalizedRoot : normalizedRoot + separator;
+        return string.Equals(full, normalizedRoot, comparison) || full.StartsWith(prefix, comparison);
     }
     internal static async Task WriteNewAsync(byte[] bytes, string destination, IReadOnlyList<string> protectedRoots,
         CancellationToken token, Action<Action> commit, Func<Task>? beforeCommit = null)

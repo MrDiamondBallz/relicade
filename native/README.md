@@ -796,17 +796,22 @@ raw persistence serializer remains unchanged and is **not** this metadata format
 
 Export requires a settled successful library load. A failed/in-flight load,
 settings recovery, changed entry/root or closed session cannot authorize a stale
-preview's save. The legacy loader may already have discarded duplicate original
+preview's save. The successful load retains its data/apps/settings context; a
+root change before the first preview cannot relabel the earlier loaded entries. The legacy loader may already have discarded duplicate original
 records; this preview cannot recover or validate those original records. The
 10,000-entry and 8 MiB limits are resource safeguards and refuse oversized output
 without truncation, not claims about total catalog support.
 
 The writer rejects existing destinations, linked ancestors, explicit network or
 device path spellings, and destinations inside current Relicade state/recovery
-or game roots. It writes a new sibling temporary file and uses a no-replace
+or game roots. Protected roots and their ancestors are inspected from the root
+down without resolving aliases; an observed link refuses export even when the
+chosen destination names its ordinary target. Attribute observations are repeated
+at commit, with a 256-component depth safety limit, not a directory crawl or a
+lock against external changes. It writes a new sibling temporary file and uses a no-replace
 rename after rechecking the preview. A failed commit can have an uncertain
 outcome; inspect the chosen destination rather than assuming nothing changed.
-The path checks do not establish that a mounted filesystem is physically local,
+The path checks do not identify mount aliases or establish that a mounted filesystem is physically local,
 or provide power-loss durability or protection against arbitrary external file
 replacement. Save user game data and the library's recovery files separately.
 
