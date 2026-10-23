@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Security.Cryptography;
 using SharpCompress.Archives;
 using SharpCompress.Readers;
 
@@ -74,7 +75,14 @@ internal static class PortableInstallationExtraction
         if (nested.Length == 1 && nested[0].EndsWith(".tar.gz", StringComparison.OrdinalIgnoreCase))
         {
             if (depth >= 2) throw new InvalidDataException("Nested archive wrapper limit exceeded.");
+            var consumedHash = HashRegularFile(nested[0]);
             await StageCoreAsync(nested[0], stage, Path.GetFileName(nested[0]), options, token, expansion, depth + 1).ConfigureAwait(false);
+            // This exact wrapper was created and consumed by this extraction. Never
+            // discard a changed file or sweep arbitrary operation-history contents.
+            if (!CryptographicOperations.FixedTimeEquals(consumedHash, HashRegularFile(nested[0])))
+                throw new IOException("Consumed archive wrapper changed during extraction.");
+            File.Delete(nested[0]);
+            RemoveEmptyWrapper(unpack);
             return;
         }
         // Unwrap an archive wrapper ONLY in staging. No live-tree flatten/merge.
@@ -93,7 +101,29 @@ internal static class PortableInstallationExtraction
         if (!OperatingSystem.IsWindows())
             foreach (var executable in GameInstallationService.FindExecutableCandidates(stage, SearchOption.AllDirectories, null, out _))
                 if (File.Exists(executable)) File.SetUnixFileMode(executable, File.GetUnixFileMode(executable) | UnixFileMode.UserExecute);
+        // Complete our private staging lifetime before the transaction can commit.
+        // Empty directories are removed non-recursively; unexpected files refuse
+        // activation and remain available with the failed operation evidence.
+        RemoveEmptyWrapper(unpack);
         options.ExtractProgress?.Report(0.99);
+    }
+    static byte[] HashRegularFile(string path)
+    {
+        PortableInstallationTransaction.RequireRegularEvidenceFile(path);
+        using var file = File.OpenRead(path);
+        return SHA256.HashData(file);
+    }
+    static void RemoveEmptyWrapper(string directory)
+    {
+        PortableInstallationTransaction.CheckLinks(directory);
+        foreach (var entry in Directory.GetFileSystemEntries(directory))
+        {
+            PortableInstallationTransaction.CheckLinks(entry);
+            if ((File.GetAttributes(entry) & FileAttributes.Directory) == 0)
+                throw new IOException("Unexpected file remains in extraction staging; nothing was discarded.");
+            RemoveEmptyWrapper(entry);
+        }
+        Directory.Delete(directory, recursive: false);
     }
     static string Normalize(string p)
     {

@@ -343,6 +343,12 @@ fetched, and no game launches automatically. Cancellation waits for owned work;
 if the engine committed before cancellation it remains installed, but no data
 handoff or play begins. Inspect retained state before retrying.
 
+Before activation, extraction removes its own empty wrapper directories and the
+exact unchanged nested archive it consumed. This leaves committed history ready
+for the separate data-import inspection. Unexpected files and failed extraction
+evidence are retained and refused, not swept away. This does not automatically
+repair older installations with unexplained staging in their history.
+
 For a dedicated managed **z2rs v0.6.0 Linux x64** installation, **Finish game
 setup** accepts your lawful Zelda II USA dump. Relicade supplies no ROM and does
 not fetch, upload or transform it. Review the original and destination paths,
@@ -405,6 +411,11 @@ explicit keyboard/controller confirmation without engine execution;
 [rendering tests](../native/Relicade.Tests/RealRender/Z2rsSetupRenderingTests.cs)
 check the actual requirements dialog at ordinary/minimum sizes and 200% scaling.
 They use synthetic data, never a commercial ROM, and do not establish gameplay.
+The [first-install journey tests](../native/Relicade.Tests/Z2rsFirstInstallTests.cs)
+continue through the real picker, preview and separate confirmed copy after a
+synthetic engine installation. [Extraction lifetime tests](../native/Relicade.Tests/PortableExtractionLifetimeTests.cs)
+check ZIP, tar, single-file and nested wrappers, retained download bytes and
+unrelated operation evidence.
 
 
 The [first-install package tests](../native/Relicade.Tests/FirstInstallPackageTests.cs)

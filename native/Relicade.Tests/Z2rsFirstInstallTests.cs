@@ -207,6 +207,34 @@ public sealed class Z2rsFirstInstallTests
         Assert.False(Directory.Exists(Path.Combine(f.Root, "owned-game-data")));
     }
 
+    [AvaloniaTheory][InlineData(false)][InlineData(true)]
+    public async Task Completed_engine_install_continues_to_confirmed_owned_file_copy(bool header)
+    {
+        using var f = new ZFixture(); await f.Initialize(); await using var session = new LauncherSession();
+        f.Definition = f.Definition with { Length = 9, Md5 = "", NesBody = new("f7c3bc1d808e04732adf679965ccc34ca7ae3441", 0xcbf43926) };
+        var bytes = header ? new byte[25] : "123456789"u8.ToArray();
+        if (header) { "NES\u001a"u8.CopyTo(bytes); "123456789"u8.CopyTo(bytes.AsSpan(16)); }
+        var original = Path.Combine(f.Root, "synthetic-owned-file.nes"); File.WriteAllBytes(original, bytes);
+        var starts = 0; f.Game.GameProcessStarted += _ => starts++;
+        Assert.True(await session.RunAsync(() => f.Install(session.Token, (_, _) => Task.FromResult(true))));
+        var setup = new OwnedGameSetupSession(f.Manager, f.Game.InstanceKey, f.Definition);
+        var model = new OwnedGameSetupViewModel(session, f.Game.InstanceKey, setup);
+        var dialog = new OwnedGameSetupDialog(model);
+        try
+        {
+            model.PickFile = () => Task.FromResult<string?>(original); dialog.Show(); Dispatcher.UIThread.RunJobs();
+            Assert.False(model.CanConfirm); Assert.False(dialog.DownloadButton.IsVisible);
+            dialog.ChooseButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); await dialog.Work;
+            Assert.Equal(OwnedGameSetupUiState.Confirm, model.State); Assert.NotNull(model.Plan);
+            Assert.False(File.Exists(model.Plan.Destination)); Assert.Equal(bytes, File.ReadAllBytes(original));
+            dialog.ConfirmButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); await dialog.Work;
+            Assert.Equal(OwnedGameSetupUiState.Completed, model.State); setup.ValidateReady();
+            Assert.Equal(bytes, File.ReadAllBytes(model.Plan.Destination)); Assert.Equal(bytes, File.ReadAllBytes(original));
+            Assert.Equal(0, starts); Assert.False(File.Exists(Path.Combine(f.Live, "LastPlayed.txt")));
+        }
+        finally { dialog.Close(); await dialog.Work; model.DisposeAfterDrain(); }
+    }
+
     sealed class ZFixture : IDisposable
     {
         const string Asset = "z2rs-0.6.0-x86_64-unknown-linux-gnu.tar.gz";
