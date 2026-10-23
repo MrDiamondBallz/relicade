@@ -36,11 +36,11 @@ class LinuxAppImageTests(unittest.TestCase):
         self.run = self.stack.enter_context(patch.object(builder, '_run', side_effect=self.complete))
 
     def complete(self, command, environment, directory, timeout):
-        self.assertEqual('--runtime-file', command[1])
-        self.assertNotIn('--no-appstream', command)
+        self.assertEqual(['--no-appstream', '--runtime-file'], command[1:3])
+        self.validation.assert_called_once()
         self.assertIn('--mksquashfs-opt=-processors', command)
         self.assertIn('--mksquashfs-opt=1', command)
-        self.assertEqual(str(directory / 'runtime'), command[2])
+        self.assertEqual(str(directory / 'runtime'), command[3])
         self.assertNotIn('GH_TOKEN', environment)
         self.assertNotIn('VERSION', environment)
         self.assertNotIn('--guess', command)

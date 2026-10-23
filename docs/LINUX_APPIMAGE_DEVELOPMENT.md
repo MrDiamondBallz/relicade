@@ -72,6 +72,12 @@ verified official distribution package; the recipe does not download or install 
 If project-local libraries are needed, an explicit local wrapper can launch that
 verified tool. No system package or desktop setting needs to change.
 
+After that mandatory offline check succeeds, container assembly uses
+`--no-appstream` to disable only appimagetool’s optional, PATH-discovered secondary
+validators. Those internal checks do not request offline operation and would make
+the build depend on unrelated host tools. The flag does not skip the explicit
+metadata validation above.
+
 Download these official assets into the local tools folder:
 
 - [appimagetool 1.9.1 x86_64](https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage)

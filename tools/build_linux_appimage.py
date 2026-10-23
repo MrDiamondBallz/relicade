@@ -170,7 +170,9 @@ def package(publish, output, tool, runtime, epoch=0, timeout=120, appstreamcli=N
                        'APPIMAGE_EXTRACT_AND_RUN': '1'}
         validator_hash = _validate_appstream(image_root, appstreamcli, environment, directory, timeout)
         staged = directory / 'RELICADE.AppImage'
-        command = [str(checked_tool), '--runtime-file', str(checked_runtime),
+        # Offline metadata validation above is mandatory. Disable only the container
+        # tool's optional PATH-discovered validators, which lack offline flags.
+        command = [str(checked_tool), '--no-appstream', '--runtime-file', str(checked_runtime),
                    '--mksquashfs-opt=-processors', '--mksquashfs-opt=1', str(image_root), str(staged)]
         _run(command, environment, directory, timeout)
         with appdir.notices._file(directory, staged.name, 768 * 1024 * 1024) as stream:
