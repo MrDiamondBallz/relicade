@@ -8,11 +8,15 @@ namespace Relicade.Services;
 internal static class GuidedEngineInstallService
 {
     internal static bool OffersRequiredFirstInstall(GameInfo game) => game.Status == GameStatus.NotInstalled &&
-        OwnedGameSetupService.Requirement(game) == OwnedGameSetupService.Z2rs;
+        (OwnedGameSetupService.Requirement(game) == OwnedGameSetupService.Z2rs ||
+         (string.IsNullOrEmpty(game.InstallPath) && OperatingSystem.IsLinux() && !OperatingSystem.IsAndroid() && RuntimeInformation.ProcessArchitecture == Architecture.X64 &&
+          OwnedGameSetupService.Requirement(game) == OwnedGameSetupService.PerfectDark));
 
     internal sealed record Project(string Repository, string Title, OwnedDataRequirement Requirement, long MaximumBytes)
     {
-        internal string Confirmation => Requirement.NesBody != null
+        internal string Confirmation => Repository == "perfect-dark-pc-port/perfect_dark"
+            ? $"Install the reviewed Perfect Dark {Requirement.ReleaseIdentity} package for Linux x64 in this library entry?\n\nAfter installation, select your own lawful Perfect Dark US 1.1 (.z64) file and confirm the separate local copy. No ROM is downloaded. Nothing is played automatically. Existing engines, versions and personal game files are not replaced. A changed rolling-release package is refused, not substituted."
+            : Requirement.NesBody != null
             ? $"Install z2rs {Requirement.ReleaseIdentity} for Linux x64 in this library entry?\n\nThis explicit setup uses the reviewed z2rs package. After installation, select your own lawful Zelda II USA ROM and confirm the separate file copy. No ROM is downloaded. Nothing is played automatically. Existing engines, versions and personal game files are not replaced."
             : ConfirmationMessage(Requirement);
     }
@@ -22,6 +26,8 @@ internal static class GuidedEngineInstallService
             return new("UZDoom/UZDoom", "Set up Freedoom Phase 2", definition ?? OwnedGameSetupService.FreedoomPhase2, 34_560_504);
         if (OwnedGameSetupService.Requirement(game) == OwnedGameSetupService.Z2rs)
             return new("troyedwardsjr/z2rs", "Set up z2rs", definition ?? OwnedGameSetupService.Z2rs, 20_928_166);
+        if (OwnedGameSetupService.Requirement(game) == OwnedGameSetupService.PerfectDark)
+            return new("perfect-dark-pc-port/perfect_dark", "Set up Perfect Dark", definition ?? OwnedGameSetupService.PerfectDark, 22_213_594);
         throw new IOException("No reviewed first-install setup is available for this project.");
     }
 
@@ -51,7 +57,7 @@ internal static class GuidedEngineInstallService
             throw new IOException("The guided engine package definition is invalid.");
         var context = new OwnedGameSetupSession(manager, game.InstanceKey, requirement);
         var constraint = new FirstInstallPackageConstraint(requirement.ReleaseIdentity, split[0], split[1])
-        { MaximumBytes = project.MaximumBytes, AllowTarGzip = project.Repository == "troyedwardsjr/z2rs", ValidateContext = () => context.ValidateDownloadRequest(token) };
+        { MaximumBytes = project.MaximumBytes, AllowTarGzip = project.Repository is "troyedwardsjr/z2rs" or "perfect-dark-pc-port/perfect_dark", ValidateContext = () => context.ValidateDownloadRequest(token) };
         constraint.ValidateSelection(requirement.ReleaseIdentity, split[0]);
         var destination = game.GetInstallPath(manager.GamesFolder);
         new PortableInstallationTransaction(destination).RequireFirstInstallationTarget();

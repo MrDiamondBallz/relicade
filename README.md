@@ -45,8 +45,9 @@ safe-retry assurance. This is source-stage functionality,
 not a packaged or native-platform acceptance claim; see the [native guide](native/README.md).
 
 The native source includes **Finish game setup** for specific Perfect Dark and
-z2rs Linux x64 packages. A new z2rs entry offers **Set up game** to confirm its
-pinned engine download before selecting a lawful local file. Review the copy,
+z2rs Linux x64 packages. New dedicated Perfect Dark and z2rs entries on Linux x64
+offer **Set up game** to confirm their pinned engine download before selecting a
+lawful local file. Review the copy,
 confirm explicitly and revalidate before launch. This is bounded development
 source, not gameplay certification or complete project support. See
 [local game-data setup](docs/GAME_SETUP.md) for the exact package and limits. The separate

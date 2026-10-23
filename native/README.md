@@ -427,6 +427,15 @@ retaining its existing save locations. Linked/manual entries remain unchanged.
 See [the exact package and input contract](../docs/GAME_SETUP.md#z2rs-zelda-ii-usa-setup).
 This is source-stage setup, not gameplay or general emulation acceptance.
 
+New dedicated Perfect Dark Library entries on Linux x64 can choose **Set up game**
+to confirm the exact reviewed engine before the separate local `.z64` preview and
+copy confirmation. The canonical and former repository names use the same pinned
+package; a changed rolling release is refused rather than substituted. Other
+hosts retain ordinary download controls. Engine installation alone is not
+owned-data readiness, and this flow never autoplays. Existing files, versions and
+pending work retain their first-install refusal; cancellation drains active work.
+These are synthetic source checks, not official-package execution or gameplay.
+
 ## Portable launch-file choice
 
 The desktop installer asks which staged launch file to use when a portable package

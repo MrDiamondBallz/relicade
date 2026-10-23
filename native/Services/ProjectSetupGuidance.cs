@@ -20,7 +20,7 @@ internal sealed record ProjectSetupGuidance(string Heading, string Description, 
             if (string.Equals(repository, "perfect-dark-pc-port/perfect_dark", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(repository, "fgsfdsfgs/perfect_dark", StringComparison.OrdinalIgnoreCase))
                 return new("Original game files required",
-                    "This engine needs your lawful Perfect Dark game data. Relicade's local import supports Perfect Dark US 1.1 (.z64) with the pinned Linux x64 ci-dev-build package described in the setup guide. Add to Library, install the supported engine, then choose Finish game setup. Other packages need upstream instructions; no ROM is downloaded.");
+                    "This engine needs your lawful Perfect Dark game data. Relicade's local import supports Perfect Dark US 1.1 (.z64) with the pinned Linux x64 ci-dev-build package described in the setup guide. For a new managed Library entry on Linux x64, Set up game confirms that exact engine first, then asks for a separate local file copy. Existing installations can use Finish game setup. Other packages need upstream instructions; no ROM is downloaded.");
             if (string.Equals(repository, "UZDoom/UZDoom", StringComparison.OrdinalIgnoreCase))
                 return new("Choose your game data",
                     "UZDoom is an engine, not the commercial Doom game data. In Library, the optional Freedoom Phase 2 setup can fetch the free game data for the supported UZDoom 5.0.3 Linux x64 package. Or keep your existing lawful WAD setup and use ordinary Launch. Commercial game files are not downloaded.");

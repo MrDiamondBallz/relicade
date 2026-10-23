@@ -30,6 +30,9 @@ reporting. A separate z2rs v0.6.0 Linux x64 definition validates a lawful Zelda 
 USA body, preserves headered/headerless files and revalidates before launch.
 Its new-entry primary action joins explicit pinned engine installation to the
 separate owned-file preview and confirmation, without fetching a ROM or autoplay.
+New dedicated Perfect Dark entries on Linux x64 now join the same explicit engine
+confirmation to separate local data selection/copy, with strict refusal of a
+changed rolling package and no autoplay. Other hosts keep ordinary downloads.
 This is not a general durable download queue. These flows do not establish complete catalog
 setup or tested gameplay. [The setup guide](GAME_SETUP.md) lists the supported input and limits.
 

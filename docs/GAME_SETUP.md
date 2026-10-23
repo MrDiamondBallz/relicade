@@ -171,13 +171,23 @@ package revisions and operating systems are not silently accepted by this rule.
 
 ## Player flow
 
-1. Install the supported managed portable package. On its first installation,
+1. For a new dedicated Perfect Dark Library entry on Linux x64, choose **Set up
+   game**. Confirm the reviewed `ci-dev-build` engine package explicitly. The
+   former repository identity uses the same canonical package. The rolling tag
+   cannot authorize changed bytes, a different asset or a replacement version;
+   unavailable or mismatched packages are refused. Existing files, installed
+   versions and pending recovery are not replaced by this first-install flow.
    Relicade selects the pinned US executable and checks its size and SHA256 before
    activation. Updates retain an existing explicit launch selection; this default
-   does not choose for unknown or ambiguous packages.
+   does not choose for unknown or ambiguous packages. Other hosts retain their
+   ordinary download action, not this Linux x64 setup path.
    Linked, shared, OS-package and unresolved recovery installations require
    separate support. An unsupported package says its requirements are unconfirmed.
-2. Choose **Finish game setup** from the library card or its menu.
+2. After the confirmed engine installation, the separate game-data dialog opens.
+   For an existing supported installation, choose **Finish game setup** from the
+   library card or its menu. Installing the engine alone does not mark the game
+   data ready, copy a file or start the game. Cancel waits for active setup work
+   to drain; any already committed engine and recovery history are retained.
 3. Select your lawful local `.z64` file. Relicade checks the installation, variant
    and available storage without modifying the selected file.
 4. Review the displayed source, exact destination and additional bytes required.
@@ -447,6 +457,16 @@ that the engine is installed or the required game data is ready. These checks
 use injected offline metadata and temporary synthetic state, not downloaded
 engines, real user data or gameplay. They complement, rather than replace, the
 separate installation and confirmed-copy tests below.
+
+The [Perfect Dark first-install checks](../native/Relicade.Tests/PerfectDarkFirstInstallTests.cs)
+exercise the actual engine-confirmation entry point, primary actions, explicit
+engine consent and separate owned-file preview/copy. A small synthetic archive
+and non-runnable payload use an injected transport and trusted test definition;
+they do not execute the official package or contain game data. Rolling-package
+changes, stale permissions, cancellation and existing user-file/history refusal
+retain their separate assertions. The compiled exact-package executable selection
+remains covered by the [installation-target checks](../native/Relicade.Tests/OwnedGameInstallTargetTests.cs),
+not inferred from a synthetic single-executable archive.
 
 The [z2rs setup tests](../native/Relicade.Tests/Z2rsSetupTests.cs) cover the compiled
 package identity and synthetic header/body inputs, changed or special files,

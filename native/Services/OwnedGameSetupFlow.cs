@@ -26,7 +26,8 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
             try
             {
                 if (freedoom && (game == null || !OwnedGameSetupService.OffersFreedoom(game))) throw new IOException("Freedoom setup is unavailable for this project.");
-                if (!game!.IsInstalled && (freedoom || OwnedGameSetupService.Requirement(game) == OwnedGameSetupService.Z2rs) &&
+                if (!game!.IsInstalled && (freedoom || OwnedGameSetupService.Requirement(game) == OwnedGameSetupService.Z2rs ||
+                    GuidedEngineInstallService.OffersRequiredFirstInstall(game)) &&
                     !await InstallEngineAsync(game)) return;
                 session.Token.ThrowIfCancellationRequested();
                 var setup = new OwnedGameSetupSession(manager, key, freedoom ? OwnedGameSetupService.FreedoomPhase2 : null);

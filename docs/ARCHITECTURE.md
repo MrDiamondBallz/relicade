@@ -311,17 +311,21 @@ The separate Freedoom action uses a compiled UZDoom package and Phase 2 data
 binding. It reuses the local preview, confirmed copy and retained receipt
 transaction, with an explicitly validated single-component `.wad` filename and
 pinned SHA256 in addition to the variant MD5. The original Perfect Dark definition
-keeps its existing filename and behavior. The optional action does not set the
+keeps its existing imported-data filename and validation. The optional action does not set the
 engine's mandatory-data gate or alter ordinary Launch.
 
-Uninstalled UZDoom/Freedoom and z2rs entries can explicitly confirm their compiled
-adapter's first engine installation. `GuidedEngineInstallService` selects only
+Uninstalled UZDoom/Freedoom, z2rs and Perfect Dark entries can explicitly confirm
+their compiled adapter's first engine installation. `GuidedEngineInstallService` selects only
 those compiled project definitions; remote metadata cannot add a project or
-package type. The z2rs card's primary action enters this flow, while its ordinary
-Download menu route remains separate. The shared progress lifecycle receives the
+package type. The z2rs card's primary action enters this flow; dedicated Perfect
+Dark entries join it on Linux x64, while other hosts keep their ordinary download
+action. Their ordinary Download menu routes remain separate. The shared progress lifecycle receives the
 project-specific confirmation and title. The first-install constraint defaults
-to AppImage only; the compiled z2rs adapter explicitly enables its exact tar.gz
-asset, still subject to the same digest, byte limit and transaction boundary.
+to AppImage only; the compiled z2rs and Perfect Dark adapters explicitly enable
+their exact tar.gz assets, still subject to the same digest, byte limit and
+transaction boundary. The former Perfect Dark repository identity resolves to
+the canonical project's pinned package; a changed rolling tag cannot substitute
+new bytes.
 A constrained route reuses the ordinary download/install service, but requires the
 exact release, asset and compiled SHA256 independently of mutable provider digests.
 The transaction's opt-in first-install boundary inspects file kinds/presence before
