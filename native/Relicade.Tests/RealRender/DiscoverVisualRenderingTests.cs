@@ -136,7 +136,8 @@ public sealed class DiscoverVisualRenderingTests(SharedCatalogRenderer renderer)
                 if (!string.IsNullOrWhiteSpace(output))
                 {
                     Directory.CreateDirectory(output);
-                    using var file = new FileStream(Path.Combine(output, $"21-discover-{width}x{height}-light-{light}-scale-{scale}-tabs-{tabs}.png"), FileMode.CreateNew, FileAccess.Write);
+                    var imageModeSuffix = deferredImage ? "-deferred-image" : "";
+                    using var file = new FileStream(Path.Combine(output, $"21-discover-{width}x{height}-light-{light}-scale-{scale}-tabs-{tabs}{imageModeSuffix}.png"), FileMode.CreateNew, FileAccess.Write);
                     frame.Save(file);
                 }
             }
