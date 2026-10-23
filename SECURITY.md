@@ -34,8 +34,16 @@ That read-only recovery query does not prove arbitrary injected-store persistenc
 or cross-store atomicity. Closing a session cancels UI participation and drains
 work; it cannot undo already deleted redundant copies or promise immediate
 hashing cancellation. Cleanup's own operations add no network/save/general
-initialization calls. Existing library-menu release prefetch is separate; this
-does not certify product-wide offline privacy or native/hardware acceptance.
+initialization calls. The generic Library maintenance menu no longer prefetches
+releases; explicit version selection still fetches when needed. This does not
+certify product-wide offline privacy or native/hardware acceptance.
+
+Read-only preservation inspection is not deletion authorization. It verifies
+manifest-listed regular payload against the exact committed operation, preserves
+changed/unknown data and reports traversal/hash limits or detected changes as
+uncertainty. Existing-file authority and context guards do not freeze hostile
+external writers or enumerate every original/save/mod location. Managed uninstall
+remains refused.
 
 Future emulation requires separate emulator/core licensing and user-supplied data/BIOS handling; no unlicensed ROMs, BIOS or keys will be distributed. An emulator/core is an additional execution trust boundary, not a sandbox claim or an implemented capability.
 

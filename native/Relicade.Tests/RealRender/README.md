@@ -225,3 +225,13 @@ requests; no setup, retry, launch or Show-in-Library action is invoked in these
 render cases. Separate native fixtures cover explicit navigation and read-drain
 lifetimes. `31-setup-history-*` captures are private synthetic development evidence,
 not a full queue, physical device or release acceptance claim.
+
+`PortablePreservationRenderingTests` renders the actual read-only observation
+dialog after an authored synthetic portable commit. An unattached MainView
+supplies theme resources; initial host UI events drain before measuring the
+inspection's unchanged files and settings-save count. Normal/minimum/light/dark
+and 200% cases check enabled footer text and focused inspection text at 4.5:1,
+positive bounds, default Close, disabled appearance and resolved focus style.
+Only paging/focus/scroll actions are invoked. `32-preservation-*` captures are
+headless synthetic evidence, not deletion plans, hardware-input acceptance or
+proof that external saves have been located.

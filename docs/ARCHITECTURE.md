@@ -72,8 +72,18 @@ Long descriptions are divided losslessly into bounded continuation subtargets,
 so navigation can expose the middle of a path taller than the viewport, not just
 its first/last edge. Confirm on an inspection target is inert; general modal
 algorithms are unchanged.
-Existing library-menu release prefetch remains separate from these network-silent
-cleanup operations. No Core deletion, receipt or lease algorithm is changed.
+The generic Library maintenance menu no longer prefetches releases; explicit
+Change version still fetches when needed. Cleanup's Core deletion, receipt and
+lease algorithms are unchanged.
+
+The separate **Inspect preservation…** journey reads a bounded raw committed
+manifest/journal and compares only exact listed regular payload files. It does
+not use the general inventory catch-all as ownership. Current declared data,
+history and unknown/changed files remain preserved. Existing-file authority
+spans asynchronous observation and guarded UI publication; bounded identity
+rechecks detect changes without freezing external writers. Partial results and
+uninspected external locations remain explicit. No deletion, recovery, download
+or settings save is authorized by this informational result.
 
 ## Recent-play recording boundary
 

@@ -31,6 +31,7 @@ public enum LibraryActionKind
     ShowReadme,
     SkipUpdate,
     UpdateNowMenu,
+    InspectPortablePreservation,
     CleanPortableBackups,
     RollbackPortableVersion,
     FinishOwnedGameSetup,

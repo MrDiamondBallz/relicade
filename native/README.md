@@ -299,8 +299,42 @@ or unknown and requires inspection. The existing transaction can attempt interna
 recovery during the confirmed operation; errors do not certify unchanged state
 or safe retry. Preview, result observation and reopening initiate no new recovery,
 repair, retry or resume. This is included source, not a packaged/native-platform,
-power-loss, hardware controller or accessibility acceptance claim. Existing
-library-menu prefetch is separate from the rollback operation's network silence.
+power-loss, hardware controller or accessibility acceptance claim. Opening the
+Library maintenance menu does not prefetch releases; the explicit Change version
+action still fetches releases when needed.
+
+## Read-only preservation inspection — not managed uninstall
+
+For a supported installed portable entry, **Inspect preservation…** in the
+Library menu opens an explicit local assessment. **Refresh inspection** observes
+again; **Previous** and **Next** expose the complete bounded result. Closing
+cancels participation and drains pending observation. There is no delete, repair,
+settings-save, download or recovery action in this journey. Managed uninstall
+remains refused; removing an entry from the Library is a separate operation.
+
+The observer binds the raw committed manifest to its exact committed journal,
+then compares only its listed regular payload files with observed size and hash.
+Changed, unlisted, linked, unreadable or uncertain files never become removal
+candidates. Declared current data, transaction history and unknown files are
+shown separately and remain in place. Original game files, saves, canonical
+owned-data stores and mod state outside the inspected roots are not exhaustively
+located or verified; absence from this result does not mean absence on disk.
+
+Existing transaction authority is held through guarded result publication.
+Generation/context changes refuse stale publication; bounded file/directory
+identity rechecks mark detected changes uncertain. This is a timestamped
+observation, not a freeze against external writers, deletion authorization or
+reclaimable-space estimate. Metadata is capped at 2 MiB, traversal at 4,096
+entries/64 levels, and payload hashing at 1 GiB. Reaching a limit reports partial
+results and excludes unknown sizes from totals, rather than claiming a complete
+inventory. Busy, conflicting or invalid metadata is preserved and refused, not
+repaired. These resource limits do not define supported library size.
+
+Synthetic tests cover known/changed/extra/data/history classifications, bounded
+observations, detected changes, authority/cancellation, the actual menu/dialog
+and unchanged explicit version fetching. They do not accept destructive
+uninstall, hostile-writer safety, real saves, every filesystem or a platform
+release.
 
 ## Explicit redundant-backup payload cleanup — bounded development source
 

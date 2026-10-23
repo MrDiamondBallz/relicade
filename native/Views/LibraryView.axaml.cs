@@ -32,6 +32,8 @@ public partial class LibraryView : UserControl
     private LibraryCustomizationService _customization = null!;
     private Func<GameInfo, Task> _autoUpdate = null!;
     private Func<string, string, Task> _message = null!;
+    private Func<GameInfo?, Control?, Task> _inspectPreservation = (_, _) => Task.CompletedTask;
+    internal void ConfigurePreservationInspection(Func<GameInfo?, Control?, Task> open) => _inspectPreservation = open;
     private Func<GameInfo?, Control?, Task> _cleanPortableBackups = (_, _) => Task.CompletedTask;
     internal void ConfigureBackupCleanup(Func<GameInfo?, Control?, Task> open) => _cleanPortableBackups = open;
     private Func<GameInfo?, Control?, Task> _rollbackPortableVersion = (_, _) => Task.CompletedTask;
@@ -161,17 +163,17 @@ public partial class LibraryView : UserControl
             _openMenu(anchor, menu);
     }
 
-    private void LibraryCardMenu_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
+
+    internal void LibraryCardMenu_Opening(object? sender, System.ComponentModel.CancelEventArgs e)
     {
         if (sender is ContextMenu menu && Model != null)
         {
             LibraryKioskMenu.Apply(menu, Model.Settings.KioskLocked);
-            foreach (var item in menu.Items.OfType<MenuItem>().Where(i => i.Name is "CleanPortableBackupsMenu" or "RollbackPortableVersionMenu"))
+            foreach (var item in menu.Items.OfType<MenuItem>().Where(i => i.Name is "CleanPortableBackupsMenu" or "RollbackPortableVersionMenu" or "InspectPortablePreservationMenu"))
                 item.IsVisible = !Model.Settings.KioskLocked && !Model.Settings.IsReadOnly;
         }
-        // Versions → Change Version is a couple of clicks away: have its releases ready by then.
-        if (sender is ContextMenu { DataContext: GameInfo game } && Model?.Settings.KioskLocked != true)
-            game.PrefetchCatalogReleases();
+        // Local maintenance must not contact a provider merely to open this menu.
+        // Change Version fetches explicitly in HandleChangeVersionCoreAsync.
     }
 
     private async void Request(object? sender, LibraryActionKind action)
@@ -191,6 +193,9 @@ public partial class LibraryView : UserControl
                     break;
                 case LibraryActionKind.FinishOwnedGameSetup:
                     if (!Model.Settings.IsReadOnly) await _ownedGameSetup(game, anchor);
+                    break;
+                case LibraryActionKind.InspectPortablePreservation:
+                    if (!Model.Settings.IsReadOnly) await _inspectPreservation(game, anchor ?? this);
                     break;
                 case LibraryActionKind.RollbackPortableVersion:
                     if (!Model.Settings.IsReadOnly)
@@ -294,6 +299,7 @@ public partial class LibraryView : UserControl
     private void ConfigureWindowsRunner_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.ConfigureWindowsRunner);
     private void CreateShortcut_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.CreateShortcut);
     private void DeleteGameFromLibrary_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.DeleteGameFromLibrary);
+    private void InspectPortablePreservation_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.InspectPortablePreservation);
     private void CleanPortableBackups_Click(object? sender, RoutedEventArgs e) => Request(sender, LibraryActionKind.CleanPortableBackups);
     private void FreedoomAction_GotFocus(object? sender, RoutedEventArgs e)
     {

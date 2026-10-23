@@ -2,6 +2,7 @@
 <UserControl.Resources>
 <!-- One menu for every card: built per card, it cost about 0.5 MB of memory per app. -->
 <ContextMenu x:Key="LibraryCardMenu" x:DataType="models:GameInfo" Opening="LibraryCardMenu_Opening">
+    <MenuItem Name="InspectPortablePreservationMenu" Header="Inspect preservation…" Click="InspectPortablePreservation_Click" CommandParameter="{Binding}"/>
     <MenuItem Name="CleanPortableBackupsMenu" Header="Clean redundant backups…" Click="CleanPortableBackups_Click" CommandParameter="{Binding}"/>
     <MenuItem Name="PlayFreedoomMenu" Header="{Binding FreedoomActionLabel}" Click="PlayFreedoom_Click" CommandParameter="{Binding}" IsVisible="{Binding OffersFreedoomSetup}"/>
     <MenuItem Name="FinishOwnedGameSetupMenu" Header="Finish game setup…" Click="FinishOwnedGameSetup_Click" CommandParameter="{Binding}" IsVisible="{Binding HasOwnedDataAdapter}"/>
