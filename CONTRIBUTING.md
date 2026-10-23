@@ -20,7 +20,9 @@ python -m unittest discover -s tests -v
 
 Use the restricted preview server rather than exposing the repository root or a public tunnel.
 
-Full developer QA uses Python 3.12+, the pinned development dependencies and Chromium:
+Full developer QA uses Python 3.12+, the pinned development dependencies and Chromium.
+The native-branding Python regression also requires `rsvg-convert` (librsvg) in
+the test environment; it is not included in the Python dependency file:
 
 ```sh
 python -m pip install -r requirements-dev.txt

@@ -26,7 +26,8 @@ public sealed class DiscoverVisualRenderingTests(SharedCatalogRenderer renderer)
     [InlineData(1100, 760, true, 200, false)]
     [InlineData(1280, 860, false, 100, true)]
     [InlineData(750, 490, true, 100, true)]
-    public async Task Discover_preserves_catalog_controls_and_bound_synthetic_art(int width, int height, bool light, int scale, bool tabs)
+    [InlineData(750, 490, false, 100, false, true)]
+    public async Task Discover_preserves_catalog_controls_and_bound_synthetic_art(int width, int height, bool light, int scale, bool tabs, bool deferredImage = false)
     {
         await renderer.Session.Dispatch<int>(async () =>
         {
@@ -46,7 +47,7 @@ public sealed class DiscoverVisualRenderingTests(SharedCatalogRenderer renderer)
                 }
                 Marshal.Copy(bytes, 0, pixels.Address, bytes.Length);
             }
-            var loader = new FixtureImages(tile); ImageLoader.AsyncImageLoader = loader;
+            var loader = new FixtureImages(tile, deferredImage); ImageLoader.AsyncImageLoader = loader;
             var store = new Store(); store.Current.AppsPath = Path.Combine(root, "Apps");
             store.Current.PrimaryColor = light ? "#e5e5e5" : "#18181b"; store.Current.InterfaceScalePercent = scale;
             if (tabs) store.Current.CustomAppListLocation = Path.Combine(root, "synthetic-app-list.json");
@@ -90,10 +91,16 @@ public sealed class DiscoverVisualRenderingTests(SharedCatalogRenderer renderer)
                 try
                 {
                     if (art.Source != null) imageReady.TrySetResult();
+                    loader.CompletePending();
                     await imageReady.Task.WaitAsync(TimeSpan.FromSeconds(10));
                 }
                 finally { art.PropertyChanged -= ImageChanged; }
-                Assert.Same(tile, art.Source); Assert.True(art.Bounds.Width > 0); Assert.True(art.Bounds.Height >= 180);
+                // Source binding completion can invalidate layout after the earlier
+                // selection scroll. Measure that completed binding, not stale bounds.
+                window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
+                Assert.Same(tile, art.Source);
+                Assert.True(art.Bounds.Width > 0, $"Artwork width: {art.Bounds.Width}");
+                Assert.True(art.Bounds.Height >= 180, $"Artwork height: {art.Bounds.Height}");
                 Assert.True(cards[0].FindControl<Button>("BrowseCardAddButton")!.Bounds.Height >= 44);
                 Assert.Equal("Find your next replay.", browse.FindControl<TextBlock>("DiscoverEditorialTitle")!.Text);
                 Assert.Contains("https://fixture.invalid/cover-0.png", loader.Requests);
@@ -137,10 +144,13 @@ public sealed class DiscoverVisualRenderingTests(SharedCatalogRenderer renderer)
             return 0;
         }, TestContext.Current.CancellationToken);
     }
-    sealed class FixtureImages(Bitmap image) : IAsyncImageLoader
+    sealed class FixtureImages(Bitmap image, bool deferred) : IAsyncImageLoader
     {
         public List<string> Requests { get; } = [];
-        public Task<Bitmap?> ProvideImageAsync(string url) { Requests.Add(url); return Task.FromResult<Bitmap?>(image); }
+        private readonly TaskCompletionSource<Bitmap?> _pending = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public Task<Bitmap?> ProvideImageAsync(string url)
+        { Requests.Add(url); return deferred ? _pending.Task : Task.FromResult<Bitmap?>(image); }
+        public void CompletePending() => _pending.TrySetResult(image);
         public void Dispose() { }
     }
     sealed class NoNetwork : HttpMessageHandler
