@@ -644,3 +644,11 @@ real licensed game artwork, not a gameplay screenshot or proof the game is
 installed. Custom player images retain priority. See [artwork provenance and
 limitations](../docs/ARTWORK.md#reviewed-taisei-portrait). Other games continue to
 use their eligible catalog imagery or honest icon fallback.
+
+### Returning from Settings
+
+Closing Settings with its sidebar button restores the main navigation zone and
+keyboard/controller hints, just as the in-panel Close action does. Repeated
+open/close interactions also ignore an opening focus callback that arrives after
+the panel has closed. This source-level interaction check does not certify
+physical controllers or platform accessibility APIs.
