@@ -6,6 +6,39 @@ Relicade's native development source includes package-bound local setup
 flows. It is not a packaged release, gameplay certification or complete catalog
 setup support.
 
+## Before you play
+
+Discover's project Overview explains known game-file requirements before a player
+adds or downloads the project. The compiled guidance distinguishes z2rs and Perfect
+Dark's player-supplied data, UZDoom's optional free Freedoom path, and a complete
+Taisei package. Unreviewed projects explicitly say that their requirements have
+not been reviewed and point to the upstream README. Advice is not a readiness
+check, catalog approval, or a new download provider. Existing install, consent,
+launch and local-data validation remain authoritative; manual setup is not blocked.
+
+A **Setup guide** action appears only once a recognized project is resolved. It
+opens this guide explicitly and participates in the existing keyboard/controller
+navigation. It does not start an installation or fetch game files. The advice
+lists supported package/platform limits rather than claiming that every version
+of a project supports guided setup.
+
+For [Taisei v1.4.6](https://github.com/taisei-project/taisei/releases/tag/v1.4.6),
+the [pinned upstream README](https://github.com/taisei-project/taisei/blob/5bfc9b842fe6d9bb8d1610f76f442ba07c72c4cf/README.rst)
+describes a complete game. Its Linux x64 tar.xz package includes its executable
+and game data, so that package does not require a separate original-game ROM.
+Static content inspection and local-transport installation do not establish
+runtime compatibility or complete third-party notice/asset-rights coverage.
+The [upstream notice](https://github.com/taisei-project/taisei/blob/5bfc9b842fe6d9bb8d1610f76f442ba07c72c4cf/COPYING.txt)
+distinguishes software, music, portraits and historical background photographs;
+its incomplete historical photo-source list and embedded dependency coverage
+remain unresolved. No distribution clearance or new automatic provider is implied.
+Relicade does not relocate the game's existing storage/configuration paths.
+[Native interaction tests](../native/Relicade.Tests/ProjectSetupGuidanceTests.cs)
+cover visible advice, source mismatch, page changes and explicit keyboard/controller
+guide navigation. [Separate native rendering tests](../native/Relicade.Tests/RealRender/ProjectSetupGuidanceRenderingTests.cs)
+check readable normal/minimum/scaled layouts with controlled metadata. These are
+source checks, not new feature/platform acceptance records.
+
 ## Download integrity and catalog approval
 
 A catalog's release approval is separate from verification of a selected download's
