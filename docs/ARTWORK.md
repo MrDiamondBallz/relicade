@@ -114,7 +114,8 @@ not change the rights in Relicade's original material.
 
 The shipped representation is 960 × 540 pixels and 236,501 encoded bytes. Its
 exact hash, PNG header and dimensions are checked before decoding. Only the
-compiled resource and exact catalog ID/slug select it in Discover. Library use
+compiled resource and exact catalog ID/slug select it in Discover and its app
+details header. Library use
 also requires the matching GitHub project and unchanged icon binding. A remote
 catalog field cannot opt another game into this bundled image.
 
@@ -122,8 +123,11 @@ Discover Add retains that reference through the ordinary library save/load
 path. The shared local loader can resolve it while offline, without an image
 provider request or another disk cache. The player's custom image still wins;
 changed identity, a rejected resource or a cancelled late result keeps the
-existing icon fallback. Both views retain the artist, license, original source
-and transformation credit in the image tooltip. This one reviewed portrait is
+existing icon fallback. The catalog card, app details header and library retain the artist, license,
+original source and transformation credit in the image tooltip. The details
+header also exposes that credit as accessibility help text and clears it when
+showing another entry or an original-game page. Existing unreviewed artwork
+fallbacks are unchanged. This one reviewed portrait is
 not full catalog artwork coverage, installation evidence or gameplay evidence.
 Other remote cover references retain the limitations described above.
 

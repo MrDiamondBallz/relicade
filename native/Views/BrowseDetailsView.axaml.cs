@@ -230,11 +230,18 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
         var entry = Model.Entry;
         _libraryApp = entry == null ? null : _findInLibrary(entry);
 
-        var hero = FirstText(app?.LibraryArt?.Hero, app?.LibraryArt?.Header);
+        // Keep the explicitly reviewed catalog portrait consistent with its Discover card.
+        // This override requires the exact catalog identity; unknown entries retain their existing art fallback.
+        var reviewedArt = app == null ? null : ReviewedGameArtwork.ForEntry(app);
+        var credit = reviewedArt == null ? null : ReviewedGameArtwork.TaiseiAttribution;
+        ToolTip.SetTip(BrowseDetailsArtHost, credit);
+        ToolTip.SetTip(BrowseDetailsHero, credit);
+        Avalonia.Automation.AutomationProperties.SetHelpText(BrowseDetailsArtHost, credit);
+        var hero = reviewedArt ?? FirstText(app?.LibraryArt?.Hero, app?.LibraryArt?.Header);
         AsyncImageLoader.ImageLoader.SetSource(BrowseDetailsHero, LauncherArtworkLoader.FullSize(hero));
         BrowseDetailsHero.IsVisible = hero != null;
         AsyncImageLoader.ImageLoader.SetSource(BrowseDetailsArt, app == null ? entry?.GameIconUrl
-            : FirstText(app.ArtworkFromGame ? null : app.Artwork, app.LibraryArt?.Logo, app.LibraryArt?.Capsule, app.Artwork, app.LibraryArt?.Header));
+            : reviewedArt ?? FirstText(app.ArtworkFromGame ? null : app.Artwork, app.LibraryArt?.Logo, app.LibraryArt?.Capsule, app.Artwork, app.LibraryArt?.Header));
         BrowseDetailsKind.Text = item?.Kind.Replace(" · ", " / ").ToUpperInvariant();
         BrowseDetailsTitle.Text = item?.Title;
         BrowseDetailsTagline.Text = app?.Description;
@@ -314,6 +321,9 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
     /// <summary>A game's page: the game over its artwork, then every app that plays it, best first.</summary>
     private void RefreshGame()
     {
+        ToolTip.SetTip(BrowseDetailsArtHost, null);
+        ToolTip.SetTip(BrowseDetailsHero, null);
+        Avalonia.Automation.AutomationProperties.SetHelpText(BrowseDetailsArtHost, null);
         var game = _game?.Game;
         var art = game?.LibraryArt;
         var hero = FirstText(art?.Hero, art?.Header);

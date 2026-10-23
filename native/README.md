@@ -638,7 +638,7 @@ open. It does not provide Flatpak or ARM64 packaging acceptance.
 
 ### One reviewed local game portrait
 
-Taisei Project's catalog card and saved library entry can display a bounded,
+Taisei Project's catalog card, app details header and saved library entry can display a bounded,
 credited afensorm character portrait without an image-provider request. This is
 real licensed game artwork, not a gameplay screenshot or proof the game is
 installed. Custom player images retain priority. See [artwork provenance and
