@@ -660,3 +660,8 @@ optional free-data setup and a complete-game package from unreviewed requirement
 Known advice states its package/platform limits and offers an explicit Setup guide
 link. It does not start a download, change launch eligibility or treat installation
 as gameplay acceptance. See [Before you play](../docs/GAME_SETUP.md#before-you-play).
+
+The guide interaction tests inject the host URL opener as well as HTTP transport.
+They verify the actual keyboard/controller action and requested destination
+without invoking a desktop browser. The normal host still uses the operating-system
+URL launcher; headless interaction results do not certify that external handoff.

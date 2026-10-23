@@ -64,6 +64,18 @@ public sealed class ProjectSetupGuidanceTests
         }
         else fixture.Details.Confirm();
         Assert.Equal(ProjectSetupGuidance.GuideUrl, Assert.Single(urls));
+        Assert.Equal(ProjectSetupGuidance.GuideUrl, Assert.Single(fixture.OpenedUrls));
+        Assert.Empty(fixture.Manager.LibraryApps); Assert.False(app.IsInstalled);
+    }
+
+    [AvaloniaFact]
+    public async Task Host_url_boundary_also_handles_the_existing_repository_action()
+    {
+        await using var fixture = new Fixture();
+        using var app = new GameInfo { Name = "Synthetic project", FolderName = "Fixture", Repository = "troyedwardsjr/z2rs", RepositorySource = "github" };
+        fixture.Open(app);
+        fixture.Details.FindControl<Button>("BrowseDetailsRepositoryButton")!.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+        Assert.Equal("https://github.com/troyedwardsjr/z2rs", Assert.Single(fixture.OpenedUrls));
         Assert.Empty(fixture.Manager.LibraryApps); Assert.False(app.IsInstalled);
     }
 
@@ -84,6 +96,7 @@ public sealed class ProjectSetupGuidanceTests
         var urls = new List<string>(); fixture.Details.OpenUrlRequested += urls.Add;
         guide.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
         Assert.Empty(urls);
+        Assert.Empty(fixture.OpenedUrls);
     }
 
     [Theory]
@@ -115,7 +128,7 @@ public sealed class ProjectSetupGuidanceTests
             var store = Settings; store.Current.AppsPath = Path.Combine(root, "Apps");
             http = new HttpClient(Network);
             Manager = new GameManager(store, http, new AppCatalogService(dataDirectory: root)) { UiThreadInvoker = action => Dispatcher.UIThread.InvokeAsync(action).GetTask() };
-            View = new MainView(new() { SettingsStore = store, GameManager = Manager, InitializeOnOpen = false, EnableInput = false, EnableMusic = false });
+            View = new MainView(new() { SettingsStore = store, GameManager = Manager, OpenExternalUrl = OpenedUrls.Add, InitializeOnOpen = false, EnableInput = false, EnableMusic = false });
             Window = new Window { Content = View, Width = 1280, Height = 860 };
             Details = View.FindControl<BrowseDetailsView>("BrowseDetailsPanel")!;
             Window.Show(); Dispatcher.UIThread.RunJobs();
@@ -127,6 +140,7 @@ public sealed class ProjectSetupGuidanceTests
             typeof(MainView).GetMethod("OpenBrowseDetails", BindingFlags.Instance | BindingFlags.NonPublic, [typeof(BrowseItem), typeof(bool)])!.Invoke(View, [BrowseItem.FromList(app), false]);
             Window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
         }
+        internal List<string> OpenedUrls { get; } = [];
         public async ValueTask DisposeAsync()
         {
             Window.Close(); await View.ShutdownAsync(); Manager.Dispose(); http.Dispose();
