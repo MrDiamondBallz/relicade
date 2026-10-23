@@ -138,6 +138,15 @@ The confirmed path reuses unchanged private journal/commit primitives; existing
 context-free Rollback and cleanup schemas/algorithms remain unchanged. Current
 declared data is staged with retained immutable payload, not an older save snapshot.
 
+Committed-result observation also captures executable and asset identity under
+the existing rollback authority. The model can publish that snapshot to the same
+captured, unchanged live Library entry on the dispatcher; it does not invoke the
+general status loader, recover, read files, save selection or contact providers.
+Closed participation and changed entry/root/version/selection/status context
+suppress publication without relabeling the disk commit as a transaction failure.
+Owned-data readiness is invalidated rather than inferred from restored engine
+metadata. In-memory release preferences still determine update availability.
+
 A session-owned rollback flow/model/dialog captures the key before awaits,
 performs hash/copy work off the dispatcher, defaults to Cancel and applies only
 the displayed immutable digest. All identity/path/hash/limit text has inert,

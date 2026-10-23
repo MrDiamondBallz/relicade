@@ -22,12 +22,14 @@ internal sealed class PortableRollbackPreview
 
 internal sealed class PortableRollbackResult
 {
-    internal PortableRollbackResult(string hash, string operation, string version, bool completed)
-    { PlanSha256 = hash; ActualOperationId = operation; ActualVersion = version; Completed = completed; }
+    internal PortableRollbackResult(string hash, string operation, string version, bool completed, string? executable = null, string? assetIdentity = null)
+    { PlanSha256 = hash; ActualOperationId = operation; ActualVersion = version; Completed = completed; ActualExecutable = executable; ActualAssetIdentity = assetIdentity; }
     public string PlanSha256 { get; }
     public string ActualOperationId { get; }
     public string ActualVersion { get; }
     public bool Completed { get; }
+    public string? ActualExecutable { get; }
+    public string? ActualAssetIdentity { get; }
 }
 
 public sealed partial class PortableInstallationTransaction
@@ -118,7 +120,7 @@ public sealed partial class PortableInstallationTransaction
         var actual = ReadManifest(root, true) ?? throw new IOException("No complete live manifest observed.");
         ValidateCommittedIdentity(actual);
         if (actual.OperationId != id || actual.SelectedVersion != version) throw new IOException("The requested rollback is not confirmed committed.");
-        return new(hash, actual.OperationId, actual.SelectedVersion, true);
+        return new(hash, actual.OperationId, actual.SelectedVersion, true, actual.SelectedExecutable, actual.AssetIdentity);
     }
 
     IDisposable AcquireRollbackAuthority(string? alternativeRoot)

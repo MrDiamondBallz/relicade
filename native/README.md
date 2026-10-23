@@ -280,6 +280,13 @@ uninstall or general retention is provided. Unknown/pending/corrupt/linked/share
 or uncertain launch/mod history refuses without repair. Settings/library evidence
 is read without Load/Save, credential initialization or live object replacement.
 
+After a confirmed restore, the same unchanged Library entry receives the observed
+version, executable and package identity without a status reload or network check.
+Cached game-data readiness is cleared: use **Finish game setup** to revalidate
+retained files before Play. An entry changed or replaced while restoration runs is
+not overwritten, and closing the dialog prevents late updates. A committed disk
+restore remains a success even when that later Library update is refused.
+
 Hashing/copying runs off the UI thread. Cancel requests a safe stop, not an
 immediate SLA; activation after durable Applying finishes noninterruptibly.
 Closing a session revokes UI participation and drains work before dependencies

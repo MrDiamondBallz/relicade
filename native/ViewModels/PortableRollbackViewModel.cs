@@ -12,6 +12,7 @@ internal sealed class PortableRollbackViewModel : ObservableViewModel
     readonly Func<PortableRollbackPreview> preview;
     readonly Func<string, CancellationToken, PortableRollbackResult> apply;
     readonly CancellationTokenSource participation;
+    readonly Func<Func<PortableRollbackResult, bool>>? captureLibraryState;
     CancellationTokenSource? applying;
     bool busy, closed;
     internal string InstanceKey { get; }
@@ -24,8 +25,9 @@ internal sealed class PortableRollbackViewModel : ObservableViewModel
     internal bool CanApply => !IsClosed && !busy && State == PortableRollbackUiState.Ready && Plan != null;
     internal bool CanPreview => !IsClosed && !busy && State == PortableRollbackUiState.Error;
 
-    internal PortableRollbackViewModel(LauncherSession session, GameManager manager, string instanceKey)
-        : this(session, instanceKey, () => PortableRollbackService.Preview(manager, instanceKey), (hash, token) => PortableRollbackService.Apply(manager, instanceKey, hash, token)) { }
+    internal PortableRollbackViewModel(LauncherSession session, GameManager manager, string instanceKey, Func<string, CancellationToken, PortableRollbackResult>? applyOverride = null)
+        : this(session, instanceKey, () => PortableRollbackService.Preview(manager, instanceKey), applyOverride ?? ((hash, token) => PortableRollbackService.Apply(manager, instanceKey, hash, token)))
+    { captureLibraryState = () => PortableRollbackLibraryState.Capture(manager, instanceKey); }
     internal PortableRollbackViewModel(LauncherSession session, string instanceKey, Func<PortableRollbackPreview> preview, Func<string, CancellationToken, PortableRollbackResult> apply)
     {
         this.session = session; InstanceKey = instanceKey; this.preview = preview; this.apply = apply;
@@ -55,6 +57,7 @@ internal sealed class PortableRollbackViewModel : ObservableViewModel
         Dispatcher.UIThread.VerifyAccess();
         if (!CanApply) return Task.CompletedTask;
         var hash = Plan!.PlanSha256;
+        var publishLibraryState = captureLibraryState?.Invoke();
         busy = true; State = PortableRollbackUiState.Applying;
         Message = "Restoring retained payload while keeping CURRENT declared data… Cancellation is honored at safe boundaries; activation may finish safely after cancellation.";
         applying = CancellationTokenSource.CreateLinkedTokenSource(participation.Token);
@@ -69,6 +72,15 @@ internal sealed class PortableRollbackViewModel : ObservableViewModel
                     Result = result; State = result.Completed ? PortableRollbackUiState.Completed : PortableRollbackUiState.Error;
                     Message = result.Completed ? $"Confirmed committed: {result.ActualVersion} · operation {result.ActualOperationId}. Current declared data retained; save compatibility is not guaranteed." :
                         "Incomplete or unknown outcome. Transaction-internal recovery may already have run; inspect transaction evidence. No new repair, resume or retry is initiated by this dialog.";
+                    if (result.Completed && publishLibraryState != null)
+                    {
+                        // Disk commit and UI publication are distinct outcomes. Never
+                        // turn a committed restore into a transaction failure here.
+                        bool published;
+                        try { published = result.PlanSha256 == hash && publishLibraryState(result); }
+                        catch { published = false; }
+                        if (!published) Message += " Library state changed while restoring; its newer state was not replaced. Reopen the entry to inspect it.";
+                    }
                 });
             }
             catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }
