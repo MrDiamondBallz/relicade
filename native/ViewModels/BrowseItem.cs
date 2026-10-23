@@ -38,6 +38,8 @@ public sealed class BrowseItem : ObservableViewModel, IBrowseCard
     public string Title { get; }
     public string Subtitle { get; }
     public string? ImageUrl { get; }
+    public string ArtworkSource => App != null && ReviewedGameArtwork.ForEntry(App) == ImageUrl
+        ? ReviewedGameArtwork.TaiseiAttribution : "";
     public string Kind { get; }
     public bool HasSubtitle => Subtitle.Length > 0;
     public bool HasKind => Kind.Length > 0;
@@ -140,7 +142,7 @@ public sealed class BrowseItem : ObservableViewModel, IBrowseCard
         var cardKind = tags.Count > 0 ? string.Join(" · ", tags) : string.Join(" · ", kind);
         var basedOn = app.Games.Select(g => g.Title).Where(t => !string.IsNullOrWhiteSpace(t)).ToList();
         return new(app, null, FirstText(app.ProjectName, app.Name), games.Length > 0 ? games : app.Name,
-            FirstText(art?.Header, art?.Capsule, app.Artwork), string.Join(" · ", kind), cardKind, basedOn);
+            ReviewedGameArtwork.ForEntry(app) ?? CatalogImage(art?.Header, art?.Capsule, app.Artwork), string.Join(" · ", kind), cardKind, basedOn);
     }
 
     public static BrowseItem FromList(GameInfo app)
@@ -150,6 +152,9 @@ public sealed class BrowseItem : ObservableViewModel, IBrowseCard
         var kind = string.Join(" · ", app.Tags.Take(2));
         return new(null, app, title, subtitle, FirstText(app.GameIconUrl), kind, kind, subtitle.Length > 0 ? [subtitle] : []);
     }
+
+    private static string CatalogImage(params string?[] values) => FirstText(values
+        .Where(v => v == null || !v.TrimStart().StartsWith("avares:", StringComparison.OrdinalIgnoreCase)).ToArray());
 
     private static string FirstText(params string?[] values) =>
         values.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v))?.Trim() ?? "";

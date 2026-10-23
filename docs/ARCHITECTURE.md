@@ -403,6 +403,12 @@ bind the effective image and its attribution without changing primary actions.
 This reuses the existing image transport, not a new security-certified downloader;
 see [native artwork scope](ARTWORK.md#native-library-cover-references).
 
+One compiled, hash/dimension-bound Taisei portrait has a separate reviewed local
+resource path and exact catalog/project identity. It uses the same cover record,
+custom-image priority and shared loader but needs no image-provider request.
+The bundled notice records artist, source, license and deterministic crop/resize;
+see [reviewed portrait scope](ARTWORK.md#reviewed-taisei-portrait).
+
 
 ## Development Linux container assembly
 

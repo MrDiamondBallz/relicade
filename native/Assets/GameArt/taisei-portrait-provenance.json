@@ -1,0 +1,37 @@
+{
+  "source_repository": "https://github.com/taisei-project/taisei-rawmedia",
+  "source_commit": "d3dd520f3f1a18ee958cd60d4bf2c88ea93530c6",
+  "source_path": "gfx/dialog/afens/elly.kra",
+  "source_blob": "4082369a491583c6866a190451925535e250af2e",
+  "original_kra_sha256": "98e3ec0ba7ea7a7b46b25eba132f947f4f7287f21cb6d012c62cc1d192825b72",
+  "original_merged_png_sha256": "12488c6a79291f8e8c044c54b8d5b324ad1d67843042b8bc5be499dab3824238",
+  "original_pixels": [
+    2500,
+    3072
+  ],
+  "derivative_pixels": [
+    960,
+    540
+  ],
+  "derivative_sha256": "bafc99557dda5099707cd16ce61aef271d19db99e8e457914e70838ef998df35",
+  "derivative_bytes": 236501,
+  "transformation": {
+    "crop_rectangle": [
+      0,
+      0,
+      2500,
+      1406
+    ],
+    "resize": "Pillow LANCZOS to 960 x 540",
+    "color_changes": false,
+    "generated_content": false
+  },
+  "artist": "afensorm",
+  "specific_license": "CC-BY4.0, portraits clause in pinned main project COPYING.txt",
+  "license_source_commit": "5668c41b41f7227d21fc80cf56997d4d30356ce7",
+  "limitations": "Original artist portrait, not gameplay screenshot. Raw-media general MIT notice retained alongside specific commissioned-portrait CC-BY attribution. No engine execution.",
+  "notice": "taisei-portrait-NOTICE.txt",
+  "catalog_entry_id": "k177mxt12q61yv9fsvf6wvh1pn8f4n2n",
+  "repository": "taisei-project/taisei",
+  "pillow_version": "12.3.0"
+}

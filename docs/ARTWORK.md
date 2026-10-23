@@ -84,8 +84,36 @@ priority. Valid cached covers remain usable offline; missing/failed covers fall
 back to the project icon. The encoded-file limit is not a decoded-pixel or
 memory budget. The broader transport, redirect, DNS, pixel, atomic-cache and
 rights-review obligations below remain open; this change does not certify them.
-Synthetic image fixtures exercise mapping, persistence, fallback and native
-layouts without downloading or bundling third-party game pixels.
+Synthetic image fixtures exercise remote-cover mapping, persistence, fallback
+and native layouts without requesting third-party game pixels. The separately
+reviewed local portrait below has its own exact provenance and rights scope.
+
+## Reviewed Taisei portrait
+
+The exact Taisei Project catalog entry has one bundled, credited portrait by
+**afensorm**, commissioned for that game and identified under CC BY 4.0 in the
+[pinned upstream credits](https://github.com/taisei-project/taisei/blob/5668c41b41f7227d21fc80cf56997d4d30356ce7/COPYING.txt).
+The [artwork notice](../native/Assets/GameArt/taisei-portrait-NOTICE.txt) records
+the original Krita source, artist, license, crop/resize and lack of endorsement.
+The [provenance record](../native/Assets/GameArt/taisei-portrait-provenance.json)
+binds the original and derivative hashes. This is the artist's character
+portrait, not a gameplay screenshot or generated game scene. Its license does
+not change the rights in Relicade's original material.
+
+The shipped representation is 960 × 540 pixels and 236,501 encoded bytes. Its
+exact hash, PNG header and dimensions are checked before decoding. Only the
+compiled resource and exact catalog ID/slug select it in Discover. Library use
+also requires the matching GitHub project and unchanged icon binding. A remote
+catalog field cannot opt another game into this bundled image.
+
+Discover Add retains that reference through the ordinary library save/load
+path. The shared local loader can resolve it while offline, without an image
+provider request or another disk cache. The player's custom image still wins;
+changed identity, a rejected resource or a cancelled late result keeps the
+existing icon fallback. Both views retain the artist, license, original source
+and transformation credit in the image tooltip. This one reviewed portrait is
+not full catalog artwork coverage, installation evidence or gameplay evidence.
+Other remote cover references retain the limitations described above.
 
 ## Player controls and image completeness
 

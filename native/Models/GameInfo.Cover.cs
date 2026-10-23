@@ -30,7 +30,8 @@ public partial class GameInfo
     [JsonIgnore]
     public string CardArtworkSource => !HasCustomIcon && _catalogCover?.Matches(this) == true &&
         _resolvedCatalogCover != null && (_resolvedCatalogCover == _catalogCover.Url || File.Exists(_resolvedCatalogCover))
-        ? $"Game cover from SteamGridDB ({_catalogCover.Variant}). Source: {_catalogCover.Url}" : "";
+        ? (ReviewedGameArtwork.IsReference(_catalogCover.EntryId, _catalogCover.Url, _catalogCover.Variant)
+            ? ReviewedGameArtwork.TaiseiAttribution : $"Game cover from SteamGridDB ({_catalogCover.Variant}). Source: {_catalogCover.Url}") : "";
 
     private void NotifyCardArtwork()
     {
@@ -43,6 +44,21 @@ public partial class GameInfo
         var cover = _catalogCover;
         if (cover?.Matches(this) != true || HasCustomIcon) return;
         cancellationToken.ThrowIfCancellationRequested();
+        if (ReviewedGameArtwork.IsReference(cover.EntryId, cover.Url, cover.Variant))
+        {
+            // Embedded, reviewed art needs no provider/cache request, including offline Add.
+            Bitmap? image = null;
+            try { image = await AsyncImageLoader.ImageLoader.AsyncImageLoader.ProvideImageAsync(cover.Url).WaitAsync(cancellationToken); }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+            catch (Exception ex) when (ex is InvalidDataException or IOException or ArgumentException or InvalidOperationException or NotSupportedException) { }
+            cancellationToken.ThrowIfCancellationRequested();
+            if (_catalogCover == cover && cover.Matches(this) && !HasCustomIcon)
+            {
+                _resolvedCatalogCover = image == null ? null : cover.Url;
+                NotifyCardArtwork();
+            }
+            return;
+        }
         var sharedPaths = new[] { LauncherArtworkLoader.CardUrl(cover.Url), cover.Url }
             .Distinct().Select(url => LauncherArtworkLoader.CachedPath(cacheDirectory, url));
         var retainedInvalidCache = false;

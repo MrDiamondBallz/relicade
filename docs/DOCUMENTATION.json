@@ -32,7 +32,7 @@
         "contracts"
       ],
       "reviewed": {
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -51,10 +51,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "43206fde4e0c4b90ce72c54f245f657330880e335909b1ad7b608e138843c5e0",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -73,10 +73,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "43206fde4e0c4b90ce72c54f245f657330880e335909b1ad7b608e138843c5e0",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -91,10 +91,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "43206fde4e0c4b90ce72c54f245f657330880e335909b1ad7b608e138843c5e0",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -129,10 +129,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "43206fde4e0c4b90ce72c54f245f657330880e335909b1ad7b608e138843c5e0",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -147,7 +147,7 @@
       "reviewed": {
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "43206fde4e0c4b90ce72c54f245f657330880e335909b1ad7b608e138843c5e0",
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -159,7 +159,7 @@
         "contracts"
       ],
       "reviewed": {
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
@@ -172,7 +172,7 @@
         "contracts"
       ],
       "reviewed": {
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -189,8 +189,8 @@
       ],
       "reviewed": {
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -204,10 +204,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "43206fde4e0c4b90ce72c54f245f657330880e335909b1ad7b608e138843c5e0",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -222,10 +222,10 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "43206fde4e0c4b90ce72c54f245f657330880e335909b1ad7b608e138843c5e0",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -242,9 +242,9 @@
         "tooling"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -270,7 +270,7 @@
       "reviewed": {
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "43206fde4e0c4b90ce72c54f245f657330880e335909b1ad7b608e138843c5e0",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -292,7 +292,7 @@
         "native"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -303,7 +303,7 @@
         "contracts"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -431,8 +431,8 @@
         "tooling"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -447,8 +447,8 @@
         "tooling"
       ],
       "reviewed": {
-        "native": "8d39dfb8f2146cef29e132cea9074f980d12f909b8b6d25656db9fe5a4259db8",
-        "tooling": "42817d7cf8fe99820465244180172341a0c4fbd7796e7274fb3195b7b3053918",
+        "native": "ccabf6f26b32d4e63d8a363b525f26a1a620fc1ec5b533336b45bc67420b9e46",
+        "tooling": "1d647d15fe05e1d3d3a9ca3bc33e387546e29fc59eea1c696beca21421f4fd62",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -463,6 +463,10 @@
     "native/packaging/linux/runtime-notices/type2-runtime-LICENSE.txt": {
       "policy": "protected",
       "sha256": "aa154fc9070614bbe7921f89db11efd1dba7a1f3a41685958110e2230f9c0ca1"
+    },
+    "native/Assets/GameArt/taisei-portrait-NOTICE.txt": {
+      "policy": "protected",
+      "sha256": "0cc341ad76fcb4c63bc550d325fb61a1bf08abc2492ad2dde2d8908f5763abe7"
     }
   },
   "protected_files": {

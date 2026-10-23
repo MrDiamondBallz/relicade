@@ -635,3 +635,12 @@ explicitly pinned local build tools. Existing output paths are not replaced.
 This is separate from supported-platform and release acceptance: actual desktop,
 FUSE, installation/upgrade, gameplay and AppImage-runtime rights checks remain
 open. It does not provide Flatpak or ARM64 packaging acceptance.
+
+### One reviewed local game portrait
+
+Taisei Project's catalog card and saved library entry can display a bounded,
+credited afensorm character portrait without an image-provider request. This is
+real licensed game artwork, not a gameplay screenshot or proof the game is
+installed. Custom player images retain priority. See [artwork provenance and
+limitations](../docs/ARTWORK.md#reviewed-taisei-portrait). Other games continue to
+use their eligible catalog imagery or honest icon fallback.

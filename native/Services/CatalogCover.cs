@@ -9,7 +9,8 @@ namespace Relicade.Services;
 /// <summary>A catalog's game-cover reference, separate from the project's own icon.</summary>
 public sealed record CatalogCover(string EntryId, string Url, string? IconUrl, string Variant)
 {
-    // Only the established public image provider's static grid files are eligible.
+    // Remote references are limited to the established provider's static grid files.
+    // One separately reviewed compiled portrait is matched by exact identity below.
     // This is URL validation, not a grant of artwork rights or publisher verification.
     private static readonly Regex Grid = new(
         @"\Ahttps://cdn2\.steamgriddb\.com/grid/[a-fA-F0-9]{32}\.(?:png|jpg|jpeg|webp)\z",
@@ -17,15 +18,19 @@ public sealed record CatalogCover(string EntryId, string Url, string? IconUrl, s
 
     [JsonIgnore]
     public bool IsValid => !string.IsNullOrWhiteSpace(EntryId) && EntryId.Length <= 256 &&
-        EntryId == EntryId.Trim() && Variant is "header" or "capsule" &&
-        Url is { Length: <= 256 } && Grid.IsMatch(Url);
+        EntryId == EntryId.Trim() &&
+        (ReviewedGameArtwork.IsReference(EntryId, Url, Variant) ||
+         (Variant is "header" or "capsule" && Url is { Length: <= 256 } && Grid.IsMatch(Url)));
 
     public bool Matches(GameInfo app) => IsValid &&
         string.Equals(EntryId, app.CatalogEntryId, StringComparison.Ordinal) &&
+        (!ReviewedGameArtwork.IsReference(EntryId, Url, Variant) || ReviewedGameArtwork.IsGame(app)) &&
         string.Equals(Text(IconUrl), Text(app.GameIconUrl), StringComparison.Ordinal);
 
     public static CatalogCover? FromEntry(QuiverCatalogApp entry)
     {
+        if (ReviewedGameArtwork.ForEntry(entry) is { } bundled)
+            return new(entry.Id, bundled, entry.ArtworkFromGame ? null : entry.Artwork, "portrait");
         foreach (var (url, variant) in new[] { (entry.LibraryArt?.Header, "header"), (entry.LibraryArt?.Capsule, "capsule") })
         {
             if (url == null) continue;

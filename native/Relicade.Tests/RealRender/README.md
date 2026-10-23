@@ -150,3 +150,10 @@ project-specific engine confirmation at normal/minimum size and 200% scaling.
 Its synthetic entry starts no download or game. Footer controller focus, the
 separate ROM-consent disclosure and visible geometry are checked independently
 of the injected installer and cancellation tests.
+
+`ReviewedArtworkRenderingTests` uses the actual Discover Add and Open in Library
+buttons with an injected catalog response for the exact Taisei entry. The bundled
+licensed portrait is decoded by the production loader, not replaced by a test
+bitmap. The library is genuinely added and saved but remains uninstalled; no
+game process is executed. Its subsequent cache-only reload makes no image
+provider request. These headless captures are not desktop/gameplay acceptance.

@@ -28,6 +28,7 @@ This inventory is generated from the explicit maintenance registry. Semantic rev
 | [docs/NATIVE_PACKAGE_CONTENTS.md](NATIVE_PACKAGE_CONTENTS.md) | review | native, tooling |
 | [docs/PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md) | review | native, preview, presentation, tooling, contracts |
 | [docs/ROADMAP.md](ROADMAP.md) | review | native, preview, presentation, tooling, contracts |
+| [native/Assets/GameArt/taisei-portrait-NOTICE.txt](../native/Assets/GameArt/taisei-portrait-NOTICE.txt) | protected |  |
 | [native/LICENSE](../native/LICENSE) | protected |  |
 | [native/README.md](../native/README.md) | review | native, contracts, tooling |
 | [native/Relicade.Tests/RealRender/README.md](../native/Relicade.Tests/RealRender/README.md) | review | native |

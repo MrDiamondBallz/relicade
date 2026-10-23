@@ -146,7 +146,7 @@ public sealed class LauncherArtworkLoader : DiskCachedWebImageLoader
 
     // AdvancedImage loads through this overload, which would open plain file paths at full size.
     protected override Task<Bitmap?> LoadAsync(string url, IStorageProvider? storageProvider) =>
-        IsFullSize(url) || File.Exists(url) || IsWeb(url) ? LoadAsync(url) : base.LoadAsync(url, storageProvider);
+        url == ReviewedGameArtwork.TaiseiUrl || IsFullSize(url) || File.Exists(url) || IsWeb(url) ? LoadAsync(url) : base.LoadAsync(url, storageProvider);
 
     private static bool IsWeb(string url) =>
         Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https";
@@ -155,6 +155,8 @@ public sealed class LauncherArtworkLoader : DiskCachedWebImageLoader
     {
         var fullSize = IsFullSize(url);
         if (fullSize) url = url[..^FullSizeMarker.Length];
+
+        if (url == ReviewedGameArtwork.TaiseiUrl) return Fit(ReviewedGameArtwork.LoadTaisei(), fullSize);
 
         // Local covers (custom covers and cached library icons) are plain paths; file:// URIs
         // (the window background) and app assets keep the default behaviour.
