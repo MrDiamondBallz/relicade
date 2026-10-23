@@ -1214,6 +1214,8 @@ namespace Relicade
                 SettingsPanel.Bindings.Cancel();
                 SettingsPanel.Navigation.ClearSettingsGamepadFocusClasses(SettingsPanel.Navigation.CollectSettingsFocusableControls());
                 SettingsPanel.Navigation.FocusIndex = -1;
+                _gamepadNavigation.ActiveZone = _navigationRouter.MainZone;
+                NotifyGamepadUiChanged();
             }
         }
 

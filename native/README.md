@@ -635,3 +635,11 @@ explicitly pinned local build tools. Existing output paths are not replaced.
 This is separate from supported-platform and release acceptance: actual desktop,
 FUSE, installation/upgrade, gameplay and AppImage-runtime rights checks remain
 open. It does not provide Flatpak or ARM64 packaging acceptance.
+
+### Returning from Settings
+
+Closing Settings with its sidebar button restores the main navigation zone and
+keyboard/controller hints, just as the in-panel Close action does. Repeated
+open/close interactions also ignore an opening focus callback that arrives after
+the panel has closed. This source-level interaction check does not certify
+physical controllers or platform accessibility APIs.
