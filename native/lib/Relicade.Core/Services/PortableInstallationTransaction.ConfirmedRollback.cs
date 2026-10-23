@@ -123,6 +123,26 @@ public sealed partial class PortableInstallationTransaction
         return new(hash, actual.OperationId, actual.SelectedVersion, true, actual.SelectedExecutable, actual.AssetIdentity);
     }
 
+    // Read-only publication guard: never Recover, create authority files, or mutate
+    // retained state. The caller runs this off the UI thread. Keep authority until
+    // the asynchronous dispatcher callback actually completes, including close.
+    internal async Task<bool> PublishObservedRollbackAsync(PortableRollbackResult expected,
+        Func<Task<bool>> publish, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(expected);
+        ArgumentNullException.ThrowIfNull(publish);
+        cancellationToken.ThrowIfCancellationRequested();
+        using var authority = AcquireRollbackAuthority(alternativeRoot: null);
+        // Reuse bounded strict history inspection only as an observation. Its
+        // derived plan hash is discarded; this method authorizes no transaction.
+        var current = InspectRollback(expected.PlanSha256).Current;
+        if (!expected.Completed || current.OperationId != expected.ActualOperationId ||
+            current.SelectedVersion != expected.ActualVersion || current.SelectedExecutable != expected.ActualExecutable ||
+            current.AssetIdentity != expected.ActualAssetIdentity) return false;
+        cancellationToken.ThrowIfCancellationRequested();
+        return await publish().ConfigureAwait(false);
+    }
+
     IDisposable AcquireRollbackAuthority(string? alternativeRoot)
     {
         if (options.IsSharedFolder) throw new IOException("Shared installations cannot authorize portable rollback.");

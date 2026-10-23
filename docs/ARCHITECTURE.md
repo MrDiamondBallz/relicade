@@ -139,13 +139,18 @@ context-free Rollback and cleanup schemas/algorithms remain unchanged. Current
 declared data is staged with retained immutable payload, not an older save snapshot.
 
 Committed-result observation also captures executable and asset identity under
-the existing rollback authority. The model can publish that snapshot to the same
-captured, unchanged live Library entry on the dispatcher; it does not invoke the
-general status loader, recover, read files, save selection or contact providers.
-Closed participation and changed entry/root/version/selection/status context
-suppress publication without relabeling the disk commit as a transaction failure.
-Owned-data readiness is invalidated rather than inferred from restored engine
-metadata. In-memory release preferences still determine update availability.
+the existing rollback authority. Before publishing, a worker reacquires the
+existing nonrecovering authority at the captured root and performs bounded
+read-only history/manifest inspection. Exact committed operation identity and
+metadata must still match; equal version strings alone are insufficient. That
+lease stays held until the awaited dispatcher callback finishes, including
+cancellation or close. The UI thread never acquires or waits synchronously on it.
+The callback publishes only to the same unchanged live Library entry, without
+status loading, recovery, selection saves or provider calls. Closed participation
+and changed entry/root/version/selection/status context suppress publication
+without relabeling the disk commit as a transaction failure. Owned-data readiness
+is invalidated rather than inferred from restored engine metadata. In-memory
+release preferences still determine update availability.
 
 A session-owned rollback flow/model/dialog captures the key before awaits,
 performs hash/copy work off the dispatcher, defaults to Cancel and applies only

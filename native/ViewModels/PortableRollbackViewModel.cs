@@ -12,7 +12,7 @@ internal sealed class PortableRollbackViewModel : ObservableViewModel
     readonly Func<PortableRollbackPreview> preview;
     readonly Func<string, CancellationToken, PortableRollbackResult> apply;
     readonly CancellationTokenSource participation;
-    readonly Func<Func<PortableRollbackResult, bool>>? captureLibraryState;
+    readonly Func<Func<PortableRollbackResult, Task<bool>>>? captureLibraryState;
     CancellationTokenSource? applying;
     bool busy, closed;
     internal string InstanceKey { get; }
@@ -27,7 +27,7 @@ internal sealed class PortableRollbackViewModel : ObservableViewModel
 
     internal PortableRollbackViewModel(LauncherSession session, GameManager manager, string instanceKey, Func<string, CancellationToken, PortableRollbackResult>? applyOverride = null)
         : this(session, instanceKey, () => PortableRollbackService.Preview(manager, instanceKey), applyOverride ?? ((hash, token) => PortableRollbackService.Apply(manager, instanceKey, hash, token)))
-    { captureLibraryState = () => PortableRollbackLibraryState.Capture(manager, instanceKey); }
+    { captureLibraryState = () => PortableRollbackLibraryState.Capture(manager, instanceKey, () => IsClosed, session.Token); }
     internal PortableRollbackViewModel(LauncherSession session, string instanceKey, Func<PortableRollbackPreview> preview, Func<string, CancellationToken, PortableRollbackResult> apply)
     {
         this.session = session; InstanceKey = instanceKey; this.preview = preview; this.apply = apply;
@@ -67,20 +67,22 @@ internal sealed class PortableRollbackViewModel : ObservableViewModel
             try
             {
                 var result = await Task.Run(() => apply(hash, cancellation.Token));
+                var published = true;
+                if (result.Completed && publishLibraryState != null)
+                {
+                    // A separate nonrecovering observation holds generation authority
+                    // through dispatcher publication. Failures here never undo or
+                    // relabel the transaction's already observed committed outcome.
+                    try { published = result.PlanSha256 == hash && await publishLibraryState(result); }
+                    catch { published = false; }
+                }
                 await UpdateAsync(() =>
                 {
                     Result = result; State = result.Completed ? PortableRollbackUiState.Completed : PortableRollbackUiState.Error;
                     Message = result.Completed ? $"Confirmed committed: {result.ActualVersion} · operation {result.ActualOperationId}. Current declared data retained; save compatibility is not guaranteed." :
                         "Incomplete or unknown outcome. Transaction-internal recovery may already have run; inspect transaction evidence. No new repair, resume or retry is initiated by this dialog.";
-                    if (result.Completed && publishLibraryState != null)
-                    {
-                        // Disk commit and UI publication are distinct outcomes. Never
-                        // turn a committed restore into a transaction failure here.
-                        bool published;
-                        try { published = result.PlanSha256 == hash && publishLibraryState(result); }
-                        catch { published = false; }
-                        if (!published) Message += " Library state changed while restoring; its newer state was not replaced. Reopen the entry to inspect it.";
-                    }
+                    if (result.Completed && !published)
+                        Message += " Library state changed or its generation could not be confirmed; newer entry state was not replaced. Reopen the entry to inspect it.";
                 });
             }
             catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }

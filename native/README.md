@@ -282,6 +282,9 @@ is read without Load/Save, credential initialization or live object replacement.
 
 After a confirmed restore, the same unchanged Library entry receives the observed
 version, executable and package identity without a status reload or network check.
+A separate nonrecovering, read-only generation check holds writer authority until
+the Library update finishes; a newer generation, even with identical version
+labels, prevents stale publication. This work stays off the UI thread.
 Cached game-data readiness is cleared: use **Finish game setup** to revalidate
 retained files before Play. An entry changed or replaced while restoration runs is
 not overwritten, and closing the dialog prevents late updates. A committed disk
