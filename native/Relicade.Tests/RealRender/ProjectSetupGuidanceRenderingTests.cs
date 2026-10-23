@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Relicade.Models;
 using Relicade.Services;
 using Relicade.ViewModels;
@@ -15,6 +16,9 @@ public sealed class ProjectSetupGuidanceRenderingTests(SharedCatalogRenderer ren
 {
     [Theory]
     [InlineData("troyedwardsjr/z2rs",1280,860,false,100)]
+    [InlineData("troyedwardsjr/z2rs",1280,860,true,100)]
+    [InlineData("troyedwardsjr/z2rs",750,490,false,100)]
+    [InlineData("troyedwardsjr/z2rs",1100,760,true,200)]
     [InlineData("troyedwardsjr/z2rs",750,490,true,100)]
     [InlineData("troyedwardsjr/z2rs",1100,760,false,200)]
     [InlineData("taisei-project/taisei",1280,860,false,100)]
@@ -55,9 +59,23 @@ public sealed class ProjectSetupGuidanceRenderingTests(SharedCatalogRenderer ren
                 Assert.InRange(top.Y, -1, scroll.Viewport.Height - panel.Bounds.Height + 1);
                 Assert.InRange(top.X, -1, scroll.Viewport.Width - panel.Bounds.Width + 1);
                 Assert.False(game.IsInstalled);Assert.Empty(manager.LibraryApps);
-                using var frame=window.CaptureRenderedFrame();Assert.NotNull(frame);
+                using var frame = await DetailsHeaderContrastRenderingTests.Frame(window);
                 var output=Environment.GetEnvironmentVariable("RELICADE_RENDER_OUTPUT");
                 if(!string.IsNullOrEmpty(output)) { Directory.CreateDirectory(output);using var file=new FileStream(Path.Combine(output,$"25-setup-advice-{repository.Replace('/','-')}-{width}x{height}-light-{light}-scale-{scale}.png"),FileMode.CreateNew,FileAccess.Write);frame.Save(file); }
+                var labels = panel.GetVisualDescendants().OfType<TextBlock>().ToArray();
+                Assert.Equal(3, labels.Length);
+                Assert.All(labels, label => Assert.False(string.IsNullOrWhiteSpace(label.Text)));
+                foreach (var label in labels) label.Opacity = 0;
+                using var background = await DetailsHeaderContrastRenderingTests.Frame(window);
+                foreach (var label in labels) label.Opacity = 1;
+                if (!string.IsNullOrEmpty(output))
+                {
+                    using var file = new FileStream(Path.Combine(output,
+                        $"25-setup-advice-{repository.Replace('/', '-')}-{width}x{height}-light-{light}-scale-{scale}-measurement-background.png"), FileMode.CreateNew, FileAccess.Write);
+                    background.Save(file);
+                }
+                foreach (var label in labels)
+                    DetailsHeaderContrastRenderingTests.CheckContrast(window, label, frame, background, 4.5, requireOpaqueCore: false);
             }
             finally {window.Close();await view.ShutdownAsync();RelicadePaths.OverrideUserDataRoot=previous;Directory.Delete(root,true);}
             return 0;

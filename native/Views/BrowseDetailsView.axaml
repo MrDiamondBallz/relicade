@@ -339,9 +339,9 @@
                                         BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="8"
                                         Padding="12" Margin="24,16,24,0" MaxWidth="720" HorizontalAlignment="Stretch">
                                     <StackPanel Spacing="6">
-                                        <TextBlock Text="BEFORE YOU PLAY" FontSize="10" LetterSpacing="1.2" Foreground="{DynamicResource ThemeTextSecondary}"/>
+                                        <TextBlock Text="BEFORE YOU PLAY" FontSize="10" LetterSpacing="1.2" Foreground="{DynamicResource ThemeText}"/>
                                         <TextBlock x:Name="BrowseDetailsSetupHeading" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{DynamicResource ThemeText}"/>
-                                        <TextBlock x:Name="BrowseDetailsSetupDescription" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource ThemeTextSecondary}"/>
+                                        <TextBlock x:Name="BrowseDetailsSetupDescription" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource ThemeText}"/>
                                     </StackPanel>
                                 </Border>
 				<Grid x:Name="BrowseDetailsColumns" ColumnDefinitions="*,300" RowDefinitions="Auto,Auto" Margin="24">

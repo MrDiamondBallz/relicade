@@ -193,6 +193,9 @@ These checks do not certify arbitrary color choices or physical accessibility.
 `ProjectSetupGuidanceRenderingTests` renders the actual project Overview with
 controlled offline metadata, no installed games and no external image requests.
 Normal, minimum and 200% interface-scale inputs require positive viewport bounds
-and readable preparation advice; the window's existing scaling/minimum-size policy
+and 4.5:1 guidance-label contrast in both light and dark themes. The contrast
+check reuses the Details glyph/background measurement with positive visible-pixel
+counts; separate text-hidden captures are instrumentation, not product images.
+The window's existing scaling/minimum-size policy
 can enlarge its effective pixel dimensions. This is headless layout evidence, not
 physical display, screen-reader or gameplay acceptance.

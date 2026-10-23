@@ -162,7 +162,7 @@ public sealed class DetailsHeaderContrastRenderingTests(SharedCatalogRenderer re
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(2); await commit.WaitAsync(TimeSpan.FromSeconds(10));
         using var frame = window.CaptureRenderedFrame(); Assert.NotNull(frame);
     }
-    static async Task<Avalonia.Media.Imaging.WriteableBitmap> Frame(Window window)
+    internal static async Task<Avalonia.Media.Imaging.WriteableBitmap> Frame(Window window)
     {
         window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
         var commit = Avalonia.Rendering.Composition.ElementComposition.GetElementVisual(window)!.Compositor.RequestCommitAsync();
@@ -176,7 +176,7 @@ public sealed class DetailsHeaderContrastRenderingTests(SharedCatalogRenderer re
         Directory.CreateDirectory(output);
         using var file = new FileStream(Path.Combine(output, "header-contrast-" + name + ".png"), FileMode.CreateNew); frame.Save(file);
     }
-    static void CheckContrast(Window window, TextBlock text, Avalonia.Media.Imaging.WriteableBitmap normal, Avalonia.Media.Imaging.WriteableBitmap background, double required, bool requireOpaqueCore = true)
+    internal static void CheckContrast(Window window, TextBlock text, Avalonia.Media.Imaging.WriteableBitmap normal, Avalonia.Media.Imaging.WriteableBitmap background, double required, bool requireOpaqueCore = true)
     {
         Assert.True(text.IsEffectivelyVisible && text.Bounds.Width > 0 && text.Bounds.Height > 0);
         var point = text.TranslatePoint(default, window); Assert.NotNull(point);

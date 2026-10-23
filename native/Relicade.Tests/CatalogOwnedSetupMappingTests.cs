@@ -42,6 +42,9 @@ public sealed class CatalogOwnedSetupMappingTests
             var added = await service.AddAsync(external).WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
             Assert.Equal(LibraryAddOutcome.Added, added.Outcome);
             Assert.NotSame(external, added.App);
+            Assert.NotNull(added.App);
+            Assert.Same(added.App, Assert.Single(manager.LibraryApps));
+            Assert.False(added.App.IsInstalled); Assert.False(added.App.OwnedDataReady);
             var saved = Assert.Single(await new AppCatalogService(dataDirectory: root).LoadLocalAppsAsync());
             Assert.Equal(added.App!.InstanceKey, saved.InstanceKey);
             Assert.Equal(provider == "manual" ? "" : repository, saved.Repository);

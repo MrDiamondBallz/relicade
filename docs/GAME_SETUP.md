@@ -438,7 +438,9 @@ support or distribution rights.
 
 The [catalog-to-library setup checks](../native/Relicade.Tests/CatalogOwnedSetupMappingTests.cs)
 exercise controlled catalog identity through the real Add service and durable
-library reload. The supported z2rs and Perfect Dark repository identities retain
+library reload. They check both the returned live Library object and the saved
+entry remain uninstalled and not game-data-ready. The supported z2rs and Perfect
+Dark repository identities retain
 their compiled package rules; another provider, a manual entry or an unrelated
 repository does not acquire those rules. Library membership alone never means
 that the engine is installed or the required game data is ready. These checks
