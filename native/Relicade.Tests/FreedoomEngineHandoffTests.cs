@@ -176,6 +176,7 @@ public sealed class FreedoomEngineHandoffTests
         internal int MetadataCalls, DownloadCalls, CatalogCalls; internal bool Offline;
         internal Func<CancellationToken, Task>? OnMetadata;
         internal Func<CancellationToken, Task>? OnDownload;
+        internal Func<HttpContent>? DownloadContent;
         internal string Live => Path.Combine(Root, "Apps", "Engine");
         internal async Task Initialize()
         {
@@ -215,7 +216,7 @@ public sealed class FreedoomEngineHandoffTests
                 }
                 Assert.Equal("github.com", request.RequestUri.Host); Assert.EndsWith("/" + Asset, request.RequestUri.AbsolutePath);
                 f.DownloadCalls++; if (f.OnDownload != null) await f.OnDownload(token); token.ThrowIfCancellationRequested();
-                return new(HttpStatusCode.OK) { Content = new ByteArrayContent(f.Payload) };
+                return new(HttpStatusCode.OK) { Content = f.DownloadContent?.Invoke() ?? new ByteArrayContent(f.Payload) };
             }
         }
     }

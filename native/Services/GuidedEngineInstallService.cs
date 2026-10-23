@@ -66,8 +66,10 @@ internal static class GuidedEngineInstallService
 
     internal static async Task<bool> InstallAsync(GameInfo game, GameManager manager, AppSettings settings,
         CancellationToken token, Func<string, string, Task<bool>> confirm,
-        IGameDownloadDialogs? dialogs = null, OwnedDataRequirement? definition = null)
+        IGameDownloadDialogs? dialogs = null, OwnedDataRequirement? definition = null,
+        Action<GuidedEngineProgress>? reportProgress = null)
     {
+        reportProgress?.Invoke(new(GuidedEnginePhase.Resolving));
         var prepared = PrepareFirstInstall(game, manager, token, definition);
         var requirement = prepared.Requirement; var assetName = prepared.AssetName;
         var context = prepared.Context; var constraint = prepared.Constraint;
@@ -79,7 +81,7 @@ internal static class GuidedEngineInstallService
             token.ThrowIfCancellationRequested();
             context.ValidateDownloadRequest(token);
             intent = GuidedInstallIntent.Begin(GuidedInstallIntent.For(game, manager, prepared));
-            constraint = constraint with { PersistStage = intent.Advance };
+            constraint = constraint with { PersistStage = intent.Advance, ReportProgress = reportProgress };
             using var fresh = ReleaseRequestCoordinator.AllowCachedMetadata(TimeSpan.Zero);
             var release = await CatalogReleaseSelection.FetchSelectedAsync(manager.HttpClient, "github", prepared.Project.Repository,
                 requirement.ReleaseIdentity, game.GetReleaseApiToken(settings), token);

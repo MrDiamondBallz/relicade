@@ -381,6 +381,12 @@ the outer token after completion or failure. Preflight and the original library
 context remain bound across the explicit confirmation. Cancel/back/window-close
 keeps the dialog pending while owned transfer/install work drains; a terminal
 cancellation never opens the data dialog and can leave a committed engine.
+A typed immutable guided-progress callback carries phases and measured transfer
+bytes from the first-install constraint to this owning one-shot model. It does
+not reinterpret the legacy phase-weighted library percentage. UI publication
+rejects older phases, decreasing received counts and terminal/disposed updates;
+a retry owns a different model. Unknown totals are indeterminate, and the actual
+Applying/Committed boundaries remain distinct from receiving all payload bytes.
 Shared metadata waiter cancellation retains its existing coordinator semantics;
 the UI does not claim ownership of an independently shared metadata transport.
 

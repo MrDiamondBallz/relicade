@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using Avalonia.Threading;
 using Relicade.Models;
 using Relicade.Services;
@@ -13,6 +12,10 @@ internal sealed class FreedoomEngineProgressViewModel : ObservableViewModel
     readonly CancellationTokenSource cancellation;
     bool started, cancelled, disposed;
     double progress;
+    long reportedSequence, appliedSequence;
+    GuidedEngineProgress observation = new(GuidedEnginePhase.Resolving);
+    internal bool IsProgressIndeterminate { get; private set; } = true;
+    internal GuidedEnginePhase Phase => observation.Phase;
     internal string Title { get; }
     internal string Confirmation { get; }
     internal string InstallLabel { get; }
@@ -36,7 +39,6 @@ internal sealed class FreedoomEngineProgressViewModel : ObservableViewModel
         if (previousAttempt != null) Message = previousAttempt;
         this.session = session; this.game = game; this.install = install;
         cancellation = CancellationTokenSource.CreateLinkedTokenSource(session.Token);
-        game.PropertyChanged += GameChanged;
     }
 
     internal Task StartAsync()
@@ -90,28 +92,52 @@ internal sealed class FreedoomEngineProgressViewModel : ObservableViewModel
         Dispatcher.UIThread.VerifyAccess();
         if (cancelled || disposed) return;
         cancelled = true; Succeeded = false;
-        Message = IsBusy ? "Canceling setup. Waiting for the active transfer and installation work to finish safely…"
+        Message = IsBusy ? CancellationMessage()
             : "Setup canceled. Nothing is played automatically.";
-        cancellation.Cancel(); Changed();
+        IsProgressIndeterminate = true; cancellation.Cancel(); Changed();
     }
 
-    void GameChanged(object? sender, PropertyChangedEventArgs e)
+    string CancellationMessage() => observation.Phase >= GuidedEnginePhase.Committing
+        ? "Cancellation requested. Finishing safely; an activated engine is retained. No game-data handoff or play will start."
+        : "Canceling setup. Waiting for the active transfer and installation work to finish safely…";
+
+    internal void ReportProgress(GuidedEngineProgress current)
     {
-        if (e.PropertyName != nameof(GameInfo.DownloadProgress)) return;
-        var current = Math.Clamp(game.DownloadProgress, 0, 100);
-        Dispatcher.UIThread.Post(() =>
+        var sequence = Interlocked.Increment(ref reportedSequence);
+        // Capture immutable values, not the shared library progress field. A model
+        // cannot restart; every retry has its own callback and sequence lifetime.
+        void Apply()
         {
-            if (disposed || !IsBusy || CancellationRequested) return;
-            progress = current;
-            Message = $"Engine download: {Progress:0}%. Verification and installation must still finish.";
+            if (disposed || !IsBusy || sequence <= appliedSequence || current.Phase < observation.Phase) return;
+            if (current.ReceivedBytes < 0 || !Enum.IsDefined(current.Phase)) return;
+            if (current.Phase == GuidedEnginePhase.Downloading && observation.Phase == current.Phase &&
+                current.ReceivedBytes < observation.ReceivedBytes) return;
+            appliedSequence = sequence; observation = current;
+            var total = current.TotalBytes;
+            var measured = current.Phase == GuidedEnginePhase.Downloading && total is > 0 && current.ReceivedBytes <= total;
+            IsProgressIndeterminate = !measured || CancellationRequested;
+            progress = measured ? Math.Clamp(100d * current.ReceivedBytes / total!.Value, 0, 100) : 0;
+            Message = CancellationRequested ? CancellationMessage() : current.Phase switch
+            {
+                GuidedEnginePhase.Resolving => "Checking the pinned engine and preparing its download…",
+                GuidedEnginePhase.Downloading when measured => $"Downloading engine: {current.ReceivedBytes:N0} of {total:N0} bytes ({progress:0.#}%). Verification is next.",
+                GuidedEnginePhase.Downloading => $"Downloading engine: {current.ReceivedBytes:N0} bytes received. Total size is unknown.",
+                GuidedEnginePhase.Verifying => "Verifying downloaded engine. No installation has been activated yet.",
+                GuidedEnginePhase.Staging => "Preparing engine files. No installation has been activated yet.",
+                GuidedEnginePhase.Committing => "Finishing engine installation safely. Cancellation cannot interrupt activation; game-data setup is separate.",
+                GuidedEnginePhase.Committed => "Engine committed. Finishing setup checks; game-data setup is a separate step.",
+                _ => "Checking engine setup…"
+            };
             Changed();
-        });
+        }
+        if (Dispatcher.UIThread.CheckAccess()) Apply();
+        else Dispatcher.UIThread.Post(Apply);
     }
-    void Changed() { Notify(nameof(Message)); Notify(nameof(Progress)); Notify(nameof(IsBusy)); Notify(nameof(CanStart)); Notify(nameof(CanCancel)); Notify(nameof(Succeeded)); }
+    void Changed() { Notify(nameof(Message)); Notify(nameof(Progress)); Notify(nameof(IsProgressIndeterminate)); Notify(nameof(IsBusy)); Notify(nameof(CanStart)); Notify(nameof(CanCancel)); Notify(nameof(Succeeded)); }
     internal void DisposeAfterDrain()
     {
         if (!Work.IsCompleted) throw new InvalidOperationException("Engine setup must drain before disposal.");
         if (disposed) return;
-        disposed = true; game.PropertyChanged -= GameChanged; cancellation.Dispose();
+        disposed = true; cancellation.Dispose();
     }
 }

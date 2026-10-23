@@ -382,6 +382,14 @@ Unsupported platforms and already remembered versions need ordinary installation
 or version selection. Version preferences, normal updates and Launch are unchanged;
 a later normal update can require a future adapter before this optional flow works.
 
+The guided engine progress window distinguishes source checks, measured transfer,
+verification, file preparation and safe activation. A known positive transfer total
+shows received/total bytes and a bounded percentage; missing, zero or inconsistent
+totals remain indeterminate. A fully received file still needs verification and
+installation. During activation the window explains that cancellation cannot
+interrupt the commit and does not promise to undo an installed engine. These are
+observations for the current attempt, not readiness or recovery authority.
+
 **Cancel setup**, Escape/controller Back, or closing the busy setup window cancels
 this guided operation, not the launcher or unrelated downloads. The window stays
 pending until its owned package transfer and installation work drain, and then

@@ -235,3 +235,12 @@ positive bounds, default Close, disabled appearance and resolved focus style.
 Only paging/focus/scroll actions are invoked. `32-preservation-*` captures are
 headless synthetic evidence, not deletion plans, hardware-input acceptance or
 proof that external saves have been located.
+
+`GuidedProgressRenderingTests` checks the actual guided-engine dialog in light and
+dark themes at normal/minimum sizes and 200% scaling, including measured transfer,
+unknown total, verification and safe-finishing states. These frames use controlled
+synthetic model observations, not a live download or game. Native
+`GuidedInstallTruthfulProgressTests` separately exercises held authored streams and
+a synthetic committed installation. The existing setup/error/cancellation renderer
+uses the same typed progress input; legacy library percentages are not substituted.
+Passing these selections is not full-renderer, desktop or gameplay acceptance.

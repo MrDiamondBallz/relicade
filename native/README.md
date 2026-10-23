@@ -602,6 +602,11 @@ the exact engine package. This guarded first installation never replaces an
 existing version or retained data, never falls back to an unreviewed package, and
 opens the separate data setup only after success. Its confirmation/progress window
 can cancel just this setup and waits for owned transfer/install work to drain.
+The supported guided-engine window reports measured received bytes and a transfer
+percentage only when a usable total is known. Unknown totals stay indeterminate;
+verification, preparation and safe activation are separate stages, not download
+percentages. Receiving 100% does not mean verification or installation succeeded.
+The window follows the launcher's light/dark theme and interface scale.
 Late cancellation preserves a committed engine and reports that state; a pending
 operation cannot be retried through the same window. No unattended download or
 automatic Play is implied. See

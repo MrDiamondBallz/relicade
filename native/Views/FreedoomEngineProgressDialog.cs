@@ -3,6 +3,8 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.VisualTree;
 using Avalonia.Threading;
 using Relicade.Services;
 using Relicade.ViewModels;
@@ -27,6 +29,10 @@ internal sealed class FreedoomEngineProgressDialog : Window
 
     internal FreedoomEngineProgressDialog(FreedoomEngineProgressViewModel model)
     {
+        Styles.Add(new StyleInclude(new Uri("avares://Relicade/"))
+        { Source = new Uri("avares://Relicade/Themes/LauncherStyles.axaml") });
+        foreach (var button in new[] { InstallButton, CancelButton, PreviousDetailsButton, NextDetailsButton })
+            button.Classes.Add("options");
         Model = model; Title = model.Title; introduction.Text = model.Confirmation;
         InstallButton.Content = model.InstallLabel;
         Width = 700; Height = 510; MinWidth = 580; MinHeight = 440;
@@ -62,6 +68,16 @@ internal sealed class FreedoomEngineProgressDialog : Window
         Closed += (_, _) => model.PropertyChanged -= Changed;
         Opened += (_, _) =>
         {
+            // Resolve the active launcher theme from the actual owner, including
+            // a scaling wrapper. Ownerless dialogs retain their normal fallback.
+            var theme = Owner?.GetVisualDescendants().OfType<MainView>().FirstOrDefault();
+            if (theme != null)
+            {
+                foreach (var key in new[] { "ThemeBase", "ThemeLighter", "ThemeDarker", "ThemeBorder", "ThemeText", "ThemeTextSecondary", "ThemeFocusRing" })
+                    if (theme.TryFindResource(key, theme.ActualThemeVariant, out var value)) Resources[key] = value;
+                if (this.TryFindResource("ThemeBase", ActualThemeVariant, out var background) && background is IBrush backgroundBrush) Background = backgroundBrush;
+                if (this.TryFindResource("ThemeText", ActualThemeVariant, out var foreground) && foreground is IBrush foregroundBrush) Foreground = foregroundBrush;
+            }
             // Font inheritance/styles are resolved when the native view opens.
             Render();
             Dispatcher.UIThread.Post(() =>
@@ -78,6 +94,7 @@ internal sealed class FreedoomEngineProgressDialog : Window
         var diagnostic = IsVisible && (Model.Message.Length > 280 || !FitsDiagnosticPage(Model.Message)) ? Model.Message : "";
         StatusText.Text = diagnostic.Length == 0 ? Model.Message : Model.CanStart && Model.HasPreviousAttempt
             ? "Saved setup details. Review with Previous and Next before choosing Retry."
+            : Model.IsBusy ? "Engine setup is in progress. Review the details with Previous and Next."
             : "Engine setup stopped. Review the details with Previous and Next.";
         AutomationProperties.SetName(StatusText, StatusText.Text);
         var pagesChanged = diagnostic != displayedDiagnostic;
@@ -106,8 +123,9 @@ internal sealed class FreedoomEngineProgressDialog : Window
         }
         introduction.IsVisible = Model.CanStart;
         RenderPage();
+        AutomationProperties.SetName(TransferProgress, Model.Message);
         TransferProgress.Value = Model.Progress; TransferProgress.IsVisible = Model.IsBusy;
-        TransferProgress.IsIndeterminate = Model.IsBusy && (Model.Progress <= 0 || Model.CancellationRequested);
+        TransferProgress.IsIndeterminate = Model.IsBusy && Model.IsProgressIndeterminate;
         InstallButton.IsEnabled = Model.CanStart;
         CancelButton.IsEnabled = !Model.IsBusy || Model.CanCancel;
         CancelButton.Content = Model.IsBusy ? "Cancel setup" : Model.CanStart ? "Cancel" : "Close";

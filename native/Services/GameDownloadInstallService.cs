@@ -303,6 +303,7 @@ public static class GameDownloadInstallService
 
                 var totalBytes = downloadResponse.Content.Headers.ContentLength ?? 0;
                 var canReportProgress = totalBytes > 0;
+                firstInstall?.ReportProgress?.Invoke(new(GuidedEnginePhase.Downloading, 0, totalBytes > 0 ? totalBytes : null));
 
                 using (var contentStream = await downloadResponse.Content.ReadAsStreamAsync(LauncherSession.OperationCancellation).ConfigureAwait(false))
                 using (var fs = new FileStream(downloadPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
@@ -316,6 +317,7 @@ public static class GameDownloadInstallService
                         firstInstall?.ValidateLength(checked(totalRead + bytesRead));
                         await fs.WriteAsync(buffer.AsMemory(0, bytesRead), LauncherSession.OperationCancellation).ConfigureAwait(false);
                         totalRead += bytesRead;
+                        firstInstall?.ReportProgress?.Invoke(new(GuidedEnginePhase.Downloading, totalRead, totalBytes > 0 ? totalBytes : null));
 
                         if (canReportProgress)
                         {
@@ -331,6 +333,7 @@ public static class GameDownloadInstallService
                 // The file must be the one The source catalog checked (or, outside the catalog, the one GitHub published).
                 var expected = expectedDigest;
                 firstInstall?.PersistStage?.Invoke("Verifying");
+                firstInstall?.ReportProgress?.Invoke(new(GuidedEnginePhase.Verifying));
                 var actual = await Sha256Async(downloadPath).ConfigureAwait(false);
                 if (expected != null && !string.Equals(actual, expected, StringComparison.OrdinalIgnoreCase) &&
                     // A rolling release is rebuilt under the same tag: the build GitHub publishes now is fine too.
@@ -443,9 +446,14 @@ public static class GameDownloadInstallService
                             if (point is "FirstInstallationChecked" or "Extracted" or "Staged" or "Applying")
                                 firstInstall?.ValidateContext?.Invoke();
                             if (point == "BeforeApplying") firstInstall?.PersistStage?.Invoke("Committing");
-                            if (point == "Committed") firstInstall?.PersistStage?.Invoke("Completed");
+                            if (point == "Committed")
+                            {
+                                firstInstall?.ReportProgress?.Invoke(new(GuidedEnginePhase.Committed));
+                                firstInstall?.PersistStage?.Invoke("Completed");
+                            }
                             if (point != "Applying") return;
                             game.IsPortableCommitInProgress = true;
+                            firstInstall?.ReportProgress?.Invoke(new(GuidedEnginePhase.Committing));
                             game.IsInstallIndeterminate = true;
                         },
                         ExtractProgress = new Progress<double>(p =>
@@ -456,6 +464,7 @@ public static class GameDownloadInstallService
                     };
 
                     firstInstall?.PersistStage?.Invoke("Staging");
+                    firstInstall?.ReportProgress?.Invoke(new(GuidedEnginePhase.Staging));
                     await GameInstallationService.InstallOrUpdateGameAsync(
                         downloadPath,
                         gamePath,

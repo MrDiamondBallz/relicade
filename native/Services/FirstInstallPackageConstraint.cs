@@ -10,6 +10,7 @@ public sealed record FirstInstallPackageConstraint(string Release, string FileNa
     internal bool AllowTarGzip { get; init; }
     internal Action? ValidateContext { get; init; }
     internal Action<string>? PersistStage { get; init; }
+    internal Action<GuidedEngineProgress>? ReportProgress { get; init; }
 
     internal void ValidateSelection(string release, string fileName)
     {

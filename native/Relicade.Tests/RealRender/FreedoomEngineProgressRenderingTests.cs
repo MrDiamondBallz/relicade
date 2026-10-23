@@ -43,7 +43,7 @@ public sealed class FreedoomEngineProgressRenderingTests(SharedCatalogRenderer r
                 if (state != "confirmation")
                 {
                     _ = model.StartAsync(); await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
-                    game.DownloadProgress = 65; Dispatcher.UIThread.RunJobs();
+                    model.ReportProgress(new(GuidedEnginePhase.Downloading, 65, 100)); Dispatcher.UIThread.RunJobs();
                     if (state == "canceling" || state == "retained") model.Cancel();
                     if (state == "retained") game.Status = GameStatus.Installed;
                     if (state == "retained" || isError) { release.TrySetResult(); await model.Work; }
