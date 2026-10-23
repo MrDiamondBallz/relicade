@@ -9,9 +9,11 @@ namespace Relicade.Core.Services;
 internal static class PortableInstallationExtraction
 {
     sealed class Expansion { public long Bytes; public int Entries; }
-    public static Task StageAsync(string download, string stage, string name, GameInstallationOptions options, CancellationToken token)
-        => StageCoreAsync(download, stage, name, options, token, new Expansion(), 0);
-    static async Task StageCoreAsync(string download, string stage, string name, GameInstallationOptions options, CancellationToken token, Expansion expansion, int depth)
+    public static Task StageAsync(string download, string stage, string name, GameInstallationOptions options, CancellationToken token,
+        Func<string, long>? availableSpace = null)
+        => StageCoreAsync(download, stage, name, options, token, new Expansion(), 0,
+            availableSpace ?? (path => new DriveInfo(Path.GetFullPath(path)).AvailableFreeSpace));
+    static async Task StageCoreAsync(string download, string stage, string name, GameInstallationOptions options, CancellationToken token, Expansion expansion, int depth, Func<string, long> availableSpace)
     {
         var unpack = Path.Combine(Path.GetDirectoryName(stage)!, "unpack-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(unpack);
         if (name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
@@ -23,8 +25,17 @@ internal static class PortableInstallationExtraction
             {
                 var p = Normalize(e.FullName); if (!paths.Add(p)) throw new InvalidDataException("Case-colliding or duplicate archive entries.");
                 if (((e.ExternalAttributes >> 16) & 0xF000) == 0xA000) throw new InvalidDataException("Linked portable archive entries are unsupported.");
-                expanded = checked(expanded + e.Length); Reserve(e.Length, unpack, options, expansion);
+                expanded = checked(expanded + e.Length); Reserve(e.Length, unpack, options, expansion, availableSpace);
             }
+            // No ZIP payload has been written during preflight: each entry alone
+            // fitting does not establish that their combined expanded bytes fit.
+            // Do not Reserve again: shared nested expansion/file budgets are
+            // already charged exactly once above. This is an observation, not a
+            // disk reservation or a guarantee against concurrent external writes.
+            token.ThrowIfCancellationRequested();
+            var available = availableSpace(unpack);
+            if (available < expanded)
+                throw new IOException($"Not enough free space to stage the ZIP while retaining the previous generation. Required expanded bytes: {expanded}; observed available bytes: {available}. Free space and retry explicitly.");
             foreach (var e in zip.Entries)
             {
                 token.ThrowIfCancellationRequested();
@@ -54,7 +65,7 @@ internal static class PortableInstallationExtraction
                 if (e.IsDirectory && e.Key is "." or "./") continue;
                 var p = Normalize(e.Key ?? ""); if (!paths.Add(p)) throw new InvalidDataException("Duplicate or case-colliding archive entry.");
                 var dest = PortableInstallationTransaction.SafePath(unpack, p);
-                expanded = checked(expanded + e.Size); Reserve(e.Size, unpack, options, expansion);
+                expanded = checked(expanded + e.Size); Reserve(e.Size, unpack, options, expansion, availableSpace);
                 if (e.IsDirectory) { Directory.CreateDirectory(dest); continue; }
                 Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
                 using var input = reader.OpenEntryStream();
@@ -66,7 +77,7 @@ internal static class PortableInstallationExtraction
         {
             PortableInstallationTransaction.ValidateRelative(name);
             if (name.Contains('/')) throw new InvalidDataException("A binary asset must have a filename, not a path.");
-            var info = new FileInfo(download); Reserve(info.Length, unpack, options, expansion);
+            var info = new FileInfo(download); Reserve(info.Length, unpack, options, expansion, availableSpace);
             File.Copy(download, Path.Combine(unpack, name));
         }
         else throw new InvalidOperationException("Unsupported release asset type; use its platform adapter.");
@@ -76,7 +87,7 @@ internal static class PortableInstallationExtraction
         {
             if (depth >= 2) throw new InvalidDataException("Nested archive wrapper limit exceeded.");
             var consumedHash = HashRegularFile(nested[0]);
-            await StageCoreAsync(nested[0], stage, Path.GetFileName(nested[0]), options, token, expansion, depth + 1).ConfigureAwait(false);
+            await StageCoreAsync(nested[0], stage, Path.GetFileName(nested[0]), options, token, expansion, depth + 1, availableSpace).ConfigureAwait(false);
             // This exact wrapper was created and consumed by this extraction. Never
             // discard a changed file or sweep arbitrary operation-history contents.
             if (!CryptographicOperations.FixedTimeEquals(consumedHash, HashRegularFile(nested[0])))
@@ -132,11 +143,11 @@ internal static class PortableInstallationExtraction
         while (p.StartsWith("./", StringComparison.Ordinal)) p = p[2..];
         PortableInstallationTransaction.ValidateRelative(p); return p;
     }
-    static void Reserve(long bytes, string stage, GameInstallationOptions o, Expansion expansion)
+    static void Reserve(long bytes, string stage, GameInstallationOptions o, Expansion expansion, Func<string, long> availableSpace)
     {
         expansion.Bytes = checked(expansion.Bytes + bytes); expansion.Entries++;
         if (bytes < 0 || expansion.Bytes > o.MaximumExpandedBytes || expansion.Entries > o.MaximumFileCount) throw new IOException("Portable expansion exceeds the configured space/file budget.");
-        var available = new DriveInfo(Path.GetFullPath(stage)).AvailableFreeSpace;
+        var available = availableSpace(stage);
         if (available < bytes) throw new IOException("Not enough free space to stage the portable generation while retaining the previous one.");
     }
     static async Task CopyBounded(Stream input, Stream output, long expected, long budget, CancellationToken token)

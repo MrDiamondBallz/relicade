@@ -218,6 +218,15 @@ supported lifetime ownership to native Linux ELF targets and refuses scripts,
 AppImage runtimes, compatibility runners, unknown formats and other platforms;
 this does not establish portable shortcut/runtime acceptance.
 
+ZIP staging checks the complete declared expanded size against observed available
+space before opening any payload output. Entry/expanded-byte safety budgets are
+charged once, including nested extraction; insufficient space reports required
+and observed available bytes. TAR and single-file staging retain their incremental
+checks. This is a staging observation, not a disk reservation, complete
+cache/backup/install-peak estimate or protection against concurrent external
+writers. Actual write failures still use the existing transaction failure path;
+physical disk-exhaustion and power-loss acceptance remain open.
+
 Removal guards compose explicit authority across unmanaged targets and refuse
 managed generations, retained recovery history and uncertain launch receipts.
 “Remove from library” keeps files; these safeguards are not managed uninstall.
