@@ -64,7 +64,7 @@ Versions/pinning, manual entries/import/export, mods/dependencies/profiles, cont
 
 Each platform needs actual package/runtime/accessibility/recovery evidence. Unsupported hardware is an open test requirement, not an assumed pass.
 
-The [machine-readable coverage contract](FEATURE_COVERAGE.json) and [developer guide](FEATURE_COVERAGE.md) track 71 required feature rows, eight platform/package targets and 23 synthetic fixture scenarios. The validator and safe fixture generator are executable development tools, not native acceptance evidence; two bounded source-unit records are linked while native package/runtime acceptance remains unaccepted.
+The [machine-readable coverage contract](FEATURE_COVERAGE.json) and [developer guide](FEATURE_COVERAGE.md) track 71 required feature rows, eight platform/package targets and 23 synthetic fixture scenarios. The validator and safe fixture generator are executable development tools, not native acceptance evidence; bounded source-test records are linked, without promoting them to native package/runtime acceptance.
 
 ## 5. Measurable quality improvements — pending
 
