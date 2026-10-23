@@ -157,3 +157,10 @@ licensed portrait is decoded by the production loader, not replaced by a test
 bitmap. The library is genuinely added and saved but remains uninstalled; no
 game process is executed. Its subsequent cache-only reload makes no image
 provider request. These headless captures are not desktop/gameplay acceptance.
+
+`ProjectSetupGuidanceRenderingTests` renders the actual project Overview with
+controlled offline metadata, no installed games and no external image requests.
+Normal, minimum and 200% interface-scale inputs require positive viewport bounds
+and readable preparation advice; the window's existing scaling/minimum-size policy
+can enlarge its effective pixel dimensions. This is headless layout evidence, not
+physical display, screen-reader or gameplay acceptance.

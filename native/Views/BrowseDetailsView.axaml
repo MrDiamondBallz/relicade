@@ -259,11 +259,14 @@
 											FontSize="13" Padding="18,8" MinWidth="160" Margin="0,0,10,6" IsVisible="False" Click="OpenLibrary_Click"/>
 									<Button x:Name="BrowseDetailsRemoveButton" Classes="options catalog-remove-from-library" Content="Remove from library"
 											FontSize="13" Padding="18,8" Margin="0,0,10,6" Click="Remove_Click"/>
+									<Button x:Name="BrowseDetailsSetupGuideButton" Classes="options" Content="Setup guide" IsVisible="False"
+                                               FontSize="13" Padding="18,8" Margin="0,0,10,6" Click="SetupGuide_Click"/>
 									<Button x:Name="BrowseDetailsRepositoryButton" Classes="options" Content="Open repository"
 											FontSize="13" Padding="18,8" Margin="0,0,10,6" Click="Repository_Click"/>
 								</WrapPanel>
 								<TextBlock x:Name="BrowseDetailsNote" FontSize="12" Foreground="{DynamicResource ThemeTextSecondary}" TextWrapping="Wrap"
 										   Margin="0,4,0,0"/>
+
 							</StackPanel>
 						</Grid>
 					</StackPanel>
@@ -329,6 +332,15 @@
 						</ItemsControl.ItemTemplate>
 					</ItemsControl>
 				</StackPanel>
+                                <Border x:Name="BrowseDetailsSetupPanel" Background="{DynamicResource ThemeDarker}"
+                                        BorderBrush="{DynamicResource ThemeBorder}" BorderThickness="1" CornerRadius="8"
+                                        Padding="12" Margin="24,16,24,0" MaxWidth="720" HorizontalAlignment="Stretch">
+                                    <StackPanel Spacing="6">
+                                        <TextBlock Text="BEFORE YOU PLAY" FontSize="10" LetterSpacing="1.2" Foreground="{DynamicResource ThemeTextSecondary}"/>
+                                        <TextBlock x:Name="BrowseDetailsSetupHeading" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" Foreground="{DynamicResource ThemeText}"/>
+                                        <TextBlock x:Name="BrowseDetailsSetupDescription" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource ThemeTextSecondary}"/>
+                                    </StackPanel>
+                                </Border>
 				<Grid x:Name="BrowseDetailsColumns" ColumnDefinitions="*,300" RowDefinitions="Auto,Auto" Margin="24">
 					<StackPanel x:Name="BrowseDetailsOverview" Grid.Column="0" Margin="0,0,28,0">
 						<ItemsControl x:Name="BrowseDetailsReadme" HorizontalAlignment="Stretch">

@@ -652,3 +652,11 @@ keyboard/controller hints, just as the in-panel Close action does. Repeated
 open/close interactions also ignore an opening focus callback that arrives after
 the panel has closed. This source-level interaction check does not certify
 physical controllers or platform accessibility APIs.
+
+### Game-file guidance before installation
+
+A project's Discover Overview now separates known original-game-file requirements,
+optional free-data setup and a complete-game package from unreviewed requirements.
+Known advice states its package/platform limits and offers an explicit Setup guide
+link. It does not start a download, change launch eligibility or treat installation
+as gameplay acceptance. See [Before you play](../docs/GAME_SETUP.md#before-you-play).

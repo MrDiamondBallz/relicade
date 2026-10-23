@@ -219,6 +219,7 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
         BrowseDetailsGamePanel.IsVisible = gamePage;
         BrowseDetailsSystems.IsVisible = gamePage;
         BrowseDetailsFacts.IsVisible = BrowseDetailsActions.IsVisible = !gamePage;
+        BrowseDetailsSetupPanel.IsVisible = !gamePage && _tab == Tab.Overview;
         if (gamePage)
         {
             RefreshGame();
@@ -228,6 +229,10 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
         var item = Model.Item;
         var app = item?.App;
         var entry = Model.Entry;
+        var setup = ProjectSetupGuidance.For(entry);
+        BrowseDetailsSetupHeading.Text = setup.Heading;
+        BrowseDetailsSetupDescription.Text = setup.Description;
+        BrowseDetailsSetupGuideButton.IsVisible = entry != null && setup.HasSpecificGuide;
         _libraryApp = entry == null ? null : _findInLibrary(entry);
 
         var hero = FirstText(app?.LibraryArt?.Hero, app?.LibraryArt?.Header);
@@ -500,6 +505,13 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
     private void Review_Click(object? sender, RoutedEventArgs e)
     {
         if (Model.ReviewUrl is { } url) OpenUrlRequested?.Invoke(url);
+    }
+
+    private void SetupGuide_Click(object? sender, RoutedEventArgs e)
+    {
+        if (!_session.IsClosed && Current?.Item != null && Model.Entry is { } entry &&
+            ProjectSetupGuidance.For(entry).HasSpecificGuide)
+            OpenUrlRequested?.Invoke(ProjectSetupGuidance.GuideUrl);
     }
 
     private void Repository_Click(object? sender, RoutedEventArgs e)
