@@ -919,6 +919,8 @@ namespace Relicade
         protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
         {
             base.OnAttachedToVisualTree(e);
+            // Prime the UI-owned scale before the first image decodes on a worker thread.
+            ArtworkDisplayScale();
             LauncherArtworkLoader.DisplayScale = ArtworkDisplayScale;
             LauncherArtworkLoader.ThumbnailBox = ArtworkThumbnailBox;
             UpdateGamepadChromeClass();
@@ -942,8 +944,11 @@ namespace Relicade
             return _artworkDisplayScale = Math.Max(topLevel?.RenderScaling ?? 1, screen) * Math.Max(1, interfaceScale);
         }
 
-        // Views/BrowseCard.axaml: a catalog card is 256 wide and its cover band 140-156 tall.
-        private static readonly Size CatalogCardArt = new(256, 156);
+        // BrowseView uses columns of at least 280 with spacing 20. Just before a second
+        // column fits, one card can approach 2 * 280 + 20 interface pixels wide.
+        // Bound decoding for that responsive maximum and BrowseCard's 180-high cover,
+        // not the old fixed 256-wide card. The loader still caps at source resolution.
+        private static readonly Size CatalogCardArt = new(580, 180);
 
         /// <summary>The largest area artwork is shown in: library covers at the current card settings, or catalog cards.</summary>
         private Size ArtworkThumbnailBox()
