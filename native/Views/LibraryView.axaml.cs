@@ -5,6 +5,7 @@ using Avalonia.Controls.Templates;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Relicade.Models;
@@ -58,6 +59,7 @@ public partial class LibraryView : UserControl
         Model = model;
         DataContext = model;
         _session = session;
+        model.SetupHistory.Attach(session);
         _libraryLaunch = launch;
         _openMenu = openMenu;
         System.ComponentModel.PropertyChangedEventHandler changed = (_, e) =>
@@ -73,6 +75,37 @@ public partial class LibraryView : UserControl
         UpdateEmptyState(_showLibrary);
         Surface.SizeChanged += (_, _) => FitMobileLibraryCardWidth();
     }
+
+    internal LibrarySetupHistoryDialog? SetupHistoryDialog { get; private set; }
+    private void SetupHistoryReview_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_session.IsClosed || SetupHistoryDialog != null || TopLevel.GetTopLevel(this) is not Window owner) return;
+        _ = _session.RunAsync(async () =>
+        {
+            Model.SetupHistory.Refresh();
+            var dialog = new LibrarySetupHistoryDialog(Model.SetupHistory, _session, row =>
+            {
+                if (_session.IsClosed || !Model.SetupHistory.TryGetCurrent(row, out var game) || game == null) return;
+                Model.RevealForNavigation(game);
+                Dispatcher.UIThread.Post(() =>
+                {
+                    if (!_session.IsClosed && Model.SetupHistory.TryGetCurrent(row, out var current) && ReferenceEquals(current, game))
+                        Navigation?.SelectGame(game);
+                }, DispatcherPriority.Loaded);
+            });
+            foreach (var key in new[] { "ThemeBase", "ThemeLighter", "ThemeDarker", "ThemeBorder", "ThemeText", "ThemeTextSecondary", "ThemeFocusRing" })
+                if (this.TryFindResource(key, ActualThemeVariant, out var value)) dialog.Resources[key] = value;
+            if (this.TryFindResource("ThemeBase", ActualThemeVariant, out var background) && background is IBrush backgroundBrush)
+                dialog.Background = backgroundBrush;
+            if (this.TryFindResource("ThemeText", ActualThemeVariant, out var foreground) && foreground is IBrush foregroundBrush)
+                dialog.Foreground = foregroundBrush;
+            DesktopInterfaceScaling.PrepareDialog(dialog, owner);
+            SetupHistoryDialog = dialog;
+            try { await dialog.ShowDialog(owner); }
+            finally { SetupHistoryDialog = null; }
+        });
+    }
+    private void SetupHistoryReview_GotFocus(object? sender, RoutedEventArgs e) => Navigation?.SynchronizeHistoryFocus();
 
     public void ApplyMobileLayout()
     {

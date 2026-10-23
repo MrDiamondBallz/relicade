@@ -99,7 +99,9 @@ Persist jobs by project/release/asset identity with states queued, resolving, do
 
 Current source adds bounded saved intent/stages and explicit fresh retry for the
 compiled Linux x64 guided first-install adapters only. Reopening their confirmation
-is read-only; unknown history and commit uncertainty require inspection. This does
+is read-only; unknown history and commit uncertainty require inspection. A bounded
+Library notice/review helps discover saved history among loaded entries and only
+navigates to the current entry, including through active filters. This does
 not complete R2: global scheduling, generic installs/updates/mods, Range resume,
 full desktop restart, remaining process-kill boundaries, power-loss and native-platform
 acceptance remain unverified. Two Linux synthetic worker checks cover termination

@@ -633,8 +633,15 @@
 </StackPanel>
 </DataTemplate>
 </UserControl.Resources>
-<Grid x:Name="Surface">
-					<ScrollViewer x:Name="LibraryContentPanel" VerticalScrollBarVisibility="Auto" Margin="30,20,6,30"
+<Grid x:Name="Surface" RowDefinitions="Auto,*">
+    <Border Grid.Row="0" IsVisible="{Binding SetupHistory.IsVisible}" Margin="30,12,30,0" Padding="12" CornerRadius="8" Background="{DynamicResource ThemeLighter}">
+        <StackPanel Spacing="8">
+            <TextBlock Text="{Binding SetupHistory.Message}" TextWrapping="Wrap" Foreground="{DynamicResource ThemeText}"/>
+            <Button x:Name="LibrarySetupHistoryReviewButton" Classes="options" Content="Review saved setup" MinHeight="44" HorizontalAlignment="Left"
+                    Click="SetupHistoryReview_Click" GotFocus="SetupHistoryReview_GotFocus" AutomationProperties.Name="Review saved setup history; no download starts"/>
+        </StackPanel>
+    </Border>
+					<ScrollViewer Grid.Row="1" x:Name="LibraryContentPanel" VerticalScrollBarVisibility="Auto" Margin="30,20,6,30"
                                       services:MouseWheelScroll.Multiplier="{Binding Settings.MouseWheelScrollSpeed}">
 						<Grid x:Name="LibraryItemsHost" Margin="0,0,30,0" RowDefinitions="Auto,*">
                             <TextBlock x:Name="LibraryRevealNotice" Grid.Row="0" IsVisible="{Binding HasNavigationReveal}"
@@ -673,14 +680,14 @@
 						</Grid>
 					</ScrollViewer>
 
-                    <StackPanel x:Name="LibraryLoadingPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
+                    <StackPanel Grid.Row="1" x:Name="LibraryLoadingPanel" HorizontalAlignment="Center" VerticalAlignment="Center"
                                 Spacing="12" Margin="24" IsVisible="False" Focusable="False" IsHitTestVisible="False">
                         <views:LibraryLoadingBar x:Name="LoadingBar" Width="120" Height="4" Focusable="False"
                                                  Foreground="{DynamicResource SystemControlHighlightAccentBrush}"/>
                         <TextBlock Text="Loading your library…" FontSize="16" Foreground="{DynamicResource ThemeTextSecondary}"
                                    TextAlignment="Center" TextWrapping="Wrap" Focusable="False"/>
                     </StackPanel>
-					<StackPanel x:Name="EmptyLibraryPanel"
+					<StackPanel Grid.Row="1" x:Name="EmptyLibraryPanel"
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center"
 								Spacing="16"
@@ -715,7 +722,7 @@
 						</StackPanel>
 					</StackPanel>
 
-					<StackPanel x:Name="LibrarySearchNoMatchesPanel"
+					<StackPanel Grid.Row="1" x:Name="LibrarySearchNoMatchesPanel"
 								HorizontalAlignment="Center"
 								VerticalAlignment="Center"
 								Spacing="16"

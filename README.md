@@ -29,7 +29,7 @@ Emulation is **future scope, not yet implemented**. Each emulator/core needs its
 
 **No packaged launcher release.** This is development source and a browser design preview, not complete functionality or accepted native platform support.
 
-Current source also includes [guided engine-setup history](docs/GAME_SETUP.md#interrupted-guided-engine-setup): saved reviewed intent and last stage, read-only reopening, and an explicit fresh retry for supported Linux x64 first-install adapters. This is not a general download queue or automatic resume; game-file consent remains separate.
+Current source also includes [guided engine-setup history](docs/GAME_SETUP.md#interrupted-guided-engine-setup): saved reviewed intent and last stage, read-only reopening, and an explicit fresh retry for supported Linux x64 first-install adapters. A Library notice and bounded review can reveal a saved setup’s current entry even when filters hide it; reviewing history never starts setup. This is not a general download queue or automatic resume; game-file consent remains separate.
 
 Recent merged work includes [rollback-state consistency and explicit retained-file reuse](https://github.com/MrDiamondBallz/relicade/pull/28). Earlier work adds [separate CPU-rendered native UI tests](https://github.com/MrDiamondBallz/relicade/pull/11) for the library, offline catalog and settings views. The [earlier maintenance update](https://github.com/MrDiamondBallz/relicade/pull/12) aligns the Avalonia dependencies on the official 12.1.4 patch and adds input-session cleanup and application-lifetime regressions. These changes have independent local review and test coverage; they are development milestones, not a packaged release or a claim that every target platform has been tested.
 

@@ -17,6 +17,7 @@ public sealed class LibraryViewModel : ObservableViewModel, IDisposable
     private bool _initialLoading;
     private bool _initialLoadFailed;
     public SettingsViewModel Settings { get; }
+    public LibrarySetupHistoryViewModel SetupHistory { get; }
     public ObservableCollection<GameInfo> Games => _manager.Games;
     public ObservableCollection<TagDisplayFilterListItem> TagDisplayFilters { get; } = new();
     public string SortBy { get => _sortBy; set => Set(ref _sortBy, value); }
@@ -30,9 +31,11 @@ public sealed class LibraryViewModel : ObservableViewModel, IDisposable
     public double CardPixelSize => PlatformCapabilities.IsMobile ? double.NaN : Settings.SlotSize;
     public bool ShowLibraryManagement => !Settings.KioskLocked;
 
-    public LibraryViewModel(GameManager manager, SettingsViewModel settings)
+    public LibraryViewModel(GameManager manager, SettingsViewModel settings) : this(manager, settings, null) { }
+    internal LibraryViewModel(GameManager manager, SettingsViewModel settings,
+        Func<LibrarySetupHistoryInspection, CancellationToken, Task<LibrarySetupHistoryInspection.Step>>? read)
     {
-        _manager = manager; Settings = settings;
+        _manager = manager; Settings = settings; SetupHistory = new(manager, read);
         manager.PropertyChanged += ManagerChanged;
         settings.PropertyChanged += SettingsChanged;
     }
@@ -42,8 +45,10 @@ public sealed class LibraryViewModel : ObservableViewModel, IDisposable
         {
             _initialLoading = false;
             _initialLoadFailed = false;
+            SetupHistory.Refresh();
             Notify(null);
         }
+        if (e.PropertyName == nameof(GameManager.IsLibraryEmpty)) SetupHistory.InvalidateIfChanged();
         if (e.PropertyName is nameof(GameManager.IsLibraryEmpty) or nameof(GameManager.HasNoLibrarySearchMatches) or nameof(GameManager.LibrarySearchText) or nameof(GameManager.HasLibraryReveal)) Notify(null);
     }
     internal void BeginInitialLoad()
@@ -146,6 +151,7 @@ public sealed class LibraryViewModel : ObservableViewModel, IDisposable
     {
         if (_closed) return;
         _closed = true;
+        SetupHistory.Dispose();
         _initialLoading = false;
         _initialLoadFailed |= !_manager.HasLoadedLibrary;
         Notify(nameof(IsInitialLoading));

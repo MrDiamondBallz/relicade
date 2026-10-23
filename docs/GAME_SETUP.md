@@ -103,6 +103,22 @@ its saved status is uncertain. The library's actual installation and existing
 recovery controls determine the next setup action, not the saved progress record.
 Existing data-file consent and readiness checks are unchanged.
 
+### Finding saved setup history
+
+The Library can show a saved-setup notice for supported guided installs among its
+currently loaded entries, even when the entry is hidden by the current filters.
+**Review** opens a read-only list; **Show in Library** reveals the same current
+entry without replacing your filters. Neither action retries, repairs, imports
+files or launches a game. An old stage can describe interrupted or still-active
+work; inspect the entry before choosing its ordinary setup or recovery controls.
+
+Inspection is deliberately bounded. **Continue inspection** checks another batch;
+an incomplete message is not a complete-library result. Oversized, unknown,
+conflicting or changed records remain preserved and visibly require inspection.
+Unloaded entries are not searched. **Refresh** starts a fresh read of the current
+loaded entries; closing the review drains its pending read. These informational
+records never grant installation status, owned-data readiness or launch authority.
+
 This is a narrow first-install capability, not a global download queue, scheduler,
 byte-range resume, general update/mod persistence or power-loss/platform acceptance.
 The focused synthetic tests cover in-process reopening and real local transaction

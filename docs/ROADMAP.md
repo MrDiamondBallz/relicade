@@ -40,6 +40,9 @@ rollback adoption, original-file guard bypass or gameplay acceptance is implied.
 The compiled Linux x64 guided first-install paths now retain exact attempt identity
 and last stage, with read-only reopening and a separately confirmed fresh retry.
 Unknown history and commit uncertainty are refused without automatic repair.
+The Library also offers bounded local inspection and explicit navigation to loaded
+entries with saved history, including filtered entries. Partial results require
+explicit continuation; this does not schedule or authorize a retry.
 This is not a general durable download queue. These flows do not establish complete catalog
 setup or tested gameplay. [The setup guide](GAME_SETUP.md) lists the supported input and limits.
 

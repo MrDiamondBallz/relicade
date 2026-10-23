@@ -215,3 +215,13 @@ footer bounds, keyboard/controller focus and committed nonblank pixels. Its
 throw-only transport receives no request and no Install button is clicked. Unique
 `30-guided-intent-retry-*` captures are private development evidence, not real
 download/gameplay, hard-kill restart or hardware/platform acceptance.
+
+`LibrarySetupHistoryRenderingTests` opens the actual Library notice and its
+read-only saved-setup review with an authored history record and a filtered loaded
+entry. It checks normal/minimum layouts, dark/light colors and 200% interface
+scale, realized Review text contrast, modal scaling/theme, default Close and
+controller focus, scroll access and footer bounds. Strict injected HTTP refuses
+requests; no setup, retry, launch or Show-in-Library action is invoked in these
+render cases. Separate native fixtures cover explicit navigation and read-drain
+lifetimes. `31-setup-history-*` captures are private synthetic development evidence,
+not a full queue, physical device or release acceptance claim.

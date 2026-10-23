@@ -131,3 +131,14 @@ partial writes and commit uncertainty are retained and refused; a committed engi
 is not called unchanged merely because its status write failed. The per-entry
 writer lease and existing portable authority are not a sandbox against hostile
 concurrent filesystem mutation, and no universal power-loss safety is claimed.
+
+## Saved setup discovery
+
+The Library's saved-setup notice is informational, not authorization to install or
+retry. Its bounded, nonrecursive reader considers only currently loaded compiled
+entries and reuses strict record identity/size checks. Partial inspection is
+explicit; unknown or excessive records are retained and reported, not repaired.
+Review and Show in Library add no transfer, writer lease, transaction recovery or
+launch. Captured context and entry identity are rechecked before publishing results
+and navigating, and close drains pending reads. These checks do not turn an old
+stage into current process, installation or owned-data readiness evidence.

@@ -382,6 +382,22 @@ entry/root context. Bounded strict inspection creates no directory, acquires no
 writer, and invokes no recovery or network. Unknown schema, partial writes,
 conflicting chains and changed identity are refused with evidence preserved.
 
+`LibrarySetupHistoryInspection` reuses the strict record parser with a captured
+compiled identity, without calling first-install preparation or acquiring a writer.
+The Library notice and paged review only inspect loaded entries and navigate back
+to an existing current entry. Reads run off the UI thread, and publication checks
+entry object, root, identity, status and lifetime again. Closing drains the actual
+read before disposing its directory cursor; a later context cannot receive an old
+result. This presentation is not retry or installation authority.
+
+Resource limits are explicit continuation steps, not library-size support limits:
+256 eligible entries and 1,024 directory names per step, at most 256 candidate
+records per entry, 16 KiB per record and an 8 MiB maximum charged read budget.
+Partial directory enumeration never validates an incomplete history chain. A
+per-entry refusal preserves other inspectable entries; a directory-level failure
+reports incomplete inspection. No background continuation, recursive crawl,
+transfer, transaction recovery or record mutation is introduced.
+
 Atomic, flushed stage records precede payload request, verification, staging and
 the existing transaction's BeforeApplying boundary. Only its actual Committed
 callback marks engine completion. A postcommit status-write failure cannot reverse

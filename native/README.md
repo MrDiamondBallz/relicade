@@ -714,3 +714,10 @@ times unchanged; retry checks actual committed engine bytes and retained history
 Coordination receipts and fixture inputs are retained, not silently deleted.
 These are Resolving/Downloading precommit checks, not power-loss certification or
 whole-desktop startup acceptance. No acquired engine is executed.
+
+The Library's saved-setup notice inspects supported currently loaded entries,
+including entries hidden by filters. Its read-only review offers explicit bounded
+continuation and **Show in Library**, not a transfer or recovery action. Unknown
+records remain visible refusals; context changes or closure reject stale results
+and pending reads drain. Neither a saved stage nor this notice grants readiness.
+See [finding saved setup history](../docs/GAME_SETUP.md#finding-saved-setup-history).
