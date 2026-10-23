@@ -175,7 +175,7 @@ public partial class BrowseView : UserControl
         BrowseToolbarPanel.ColumnDefinitions = new ColumnDefinitions("*,Auto,Auto");
         BrowseTitleText.FontSize = 16;
         // The list tabs, when there is a list, go on their own line under the title.
-        Grid.SetRow(BrowseSourceTabs, 1);
+        Grid.SetRow(BrowseSourceTabs, 2);
         Grid.SetColumn(BrowseSourceTabs, 0);
         Grid.SetColumnSpan(BrowseSourceTabs, 3);
         BrowseSourceTabs.Margin = new Thickness(0, 10, 0, 0);
@@ -249,6 +249,13 @@ public partial class BrowseView : UserControl
     private void ArrangeHideOption(double width)
     {
         if (width <= 0) return;
+        // Keep source selection readable beside the new compact catalog label.
+        // On narrow desktop windows it gets its own row, as on mobile.
+        var tabsBelow = IsMobileLayout || width < 800;
+        Grid.SetRow(BrowseSourceTabs, tabsBelow ? 2 : 1);
+        Grid.SetColumn(BrowseSourceTabs, tabsBelow ? 0 : 1);
+        Grid.SetColumnSpan(BrowseSourceTabs, tabsBelow ? 3 : 1);
+        BrowseSourceTabs.Margin = tabsBelow ? new Thickness(0, 10, 0, 0) : new Thickness(24, 0, 0, 0);
         var inTitle = width >= (BrowseSourceTabs.IsVisible ? HideOptionInTitleWithTabsWidth : HideOptionInTitleWidth);
         if (inTitle != HideOptionInTitle)
         {
@@ -302,7 +309,8 @@ public partial class BrowseView : UserControl
             var custom = Model.ShowingCustomList;
             var searching = !string.IsNullOrWhiteSpace(Model.Search);
             if (_consoleChoices != Model.Consoles.Count) FillConsoles();
-            BrowseTitleText.Text = custom ? "My app list" : "Explore the catalog";
+            BrowseTitleText.Text = custom ? "My app list" : "Discover";
+            DiscoverEditorialTitle.Text = custom ? "Your next replay, your way." : "Find your next replay.";
             BrowseCountText.Text = custom || Model.Total > 0 ? Model.Total.ToString() : "—";
             BrowseSourceTabs.IsVisible = BrowseCatalogTabButton.IsVisible = BrowseCustomListTabButton.IsVisible = Model.HasCustomList;
             BrowseCatalogTabButton.Classes.Set("selected", !custom);

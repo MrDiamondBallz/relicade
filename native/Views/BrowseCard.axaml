@@ -6,7 +6,7 @@
              xmlns:services="using:Relicade.Services"
              x:Class="Relicade.Views.BrowseCard" x:DataType="vm:BrowseItem" x:CompileBindings="True">
 	<UserControl.Styles>
-	<!-- The catalog card, coloured like the website's. -->
+	<!-- Cover-forward native discovery, using the catalog's existing image binding. -->
 	<Style Selector="Border.browse-card">
 		<Setter Property="Width" Value="256"/>
 		<Setter Property="Margin" Value="0,0,14,14"/>
@@ -15,13 +15,13 @@
 		<Setter Property="Background" Value="{DynamicResource ThemeBase}"/>
 	</Style>
 	<Style Selector="Border.browse-card:pointerover">
-		<Setter Property="BorderBrush" Value="#0ea5e9"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent}"/>
 	</Style>
 	<Style Selector="Border.browse-card.gamepad-focused">
 		<Setter Property="BorderBrush" Value="{DynamicResource ThemeFocusRing}"/>
 		<Setter Property="BorderThickness" Value="3"/>
 	</Style>
-	<!-- NEW is green, so it doesn't look like the blue + Add button; IN LIBRARY is a quiet light grey. -->
+	<!-- State badges stay separate from the orange primary card action. -->
 	<Style Selector="Border.browse-badge">
 		<Setter Property="Background" Value="#22c55e"/>
 		<Setter Property="CornerRadius" Value="4"/>
@@ -30,31 +30,31 @@
 	</Style>
 	<!-- Adds the app to the library without opening its page. -->
 	<Style Selector="Button.browse-add">
-		<Setter Property="Background" Value="#0ea5e9"/>
-		<Setter Property="Foreground" Value="#04121b"/>
+		<Setter Property="Background" Value="{DynamicResource ThemeAccent}"/>
+		<Setter Property="Foreground" Value="#111211"/>
 		<Setter Property="BorderThickness" Value="0"/>
-		<Setter Property="CornerRadius" Value="999"/>
-		<Setter Property="Padding" Value="11,4"/>
+		<Setter Property="CornerRadius" Value="4"/>
+		<Setter Property="Padding" Value="14,8"/>
 		<Setter Property="Margin" Value="10"/>
-		<Setter Property="MinHeight" Value="0"/>
-		<Setter Property="FontSize" Value="11"/>
+		<Setter Property="MinHeight" Value="44"/>
+		<Setter Property="FontSize" Value="12"/>
 		<Setter Property="FontWeight" Value="SemiBold"/>
 		<Setter Property="Cursor" Value="Hand"/>
 	</Style>
 	<Style Selector="Button.browse-add:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-		<Setter Property="Background" Value="#38bdf8"/>
-		<Setter Property="Foreground" Value="#04121b"/>
+		<Setter Property="Background" Value="#FF805D"/>
+		<Setter Property="Foreground" Value="#111211"/>
 	</Style>
 	<Style Selector="Button.browse-add.in-library">
 		<Setter Property="Background" Value="#e2e8f0"/>
 	</Style>
 	<Style Selector="Button.browse-add.in-library:pointerover /template/ ContentPresenter#PART_ContentPresenter">
 		<Setter Property="Background" Value="#f8fafc"/>
-		<Setter Property="Foreground" Value="#04121b"/>
+		<Setter Property="Foreground" Value="#111211"/>
 	</Style>
 	<Style Selector="Button.browse-add:disabled /template/ ContentPresenter#PART_ContentPresenter">
-		<Setter Property="Background" Value="#0b7fb3"/>
-		<Setter Property="Foreground" Value="#04121b"/>
+		<Setter Property="Background" Value="#ABA99F"/>
+		<Setter Property="Foreground" Value="#111211"/>
 	</Style>
 	<Style Selector="Border.browse-badge.in-library">
 		<Setter Property="Background" Value="#e2e8f0"/>
@@ -63,16 +63,16 @@
 		<Setter Property="FontSize" Value="9"/>
 		<Setter Property="FontWeight" Value="Bold"/>
 		<Setter Property="LetterSpacing" Value="0.8"/>
-		<Setter Property="Foreground" Value="#04121b"/>
+		<Setter Property="Foreground" Value="#111211"/>
 	</Style>
 	<Style Selector="Path.browse-os">
 		<Setter Property="Height" Value="12"/>
 		<Setter Property="Stretch" Value="Uniform"/>
-		<Setter Property="Fill" Value="#b7c0cc"/>
+		<Setter Property="Fill" Value="{DynamicResource ThemeTextSecondary}"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
 	</Style>
 	<Style Selector="Border.browse-cover">
-		<Setter Property="Height" Value="140"/>
+		<Setter Property="Height" Value="180"/>
 	</Style>
 	<Style Selector="StackPanel.browse-card-body">
 		<Setter Property="Margin" Value="14,14,14,11"/>
@@ -82,19 +82,19 @@
 		<Setter Property="Margin" Value="8,0,0,0"/>
 	</Style>
 	<Style Selector="services|HoverScrollText.browse-title">
-		<Setter Property="FontSize" Value="14"/>
+		<Setter Property="FontSize" Value="18"/>
 	</Style>
 	<Style Selector="services|HoverScrollRow.browse-score-row">
 		<Setter Property="Margin" Value="0,0,8,0"/>
 	</Style>
 	<Style Selector="TextBlock.browse-score-text">
-		<Setter Property="FontSize" Value="11"/>
+		<Setter Property="FontSize" Value="12"/>
 	</Style>
 	<Style Selector="Border.browse-ai-chip">
 		<Setter Property="Grid.Column" Value="1"/>
-		<Setter Property="BorderBrush" Value="#394451"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
 		<Setter Property="BorderThickness" Value="1"/>
-		<Setter Property="CornerRadius" Value="999"/>
+		<Setter Property="CornerRadius" Value="4"/>
 		<Setter Property="Padding" Value="6,1"/>
 		<Setter Property="Margin" Value="8,0,0,0"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
@@ -102,24 +102,24 @@
 	<Style Selector="Border.browse-ai-chip TextBlock">
 		<Setter Property="FontSize" Value="8"/>
 		<Setter Property="LetterSpacing" Value="0.7"/>
-		<Setter Property="Foreground" Value="#b7c0cc"/>
+		<Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondary}"/>
 	</Style>
 	<Style Selector="TextBlock.browse-based-on">
 		<Setter Property="FontSize" Value="9"/>
 		<Setter Property="LetterSpacing" Value="0.8"/>
-		<Setter Property="Foreground" Value="#8f929b"/>
+		<Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondary}"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
 	</Style>
 	<Style Selector="Border.browse-game-chip">
-		<Setter Property="Background" Value="#243044"/>
-		<Setter Property="BorderBrush" Value="#3c516c"/>
+		<Setter Property="Background" Value="{DynamicResource ThemeLighter}"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource ThemeBorder}"/>
 		<Setter Property="BorderThickness" Value="1"/>
-		<Setter Property="CornerRadius" Value="999"/>
+		<Setter Property="CornerRadius" Value="4"/>
 		<Setter Property="Padding" Value="9,3"/>
 	</Style>
 	<Style Selector="Border.browse-game-chip TextBlock">
-		<Setter Property="FontSize" Value="11"/>
-		<Setter Property="Foreground" Value="#f4f6f8"/>
+		<Setter Property="FontSize" Value="12"/>
+		<Setter Property="Foreground" Value="{DynamicResource ThemeText}"/>
 	</Style>
 	<Style Selector="Run.browse-score">
 		<Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondary}"/>
@@ -128,19 +128,19 @@
 		<Setter Property="Foreground" Value="#8ac3a2"/>
 	</Style>
 	<Style Selector="Run.browse-score.caution">
-		<Setter Property="Foreground" Value="#d7b56a"/>
+		<Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondary}"/>
 	</Style>
 	<Style Selector="Run.browse-score.negative">
 		<Setter Property="Foreground" Value="#e38c87"/>
 	</Style>
 	<Style Selector="TextBlock.browse-release">
 		<Setter Property="Grid.Column" Value="1"/>
-		<Setter Property="FontSize" Value="11"/>
-		<Setter Property="Foreground" Value="#8f929b"/>
+		<Setter Property="FontSize" Value="12"/>
+		<Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondary}"/>
 		<Setter Property="VerticalAlignment" Value="Center"/>
 	</Style>
 	<Style Selector="TextBlock.browse-release.stale">
-		<Setter Property="Foreground" Value="#d7b56a"/>
+		<Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondary}"/>
 	</Style>
 	<!-- Two to a row on a phone, as the website draws a narrow card: the kind on its own line, the AI label and
 	     platforms under it, then the score and the release date on lines of their own. -->
@@ -153,7 +153,7 @@
 		<Setter Property="Margin" Value="0"/>
 	</Style>
 	<Style Selector=".narrow-cards Border.browse-cover">
-		<Setter Property="Height" Value="156"/>
+		<Setter Property="Height" Value="180"/>
 	</Style>
 	<Style Selector=".narrow-cards StackPanel.browse-card-body">
 		<Setter Property="Margin" Value="12,13,12,12"/>
@@ -173,7 +173,7 @@
 		<Setter Property="Margin" Value="8,6,0,0"/>
 	</Style>
 	<Style Selector=".narrow-cards services|HoverScrollText.browse-title">
-		<Setter Property="FontSize" Value="13"/>
+		<Setter Property="FontSize" Value="16"/>
 	</Style>
 	<Style Selector=".narrow-cards services|HoverScrollRow.browse-score-row">
 		<Setter Property="Grid.ColumnSpan" Value="2"/>
@@ -221,7 +221,7 @@
 			<StackPanel Grid.Row="1" Classes="browse-card-body">
 				<Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto" MinHeight="13" Margin="0,0,0,6">
 					<services:HoverScrollText Classes="browse-kind" Text="{Binding CardKind}" IsActive="{Binding ShouldScroll}"
-											  FontSize="9" LetterSpacing="0.7" Foreground="#94a3b8" VerticalAlignment="Center"/>
+											  FontSize="9" LetterSpacing="0.7" Foreground="{DynamicResource ThemeTextSecondary}" VerticalAlignment="Center"/>
 					<Border Classes="browse-ai-chip" IsVisible="{Binding HasAiChip}">
 						<TextBlock Text="{Binding AiChip}"/>
 					</Border>

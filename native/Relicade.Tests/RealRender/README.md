@@ -135,3 +135,11 @@ installed game or ROM. Natural controller navigation exposes the complete
 compatibility and engine-config/privacy disclosure at 760×660, 320×360 and
 200% interface scaling. Separate native UI tests exercise the confirmed local
 copy with synthetic bytes. No acquired engine is executed by these captures.
+
+`DiscoverVisualRenderingTests` uses the shared renderer owner for the actual
+native catalog surface with six clearly labeled synthetic entries and an injected
+image loader. Normal/minimum dark and light windows and 200% interface scaling
+retain the filters and existing image binding. At enlarged scale, natural
+controller selection scrolls the first card into view. No provider request or
+game artwork is used; these are presentation checks, not catalog rights or
+physical controller/platform acceptance.

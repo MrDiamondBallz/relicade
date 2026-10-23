@@ -45,6 +45,15 @@ The browser reference prefers actual game imagery from the catalog's retained
 not a substitute presented as a successfully loaded game image. Game images do
 not establish an installed game, playable state, publisher approval or license.
 
+## Native Discover cards
+
+The Discover presentation gives existing catalog header/capsule imagery more
+space and keeps readable project titles and explicit Add/Open controls. It does
+not replace unavailable images with generated game scenes, change providers,
+remove upstream credits, or grant reuse rights. The native visual regression
+fixtures bind local procedural pixels to clearly labeled synthetic entries;
+those captures prove layout and image binding, not real-game artwork coverage.
+
 ## Native library cover references
 
 Library entries retain a separate catalog cover record with the exact entry ID,

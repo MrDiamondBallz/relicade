@@ -25,7 +25,7 @@
 			<Setter Property="FontSize" Value="11"/>
 			<Setter Property="FontWeight" Value="SemiBold"/>
 			<Setter Property="LetterSpacing" Value="1.4"/>
-			<Setter Property="Foreground" Value="#94a3b8"/>
+			<Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondary}"/>
 			<Setter Property="Margin" Value="0,0,0,10"/>
 		</Style>
 		<Style Selector="Border.browse-game-card">
@@ -38,7 +38,7 @@
 			<Setter Property="Background" Value="{DynamicResource ThemeBase}"/>
 		</Style>
 		<Style Selector="Border.browse-game-card:pointerover">
-			<Setter Property="BorderBrush" Value="#0ea5e9"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent}"/>
 		</Style>
 		<Style Selector="Border.browse-game-card.gamepad-focused">
 			<Setter Property="BorderBrush" Value="{DynamicResource ThemeFocusRing}"/>
@@ -52,7 +52,7 @@
 		</Style>
 	</UserControl.Styles>
 	<UserControl.Resources>
-		<!-- A card drawn like the website's catalog card; the game page shows the same cards. -->
+		<!-- Shared native discovery card; its data and actions also appear on game detail pages. -->
 		<DataTemplate x:Key="BrowseCardTemplate" x:DataType="vm:BrowseItem">
 			<!-- The slot always exists so gamepad navigation can find each card; the card itself is built only near the screen. -->
 			<Border Classes="browse-card-slot">
@@ -73,17 +73,22 @@
 		  XYFocus.LeftNavigationStrategy="Projection"
 		  XYFocus.RightNavigationStrategy="Projection"
 		  RowDefinitions="Auto,Auto,*">
-		<!-- Laid out like the website's catalog: title and sort, then search and the four filters. -->
-		<Grid x:Name="BrowseToolbarPanel" Grid.Row="0" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" Margin="0,0,30,14">
-			<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-				<TextBlock x:Name="BrowseTitleText" Text="Explore the catalog" FontSize="18" FontWeight="SemiBold"
+		<!-- Editorial discovery heading above the complete catalog controls. -->
+		<Grid x:Name="BrowseToolbarPanel" Grid.Row="0" ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" Margin="0,0,30,20">
+			<StackPanel Grid.Row="0" Grid.ColumnSpan="3" Spacing="6" Margin="0,0,0,22">
+				<TextBlock Text="OLD LEGENDS. NEW LIFE." FontSize="11" LetterSpacing="2" FontWeight="SemiBold" Foreground="{DynamicResource ThemeTextSecondary}"/>
+				<TextBlock x:Name="DiscoverEditorialTitle" Text="Find your next replay." FontSize="32" FontWeight="Bold" TextWrapping="Wrap" Foreground="{DynamicResource ThemeText}"/>
+				<Border Width="44" Height="3" Background="{DynamicResource ThemeAccent}" HorizontalAlignment="Left" Margin="0,6,0,0"/>
+			</StackPanel>
+			<StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+				<TextBlock x:Name="BrowseTitleText" Text="Discover" FontSize="16" FontWeight="SemiBold"
 						   Foreground="{DynamicResource ThemeText}" VerticalAlignment="Center"/>
 				<Border CornerRadius="5" Padding="7,2" VerticalAlignment="Center" BorderThickness="1"
 						Background="{DynamicResource ThemeLighter}" BorderBrush="{DynamicResource ThemeBorder}">
 					<TextBlock x:Name="BrowseCountText" FontSize="10" Foreground="{DynamicResource ThemeTextSecondary}"/>
 				</Border>
 			</StackPanel>
-			<StackPanel x:Name="BrowseSourceTabs" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="24,0,0,0"
+			<StackPanel x:Name="BrowseSourceTabs" Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="10" Margin="24,0,0,0"
 						VerticalAlignment="Center">
 				<Button x:Name="BrowseCatalogTabButton" Classes="catalog-filter selected" Content="Source catalog"
 						FontSize="11" MinHeight="32" Click="BrowseSourceTab_Click"/>
@@ -91,7 +96,7 @@
 						FontSize="11" MinHeight="32" Click="BrowseSourceTab_Click"/>
 			</StackPanel>
 			<!-- "Hide apps in my library" joins the sort here when the title line has room (see ArrangeHideOption). -->
-			<StackPanel x:Name="BrowseSortPanel" Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+			<StackPanel x:Name="BrowseSortPanel" Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
 				<TextBlock x:Name="BrowseSortLabel" Text="Sort by" FontSize="11" VerticalAlignment="Center"
 						   Foreground="{DynamicResource ThemeTextSecondary}"/>
 				<TextBlock x:Name="BrowseRelevantText" Text="Most relevant ↓" FontSize="11" VerticalAlignment="Center"
@@ -177,7 +182,7 @@
 										<StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center" Spacing="4">
 											<TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource ThemeText}"
 													   TextTrimming="CharacterEllipsis"/>
-											<TextBlock Text="{Binding WaysText}" FontSize="12" Foreground="#7dd3fc"/>
+											<TextBlock Text="{Binding WaysText}" FontSize="12" Foreground="{DynamicResource ThemeTextSecondary}"/>
 										</StackPanel>
 									</Grid>
 								</Border>
@@ -190,7 +195,7 @@
 				<ItemsControl x:Name="BrowseItemsControl" Classes="fill-cards" ItemsSource="{Binding Items}">
 					<ItemsControl.ItemsPanel>
 						<ItemsPanelTemplate>
-							<views:CardColumnsPanel MinColumnWidth="256" Spacing="14"/>
+							<views:CardColumnsPanel MinColumnWidth="280" MinColumns="1" Spacing="20"/>
 						</ItemsPanelTemplate>
 					</ItemsControl.ItemsPanel>
 					<ItemsControl.ItemTemplate>

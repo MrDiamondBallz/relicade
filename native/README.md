@@ -167,6 +167,21 @@ image tooltip. The initial static SteamGridDB URL subset is not full artwork
 coverage, a rights grant or product-wide offline-network acceptance. See
 [artwork boundaries](../docs/ARTWORK.md#native-library-cover-references).
 
+## Native Discover presentation
+
+Discover uses the established orange action accent, readable theme-aware text
+and a cover-forward grid beneath “Find your next replay.” The wider cards retain
+the existing catalog image binding, project/platform labels, release and feedback
+status, Add/Open actions, source selection, search and every filter. Narrow
+desktop windows use a single readable card column; short windows keep controls
+inside the scrolling surface. Player theme preferences and the complete product
+wordmark remain unchanged.
+
+This is a bounded native presentation step, not a finished visual system or proof
+that every catalog image is available or licensed. Rendering fixtures use clearly
+named synthetic projects and procedural test pixels, never invented game art.
+The existing artwork source, cache and privacy boundaries still apply.
+
 ## Platform status and remaining acceptance
 
 | Target | Foundation status | Still required |
