@@ -112,6 +112,13 @@ public sealed class DiscoverVisualRenderingTests(SharedCatalogRenderer renderer)
                         Assert.InRange(position.X, 0, browse.BrowseToolbarPanel.Bounds.Width - sourceButton.Bounds.Width);
                     }
                 }
+                var hints = view.FindControl<TextBlock>("GamepadHintsBar")!;
+                var hintBounds = new Rect(hints.Bounds.Size).TransformToAABB(hints.TransformToVisual(window)!.Value);
+                var browseBounds = new Rect(browse.Bounds.Size).TransformToAABB(browse.TransformToVisual(window)!.Value);
+                Assert.True(hintBounds.X >= browseBounds.X - 30 * scale / 100d && hintBounds.Right <= window.Bounds.Width,
+                    $"Hints extend outside the content viewport: {hintBounds}, viewport {window.Bounds}.");
+                Assert.True(hintBounds.Bottom <= window.Bounds.Height);
+                Assert.True(hints.TextLayout.WidthIncludingTrailingWhitespace <= hints.Bounds.Width + 0.5, $"Hint text width {hints.TextLayout.WidthIncludingTrailingWhitespace} exceeds {hints.Bounds.Width}.");
                 var action = cards[0].FindControl<Button>("BrowseCardAddButton")!;
                 var actionBounds = new Rect(action.Bounds.Size).TransformToAABB(action.TransformToVisual(window)!.Value);
                 Assert.True(actionBounds.Y >= 0 && actionBounds.Bottom <= window.Bounds.Height);

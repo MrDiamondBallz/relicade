@@ -3,6 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Controls.Documents;
+using Avalonia.VisualTree;
 using Avalonia.Threading;
 using Relicade.Services;
 using Relicade.ViewModels;
@@ -27,6 +29,35 @@ public sealed class DiscoverVisualTests
             Assert.Equal(Color.Parse("#111211"), Assert.IsAssignableFrom<ISolidColorBrush>(button.Foreground).Color);
             button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); Assert.Equal(1, calls);
             Assert.Equal(inLibrary, item.InLibrary);
+        }
+        finally { window.Close(); }
+    }
+    [AvaloniaTheory]
+    [InlineData(false, false)][InlineData(false, true)]
+    [InlineData(true, false)][InlineData(true, true)]
+    public void Feedback_text_keeps_readable_contrast_and_explicit_verdict(bool light, bool broken)
+    {
+        var background = Color.Parse(light ? "#e5e5e5" : "#18181b");
+        var item = BrowseItem.FromCatalog(new() { Id = "fixture", Name = "Synthetic project", ProjectType = "ports",
+            Recommended = broken ? 0 : 4, ReportBroken = broken ? 4 : 0 }, new Dictionary<string,string>());
+        var card = new BrowseCard { DataContext = item };
+        new ThemeEditor(_ => background, (_, _) => { }, new LauncherDialogLifetime(CancellationToken.None, action => action()))
+            .ApplyResources(card.Resources, background, Color.Parse("#333333"));
+        var window = new Window { Content = card, Width = 320, Height = 420 };
+        try
+        {
+            window.Show(); window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
+            var score = card.GetVisualDescendants().OfType<TextBlock>().Single(t => t.Classes.Contains("browse-score-text"));
+            var run = score.Inlines!.OfType<Run>().First();
+            Assert.Equal(broken ? "Doesn't run" : "Runs well", run.Text);
+            var foreground = Assert.IsAssignableFrom<ISolidColorBrush>(run.Foreground).Color;
+            static double L(Color c)
+            {
+                static double C(byte b) { var v = b / 255d; return v <= 0.04045 ? v / 12.92 : Math.Pow((v + 0.055) / 1.055, 2.4); }
+                return 0.2126 * C(c.R) + 0.7152 * C(c.G) + 0.0722 * C(c.B);
+            }
+            var ratio = (Math.Max(L(foreground), L(background)) + 0.05) / (Math.Min(L(foreground), L(background)) + 0.05);
+            Assert.True(ratio >= 4.5, $"Feedback contrast is {ratio:F2}: {foreground} on {background}.");
         }
         finally { window.Close(); }
     }

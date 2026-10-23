@@ -125,13 +125,13 @@
 		<Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondary}"/>
 	</Style>
 	<Style Selector="Run.browse-score.positive">
-		<Setter Property="Foreground" Value="#8ac3a2"/>
+		<Setter Property="Foreground" Value="{DynamicResource ThemeFeedbackPositive}"/>
 	</Style>
 	<Style Selector="Run.browse-score.caution">
 		<Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondary}"/>
 	</Style>
 	<Style Selector="Run.browse-score.negative">
-		<Setter Property="Foreground" Value="#e38c87"/>
+		<Setter Property="Foreground" Value="{DynamicResource ThemeFeedbackNegative}"/>
 	</Style>
 	<Style Selector="TextBlock.browse-release">
 		<Setter Property="Grid.Column" Value="1"/>

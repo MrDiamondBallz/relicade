@@ -20,6 +20,22 @@ public sealed class ThemeEditor
         _applyColor = applyColor;
         _dialogs = dialogs;
     }
+    // Feedback is small body text. Choose a colored tone only when it remains
+    // readable on the actual card surface; custom palettes can need neutral text.
+    internal static Color ReadableFeedbackColor(Color background, bool positive)
+    {
+        static double L(Color c)
+        {
+            static double C(byte b) { var v = b / 255d; return v <= 0.04045 ? v / 12.92 : Math.Pow((v + 0.055) / 1.055, 2.4); }
+            return 0.2126 * C(c.R) + 0.7152 * C(c.G) + 0.0722 * C(c.B);
+        }
+        double Contrast(Color c) => (Math.Max(L(c), L(background)) + 0.05) / (Math.Min(L(c), L(background)) + 0.05);
+        foreach (var color in positive ? new[] { Color.Parse("#8ac3a2"), Color.Parse("#166534") }
+                                      : new[] { Color.Parse("#e38c87"), Color.Parse("#9f1239") })
+            if (Contrast(color) >= 4.5) return color;
+        return Contrast(Colors.Black) >= Contrast(Colors.White) ? Colors.Black : Colors.White;
+    }
+
         private bool IsLightColor(Color color)
         {
             // Calculate perceived brightness using standard formula
@@ -63,6 +79,8 @@ public sealed class ThemeEditor
             resources["ThemeBorder"] = themeBorder;
             resources["ThemeText"] = tintedText;
             resources["ThemeTextSecondary"] = tintedTextSecondary;
+            resources["ThemeFeedbackPositive"] = new SolidColorBrush(ReadableFeedbackColor(primaryColor, true));
+            resources["ThemeFeedbackNegative"] = new SolidColorBrush(ReadableFeedbackColor(primaryColor, false));
             resources["ThemeSuccess"] = new SolidColorBrush(Color.Parse("#22c55e"));
             resources["ThemeWarning"] = new SolidColorBrush(Color.Parse("#f59e0b"));
             resources["ThemeError"] = new SolidColorBrush(Color.Parse("#ef4444"));

@@ -177,6 +177,11 @@ desktop windows use a single readable card column; short windows keep controls
 inside the scrolling surface. Player theme preferences and the complete product
 wordmark remain unchanged.
 
+Keyboard/controller hints wrap in a reserved footer row instead of clipping at
+short widths. Feedback verdicts retain their explicit wording and select a
+readable colored tone against the card background, with a neutral fallback for
+custom palettes. These checks do not establish full accessibility compliance.
+
 This is a bounded native presentation step, not a finished visual system or proof
 that every catalog image is available or licensed. Rendering fixtures use clearly
 named synthetic projects and procedural test pixels, never invented game art.
