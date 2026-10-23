@@ -118,16 +118,28 @@ public sealed class DetailsReviewedArtworkRenderingTests(SharedCatalogRenderer r
                 // A reused details surface must revoke the portrait and its credit for a different identity.
                 view.FindControl<Button>("BrowseNavButton")!.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
                 var other = CatalogOnly.Entry(); other.Id = "different-catalog-entry";
+                other.Artwork = ReviewedGameArtwork.TaiseiUrl;
+                other.LibraryArt = new() { Hero = "  AVARES://Relicade/Assets/GameArt/taisei-elly-afensorm-cover.png", Header = ReviewedGameArtwork.TaiseiUrl, Capsule = ReviewedGameArtwork.TaiseiUrl, Logo = ReviewedGameArtwork.TaiseiUrl };
                 browse.OpenDetails(BrowseItem.FromCatalog(other, new Dictionary<string, string>()));
                 window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
                 Assert.Null(ImageLoader.GetSource(detailArt)); Assert.False(hero.IsVisible);
                 Assert.Null(ToolTip.GetTip(artHost)); Assert.Null(ToolTip.GetTip(hero));
                 Assert.True(string.IsNullOrEmpty(Avalonia.Automation.AutomationProperties.GetHelpText(artHost)));
                 // Original-game pages have their own upstream artwork; no stale portrait attribution carries across.
-                details.OpenGame("synthetic-original", "Synthetic original game");
+                var gameStatus = details.FindControl<TextBlock>("BrowseDetailsGameStatus")!;
+                var gameLoaded = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+                void GameChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+                { if (e.Property == TextBlock.TextProperty && gameStatus.Text == "No apps play this game yet.") gameLoaded.TrySetResult(); }
+                gameStatus.PropertyChanged += GameChanged;
+                try { details.OpenGame("synthetic-original", "Synthetic original game"); await gameLoaded.Task.WaitAsync(TimeSpan.FromSeconds(10)); }
+                finally { gameStatus.PropertyChanged -= GameChanged; }
                 window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
                 Assert.Null(ImageLoader.GetSource(detailArt)); Assert.Null(ToolTip.GetTip(artHost));
                 Assert.Null(ToolTip.GetTip(hero)); Assert.False(hero.IsVisible);
+                using var local = new GameInfo { Name = "Local custom entry", FolderName = "Local", IsCustom = true, GameIconUrl = ReviewedGameArtwork.TaiseiUrl };
+                browse.OpenDetails(BrowseItem.FromList(local)); window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
+                Assert.Equal(ReviewedGameArtwork.TaiseiUrl, ImageLoader.GetSource(detailArt));
+                Assert.Null(ToolTip.GetTip(artHost)); Assert.False(hero.IsVisible);
                 Assert.Equal(0, handler.UnexpectedCalls);
             }
             finally { GamepadFocusChrome.SetKeyboardNavigationActive(false); window.Close(); await view.ShutdownAsync(); ImageLoader.AsyncImageLoader = previousLoader; RelicadePaths.OverrideUserDataRoot = previousRoot; Directory.Delete(root, true); }
@@ -153,7 +165,7 @@ public sealed class DetailsReviewedArtworkRenderingTests(SharedCatalogRenderer r
             object value;
             var path = request.RequestUri!.AbsolutePath; Paths.Add(path);
             if (path.EndsWith("/release-status")) { await Task.Delay(Timeout.Infinite, token); throw new InvalidOperationException("Cancelled catalog fixture unexpectedly resumed."); }
-            if (path.EndsWith("/games/synthetic-original")) return new HttpResponseMessage(HttpStatusCode.NotFound);
+            if (path.EndsWith("/games/synthetic-original")) return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(JsonSerializer.Serialize(new QuiverCatalogGameDetail { Game = new() { Slug = "synthetic-original", Title = "Synthetic original game", Artwork = ReviewedGameArtwork.TaiseiUrl, LibraryArt = new() { Hero = ReviewedGameArtwork.TaiseiUrl, Capsule = ReviewedGameArtwork.TaiseiUrl } } }, new JsonSerializerOptions(JsonSerializerDefaults.Web))) };
             if (path.EndsWith("/readme")) return new HttpResponseMessage(HttpStatusCode.NotFound);
             if (path.EndsWith("/reviews")) return new HttpResponseMessage(HttpStatusCode.NotFound);
             if (path.EndsWith("/apps/taisei-project")) { DetailCalls++; value = new QuiverCatalogDetail { Entry = Entry(), Project = new() { Provider = "github", Repository = "taisei-project/taisei" } }; }

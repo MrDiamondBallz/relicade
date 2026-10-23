@@ -153,7 +153,7 @@ public sealed class BrowseItem : ObservableViewModel, IBrowseCard
         return new(null, app, title, subtitle, FirstText(app.GameIconUrl), kind, kind, subtitle.Length > 0 ? [subtitle] : []);
     }
 
-    private static string CatalogImage(params string?[] values) => FirstText(values
+    internal static string CatalogImage(params string?[] values) => FirstText(values
         .Where(v => v == null || !v.TrimStart().StartsWith("avares:", StringComparison.OrdinalIgnoreCase)).ToArray());
 
     private static string FirstText(params string?[] values) =>

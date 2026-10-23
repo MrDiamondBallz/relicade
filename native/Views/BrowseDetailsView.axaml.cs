@@ -237,11 +237,11 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
         ToolTip.SetTip(BrowseDetailsArtHost, credit);
         ToolTip.SetTip(BrowseDetailsHero, credit);
         Avalonia.Automation.AutomationProperties.SetHelpText(BrowseDetailsArtHost, credit);
-        var hero = reviewedArt ?? FirstText(app?.LibraryArt?.Hero, app?.LibraryArt?.Header);
+        var hero = reviewedArt ?? FirstText(BrowseItem.CatalogImage(app?.LibraryArt?.Hero, app?.LibraryArt?.Header));
         AsyncImageLoader.ImageLoader.SetSource(BrowseDetailsHero, LauncherArtworkLoader.FullSize(hero));
         BrowseDetailsHero.IsVisible = hero != null;
         AsyncImageLoader.ImageLoader.SetSource(BrowseDetailsArt, app == null ? entry?.GameIconUrl
-            : reviewedArt ?? FirstText(app.ArtworkFromGame ? null : app.Artwork, app.LibraryArt?.Logo, app.LibraryArt?.Capsule, app.Artwork, app.LibraryArt?.Header));
+            : reviewedArt ?? FirstText(BrowseItem.CatalogImage(app.ArtworkFromGame ? null : app.Artwork, app.LibraryArt?.Logo, app.LibraryArt?.Capsule, app.Artwork, app.LibraryArt?.Header)));
         BrowseDetailsKind.Text = item?.Kind.Replace(" · ", " / ").ToUpperInvariant();
         BrowseDetailsTitle.Text = item?.Title;
         BrowseDetailsTagline.Text = app?.Description;
@@ -326,11 +326,11 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
         Avalonia.Automation.AutomationProperties.SetHelpText(BrowseDetailsArtHost, null);
         var game = _game?.Game;
         var art = game?.LibraryArt;
-        var hero = FirstText(art?.Hero, art?.Header);
+        var hero = FirstText(BrowseItem.CatalogImage(art?.Hero, art?.Header));
         AsyncImageLoader.ImageLoader.SetSource(BrowseDetailsHero, LauncherArtworkLoader.FullSize(hero));
         BrowseDetailsHero.IsVisible = hero != null;
         SetArtShape(boxArt: !string.IsNullOrWhiteSpace(art?.Capsule));
-        AsyncImageLoader.ImageLoader.SetSource(BrowseDetailsArt, game == null ? null : FirstText(art?.Capsule, game.Artwork, art?.Logo));
+        AsyncImageLoader.ImageLoader.SetSource(BrowseDetailsArt, game == null ? null : FirstText(BrowseItem.CatalogImage(art?.Capsule, game.Artwork, art?.Logo)));
         BrowseDetailsKind.Text = "THE ORIGINAL GAME";
         BrowseDetailsTitle.Text = game?.Title ?? Current?.Title;
         BrowseDetailsTagline.Text = game?.Description;

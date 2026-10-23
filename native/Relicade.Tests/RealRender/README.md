@@ -167,6 +167,7 @@ DPI-transition certification.
 `DetailsReviewedArtworkRenderingTests` follows the actual catalog card into app
 details, uses Add to library, then Open in Library and a saved offline reload.
 The licensed Taisei portrait is decoded by the ordinary local loader. Positive
-art-host bounds, source identity, credit and clearing on page reuse are checked
+art-host bounds, source identity, credit, remote embedded-resource refusal and
+clearing on page reuse are checked
 at normal, minimum/light and 200% headless layouts. Catalog metadata is controlled
 and network image requests are rejected; no game is installed or executed.
