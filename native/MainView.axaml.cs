@@ -46,6 +46,7 @@ namespace Relicade
         private readonly Views.ShellChromeNavigation _chromeNavigation;
         private readonly ShellNavigationRouter _navigationRouter;
         private readonly bool _initializeOnOpen;
+        private readonly Action<string> _openExternalUrl;
         private readonly LauncherDialogLifetime _dialogs;
         private readonly LauncherPromptService _prompts;
         private readonly LauncherMenuController _menus;
@@ -137,6 +138,7 @@ namespace Relicade
         {
             ArgumentNullException.ThrowIfNull(dependencies);
             _initializeOnOpen = dependencies.InitializeOnOpen;
+            _openExternalUrl = dependencies.OpenExternalUrl ?? UrlLauncher.Open;
             _dialogs = new LauncherDialogLifetime(_session.Token, action => Dispatcher.UIThread.Post(action));
             _session.OnShutdown(_dialogs.Dispose);
             _settingsViewModel = new SettingsViewModel(dependencies.SettingsStore);
@@ -1698,7 +1700,7 @@ namespace Relicade
         {
             try
             {
-                UrlLauncher.Open(url);
+                _openExternalUrl(url);
             }
             catch (Exception ex)
             {

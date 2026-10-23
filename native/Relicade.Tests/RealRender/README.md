@@ -163,3 +163,10 @@ then compares actual decoded pixels with the visible viewport and current scale.
 Normal, minimum, near-column-threshold and 200% inputs retain the original source
 resolution cap. These are headless initial-scale checks, not physical multi-monitor
 DPI-transition certification.
+
+`ProjectSetupGuidanceRenderingTests` renders the actual project Overview with
+controlled offline metadata, no installed games and no external image requests.
+Normal, minimum and 200% interface-scale inputs require positive viewport bounds
+and readable preparation advice; the window's existing scaling/minimum-size policy
+can enlarge its effective pixel dimensions. This is headless layout evidence, not
+physical display, screen-reader or gameplay acceptance.
