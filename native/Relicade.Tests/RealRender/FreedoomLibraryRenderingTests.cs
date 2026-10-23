@@ -12,15 +12,15 @@ using Relicade.Views;
 
 namespace Relicade.Tests;
 
-public sealed class FreedoomLibraryRenderingTests(ITestOutputHelper output)
+[Collection(SharedCatalogRenderer.CollectionName)]
+public sealed class FreedoomLibraryRenderingTests(SharedCatalogRenderer renderer, ITestOutputHelper output)
 {
     [Theory]
     [InlineData(false, false, 180)][InlineData(true, false, 180)][InlineData(true, true, 180)]
     [InlineData(false, false, 120)][InlineData(true, false, 120)][InlineData(true, true, 120)]
     public async Task Eligible_card_shows_secondary_play_without_covering_art_or_primary_action(bool grid, bool compact, int cardSize)
     {
-        await using var renderer = HeadlessUnitTestSession.StartNew(typeof(RealRenderTestApp));
-        await renderer.Dispatch<int>(async () =>
+        await renderer.Session.Dispatch<int>(async () =>
         {
             var root = Path.Combine(Path.GetTempPath(), "freedoom-card-render-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);

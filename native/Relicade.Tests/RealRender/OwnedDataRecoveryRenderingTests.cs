@@ -9,14 +9,14 @@ using Relicade.Services;
 using Relicade.ViewModels;
 using Relicade.Views;
 namespace Relicade.Tests;
-public sealed class OwnedDataRecoveryRenderingTests(ITestOutputHelper output)
+[Collection(SharedCatalogRenderer.CollectionName)]
+public sealed class OwnedDataRecoveryRenderingTests(SharedCatalogRenderer renderer, ITestOutputHelper output)
 {
     [Theory]
     [InlineData(760, 660, 100)][InlineData(320, 360, 100)][InlineData(320, 360, 200)]
     public async Task Native_replacement_preview_keeps_confirmation_accessible(int width, int height, int percent)
     {
-        await using var renderer = HeadlessUnitTestSession.StartNew(typeof(RealRenderTestApp));
-        await renderer.Dispatch<int>(async () =>
+        await renderer.Session.Dispatch<int>(async () =>
         {
             await using var session = new LauncherSession();
             var plan = new OwnedDataPreview(new string('a', 64), "/synthetic/original/freedoom2.wad",
@@ -44,6 +44,8 @@ public sealed class OwnedDataRecoveryRenderingTests(ITestOutputHelper output)
                     Assert.InRange(end.X, 0, dialog.ClientSize.Width); Assert.InRange(end.Y, 0, dialog.ClientSize.Height);
                 }
                 Assert.True(GamepadModalDialogNavigation.Instance.FocusDialogControl(dialog.ConfirmButton));
+                var commit = Avalonia.Rendering.Composition.ElementComposition.GetElementVisual(dialog)!.Compositor.RequestCommitAsync();
+                AvaloniaHeadlessPlatform.ForceRenderTimerTick(2); await commit.WaitAsync(TimeSpan.FromSeconds(10));
                 using var frame = dialog.CaptureRenderedFrame(); Assert.NotNull(frame);
                 Assert.Equal(new PixelSize(width * percent / 100, height * percent / 100), frame.PixelSize);
                 using var locked = frame.Lock(); var bytes = new byte[locked.RowBytes * frame.PixelSize.Height];

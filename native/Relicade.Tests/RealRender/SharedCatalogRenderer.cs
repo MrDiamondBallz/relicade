@@ -3,7 +3,8 @@ using Avalonia.Headless;
 namespace Relicade.Tests;
 
 // PerAssembly sessions retain the application and its dispatcher context. The
-// library and details fixtures must share that owner, not recreate it per class.
+// native rendering fixtures must share that owner, not recreate it per case or
+// class. App resources, including thread-affine Geometry instances, are shared.
 [CollectionDefinition(SharedCatalogRenderer.CollectionName)]
 public sealed class CatalogRenderingCollection : ICollectionFixture<SharedCatalogRenderer>;
 

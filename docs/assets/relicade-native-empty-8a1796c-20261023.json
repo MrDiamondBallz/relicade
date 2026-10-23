@@ -1,0 +1,15 @@
+{
+  "image": "relicade-native-empty-8a1796c-20261023.png",
+  "sha256": "47be8795d969a74325bfe8ac5391ccbf9978db27efedb276c9395861db70fa91",
+  "native_source_commit": "8a1796c3fd97a77ff55546a6958054ea8dafd3e0",
+  "capture_date_utc": "2026-10-23",
+  "width": 1100,
+  "height": 760,
+  "capture_kind": "actual-native-headless",
+  "state": "Empty local library with isolated synthetic settings; no installed games or personal data.",
+  "renderer": "Avalonia 12.1.4 with CPU/Skia rendering on Linux x64. The native MainView is hosted in a headless test window; this is not desktop-host or platform acceptance.",
+  "fixture": "native/Relicade.Tests/RealRender/NativeTaglineRenderingTests.cs",
+  "fixture_sha256": "405641aa78a85a39ad15bb85faeae7ec339d57f7c4ca9ecf61809cab1497cb59",
+  "image_edits": "None; original framebuffer PNG bytes.",
+  "artwork": "Original Relicade interface and brand assets; no game artwork."
+}

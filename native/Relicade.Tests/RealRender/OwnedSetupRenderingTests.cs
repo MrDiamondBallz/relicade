@@ -11,7 +11,8 @@ using Relicade.Views;
 
 namespace Relicade.Tests;
 
-public sealed class OwnedSetupRenderingTests(ITestOutputHelper output)
+[Collection(SharedCatalogRenderer.CollectionName)]
+public sealed class OwnedSetupRenderingTests(SharedCatalogRenderer renderer, ITestOutputHelper output)
 {
     [Theory]
     [InlineData(false, 760, 660)]
@@ -19,8 +20,7 @@ public sealed class OwnedSetupRenderingTests(ITestOutputHelper output)
     [InlineData(true, 320, 360)]
     public async Task Actual_setup_dialog_renders_requirements_before_file_selection(bool freedoom, int width, int height)
     {
-        await using var renderer = HeadlessUnitTestSession.StartNew(typeof(RealRenderTestApp));
-        await renderer.Dispatch<int>(async () =>
+        await renderer.Session.Dispatch<int>(async () =>
         {
             var root = Path.Combine(Path.GetTempPath(), "setup-render-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);

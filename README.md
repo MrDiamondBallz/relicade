@@ -70,9 +70,9 @@ Source status: merged development source includes [reviewed safety work](https:/
 
 ### Current native application
 
-![Actual Relicade native Linux development build showing an empty local library](docs/assets/relicade-native-linux.png)
+![Actual Relicade native development interface showing an empty local library and the Old legends. New life. tagline](docs/assets/relicade-native-empty-8a1796c-20261023.png)
 
-*Captured from the actual native Linux development build with an empty local library. This is the running application, not a browser mockup or generated interface. It does not show installed games or establish packaged-release or hardware compatibility.*
+*Actual native development interface, rendered headlessly on Linux with an empty local library and isolated test settings. Captured from native source `8a1796c` on 2026-10-23, without image edits or game artwork. This is not a browser mockup, a desktop-host check or gameplay/platform acceptance. [Capture provenance](docs/ARTWORK.md#native-capture-provenance).*
 
 [Identity system](brand/BRAND.md) · [Brand presentation](docs/assets/relicade-brand.png) · [Architecture](docs/ARCHITECTURE.md)
 

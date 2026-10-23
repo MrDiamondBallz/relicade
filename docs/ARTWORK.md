@@ -8,11 +8,26 @@ libraries or images that imply unimplemented features. Identify empty libraries,
 synthetic test data and development builds in their captions. Never include
 credentials, personal paths or private user data.
 
-The README's native Linux capture shows a real empty-library development build.
+The README's current capture shows the actual native interface with an empty
+library in a headless Linux development render, not a desktop-host session.
 Brand artwork and the historical browser prototype remain design assets, not
 evidence of native features or a released product. Preserve actual interface
 content and accurate upstream attribution rather than editing a screenshot to
 make the product appear more complete.
+
+## Native capture provenance
+
+The [current empty-library capture](assets/relicade-native-empty-8a1796c-20261023.png) renders native source
+[`8a1796c`](https://github.com/MrDiamondBallz/relicade/tree/8a1796c3fd97a77ff55546a6958054ea8dafd3e0)
+on 2026-10-23 at 1100×760 pixels. [Its immutable metadata](assets/relicade-native-empty-8a1796c-20261023.json)
+records the PNG hash, fixture binding and limitations. It uses isolated test
+settings, a rejecting network transport and the actual native view. No personal
+files, installed games, game artwork or image edits are involved. It does not
+establish a working desktop display, platform accessibility, controllers or gameplay.
+
+The [earlier desktop development capture](assets/relicade-native-linux.png) is
+retained unchanged as historical material. Its old subtitle does not represent
+the current interface and it is no longer the README's current product image.
 
 ## Interface direction
 

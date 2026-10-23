@@ -1,6 +1,8 @@
 """Guard the scope, truthfulness and upkeep of the public project overview."""
 from pathlib import Path
 import re
+import json
+import hashlib
 import unittest
 from urllib.parse import unquote, urlsplit
 
@@ -47,6 +49,30 @@ class ReadmeVisionTests(unittest.TestCase):
                 continue
             with self.subTest(target=target):
                 self.assertTrue((ROOT / unquote(url.path)).exists())
+
+    def test_current_native_capture_has_immutable_provenance_and_honest_caption(self):
+        text = (ROOT / 'README.md').read_text()
+        current = text.split('### Current native application', 1)[1].split('## Explore locally', 1)[0]
+        image = re.search(r'!\[[^\]]+\]\((docs/assets/[^)]+\.png)\)', current)
+        self.assertIsNotNone(image)
+        path = ROOT / image.group(1)
+        metadata = json.loads(path.with_suffix('.json').read_text())
+        self.assertEqual(metadata['image'], path.name)
+        self.assertEqual(metadata['sha256'], hashlib.sha256(path.read_bytes()).hexdigest())
+        self.assertEqual(metadata['capture_kind'], 'actual-native-headless')
+        self.assertRegex(metadata['native_source_commit'], r'^[0-9a-f]{40}$')
+        self.assertEqual((metadata['width'], metadata['height']), (1100, 760))
+        self.assertIn('headlessly', current)
+        self.assertIn('empty local library', current)
+        self.assertIn('not a browser mockup, a desktop-host check or gameplay/platform acceptance', current)
+        self.assertNotIn('relicade-native-linux.png', current)
+
+    def test_previous_native_capture_is_retained_as_history_not_current(self):
+        self.assertTrue((ROOT / 'docs/assets/relicade-native-linux.png').is_file())
+        text = (ROOT / 'docs/ARTWORK.md').read_text()
+        self.assertIn('retained unchanged as historical material', text)
+        self.assertIn('old subtitle does not represent', text)
+        self.assertIn('assets/relicade-native-linux.png', text)
 
     def test_readme_freshness_is_part_of_contribution_and_pr_workflow(self):
         contributing = (ROOT / 'CONTRIBUTING.md').read_text()

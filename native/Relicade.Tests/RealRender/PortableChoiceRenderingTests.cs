@@ -6,14 +6,14 @@ using Relicade.Views;
 
 namespace Relicade.Tests;
 
-public sealed class PortableChoiceRenderingTests(ITestOutputHelper output)
+[Collection(SharedCatalogRenderer.CollectionName)]
+public sealed class PortableChoiceRenderingTests(SharedCatalogRenderer renderer, ITestOutputHelper output)
 {
     [Theory]
     [InlineData(false)][InlineData(true)]
     public async Task Actual_staged_file_choice_renders_before_install_confirmation(bool longPath)
     {
-        await using var renderer = HeadlessUnitTestSession.StartNew(typeof(RealRenderTestApp));
-        await renderer.Dispatch<int>(() =>
+        await renderer.Session.Dispatch<int>(async () =>
         {
             var width = longPath ? 480 : 720; var height = longPath ? 420 : 540;
             var path = longPath ? string.Join('/', Enumerable.Range(0, 36).Select(i => $"segment-{i:00}-" + new string('x', 32))) + "/game.exe" : "game/game.x86_64";
@@ -25,6 +25,8 @@ public sealed class PortableChoiceRenderingTests(ITestOutputHelper output)
                 dialog.UpdateLayout(); Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick(2);
                 Assert.True(dialog.ConfirmButton.IsEnabled); Assert.True(dialog.CancelButton.IsDefault);
                 Assert.Null(dialog.SelectedRelativePath);
+                var commit = Avalonia.Rendering.Composition.ElementComposition.GetElementVisual(dialog)!.Compositor.RequestCommitAsync();
+                AvaloniaHeadlessPlatform.ForceRenderTimerTick(2); await commit.WaitAsync(TimeSpan.FromSeconds(10));
                 using var frame = dialog.CaptureRenderedFrame(); Assert.NotNull(frame); Assert.Equal(new PixelSize(width, height), frame.PixelSize);
                 using var locked = frame.Lock(); var bytes = new byte[locked.RowBytes * height]; Marshal.Copy(locked.Address, bytes, 0, bytes.Length);
                 var colors = new HashSet<int>(); for (var i = 0; i < bytes.Length; i += 4) colors.Add(BitConverter.ToInt32(bytes, i));
@@ -39,7 +41,7 @@ public sealed class PortableChoiceRenderingTests(ITestOutputHelper output)
                 output.WriteLine($"Actual native staged-file dialog, {width}x{height} CPU framebuffer; synthetic paths, no installed game, no external request or executable launch. Not desktop-host or gameplay acceptance.");
             }
             finally { dialog.Close(); }
-            return Task.FromResult(0);
+            return 0;
         }, CancellationToken.None);
     }
 }

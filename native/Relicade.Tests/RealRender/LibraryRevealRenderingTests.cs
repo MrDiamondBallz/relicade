@@ -13,13 +13,13 @@ using Relicade.Views;
 
 namespace Relicade.Tests;
 
-public sealed class LibraryRevealRenderingTests(ITestOutputHelper output)
+[Collection(SharedCatalogRenderer.CollectionName)]
+public sealed class LibraryRevealRenderingTests(SharedCatalogRenderer renderer, ITestOutputHelper output)
 {
     [Fact]
     public async Task Actual_library_reveal_renders_its_filtered_target_and_explanation()
     {
-        await using var renderer = HeadlessUnitTestSession.StartNew(typeof(RealRenderTestApp));
-        await renderer.Dispatch<int>(async () =>
+        await renderer.Session.Dispatch<int>(async () =>
         {
             var root = Path.Combine(Path.GetTempPath(), "library-reveal-render-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
@@ -61,6 +61,8 @@ public sealed class LibraryRevealRenderingTests(ITestOutputHelper output)
                 Assert.InRange(point.Value.Y, 0, 720 - notice.Bounds.Height);
                 Assert.Same(entry, Assert.Single(manager.Games)); Assert.Equal(0, network.Calls);
                 Assert.Contains("selected", installed.Classes); Assert.Equal("unmatched fixture query", search.Text);
+                var commit = Avalonia.Rendering.Composition.ElementComposition.GetElementVisual(window)!.Compositor.RequestCommitAsync();
+                AvaloniaHeadlessPlatform.ForceRenderTimerTick(2); await commit.WaitAsync(TimeSpan.FromSeconds(10));
                 using var frame = window.CaptureRenderedFrame(); Assert.NotNull(frame); Assert.Equal(new PixelSize(1280, 720), frame.PixelSize);
                 using var locked = frame.Lock(); var bytes = new byte[locked.RowBytes * 720]; Marshal.Copy(locked.Address, bytes, 0, bytes.Length);
                 var colors = new HashSet<int>(); for (var i = 0; i < bytes.Length; i += 4) colors.Add(BitConverter.ToInt32(bytes, i));
