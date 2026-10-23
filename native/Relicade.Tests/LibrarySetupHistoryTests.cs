@@ -269,6 +269,49 @@ public sealed class LibrarySetupHistoryTests
         Assert.Equal(before, Snapshot(f.Root)); Assert.Equal(0, f.Transport.Requests);
     }
 
+    [AvaloniaFact]
+    public async Task Closed_continue_disposes_actual_incomplete_reader_after_drain()
+    {
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        LibrarySetupHistoryInspection? held = null;
+        var calls = 0;
+        async Task<LibrarySetupHistoryInspection.Step> Read(LibrarySetupHistoryInspection reader, CancellationToken token)
+        {
+            var result = await Task.Run(() => reader.Next(token), token);
+            if (Interlocked.Increment(ref calls) == 3)
+            {
+                Assert.True(result.More);
+                held = reader; entered.TrySetResult(); await release.Task;
+            }
+            return result;
+        }
+        await using var f = await DiscoveryFixture.Create(Read, () => release.TrySetResult());
+        try
+        {
+            await f.Model.SetupHistory.Work;
+            var directory = Path.Combine(f.Root, "DownloadIntents");
+            for (var i = 0; i < 2050; i++) File.WriteAllText(Path.Combine(directory, "unrelated-probe-" + i), "retained synthetic evidence");
+            var before = Snapshot(f.Root);
+            f.Model.SetupHistory.Refresh(); await f.Model.SetupHistory.Work;
+            Assert.True(f.Model.SetupHistory.HasMore);
+            f.Model.SetupHistory.Continue();
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            var work = f.Model.SetupHistory.Work;
+            f.Model.Dispose();
+            Assert.False(work.IsCompleted); Assert.NotNull(held); Assert.False(held.IsDisposed);
+            release.TrySetResult(); await work;
+            Assert.Equal(before, Snapshot(f.Root)); Assert.Equal(0, f.Transport.Requests);
+            Assert.Empty(f.Model.SetupHistory.Rows);
+            Assert.True(held.IsDisposed);
+        }
+        finally
+        {
+            try { release.TrySetResult(); await f.Model.SetupHistory.Work; }
+            finally { held?.Dispose(); }
+        }
+    }
+
     sealed class DiscoveryFixture : IAsyncDisposable
     {
         internal readonly string Root = Path.Combine(Path.GetTempPath(), "library-history-journey-" + Guid.NewGuid().ToString("N"));

@@ -86,13 +86,19 @@ public sealed class LibrarySetupHistoryViewModel : ObservableViewModel, IDisposa
     {
         if (closed || session == null || session.IsClosed || busy || !more || inspection == null || request == null) return;
         if (!StillCurrent()) { Refresh(); return; }
-        var reader = inspection; var current = generation; var token = request.Token;
+        var reader = inspection; var current = generation; var source = request; var token = source.Token;
         busy = true; Notify(null);
         Work = session.RunAsync(async () =>
         {
             try { await ReadStep(reader, current, token); }
             catch (OperationCanceledException) { reader.Dispose(); }
-            finally { if (closed) request?.Dispose(); }
+            finally
+            {
+                // The awaited read can return normally after cancellation. Its captured
+                // cursor still belongs to this continuation, not a newer inspection.
+                if (closed || token.IsCancellationRequested || current != generation) reader.Dispose();
+                if (closed) source.Dispose();
+            }
         });
     }
     async Task ReadStep(LibrarySetupHistoryInspection reader, long current, CancellationToken token)
