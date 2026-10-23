@@ -19,20 +19,29 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
     private System.Collections.ObjectModel.ObservableCollection<GameInfo> Games => _view.Model.Games;
     private AppSettings _settings => _view.Model.Settings.Current;
     private bool historySelected;
+    private Button? headerAction;
+    private List<Button> HeaderActions => new[] { _view.ExportLibraryMetadataButton, _view.LibrarySetupHistoryReviewButton }.Where(b => b.IsEffectivelyVisible && b.IsEffectivelyEnabled).ToList();
+    internal void SynchronizeExportFocus()
+    {
+        if (_session.IsClosed || !_canSelect() || !HeaderActions.Contains(_view.ExportLibraryMetadataButton)) return;
+        historySelected = true; headerAction = _view.ExportLibraryMetadataButton; _gamepadNavigation.ActiveZone = GamepadNavigationZone.Library;
+    }
     private bool HasHistoryAction => _view.LibrarySetupHistoryReviewButton.IsEffectivelyVisible && _view.LibrarySetupHistoryReviewButton.IsEffectivelyEnabled;
+    private bool HasHeaderActions => HeaderActions.Count != 0;
     internal void SynchronizeHistoryFocus()
     {
         if (_session.IsClosed || !_canSelect() || !HasHistoryAction) return;
-        historySelected = true; _gamepadNavigation.ActiveZone = GamepadNavigationZone.Library;
+        historySelected = true; headerAction = _view.LibrarySetupHistoryReviewButton; _gamepadNavigation.ActiveZone = GamepadNavigationZone.Library;
     }
-    private void SelectHistoryAction()
+    private void SelectHistoryAction(Button? requested = null)
     {
-        if (!HasHistoryAction) return;
+        if (!HasHeaderActions) return;
         _clearChrome(true); _host.ClearFocus(); ClearLibraryCardGamepadFocus();
+        headerAction = requested != null && HeaderActions.Contains(requested) ? requested : HeaderActions[^1];
         historySelected = true; _gamepadNavigation.ActiveZone = GamepadNavigationZone.Library;
-        _view.LibrarySetupHistoryReviewButton.Classes.Set("gamepad-focused", true);
-        GamepadControlActivation.ApplyGamepadHighlightFocus(_view.LibrarySetupHistoryReviewButton);
-        _view.LibrarySetupHistoryReviewButton.BringIntoView();
+        headerAction.Classes.Set("gamepad-focused", true);
+        GamepadControlActivation.ApplyGamepadHighlightFocus(headerAction);
+        headerAction.BringIntoView();
     }
     private List<Button> EmptyActions => Games.Count == 0 && _view.EmptyLibraryPanel.IsEffectivelyVisible
         ? new[] { _view.EmptyLibraryAddButton, _view.EmptyLibraryBrowseButton }.Where(b => b.IsEffectivelyVisible && b.IsEnabled).ToList()
@@ -92,8 +101,8 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
             return false;
         if (historySelected)
         {
-            if (!HasHistoryAction) { historySelected = false; return false; }
-            GamepadControlActivation.ActivateButton(_view.LibrarySetupHistoryReviewButton); return true;
+            if (headerAction == null || !HeaderActions.Contains(headerAction)) { historySelected = false; return false; }
+            GamepadControlActivation.ActivateButton(headerAction); return true;
         }
         // A live sort or insertion can move the focused card without another GotFocus event.
         // Resolve that action's identity first; an invalid secondary focus must not launch
@@ -156,8 +165,16 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
 
     internal bool HandleLibraryGamepadNavigation(NavigationDirection direction)
     {
-        if (_gamepadNavigation.ActiveZone == GamepadNavigationZone.Library && historySelected && HasHistoryAction)
+        if (_gamepadNavigation.ActiveZone == GamepadNavigationZone.Library && historySelected && HasHeaderActions)
         {
+            if (direction is NavigationDirection.Down or NavigationDirection.Up)
+            {
+                // The actions occupy stacked rows: follow their visual order.
+                var actions = HeaderActions;
+                var index = actions.IndexOf(headerAction!);
+                var next = index + (direction == NavigationDirection.Down ? 1 : -1);
+                if (next >= 0 && next < actions.Count) { SelectHistoryAction(actions[next]); return true; }
+            }
             if (direction == NavigationDirection.Down)
             {
                 if (Games.Count > 0) ApplyLibraryGamepadSelection(0);
@@ -168,7 +185,7 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
             if (direction == NavigationDirection.Left) return _host.ApplyTransition(new(GamepadNavigationZone.Sidebar, null));
             return true;
         }
-        if (_gamepadNavigation.ActiveZone == GamepadNavigationZone.Library && HasHistoryAction &&
+        if (_gamepadNavigation.ActiveZone == GamepadNavigationZone.Library && HasHeaderActions &&
             direction == NavigationDirection.Up && _gamepadNavigation.LibrarySelectedIndex <= 0)
         { SelectHistoryAction(); return true; }
         var emptyActions = EmptyActions;
@@ -219,6 +236,7 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
         {
             if (HasHistoryAction) { SelectHistoryAction(); return; }
             if (EmptyActions.Count > 0) { SelectEmptyAction(Math.Max(0, _gamepadNavigation.LibrarySelectedIndex)); return; }
+            if (HasHeaderActions) { SelectHistoryAction(); return; }
             _host.ClearFocus();
             _gamepadNavigation.LibrarySelectedIndex = -1;
             return;
@@ -257,6 +275,7 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
         {
             if (HasHistoryAction) { SelectHistoryAction(); return; }
             if (EmptyActions.Count > 0) { SelectEmptyAction(Math.Max(0, _gamepadNavigation.LibrarySelectedIndex), bringIntoView); return; }
+            if (HasHeaderActions) { SelectHistoryAction(); return; }
             _host.ClearFocus();
             _gamepadNavigation.LibrarySelectedIndex = -1;
             return;
@@ -270,6 +289,8 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
     {
         historySelected = false;
         _view.LibrarySetupHistoryReviewButton.Classes.Set("gamepad-focused", false);
+        _view.ExportLibraryMetadataButton.Classes.Set("gamepad-focused", false);
+        headerAction = null;
         _view.EmptyLibraryAddButton.Classes.Set("gamepad-focused", false);
         _view.EmptyLibraryBrowseButton.Classes.Set("gamepad-focused", false);
         foreach (var game in Games)
@@ -290,6 +311,8 @@ public sealed class LibraryNavigation : IFeatureNavigationHandler
         if (EmptyActions.Count > 0) { SelectEmptyAction(Math.Max(0, index), bringIntoView); return; }
         historySelected = false;
         _view.LibrarySetupHistoryReviewButton.Classes.Set("gamepad-focused", false);
+        _view.ExportLibraryMetadataButton.Classes.Set("gamepad-focused", false);
+        headerAction = null;
         var games = Games.ToList();
         index = _gamepadNavigation.ClampIndex(index, games.Count);
         _gamepadNavigation.LibrarySelectedIndex = index;

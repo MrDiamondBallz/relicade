@@ -125,6 +125,16 @@ implementation decisions, not assumed support. Original-data import and mods are
 conditional on project/OS access. Desktop tray/CLI/shortcuts have no implied
 Android equivalent; mobile lifecycle and package launch have their own gates.
 
+### Export-only source boundary
+
+The native Library offers an explicit loaded-metadata preview and new-file
+export, with synthetic context/cancellation/privacy/schema and headless display
+checks. This is a bounded part of R9, not its acceptance: custom presentation,
+profiles, validated import/restore, real OS picker/filesystem and complete
+platform journeys remain open. Raw library persistence is not the sharing
+format. See [loaded metadata export](../native/README.md#loaded-library-metadata-export).
+No feature/platform acceptance cells are promoted by these checks.
+
 ## Fixtures and native adapter handoff
 
 `tests/fixtures/scenarios.json` maps feature fixtures to input cases, expected

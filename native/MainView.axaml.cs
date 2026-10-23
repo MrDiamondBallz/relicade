@@ -256,6 +256,8 @@ namespace Relicade
                     CloseAfterLaunchIfNeeded(launched);
             }, () => Bounds.Width);
             LibraryPanel.Configure(Library, _session, _libraryLaunch, _menus.Open);
+            var metadataExport = new LibraryMetadataExportFlow(_gameManager, _settingsViewModel, _session, _dialogs);
+            LibraryPanel.ConfigureMetadataExport(metadataExport.OpenAsync);
             var preservation = new PortablePreservationFlow(_gameManager, _settingsViewModel, _session, _dialogs);
             LibraryPanel.ConfigurePreservationInspection(preservation.OpenAsync);
             var backupCleanup = new PortableBackupCleanupFlow(_gameManager, _settingsViewModel, _session, _dialogs);

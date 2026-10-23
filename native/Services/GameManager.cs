@@ -10,7 +10,7 @@ using System.Net.Http;
 
 namespace Relicade.Services
 {
-    public class GameManager : INotifyPropertyChanged, IDisposable
+    public partial class GameManager : INotifyPropertyChanged, IDisposable
     {
         private static readonly RelicadeProfile Profile = RelicadeProfile.Instance;
         private readonly ISettingsStore _settingsStore;
@@ -415,6 +415,18 @@ namespace Relicade.Services
             bool allowNetwork = true,
             AppListScope? listScopeOverride = null,
             bool preserveSettings = false)
+        {
+            var generation = BeginMetadataLoad(); var succeeded = false;
+            try
+            {
+                await LoadGamesCoreImplementationAsync(forceUpdateCheck, allowNetwork, listScopeOverride, preserveSettings);
+                succeeded = true;
+            }
+            finally { CompleteMetadataLoad(generation, succeeded); }
+        }
+
+        private async Task LoadGamesCoreImplementationAsync(
+            bool forceUpdateCheck, bool allowNetwork, AppListScope? listScopeOverride, bool preserveSettings)
         {
             // Validate and back up the existing library without rewriting it. Keep
             // initialization within the caller's awaited load/session lifetime.

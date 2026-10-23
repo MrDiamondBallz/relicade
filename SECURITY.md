@@ -71,6 +71,19 @@ Download, extraction, update, launch and mod operations require trust, signature
 
 Provider credentials belong in platform credential storage, never repository files or library exports. Importing another application's credentials requires informed user consent. Diagnostics must be reviewed and redacted before sharing.
 
+## Loaded metadata export
+
+The Library metadata preview uses a separate explicit field allowlist; it does
+not serialize the live settings or raw persistence object. Included names,
+repository identities and release labels can still contain personal information.
+Review the exact preview before sharing. The legacy raw library serializer is
+unchanged and is not this sharing format. Export requires a successful settled
+load and current session/root/entry context at a create-new commit. Linked
+ancestors, existing destinations and state/game roots are refused; these checks
+are not protection against arbitrary external filesystem replacement or proof
+that a mounted filesystem is local. No importer, backup/restore authority or
+release acceptance is implied; see the [scope and limits](native/README.md#loaded-library-metadata-export).
+
 ## Empty marker files
 
 Catalog marker preparation does not trust metadata as deletion authority. It

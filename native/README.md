@@ -769,3 +769,49 @@ continuation and **Show in Library**, not a transfer or recovery action. Unknown
 records remain visible refusals; context changes or closure reject stale results
 and pending reads drain. Neither a saved stage nor this notice grants readiness.
 See [finding saved setup history](../docs/GAME_SETUP.md#finding-saved-setup-history).
+
+## Loaded library metadata export
+
+In **Library → Export metadata…**, review the disclosure, entry count and exact
+JSON pages, then choose a **new** file. This exports the successfully loaded
+saved-entry set, including entries hidden by search or filters. It is an
+**export-only metadata list**, not a backup, importer or restore feature.
+
+Version 1 records the provider/repository, logical folder key, base name/project,
+advisory catalog ID, preferred/skipped release and asset filter where applicable.
+Manual entries do not claim hosted releases and would need relinking. Multiple
+instances may share a catalog ID; ambiguous folder or hosted repository/filter
+selections and conflicting catalog origins refuse export rather than silently
+merging records. All declared JSON fields are required, even when their value is
+null. Unknown versions, fields and duplicate properties are rejected by the
+format validator; this validator does not import anything.
+
+The new format does not serialize settings, tokens, installation/prefix paths,
+custom launch commands, artwork/mod URLs, custom labels/tags, automatic-update
+preferences, game files, saves, play history or installation receipts. Included
+names, repositories, logical keys and release labels can still reveal personal
+information: inspect the exact preview before sharing it. This is an allowlisted
+format, not a promise to identify every possible secret in free text. The older
+raw persistence serializer remains unchanged and is **not** this metadata format.
+
+Export requires a settled successful library load. A failed/in-flight load,
+settings recovery, changed entry/root or closed session cannot authorize a stale
+preview's save. The legacy loader may already have discarded duplicate original
+records; this preview cannot recover or validate those original records. The
+10,000-entry and 8 MiB limits are resource safeguards and refuse oversized output
+without truncation, not claims about total catalog support.
+
+The writer rejects existing destinations, linked ancestors, explicit network or
+device path spellings, and destinations inside current Relicade state/recovery
+or game roots. It writes a new sibling temporary file and uses a no-replace
+rename after rechecking the preview. A failed commit can have an uncertain
+outcome; inspect the chosen destination rather than assuming nothing changed.
+The path checks do not establish that a mounted filesystem is physically local,
+or provide power-loss durability or protection against arbitrary external file
+replacement. Save user game data and the library's recovery files separately.
+
+Evidence is limited to authored synthetic offline library entries, an injected
+file chooser, controlled cancellation/context changes, and headless native
+presentation checks. Real OS picker behavior, screen readers, controllers,
+other-platform filesystem behavior and complete R9 import/export/recovery
+acceptance remain open.

@@ -244,3 +244,12 @@ synthetic model observations, not a live download or game. Native
 a synthetic committed installation. The existing setup/error/cancellation renderer
 uses the same typed progress input; legacy library percentages are not substituted.
 Passing these selections is not full-renderer, desktop or gameplay acceptance.
+
+The loaded-metadata export fixture opens the actual Library action and preview
+using an authored offline manual entry and a file chooser that throws if called.
+It does not click Save. It checks exact paged text reconstruction, bounded
+inspection focus/scrolling, readable action/body text and the supported small
+window/200% layouts in both themes. Because the headless application has no
+desktop lifetime, the fixture explicitly registers the same owner scaling used
+by the desktop dialog service. Native OS file pickers, hardware input and import
+or restore acceptance are not established by these captures.

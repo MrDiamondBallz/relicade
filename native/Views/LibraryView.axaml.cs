@@ -32,6 +32,10 @@ public partial class LibraryView : UserControl
     private LibraryCustomizationService _customization = null!;
     private Func<GameInfo, Task> _autoUpdate = null!;
     private Func<string, string, Task> _message = null!;
+    private Func<Control?, Task> _exportMetadata = _ => Task.CompletedTask;
+    internal void ConfigureMetadataExport(Func<Control?, Task> open) => _exportMetadata = open;
+    private void ExportLibraryMetadata_Click(object? sender, RoutedEventArgs e) { if (_session != null && !_session.IsClosed) _ = _exportMetadata(sender as Control); }
+    private void ExportLibraryMetadata_GotFocus(object? sender, RoutedEventArgs e) => Navigation?.SynchronizeExportFocus();
     private Func<GameInfo?, Control?, Task> _inspectPreservation = (_, _) => Task.CompletedTask;
     internal void ConfigurePreservationInspection(Func<GameInfo?, Control?, Task> open) => _inspectPreservation = open;
     private Func<GameInfo?, Control?, Task> _cleanPortableBackups = (_, _) => Task.CompletedTask;
