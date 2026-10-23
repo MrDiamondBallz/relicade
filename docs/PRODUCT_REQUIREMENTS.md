@@ -101,7 +101,10 @@ Current source adds bounded saved intent/stages and explicit fresh retry for the
 compiled Linux x64 guided first-install adapters only. Reopening their confirmation
 is read-only; unknown history and commit uncertainty require inspection. This does
 not complete R2: global scheduling, generic installs/updates/mods, Range resume,
-process-kill/power-loss and native-platform acceptance remain unverified. See
+full desktop restart, remaining process-kill boundaries, power-loss and native-platform
+acceptance remain unverified. Two Linux synthetic worker checks cover termination
+after persisted Resolving/Downloading, a separate read-only inspector, and a third
+explicit retry; they do not satisfy the full restart-at-progress acceptance above. See
 [interrupted guided setup](GAME_SETUP.md#interrupted-guided-engine-setup).
 
 ### R3 — Transactional portable upgrades and rollback (P0)

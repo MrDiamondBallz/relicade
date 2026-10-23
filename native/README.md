@@ -704,3 +704,13 @@ context/source checks. Unknown records and commit uncertainty are retained and
 refused, not repaired or retried automatically. Engine completion is separate from
 owned-data readiness. See [the setup contract](../docs/GAME_SETUP.md#interrupted-guided-engine-setup);
 this is not a generic durable queue or packaged/runtime acceptance.
+
+`GuidedInstallIntentProcessTests` verifies two separate-process boundaries using
+only authored synthetic payloads and injected HTTP. Each parent case receives an
+exact persisted-stage stdout handshake, terminates only its own worker, and drains
+it before starting a separate inspector and explicit retry process. Inspection
+makes zero HTTP requests and leaves application-data paths, bytes and modification
+times unchanged; retry checks actual committed engine bytes and retained history.
+Coordination receipts and fixture inputs are retained, not silently deleted.
+These are Resolving/Downloading precommit checks, not power-loss certification or
+whole-desktop startup acceptance. No acquired engine is executed.

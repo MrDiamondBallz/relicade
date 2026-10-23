@@ -105,9 +105,14 @@ Existing data-file consent and readiness checks are unchanged.
 
 This is a narrow first-install capability, not a global download queue, scheduler,
 byte-range resume, general update/mod persistence or power-loss/platform acceptance.
-The focused synthetic tests reopen saved state in-process and exercise real local
-transaction callbacks; they do not certify every process-kill boundary or real game
-runtime. Full R2 acceptance remains open.
+The focused synthetic tests cover in-process reopening and real local transaction
+callbacks. Two additional Linux checks terminate an owned test worker after the
+Resolving or Downloading stage is persisted. A separate inspector opens the retry
+confirmation without HTTP requests or application-data changes; a third process
+explicitly retries pinned synthetic bytes, preserving the prior attempt and authored
+save/original sentinels. These checks do not launch a game, cover every termination
+boundary, or certify full desktop startup or physical power loss. Full R2 acceptance
+remains open.
 
 ## Keeping a specific build
 
