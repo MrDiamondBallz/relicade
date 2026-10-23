@@ -135,3 +135,9 @@ installed game or ROM. Natural controller navigation exposes the complete
 compatibility and engine-config/privacy disclosure at 760×660, 320×360 and
 200% interface scaling. Separate native UI tests exercise the confirmed local
 copy with synthetic bytes. No acquired engine is executed by these captures.
+
+`Z2rsFirstInstallRenderingTests` uses the same shared owner for the native
+project-specific engine confirmation at normal/minimum size and 200% scaling.
+Its synthetic entry starts no download or game. Footer controller focus, the
+separate ROM-consent disclosure and visible geometry are checked independently
+of the injected installer and cancellation tests.

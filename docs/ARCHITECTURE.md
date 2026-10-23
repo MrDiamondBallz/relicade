@@ -314,7 +314,14 @@ pinned SHA256 in addition to the variant MD5. The original Perfect Dark definiti
 keeps its existing filename and behavior. The optional action does not set the
 engine's mandatory-data gate or alter ordinary Launch.
 
-Uninstalled entries can explicitly confirm the adapter's first engine installation.
+Uninstalled UZDoom/Freedoom and z2rs entries can explicitly confirm their compiled
+adapter's first engine installation. `GuidedEngineInstallService` selects only
+those compiled project definitions; remote metadata cannot add a project or
+package type. The z2rs card's primary action enters this flow, while its ordinary
+Download menu route remains separate. The shared progress lifecycle receives the
+project-specific confirmation and title. The first-install constraint defaults
+to AppImage only; the compiled z2rs adapter explicitly enables its exact tar.gz
+asset, still subject to the same digest, byte limit and transaction boundary.
 A constrained route reuses the ordinary download/install service, but requires the
 exact release, asset and compiled SHA256 independently of mutable provider digests.
 The transaction's opt-in first-install boundary inspects file kinds/presence before

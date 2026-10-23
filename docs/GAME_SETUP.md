@@ -329,6 +329,20 @@ different game at the old selection index.
 
 ## z2rs Zelda II USA setup
 
+For a new entry, the primary **Set up game** action offers the pinned engine
+installation first. The confirmation identifies z2rs and the supported release,
+then the shared setup window shows progress and its own Cancel action. Only this
+explicit choice starts the package transfer. Existing versions, nonempty targets
+and pending installation history are not replaced. Ordinary Download/version
+controls remain available separately. Other platforms receive a specific
+unsupported-setup explanation rather than an alternative package.
+
+After confirmed installation, the separate owned-file dialog opens. Select your
+own lawful ROM, inspect the source/destination and confirm the copy. No ROM is
+fetched, and no game launches automatically. Cancellation waits for owned work;
+if the engine committed before cancellation it remains installed, but no data
+handoff or play begins. Inspect retained state before retrying.
+
 For a dedicated managed **z2rs v0.6.0 Linux x64** installation, **Finish game
 setup** accepts your lawful Zelda II USA dump. Relicade supplies no ROM and does
 not fetch, upload or transform it. Review the original and destination paths,

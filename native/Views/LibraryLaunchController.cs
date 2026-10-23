@@ -30,9 +30,10 @@ public sealed class LibraryLaunchController
 
     private Func<GameInfo?, Control?, Task>? _ownedGameSetup;
     internal void ConfigureOwnedGameSetup(Func<GameInfo?, Control?, Task> open) => _ownedGameSetup = open;
-    private async Task<bool> OpenRequiredSetupAsync(GameInfo game, Control? anchor)
+    private async Task<bool> OpenRequiredSetupAsync(GameInfo game, Control? anchor, bool offerFirstInstall = false)
     {
-        if (!game.HasOwnedDataAdapter || !game.IsInstalled || game.OwnedDataReady) return false;
+        var firstInstall = offerFirstInstall && GuidedEngineInstallService.OffersRequiredFirstInstall(game);
+        if (!firstInstall && (!game.HasOwnedDataAdapter || !game.IsInstalled || game.OwnedDataReady)) return false;
         if (_settingsModel.KioskLocked || _settingsModel.IsReadOnly || _ownedGameSetup == null)
             await ShowMessageBoxAsync("Game data needs setup. Open the writable, unlocked library and choose Finish game setup.", "Game setup required");
         else await _ownedGameSetup(game, anchor);
@@ -130,7 +131,7 @@ public sealed class LibraryLaunchController
 
     private async Task PerformGamePrimaryActionCoreAsync(GameInfo game, Control anchor)
     {
-        if (await OpenRequiredSetupAsync(game, anchor)) return;
+        if (await OpenRequiredSetupAsync(game, anchor, offerFirstInstall: true)) return;
         using var priority = ReleaseRequestCoordinator.PrioritizeInteractiveChecks();
         var launched = false;
         try
@@ -775,7 +776,7 @@ public sealed class LibraryLaunchController
 
     private async Task PerformSelectedGameActionCoreAsync(GameInfo game)
     {
-        if (await OpenRequiredSetupAsync(game, _resolveAnchor(game, null))) return;
+        if (await OpenRequiredSetupAsync(game, _resolveAnchor(game, null), offerFirstInstall: true)) return;
         using var priority = ReleaseRequestCoordinator.PrioritizeInteractiveChecks();
         var launched = false;
         try
