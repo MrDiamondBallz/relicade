@@ -169,7 +169,7 @@ class LinuxAppDirTests(unittest.TestCase):
 
     def test_desktop_entry_has_no_unimplemented_file_associations(self):
         self.assemble()
-        text = (self.output / 'relicade.desktop').read_text()
+        text = (self.output / 'io.github.mrdiamondballz.relicade.desktop').read_text()
         self.assertIn('Exec=relicade\n', text)
         self.assertIn('Icon=relicade\n', text)
         self.assertNotIn('%U', text)

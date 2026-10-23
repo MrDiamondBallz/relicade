@@ -48,8 +48,10 @@ The output must not exist. Every input file is checked and copied; no input is
 executed or modified. The launcher keeps the caller's working directory and
 literal arguments, including paths containing spaces. Executable files become
 mode 0755 and other files 0644, rather than carrying owner-only execution bits
-into a root-owned filesystem image. The original icon, a desktop entry and a
-file/hash/mode manifest accompany the payload. No file associations or desktop
+into a root-owned filesystem image. The original icon, desktop entries, AppStream metadata and a
+file/hash/mode manifest accompany the payload. The metadata carries a narrowly scoped
+CC0-1.0 grant for that XML alone, not the code, logo, artwork or other original
+material. Product rights remain mixed; existing legal notices are unchanged. No file associations or desktop
 settings are registered. Unsupported control characters in build paths are
 refused rather than producing a broken launcher.
 
@@ -60,6 +62,15 @@ at final publication. These checks are not a hostile concurrent filesystem
 sandbox or a guarantee against power loss.
 
 ## Make the AppImage with explicit tools
+
+Supply an official `appstreamcli` validator as well as the two pinned build assets.
+The recipe copies the explicitly supplied validator into private staging and runs
+`validate-tree --no-net` against the complete AppDir before container assembly. A
+missing validator, nonzero validation result or undrained validator process stops
+the build. Its hash is recorded, not treated as proof of its publisher. Use a
+verified official distribution package; the recipe does not download or install it.
+If project-local libraries are needed, an explicit local wrapper can launch that
+verified tool. No system package or desktop setting needs to change.
 
 Download these official assets into the local tools folder:
 
@@ -77,6 +88,7 @@ python3 tools/build_linux_appimage.py \
   --publish native/artifacts/linux-x64/publish \
   --appimagetool native/artifacts/linux-x64/tools/appimagetool-x86_64.AppImage \
   --runtime native/artifacts/linux-x64/tools/runtime-x86_64 \
+  --appstreamcli /path/to/verified/appstreamcli \
   --output native/artifacts/linux-x64/RELICADE-development-x86_64.AppImage \
   --epoch 0
 ```
@@ -86,7 +98,8 @@ uses one compressor worker, fixed timestamps and a restricted build environment,
 and does not inherit account tokens, signing settings or an unrelated VERSION.
 No signing, update feed, AppImageHub submission, automatic installation or network
 fetch is requested. The tool uses extraction instead of mounting itself through
-FUSE. The default work deadline is 120 seconds, with bounded termination/drain.
+FUSE. Each validator/assembly phase has a default deadline of 120 seconds, with bounded
+termination/drain.
 A successful leader exit is not enough: the entire process group must disappear.
 Shutdown allows up to five seconds after TERM and another five after KILL.
 An unconfirmed group, including an adopted but unreaped descendant, leaves
@@ -105,17 +118,27 @@ does not exercise the full desktop application or certify normal FUSE mounting.
 ## Remaining distribution obligations
 
 The [directory-publish notice inventory](NATIVE_PACKAGE_CONTENTS.md) covers the
-application payload, not the newly embedded AppImage runtime. That runtime's
+application payload. The separate [container inventory](../native/packaging/linux/runtime-notices/manifest.json)
+now preserves the pinned runtime's original MIT notice and the exact upstream
+libfuse and squashfuse license texts in the AppDir. This is deliberately partial: it
+does not establish complete linked-component or source/relink compliance. That runtime's
 [pinned license](https://github.com/AppImage/type2-runtime/blob/dd6cebedcbddde9c82f89b011e8e1d40b6e43868/LICENSE)
 also identifies statically linked components, including libfuse under LGPLv2.
 Their complete applicable notices, source/relink obligations and exact build
 provenance still need reconciliation before public distribution. Do not label
 the whole container MIT or change Relicade's original-material terms.
 
-AppStream metadata is intentionally absent from this preliminary recipe, and its
-validation is explicitly disabled only for this private-development scope.
-That is an unresolved distribution-quality gate, not a passed metadata test or a
-new license grant over original product material. Signing, reproducible release
+The upstream runtime recipe uses an unpinned Alpine image and package revisions.
+Exact musl, zstd, zlib and mimalloc source/notice bindings remain unresolved;
+mimalloc is linked but absent from the upstream top-level notice list. The
+manifest records these gaps rather than claiming that three copied texts complete
+all distribution obligations.
+
+The new AppStream description explicitly identifies a development package and does
+not invent releases, screenshots, gameplay or emulation support. Official AppStream
+1.0.5 validation of the synthetic AppDir passed with an informational missing
+content-rating notice; this is not a rating or endorsement of listed games. Its
+metadata license applies only to that new XML. Signing, reproducible release
 packages, platform acceptance and the full release contract remain unaccepted.
 
 ## Offline regression checks

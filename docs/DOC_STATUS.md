@@ -59,6 +59,9 @@ This inventory is generated from the explicit maintenance registry. Semantic rev
 | [native/licenses/linux-x64/upstream/rsms--inter/LICENSE.txt](../native/licenses/linux-x64/upstream/rsms--inter/LICENSE.txt) | protected |  |
 | [native/licenses/linux-x64/upstream/tmds--Tmds.DBus/COPYING](../native/licenses/linux-x64/upstream/tmds--Tmds.DBus/COPYING) | protected |  |
 | [native/licenses/linux-x64/upstream/velopack--velopack/LICENSE](../native/licenses/linux-x64/upstream/velopack--velopack/LICENSE) | protected |  |
+| [native/packaging/linux/runtime-notices/libfuse-LGPL2.txt](../native/packaging/linux/runtime-notices/libfuse-LGPL2.txt) | protected |  |
+| [native/packaging/linux/runtime-notices/squashfuse-LICENSE.txt](../native/packaging/linux/runtime-notices/squashfuse-LICENSE.txt) | protected |  |
+| [native/packaging/linux/runtime-notices/type2-runtime-LICENSE.txt](../native/packaging/linux/runtime-notices/type2-runtime-LICENSE.txt) | protected |  |
 | [prototype/README.md](../prototype/README.md) | review | preview, presentation, tooling |
 | [prototype/assets/art/README.md](../prototype/assets/art/README.md) | review | preview, presentation |
 

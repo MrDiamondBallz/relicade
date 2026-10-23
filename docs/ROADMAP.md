@@ -49,8 +49,9 @@ existing confirmed transaction can attempt internal recovery on failure. No
 download or general history restore is implied. Complete R3 and native-platform/package acceptance remain open.
 
 A private Linux x64 [AppDir/AppImage recipe](LINUX_APPIMAGE_DEVELOPMENT.md)
-provides a development packaging path with explicit pinned tools. Runtime rights,
-AppStream metadata, signing and actual package/desktop installation acceptance
+provides a development packaging path with explicit pinned tools and validated
+AppStream development metadata. The container notice inventory remains partial;
+complete runtime rights, signing and actual package/desktop installation acceptance
 remain open. This does not supply a released binary or cover Flatpak/ARM64.
 
 ## 4. Full functionality and platform coverage — mandatory, pending

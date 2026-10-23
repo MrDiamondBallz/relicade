@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://creativecommons.org/publicdomain/zero/1.0/
+     CC0-1.0 applies only to this AppStream XML and its descriptions/metadata,
+     not application code, logos, artwork or other original Relicade material.
+     The project_license expression describes mixed product rights; it does not
+     replace the inherited MIT notices or grant reuse of original material. -->
+<component type="desktop-application">
+  <id>io.github.mrdiamondballz.relicade</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT AND LicenseRef-proprietary</project_license>
+  <name>RELICADE</name>
+  <summary>Discover and manage community-revived classic games</summary>
+  <developer id="io.github.mrdiamondballz">
+    <name>Tristan</name>
+  </developer>
+  <description>
+    <p>Old legends. New life. RELICADE is a launcher in development for community ports, recompilations and recreations of classic games.</p>
+    <p>Browse projects, keep a local library, manage supported portable installations and choose a launch file. Selected package-bound setup flows help you confirm and import lawful game data. Supported operations include version selection, integrity checks and retained-version recovery.</p>
+    <p>This Linux x64 development package is not a verified release. Complete catalog setup, gameplay, desktop compatibility and other platform requirements remain under development. Emulation is not implemented. Original game data and BIOS files are not included.</p>
+  </description>
+  <launchable type="desktop-id">io.github.mrdiamondballz.relicade.desktop</launchable>
+  <categories><category>Game</category></categories>
+  <url type="homepage">https://github.com/MrDiamondBallz/relicade</url>
+  <url type="bugtracker">https://github.com/MrDiamondBallz/relicade/issues</url>
+  <url type="help">https://github.com/MrDiamondBallz/relicade/blob/main/native/README.md</url>
+</component>

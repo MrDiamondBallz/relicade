@@ -32,13 +32,15 @@ class LinuxAppImageTests(unittest.TestCase):
         self.stack = contextlib.ExitStack(); self.addCleanup(self.stack.close)
         self.stack.enter_context(patch.object(builder, '_pins', return_value=self.pins))
         self.stack.enter_context(patch.object(builder.appdir, 'assemble', side_effect=assemble))
+        self.validation = self.stack.enter_context(patch.object(builder, '_validate_appstream', return_value='a' * 64))
         self.run = self.stack.enter_context(patch.object(builder, '_run', side_effect=self.complete))
 
     def complete(self, command, environment, directory, timeout):
-        self.assertEqual(['--no-appstream', '--runtime-file'], command[1:3])
+        self.assertEqual('--runtime-file', command[1])
+        self.assertNotIn('--no-appstream', command)
         self.assertIn('--mksquashfs-opt=-processors', command)
         self.assertIn('--mksquashfs-opt=1', command)
-        self.assertEqual(str(directory / 'runtime'), command[3])
+        self.assertEqual(str(directory / 'runtime'), command[2])
         self.assertNotIn('GH_TOKEN', environment)
         self.assertNotIn('VERSION', environment)
         self.assertNotIn('--guess', command)
@@ -60,6 +62,18 @@ class LinuxAppImageTests(unittest.TestCase):
         self.assertFalse(result['packaged_release'])
         self.assertEqual('not_accepted', result['distribution_rights'])
         self.assertEqual('not_accepted', result['platform_support'])
+        self.validation.assert_called_once()
+        self.assertEqual('validator_passed', result['appstream_metadata'])
+        self.assertEqual('partial_not_accepted', result['runtime_notices'])
+        self.assertEqual('a' * 64, result['appstream_validator_sha256'])
+        self.assertEqual([], list(self.root.glob('.relicade-image-*')))
+
+    def test_metadata_validation_is_required_before_the_container_tool(self):
+        self.validation.side_effect = ValueError('metadata rejected')
+        with self.assertRaises(ValueError): self.package()
+        self.validation.assert_called_once()
+        self.run.assert_not_called()
+        self.assertFalse(self.output.exists())
         self.assertEqual([], list(self.root.glob('.relicade-image-*')))
 
     def test_changed_tool_and_runtime_refuse_before_execution(self):

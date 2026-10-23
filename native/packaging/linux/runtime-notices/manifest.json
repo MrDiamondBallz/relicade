@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "scope": "Known notices for the separately embedded AppImage runtime, not the application payload. This incomplete inventory is not distribution approval.",
+  "runtime_sha256": "2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d",
+  "runtime_source_commit": "dd6cebedcbddde9c82f89b011e8e1d40b6e43868",
+  "distribution_rights": "not_accepted",
+  "notices": {
+    "libfuse-LGPL2.txt": {
+      "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+      "source_url": "https://github.com/libfuse/libfuse/blob/6d08472ea47db895748d5ca7d3daf032c3fefcf8/LGPL2.txt"
+    },
+    "squashfuse-LICENSE.txt": {
+      "sha256": "9e909cc8a8ba27b1a649c964cf9eda37de911f3138c2b64e6d2f01703904ac13",
+      "source_url": "https://github.com/vasi/squashfuse/blob/775b4cc72ab47641637897f11ce0da15d5c1f115/LICENSE"
+    },
+    "type2-runtime-LICENSE.txt": {
+      "sha256": "aa154fc9070614bbe7921f89db11efd1dba7a1f3a41685958110e2230f9c0ca1",
+      "source_url": "https://github.com/AppImage/type2-runtime/blob/dd6cebedcbddde9c82f89b011e8e1d40b6e43868/LICENSE"
+    }
+  },
+  "unresolved": [
+    "Exact Alpine image and package revisions for musl, zstd, zlib and mimalloc are not recorded by the upstream recipe.",
+    "The linked mimalloc component is absent from the runtime top-level notice list; its exact version and notice binding remain unconfirmed.",
+    "Complete applicable LGPL source and relinking obligations, including the patched libfuse build, have not been fulfilled by copying license text."
+  ],
+  "recipe_sources": [
+    "https://github.com/AppImage/type2-runtime/blob/dd6cebedcbddde9c82f89b011e8e1d40b6e43868/scripts/docker/Dockerfile",
+    "https://github.com/AppImage/type2-runtime/blob/dd6cebedcbddde9c82f89b011e8e1d40b6e43868/scripts/common/install-dependencies.sh"
+  ]
+}

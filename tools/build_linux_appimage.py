@@ -125,7 +125,21 @@ def _run(command, environment, directory, timeout):
         raise ValueError('AppImage build tool failed with exit ' + str(result))
 
 
-def package(publish, output, tool, runtime, epoch=0, timeout=120):
+def _validate_appstream(image_root, validator, environment, directory, timeout):
+    if validator is None:
+        raise ValueError('Supply a verified official appstreamcli with --appstreamcli')
+    validator = Path(validator).absolute()
+    appdir._directory(validator.parent)
+    data = appdir.notices._bytes(validator.parent, validator.name, 32 * 1024 * 1024)
+    checked = directory / 'appstreamcli'
+    checked.write_bytes(data)
+    os.chmod(checked, 0o755)
+    _run([str(checked), 'validate-tree', '--no-net', str(image_root)], environment, directory, timeout)
+    (directory / 'tool.log').rename(directory / 'metadata-validation.log')
+    return hashlib.sha256(data).hexdigest()
+
+
+def package(publish, output, tool, runtime, epoch=0, timeout=120, appstreamcli=None):
     if sys.platform != 'linux' or platform.machine().lower() not in {'x86_64', 'amd64'}:
         raise ValueError('This recipe requires a Linux x64 build host')
     if type(timeout) is not int or not 1 <= timeout <= 300:
@@ -154,8 +168,9 @@ def package(publish, output, tool, runtime, epoch=0, timeout=120):
                        'HOME': str(directory / 'home'), 'TMPDIR': str(directory / 'tmp'),
                        'ARCH': 'x86_64', 'SOURCE_DATE_EPOCH': str(epoch),
                        'APPIMAGE_EXTRACT_AND_RUN': '1'}
+        validator_hash = _validate_appstream(image_root, appstreamcli, environment, directory, timeout)
         staged = directory / 'RELICADE.AppImage'
-        command = [str(checked_tool), '--no-appstream', '--runtime-file', str(checked_runtime),
+        command = [str(checked_tool), '--runtime-file', str(checked_runtime),
                    '--mksquashfs-opt=-processors', '--mksquashfs-opt=1', str(image_root), str(staged)]
         _run(command, environment, directory, timeout)
         with appdir.notices._file(directory, staged.name, 768 * 1024 * 1024) as stream:
@@ -167,7 +182,8 @@ def package(publish, output, tool, runtime, epoch=0, timeout=120):
         report = {'sha256': digest, 'bytes': staged.stat().st_size, 'runtime_identifier': 'linux-x64',
                   'tool_sha256': tool_pin['sha256'], 'runtime_sha256': runtime_pin['sha256'],
                   'packaged_release': False, 'distribution_rights': 'not_accepted',
-                  'platform_support': 'not_accepted', 'appstream_metadata': 'not_included'}
+                  'platform_support': 'not_accepted', 'appstream_metadata': 'validator_passed',
+                  'appstream_validator_sha256': validator_hash, 'runtime_notices': 'partial_not_accepted'}
         # link() is exclusive even if another owner creates the final path during the build.
         # The temporary link is removed with staging before this result is returned.
         os.link(staged, output, follow_symlinks=False)
@@ -176,13 +192,13 @@ def package(publish, output, tool, runtime, epoch=0, timeout=120):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ['publish', 'output', 'appimagetool', 'runtime']:
+    for name in ['publish', 'output', 'appimagetool', 'runtime', 'appstreamcli']:
         parser.add_argument('--' + name, required=True, type=Path)
     parser.add_argument('--epoch', type=int, default=0)
     parser.add_argument('--timeout', type=int, default=120)
     args = parser.parse_args()
     try:
-        report = package(args.publish, args.output, args.appimagetool, args.runtime, args.epoch, args.timeout)
+        report = package(args.publish, args.output, args.appimagetool, args.runtime, args.epoch, args.timeout, args.appstreamcli)
     except (OSError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired, UndrainedBuild) as exc:
         print(json.dumps({'ok': False, 'error': str(exc)}))
         return 1

@@ -25,3 +25,11 @@ Online browser artwork uses the exact retained SteamGridDB URLs at runtime, with
 Barlow Condensed and Manrope are bundled with SIL Open Font License notices and source information in `brand/assets/fonts/`. Preserve those notices with the fonts.
 
 No open-source license has been selected for original Relicade material; the inherited native code remains subject to its applicable MIT notices. Public source visibility is not a reuse grant for separately owned original material. This repository contains no ROMs, BIOS, commercial game data, user credentials or copied installed executables. Tiny archive fixtures containing text named `game.exe` are synthetic test inputs, not game executables.
+
+## AppStream metadata exception
+
+Only the new `native/packaging/linux/io.github.mrdiamondballz.relicade.appdata.xml`
+and its descriptions/metadata are dedicated under
+[CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/). This narrow grant
+does not apply to application code, logos, artwork or any other original Relicade
+material. Inherited third-party terms and notices remain unchanged.

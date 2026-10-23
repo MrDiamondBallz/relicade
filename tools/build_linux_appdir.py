@@ -13,6 +13,7 @@ from pathlib import Path
 import shutil
 import stat
 import tempfile
+import xml.etree.ElementTree as ET
 import check_runtime_notices as notices
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -46,6 +47,43 @@ def _publish_new(staging, destination):
         os.close(parent)
 
 
+def packaging_metadata():
+    """Read bounded local metadata and known notices, without granting rights."""
+    root = ROOT / 'native/packaging/linux'
+    xml = notices._bytes(root, 'io.github.mrdiamondballz.relicade.appdata.xml')
+    if b'<!DOCTYPE' in xml or b'<!ENTITY' in xml:
+        raise ValueError('External XML declarations are not supported')
+    try:
+        component = ET.fromstring(xml)
+    except ET.ParseError as exc:
+        raise ValueError("Invalid AppStream XML") from exc
+    expected = {'id': 'io.github.mrdiamondballz.relicade', 'name': 'RELICADE',
+                'metadata_license': 'CC0-1.0', 'project_license': 'MIT AND LicenseRef-proprietary',
+                'launchable': 'io.github.mrdiamondballz.relicade.desktop'}
+    if component.tag != 'component' or component.get('type') != 'desktop-application' or any(
+            len(component.findall(key)) != 1 or component.findtext(key) != value for key, value in expected.items()):
+        raise ValueError('Unexpected product metadata identity or rights scope')
+    bundle = root / 'runtime-notices'
+    manifest_bytes = notices._bytes(bundle, 'manifest.json')
+    manifest = json.loads(manifest_bytes, object_pairs_hook=notices._pairs)
+    pins = json.loads(notices._bytes(root, 'appimage-toolchain.json'))
+    runtime = next(p for p in pins if p['repository'] == 'AppImage/type2-runtime')
+    if (manifest['schema_version'] != 1 or manifest['runtime_sha256'] != runtime['sha256'] or
+            manifest['runtime_source_commit'] != runtime['source_commit'] or
+            manifest['distribution_rights'] != 'not_accepted' or not manifest['unresolved']):
+        raise ValueError('Runtime notice scope does not match the pinned, unaccepted container')
+    files = {'usr/share/metainfo/io.github.mrdiamondballz.relicade.appdata.xml': xml,
+             'usr/share/doc/relicade/appimage-runtime/manifest.json': manifest_bytes}
+    for relative, item in manifest['notices'].items():
+        data = notices._bytes(bundle, relative)
+        if hashlib.sha256(data).hexdigest() != item['sha256']:
+            raise ValueError('Runtime notice bytes differ from their recorded source')
+        files['usr/share/doc/relicade/appimage-runtime/' + relative] = data
+    if notices._inventory(bundle) != set(manifest['notices']) | {'manifest.json'}:
+        raise ValueError('Unrecorded runtime notice bundle file')
+    return files
+
+
 def assemble(publish, destination, epoch=0, bundle=notices.DEFAULT_BUNDLE):
     if type(epoch) is not int or not 0 <= epoch <= 2147483647:
         raise ValueError('Invalid reproducible timestamp')
@@ -58,6 +96,7 @@ def assemble(publish, destination, epoch=0, bundle=notices.DEFAULT_BUNDLE):
         raise FileExistsError('Output must be a new directory')
     if destination.is_relative_to(publish) or publish.is_relative_to(destination):
         raise ValueError('Input and output trees must be separate')
+    metadata = packaging_metadata()
     names = notices._inventory(publish)
     if sum((publish / name).lstat().st_size for name in names) > 512 * 1024 * 1024:
         raise ValueError('Publish input exceeds the 512 MiB assembly budget')
@@ -99,17 +138,28 @@ def assemble(publish, destination, epoch=0, bundle=notices.DEFAULT_BUNDLE):
                 raise ValueError('Publish input changed during assembly')
         templates = ROOT / 'native/packaging/linux'
         for name in ['AppRun', 'relicade.desktop']:
-            (staging / name).write_bytes(notices._bytes(templates, name))
+            destination_name = 'io.github.mrdiamondballz.relicade.desktop' if name == 'relicade.desktop' else name
+            (staging / destination_name).write_bytes(notices._bytes(templates, name))
         os.chmod(staging / 'AppRun', 0o755)
         icon = notices._bytes(ROOT, 'native/Assets/relicade-icon.png')
         (staging / 'relicade.png').write_bytes(icon)
         (staging / '.DirIcon').write_bytes(icon)
+        applications = staging / 'usr/share/applications'
+        applications.mkdir(parents=True)
+        (applications / 'io.github.mrdiamondballz.relicade.desktop').write_bytes(notices._bytes(templates, 'relicade.desktop'))
+        icons = staging / 'usr/share/icons/hicolor/256x256/apps'
+        icons.mkdir(parents=True)
+        (icons / 'relicade.png').write_bytes(icon)
         # The desktop entry resolves through an AppDir-relative executable.
         bin_dir = staging / 'usr/bin'
         bin_dir.mkdir()
         launcher = '#!/bin/sh\nset -eu\nself=$(readlink -f -- "$0")\nroot=$(CDPATH= cd -- "$(dirname -- "$self")/../.." && pwd)\nexec "$root/AppRun" "$@"\n'
         (bin_dir / 'relicade').write_text(launcher)
         os.chmod(bin_dir / 'relicade', 0o755)
+        for relative, data in metadata.items():
+            target = staging / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
         report = {'schema_version': 1, 'runtime_identifier': 'linux-x64',
                   'development_build': True, 'packaged_release': False,
                   'distribution_rights': 'not_accepted', 'platform_support': 'not_accepted',
