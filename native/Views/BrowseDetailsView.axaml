@@ -24,7 +24,7 @@
 			<Setter Property="FontSize" Value="10"/>
 			<Setter Property="FontWeight" Value="SemiBold"/>
 			<Setter Property="LetterSpacing" Value="1.8"/>
-			<Setter Property="Foreground" Value="#94a3b8"/>
+			<Setter Property="Foreground" Value="{DynamicResource ThemeText}"/>
 		</Style>
 		<Style Selector="Button.details-chip">
 			<Setter Property="Background" Value="#243044"/>
@@ -114,8 +114,11 @@
 		</Style>
 		<Style Selector="TextBlock.details-term">
 			<Setter Property="FontSize" Value="11"/>
-			<Setter Property="Foreground" Value="#8f929b"/>
+			<Setter Property="Foreground" Value="{DynamicResource ThemeText}"/>
 			<Setter Property="Margin" Value="0,10,0,2"/>
+		</Style>
+		<Style Selector="TextBlock.details-description">
+			<Setter Property="Foreground" Value="{DynamicResource ThemeTextSecondary}"/>
 		</Style>
 		<Style Selector="TextBlock.details-value">
 			<Setter Property="FontSize" Value="13"/>
@@ -168,21 +171,21 @@
 						<Image x:Name="BrowseDetailsHero" Stretch="UniformToFill" Opacity="0.35"
 							   Width="{Binding #BrowseDetailsBackdrop.Bounds.Width}" Height="{Binding #BrowseDetailsBackdrop.Bounds.Height}"/>
 					</Canvas>
-					<!-- Fades the art into the page, darker on the left where the text is. -->
+					<!-- Fades the art into the selected surface, stronger on the left where the text is. -->
 					<Border>
 						<Border.Background>
 							<LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-								<GradientStop Color="#5918181b" Offset="0"/>
-								<GradientStop Color="#8c18181b" Offset="0.45"/>
-								<GradientStop Color="#ff18181b" Offset="1"/>
+								<GradientStop Color="{DynamicResource ThemeDetailsOverlayStart}" Offset="0"/>
+								<GradientStop Color="{DynamicResource ThemeDetailsOverlayMiddle}" Offset="0.45"/>
+								<GradientStop Color="{DynamicResource ThemeDetailsOverlayEnd}" Offset="1"/>
 							</LinearGradientBrush>
 						</Border.Background>
 					</Border>
 					<Border>
 						<Border.Background>
 							<LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
-								<GradientStop Color="#bf18181b" Offset="0"/>
-								<GradientStop Color="#0018181b" Offset="0.65"/>
+								<GradientStop Color="{DynamicResource ThemeDetailsOverlaySide}" Offset="0"/>
+								<GradientStop Color="{DynamicResource ThemeDetailsOverlayClear}" Offset="0.65"/>
 							</LinearGradientBrush>
 						</Border.Background>
 					</Border>
@@ -209,7 +212,7 @@
 								<Image x:Name="BrowseDetailsArt" Stretch="Uniform"/>
 							</Border>
 							<StackPanel Grid.Column="1" VerticalAlignment="Center">
-								<TextBlock x:Name="BrowseDetailsKind" Classes="details-eyebrow" TextTrimming="CharacterEllipsis"/>
+								<TextBlock x:Name="BrowseDetailsKind" Classes="details-eyebrow" Foreground="{DynamicResource ThemeTextSecondary}" TextTrimming="CharacterEllipsis"/>
 								<TextBlock x:Name="BrowseDetailsTitle" FontSize="32" FontWeight="Bold" Foreground="{DynamicResource ThemeText}"
 										   TextWrapping="Wrap" Margin="0,6,0,8"/>
 								<TextBlock x:Name="BrowseDetailsTagline" FontSize="14" LineHeight="22" MaxWidth="720" HorizontalAlignment="Left"

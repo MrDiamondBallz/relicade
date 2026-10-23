@@ -73,6 +73,13 @@ public sealed class ThemeEditor
                     : BlendColors(Color.FromRgb(200, 200, 200), secondaryColor, 0.15)
             );
 
+            // Details artwork must fade into the selected surface, not a fixed dark
+            // palette behind light-theme text. Keep the existing dark-theme opacity.
+            resources["ThemeDetailsOverlayStart"] = Color.FromArgb(89, primaryColor.R, primaryColor.G, primaryColor.B);
+            resources["ThemeDetailsOverlayMiddle"] = Color.FromArgb(140, primaryColor.R, primaryColor.G, primaryColor.B);
+            resources["ThemeDetailsOverlayEnd"] = Color.FromArgb(255, primaryColor.R, primaryColor.G, primaryColor.B);
+            resources["ThemeDetailsOverlaySide"] = Color.FromArgb(191, primaryColor.R, primaryColor.G, primaryColor.B);
+            resources["ThemeDetailsOverlayClear"] = Color.FromArgb(0, primaryColor.R, primaryColor.G, primaryColor.B);
             resources["ThemeBase"] = themeBase;
             resources["ThemeLighter"] = themeLighter;
             resources["ThemeDarker"] = themeDarker;

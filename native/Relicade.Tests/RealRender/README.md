@@ -171,3 +171,17 @@ art-host bounds, source identity, credit, remote embedded-resource refusal and
 clearing on page reuse are checked
 at normal, minimum/light and 200% headless layouts. Catalog metadata is controlled
 and network image requests are rejected; no game is installed or executed.
+
+`DetailsHeaderContrastRenderingTests` checks actual title, description and
+project-kind glyph/background pixels in the native details header, plus the
+plain-text overview description and project-details labels. It uses the
+reviewed bundled Taisei portrait, an isolated catalog transport and an unrelated
+entry fallback, not a game download or launch. Light/dark and selected custom
+palette cases cover minimum-size and 200% interface layouts. A separate private
+measurement frame hides only the measured text to expose its composed backdrop;
+that frame is test instrumentation, not a product screenshot. Visible glyph-core
+counts and positive viewport bounds prevent empty or clipped frames from passing.
+Small overview labels may lack opaque glyph cores: these cases compare their
+solid text color to actual background pixels only where visible glyphs changed
+the frame, while the larger header checks use rendered opaque glyph cores.
+These checks do not certify arbitrary color choices or physical accessibility.

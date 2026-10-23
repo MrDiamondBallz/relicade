@@ -12,6 +12,11 @@
                 <ResourceInclude Source="avares://Relicade/Themes/LauncherFeatureResources.axaml"/>
 				<ResourceInclude Source="avares://Relicade/Themes/WindowDrawnDecorations.axaml"/>
 			</ResourceDictionary.MergedDictionaries>
+            <Color x:Key="ThemeDetailsOverlayStart">#5918181b</Color>
+            <Color x:Key="ThemeDetailsOverlayMiddle">#8c18181b</Color>
+            <Color x:Key="ThemeDetailsOverlayEnd">#ff18181b</Color>
+            <Color x:Key="ThemeDetailsOverlaySide">#bf18181b</Color>
+            <Color x:Key="ThemeDetailsOverlayClear">#0018181b</Color>
 			<SolidColorBrush x:Key="ThemeBase" Color="#18181b"/>
 			<SolidColorBrush x:Key="ThemeLighter" Color="#252527"/>
 			<SolidColorBrush x:Key="ThemeDarker" Color="#0e0e10"/>

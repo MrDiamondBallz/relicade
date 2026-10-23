@@ -454,7 +454,7 @@ public partial class BrowseDetailsView : UserControl, IFeatureNavigationHandler
         var content = Model.Readme.Content;
         BrowseDetailsReadme.ItemsSource = content.IsMarkdown && content.Text.Length > 0 ? _renderer.Render(content.Text, content.ImageBaseUrl) : new Control[]
         {
-            new TextBlock { Text = content.Text, FontSize = 14, Foreground = new SolidColorBrush(Color.Parse("#B8B8B8")), TextWrapping = TextWrapping.Wrap },
+            new TextBlock { Text = content.Text, FontSize = 14, Classes = { "details-description" }, TextWrapping = TextWrapping.Wrap },
         };
     }
 

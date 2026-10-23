@@ -132,6 +132,19 @@ fallbacks and trusted local-library image choices remain unchanged. This one rev
 not full catalog artwork coverage, installation evidence or gameplay evidence.
 Other remote cover references retain the limitations described above.
 
+## Native details readability
+
+The details header fades artwork into the selected theme surface rather than a
+fixed dark backdrop. The plain-text overview description and project-details
+labels also use the selected theme rather than fixed pale text. Title, description and project-kind text follow the theme's
+text resources, including the existing explicit light/dark text preference.
+Controlled native rendering checks sample actual glyph/background contrast in
+light, dark and selected custom palettes, with and without the reviewed portrait,
+at minimum window size and 200% interface scaling. Separate light/dark
+overview cases check the description and all project-details labels. This is bounded development
+evidence, not a guarantee for every user-selected color combination, physical
+screen or platform accessibility API.
+
 ## Player controls and image completeness
 
 Run `python tools/preview.py` and open `/prototype/`. Online artwork contacts
