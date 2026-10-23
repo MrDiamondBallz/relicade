@@ -15,6 +15,7 @@ internal sealed class OwnedGameSetupDialog : Window
 {
     internal OwnedGameSetupViewModel Model { get; }
     internal Button ChooseButton { get; } = new() { Content = "Choose my game file…", MinHeight = 44 };
+    internal Button RetainedButton { get; } = new() { Content = "Use retained game files…", MinHeight = 44 };
     internal Button ConfirmButton { get; } = new() { Content = "Confirm lawful use and copy", MinHeight = 44 };
     internal Button PlayButton { get; } = new() { Content = "Play Freedoom Phase 2", MinHeight = 44 };
     internal Button DownloadButton { get; } = new() { Content = "Official download", MinHeight = 44 };
@@ -34,7 +35,7 @@ internal sealed class OwnedGameSetupDialog : Window
         var layout = new Grid { RowDefinitions = new("Auto,*,Auto"), Margin = new Thickness(20), RowSpacing = 12 };
         heading.Text = Title; layout.Children.Add(heading); scroll.Content = details;
         AutomationProperties.SetName(scroll, "Game setup requirements and local copy preview"); Grid.SetRow(scroll, 1); layout.Children.Add(scroll);
-        var buttons = new WrapPanel { Orientation = Orientation.Horizontal, Children = { CloseButton, DownloadButton, ChooseButton, ConfirmButton, PlayButton } };
+        var buttons = new WrapPanel { Orientation = Orientation.Horizontal, Children = { CloseButton, DownloadButton, ChooseButton, RetainedButton, ConfirmButton, PlayButton } };
         foreach (var button in buttons.Children.OfType<Button>())
         { button.Margin = new Thickness(0, 0, 8, 8); button.SetValue(GamepadModalDialogNavigation.KeepDialogOpenProperty, true); }
         Grid.SetRow(buttons, 2); layout.Children.Add(buttons); Content = layout;
@@ -45,6 +46,7 @@ internal sealed class OwnedGameSetupDialog : Window
             return files.FirstOrDefault()?.TryGetLocalPath();
         };
         ChooseButton.Click += (_, _) => { if (model.CanChoose) Work = model.ChooseAsync(); };
+        RetainedButton.Click += (_, _) => { if (model.CanChoose && model.OffersRetainedData) Work = model.PreviewRetainedAsync(); };
         ConfirmButton.Click += (_, _) => { if (model.CanConfirm) Work = model.ConfirmAsync(); };
         PlayButton.Click += (_, _) => { if (model.CanPlay) Work = model.PlayAsync(); };
         model.OpenDownload = () => Launcher.LaunchUriAsync(new Uri(OwnedGameSetupViewModel.OfficialFreedoomRelease));
@@ -135,6 +137,12 @@ internal sealed class OwnedGameSetupDialog : Window
                 "Additional space needed: " + plan.BytesToCopy.ToString("N0") + " bytes, plus a small local receipt.",
                 plan.ReuseExisting ? "An identical retained copy exists; confirmation adopts it for this generation without overwriting it." : "The selected file will be copied, not moved or linked.",
                 "Local copy SHA256: " + plan.SourceSha256 }) AddInspection(text);
+        if (Model.RetainedPlan is { } retained)
+            foreach (var text in new[] { "Retained file: " + retained.Destination,
+                "Current engine generation: " + retained.OperationId,
+                "Verified retained bytes: " + retained.Length.ToString("N0") + "; SHA256: " + retained.Sha256,
+                retained.ReceiptExists ? "The exact current setup receipt already exists. Confirmation re-verifies without rewriting it."
+                    : "Additional storage: one small setup receipt only. No game bytes are copied; all older receipts remain." }) AddInspection(text);
         if (Model.Plan?.Repair is { } repair)
         {
             AddInspection("Replacement requires explicit confirmation. The changed copy is preserved before the verified replacement becomes visible.");
@@ -149,17 +157,19 @@ internal sealed class OwnedGameSetupDialog : Window
             XYFocus.SetUp(rows[i], i > 0 ? rows[i - 1] : null);
             XYFocus.SetDown(rows[i], i + 1 < rows.Length ? rows[i + 1] : CloseButton);
         }
-        foreach (var button in new[] { CloseButton, DownloadButton, ChooseButton, ConfirmButton, PlayButton })
+        foreach (var button in new[] { CloseButton, DownloadButton, ChooseButton, RetainedButton, ConfirmButton, PlayButton })
             XYFocus.SetUp(button, rows.LastOrDefault());
         GamepadModalDialogNavigation.Instance.RefreshDialogButtons();
     }
     void Render()
     {
-        ConfirmButton.Content = Model.Plan?.Repair != null ? "Confirm lawful use and replace" : "Confirm lawful use and copy";
+        ConfirmButton.Content = Model.RetainedPlan != null ? "Confirm lawful use and reuse" : Model.Plan?.Repair != null ? "Confirm lawful use and replace" : "Confirm lawful use and copy";
         PlayButton.IsVisible = Model.IsFreedoom && Model.State == OwnedGameSetupUiState.Completed; PlayButton.IsEnabled = Model.CanPlay;
         DownloadButton.Content = Model.HasFreeDataDownload ? "Get free game data" : "Official download";
         DownloadButton.IsVisible = Model.IsFreedoom && Model.State != OwnedGameSetupUiState.Completed; DownloadButton.IsEnabled = Model.CanChoose;
         ChooseButton.IsVisible = !Model.IsFreedoom || Model.State != OwnedGameSetupUiState.Completed;
+        RetainedButton.IsVisible = Model.OffersRetainedData && Model.State != OwnedGameSetupUiState.Completed;
+        RetainedButton.IsEnabled = Model.CanChoose;
         ChooseButton.IsEnabled = Model.CanChoose; ConfirmButton.IsEnabled = Model.CanConfirm;
         ConfirmButton.IsVisible = Model.State == OwnedGameSetupUiState.Confirm;
         CloseButton.Content = Model.State == OwnedGameSetupUiState.Completed ? "Close" : "Cancel";

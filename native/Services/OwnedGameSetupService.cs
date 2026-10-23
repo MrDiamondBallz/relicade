@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -100,6 +101,10 @@ internal sealed class OwnedGameSetupSession
     readonly string instance, install, dataRoot, appsRoot, repository, libraryPath;
     readonly byte[] library;
     readonly OwnedDataRequirement requirement;
+    readonly string? repositorySource, selectedExecutable, installedVersion;
+    readonly InstalledBuild? installedBuild;
+    readonly object retainedSettings, retainedCollection, retainedStore;
+    readonly Action<string>? adoptionBoundary;
     internal string Label => requirement.Label;
     internal long RequiredBytes => requirement.Length;
     internal string VariantMd5 => requirement.Md5;
@@ -110,10 +115,14 @@ internal sealed class OwnedGameSetupSession
     internal OwnedGameSetupSession(GameManager manager, string instance) : this(manager, instance, null) { }
     // A definition is injectable only by trusted in-process compositions/tests;
     // the production constructor always uses the compiled project registry.
-    internal OwnedGameSetupSession(GameManager manager, string instance, OwnedDataRequirement? definition)
+    internal OwnedGameSetupSession(GameManager manager, string instance, OwnedDataRequirement? definition, Action<string>? adoptionBoundary = null)
     {
-        this.manager = manager; this.instance = instance;
+        this.manager = manager; this.instance = instance; this.adoptionBoundary = adoptionBoundary;
         game = ManagedShortcutLaunch.Resolve(manager.Games, instance);
+        retainedStore = SettingsStoreProvider.RollbackCurrent;
+        retainedSettings = manager.CurrentSettings; retainedCollection = manager.Games;
+        repositorySource = game.RepositorySource; selectedExecutable = game.SelectedExecutable;
+        installedVersion = game.InstalledVersion; installedBuild = game.InstalledBuild;
         requirement = definition ?? OwnedGameSetupService.Requirement(game) ?? throw new IOException("No reviewed setup adapter is available for this project.");
         if (string.IsNullOrWhiteSpace(game.FolderName) || !string.IsNullOrEmpty(game.InstallPath) || game.IsManuallyManaged || game.IsFlatpak || game.IsWindowsInstaller)
             throw new IOException("This setup adapter requires a dedicated managed portable installation, not a linked or OS-managed folder.");
@@ -200,6 +209,54 @@ internal sealed class OwnedGameSetupSession
         token.ThrowIfCancellationRequested(); Validate();
         new PortableInstallationTransaction(install).ReadOwnedData(requirement, dataRoot, token);
         token.ThrowIfCancellationRequested(); Validate();
+    }
+    // Pure live checks are repeated on the UI thread while both file authorities
+    // remain held. Persisted evidence is checked on the worker, not the dispatcher.
+    bool RetainedContextMatches() => ReferenceEquals(retainedStore, SettingsStoreProvider.RollbackCurrent) &&
+        retainedStore is not ISettingsRecoveryState { IsReadOnly: true } && !KioskLaunch.IsStartupLocked(manager.CurrentSettings) &&
+        ReferenceEquals(retainedSettings, manager.CurrentSettings) && ReferenceEquals(retainedCollection, manager.Games) &&
+        manager.Games.Count(g => g.InstanceKey == instance) == 1 && Path.GetFullPath(manager.CurrentSettings.AppsPath) == appsRoot &&
+        RelicadePaths.UserDataRoot == dataRoot && manager.Games.Any(g => ReferenceEquals(g, game)) &&
+        game.InstanceKey == instance && game.Repository == repository && game.RepositorySource == repositorySource &&
+        game.GetInstallPath(manager.GamesFolder) == install && string.IsNullOrEmpty(game.InstallPath) &&
+        !game.IsManuallyManaged && !game.IsFlatpak && !game.IsWindowsInstaller &&
+        game.SelectedExecutable == selectedExecutable && game.InstalledVersion == installedVersion &&
+        game.InstalledBuild == installedBuild && game.IsInstalled && !game.IsLoading &&
+        !game.IsPortableCommitInProgress && !game.IsInstallIndeterminate;
+
+    internal void InvalidateRetainedReadiness()
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (!RetainedContextMatches()) throw new IOException("The selected setup context changed. Reopen game setup.");
+        game.OwnedDataReady = false;
+        game.OwnedDataSetupMessage = "Retained game files need explicit verification and confirmation for this generation.";
+    }
+    internal RetainedOwnedDataPreview PreviewRetained(CancellationToken token)
+    {
+        Validate();
+        if (!RetainedContextMatches()) throw new IOException("The selected setup context changed. Reopen game setup.");
+        var result = new PortableInstallationTransaction(install).PreviewRetainedOwnedData(requirement, dataRoot, token);
+        Validate(); return result;
+    }
+    internal Task<RetainedOwnedDataResult> AdoptRetainedAsync(RetainedOwnedDataPreview plan,
+        Func<bool> participating, CancellationToken token)
+    {
+        Validate();
+        if (!RetainedContextMatches()) throw new IOException("The selected setup context changed. Reopen game setup.");
+        return new PortableInstallationTransaction(install).AdoptRetainedOwnedDataAsync(requirement, dataRoot, plan,
+            () => Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                manager.VerifyRollbackSettingsRecovery();
+                if (token.IsCancellationRequested || !participating() || !RetainedContextMatches()) return false;
+                game.OwnedDataSetupMessage = "Retained game data verified for this package. This does not certify gameplay or legal entitlement.";
+                game.OwnedDataReady = true;
+                return true;
+            }).GetTask(), token, point =>
+            {
+                Validate();
+                if (!RetainedContextMatches()) throw new IOException("The selected setup context changed. Reopen game setup.");
+                adoptionBoundary?.Invoke(point);
+            });
     }
     internal Task RefreshAsync() => OwnedGameSetupService.RefreshAsync(game, appsRoot);
 }

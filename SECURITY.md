@@ -111,3 +111,12 @@ The original ZIP (with notices) and verified WAD are retained, not overwritten;
 only the operation's incomplete staging is disposable. Cached files must be
 unlinked regular files. This is not an unattended install, signature verification
 or a sandbox against hostile concurrent filesystem replacement.
+
+Retained owned-file reuse is a distinct local consent action for supported compiled
+adapters. It requires exact current package/executable/data verification and an
+existing data-store writer identity, refuses pending staging or conflicting
+receipts, and never overwrites earlier evidence. Both installation and data-store
+writer authorities span the awaited guarded readiness callback. Cancellation or
+changed UI context after receipt creation can retain that receipt without Ready.
+This does not establish legal entitlement, hostile filesystem safety or power-loss
+acceptance; the ordinary original-file and launch-time checks remain required.

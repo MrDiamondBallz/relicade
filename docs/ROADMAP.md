@@ -33,6 +33,10 @@ separate owned-file preview and confirmation, without fetching a ROM or autoplay
 New dedicated Perfect Dark entries on Linux x64 now join the same explicit engine
 confirmation to separate local data selection/copy, with strict refusal of a
 changed rolling package and no autoplay. Other hosts keep ordinary downloads.
+The supported owned-data adapters also expose explicit retained-file reuse after
+a compatible generation change: preview and consent add only a current setup
+receipt, with both writer authorities guarding readiness publication. No automatic
+rollback adoption, original-file guard bypass or gameplay acceptance is implied.
 This is not a general durable download queue. These flows do not establish complete catalog
 setup or tested gameplay. [The setup guide](GAME_SETUP.md) lists the supported input and limits.
 

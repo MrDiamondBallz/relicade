@@ -50,7 +50,7 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     {
         Dispatcher.UIThread.VerifyAccess();
         if (!CanChoose || downloadData == null) return Task.CompletedTask;
-        busy = true; Plan = null; State = OwnedGameSetupUiState.Inspecting;
+        busy = true; Plan = null; RetainedPlan = null; State = OwnedGameSetupUiState.Inspecting;
         Message = "Downloading and checking the pinned free-data archive…"; Changed();
         return session.RunAsync(async () =>
         {
@@ -118,13 +118,62 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     internal string InstanceKey { get; }
     internal string Requirement { get; }
     internal OwnedDataPreview? Plan { get; private set; }
+    internal RetainedOwnedDataPreview? RetainedPlan { get; private set; }
+    OwnedGameSetupSession? retainedSetup;
+    internal bool OffersRetainedData => retainedSetup != null && !IsFreedoom;
+    internal Task PreviewRetainedAsync()
+    {
+        Dispatcher.UIThread.VerifyAccess();
+        if (!OffersRetainedData || !CanChoose) return Task.CompletedTask;
+        Plan = null; RetainedPlan = null;
+        try { retainedSetup!.InvalidateRetainedReadiness(); }
+        catch (Exception ex) { Fail(ex); Changed(); return Task.CompletedTask; }
+        busy = true; State = OwnedGameSetupUiState.Inspecting;
+        Message = "Checking retained game files locally. No file is copied or downloaded."; Changed();
+        return session.RunAsync(async () =>
+        {
+            try
+            {
+                var plan = await Task.Run(() => retainedSetup!.PreviewRetained(cancellation.Token));
+                await UpdateAsync(() =>
+                {
+                    RetainedPlan = plan; State = OwnedGameSetupUiState.Confirm;
+                    Message = "Reuse preview only: verify the retained file and confirm you may lawfully use it. Confirmation records setup for this exact engine generation; no game file is copied or downloaded. A matching hash does not prove ownership.";
+                });
+            }
+            catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }
+            finally { await UpdateAsync(() => busy = false); }
+        });
+    }
+    Task ConfirmRetainedAsync()
+    {
+        var plan = RetainedPlan!;
+        busy = true; State = OwnedGameSetupUiState.Copying;
+        Message = "Recording your explicit reuse confirmation. Game files and earlier receipts remain unchanged."; Changed();
+        return session.RunAsync(async () =>
+        {
+            try
+            {
+                var result = await Task.Run(() => retainedSetup!.AdoptRetainedAsync(plan, () => !IsClosed, cancellation.Token));
+                await UpdateAsync(() =>
+                {
+                    State = result.ReadyPublished ? OwnedGameSetupUiState.Completed : OwnedGameSetupUiState.Error;
+                    Message = result.ReadyPublished
+                        ? "Retained game files verified and confirmed for this package. Close this window and select Launch. Nothing was started; gameplay and legal entitlement are not certified."
+                        : "The setup receipt is retained, but readiness was not published. Keep all files and reopen setup for a fresh verification.";
+                });
+            }
+            catch (Exception ex) { await UpdateAsync(() => Fail(ex)); }
+            finally { await UpdateAsync(() => busy = false); }
+        });
+    }
     internal OwnedGameSetupUiState State { get; private set; } = OwnedGameSetupUiState.Choose;
     internal string Message { get; private set; } = "Choose a game-data file you may lawfully use. No game data is downloaded or uploaded.";
     internal bool IsClosed => closed || session.IsClosed;
     internal bool CanChoose => !IsClosed && !busy && State != OwnedGameSetupUiState.Completed;
-    internal bool CanConfirm => !IsClosed && !busy && State == OwnedGameSetupUiState.Confirm && Plan != null;
+    internal bool CanConfirm => !IsClosed && !busy && State == OwnedGameSetupUiState.Confirm && (Plan != null || RetainedPlan != null);
     internal OwnedGameSetupViewModel(LauncherSession session, string key, OwnedGameSetupSession setup)
-        : this(session, key, setup.Description, setup.Preview, setup.Apply, setup.RefreshAsync) { isNes = setup.IsNes; }
+        : this(session, key, setup.Description, setup.Preview, setup.Apply, setup.RefreshAsync) { isNes = setup.IsNes; retainedSetup = setup; }
     internal OwnedGameSetupViewModel(LauncherSession session, string key, string requirement,
         Func<string, CancellationToken, OwnedDataPreview> preview,
         Func<OwnedDataPreview, CancellationToken, OwnedDataImportResult> apply, Func<Task> refresh)
@@ -137,7 +186,7 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     {
         Dispatcher.UIThread.VerifyAccess();
         if (!CanChoose) return Task.CompletedTask;
-        busy = true; Plan = null; State = OwnedGameSetupUiState.Inspecting; Message = "Select a local file. Its original will not be changed."; Changed();
+        busy = true; Plan = null; RetainedPlan = null; State = OwnedGameSetupUiState.Inspecting; Message = "Select a local file. Its original will not be changed."; Changed();
         return session.RunAsync(async () =>
         {
             try
@@ -161,6 +210,7 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     {
         Dispatcher.UIThread.VerifyAccess();
         if (!CanConfirm) return Task.CompletedTask;
+        if (RetainedPlan != null) return ConfirmRetainedAsync();
         var plan = Plan!; busy = true; State = OwnedGameSetupUiState.Copying;
         Message = plan.Repair == null
             ? "Copying verified game data locally. Cancel requests a safe stop; a committed copy is retained if completion is interrupted."
@@ -189,6 +239,6 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     }
     internal void DisposeAfterDrain() => cancellation.Dispose();
     Task UpdateAsync(Action action) => Dispatcher.UIThread.InvokeAsync(() => { if (!IsClosed) { action(); Changed(); } }).GetTask();
-    void Fail(Exception ex) { Plan = null; State = OwnedGameSetupUiState.Error; Message = ex.Message + " Any committed copy is retained. Review a fresh preview before confirming again; no automatic retry or deletion occurs."; }
+    void Fail(Exception ex) { Plan = null; RetainedPlan = null; State = OwnedGameSetupUiState.Error; Message = ex.Message + " Any committed copy is retained. Review a fresh preview before confirming again; no automatic retry or deletion occurs."; }
     void Changed() => Notify(null);
 }

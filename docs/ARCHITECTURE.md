@@ -266,6 +266,21 @@ Synthetic fixtures exercise the source workflow; they do not establish gameplay,
 rights or platform acceptance. Other project/build prerequisites remain unconfirmed,
 and data migration/cleanup remain unimplemented. [Setup guide](GAME_SETUP.md).
 
+Retained owned-data reuse is a separate typed consent action, not an original-file
+import with a substituted source. Its preview binds the exact current operation,
+compiled package/executable requirement, canonical destination and complete data
+identity. An existing canonical data writer is mandatory. Pending staging and
+conflicting evidence refuse without cleanup. Confirmation rederives the preview
+under both writer authorities and creates a canonical current-operation receipt
+with create-new staging and a non-overwriting atomic move; identical current
+receipts are verified no-ops. Earlier receipts and game bytes are untouched.
+The asynchronous worker retains both authorities through the awaited dispatcher
+callback. Persisted context is checked on the worker; live entry, selection,
+settings and dialog participation are checked before publishing readiness. Receipt
+commit and ready publication are separate results, including cancellation or
+failure after the receipt becomes visible. No status loader, automatic play,
+original-file guard bypass or generic refresh is used by this path.
+
 Owned-data destination checks include the exact folder, not only its ancestors.
 Preview inspects existing authority without creating history. Confirmed import
 revalidates the input before creating writer history, then holds the destination

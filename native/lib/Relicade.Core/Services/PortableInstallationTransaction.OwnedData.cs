@@ -217,7 +217,7 @@ public sealed partial class PortableInstallationTransaction
         return destination;
     }
 
-    IDisposable AcquireOwnedDataAuthority(OwnedDataRequirement requirement, string dataRoot, bool createWriter = false, Action? inspectBeforeWriter = null)
+    IDisposable AcquireOwnedDataAuthority(OwnedDataRequirement requirement, string dataRoot, bool createWriter = false, Action? inspectBeforeWriter = null, bool requireExistingWriter = false)
     {
         var folder = Path.GetDirectoryName(OwnedDataDestination(requirement, dataRoot))!;
         var held = new Dictionary<string, IDisposable>(OperatingSystem.IsWindows()
@@ -229,6 +229,13 @@ public sealed partial class PortableInstallationTransaction
             // even when no payload manifest has been committed yet.
             var target = new PortableInstallationTransaction(folder);
             target.AcquireRemovalAncestorLeases(held, includeRoot: true);
+            if (requireExistingWriter)
+            {
+                var writer = SafePath(target.operations, "writer.lock");
+                RequireCleanupKind(writer, false);
+                if (new FileInfo(writer).Length != 0) throw new IOException("Retained-data writer identity is uncertain.");
+                HoldRemovalLease(held, writer, () => new FileStream(writer, FileMode.Open, FileAccess.ReadWrite, FileShare.None));
+            }
             // Preview/readiness never create history. Confirmed import additionally
             // holds the destination's stable writer lease through copy and receipt.
             // The shared lease map avoids opening an already-held writer twice.

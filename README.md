@@ -48,7 +48,9 @@ The native source includes **Finish game setup** for specific Perfect Dark and
 z2rs Linux x64 packages. New dedicated Perfect Dark and z2rs entries on Linux x64
 offer **Set up game** to confirm their pinned engine download before selecting a
 lawful local file. Review the copy,
-confirm explicitly and revalidate before launch. This is bounded development
+confirm explicitly and revalidate before launch. After a compatible generation
+change, **Use retained game files…** offers separate confirmation to reuse a
+verified existing copy without its original or another game-data copy. This is bounded development
 source, not gameplay certification or complete project support. See
 [local game-data setup](docs/GAME_SETUP.md) for the exact package and limits. The separate
 **Set up / Play Freedoom Phase 2…** action can explicitly install one pinned

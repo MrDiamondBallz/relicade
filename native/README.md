@@ -426,6 +426,15 @@ are separate. Unknown package variants remain unconfirmed; this is not gameplay,
 platform or complete catalog acceptance. See [supported input, provenance and
 recovery limits](../docs/GAME_SETUP.md).
 
+For these supported package-bound adapters, **Use retained game files…** provides
+an explicit reuse preview after a compatible generation change. Separate lawful-use
+confirmation adds only the current setup receipt; no original is needed, no game
+bytes are copied, and earlier receipts are preserved. Missing or conflicting
+writer/data evidence refuses reuse. Readiness publication remains guarded by both
+installation and data-store authority; cancellation can retain a receipt without
+marking the entry ready. The ordinary original-file chooser and launch checks
+remain unchanged. See [retained-file reuse](../docs/GAME_SETUP.md#reuse-retained-game-files-after-a-compatible-generation-change).
+
 A further compiled definition covers z2rs v0.6.0 Linux x64 with a lawful Zelda II
 USA dump, headered or headerless. Its new-entry **Set up game** action first
 offers the pinned engine installation with progress/cancel, then opens the

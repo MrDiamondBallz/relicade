@@ -208,11 +208,39 @@ The original is never moved, linked or overwritten. Setup uses a separate
 installation. It is not injected into an immutable game generation. Existing
 copies and conflicting receipts are preserved, not silently replaced.
 
+## Reuse retained game files after a compatible generation change
+
+For the supported Perfect Dark and z2rs setup adapters, **Use retained game files…**
+opens a separate, local-only preview. This is useful when a compatible engine
+transaction or rollback has changed the installation generation but the verified
+copy is still in Relicade's data store. The original-file chooser still requires
+an original; selecting the retained destination there is not an adoption shortcut.
+
+The reuse preview checks the exact current package, selected executable, compiled
+variant rule and complete retained-file SHA-256 and length. It requires the
+existing data-store writer identity from prior setup. Inspect the retained path,
+generation and digest, then separately select **Confirm lawful use and reuse**.
+A compatibility hash is not proof of ownership or permission. No original is
+needed for this explicit reuse action, and no game file is copied, downloaded,
+moved or launched. Confirmation creates only a small current-generation setup
+receipt; an exactly matching receipt is reverified without rewriting it. Previous
+receipts and data remain intact. This is not automatic adoption during rollback.
+
+Pending staging, conflicting receipts, missing writer identity, linked files,
+changed bytes or unsupported packages stop reuse and leave the original chooser
+available. Cancellation before the receipt commit changes no setup receipt;
+a later cancellation or context change may leave a receipt without publishing
+readiness. Reopen setup to inspect that state. Both installation and data-store
+writer authorities remain held until the guarded readiness callback has drained.
+The normal launch-time package/data check is still required. These synthetic
+source checks do not establish real-game or hardware acceptance.
+
 ## Cancellation, recovery and limits
 
-Cancellation can leave an already committed copy in place. A fresh preview may
-recognize identical retained bytes and explicitly adopt them for the current
-generation without overwriting them. Partial uncommitted staging created by the
+Cancellation can leave an already committed copy in place. A fresh original-file
+preview can recognize identical retained bytes, but still requires selecting the
+verified original. The separate retained-file reuse action above does not require
+that original and never overwrites the retained copy. Partial uncommitted staging created by the
 current operation can be removed; originals, committed copies and earlier setup
 receipts remain. Failure does not mean nothing changed. Resolve conflicting files
 or recovery evidence before confirming a new preview.

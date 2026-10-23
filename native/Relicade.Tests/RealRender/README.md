@@ -199,3 +199,11 @@ counts; separate text-hidden captures are instrumentation, not product images.
 The window's existing scaling/minimum-size policy
 can enlarge its effective pixel dimensions. This is headless layout evidence, not
 physical display, screen-reader or gameplay acceptance.
+
+`RetainedDataRenderingTests` uses actual session/model/dialog preview after two
+compatible synthetic engine generations and a prior synthetic four-byte import.
+The original is renamed aside, not deleted. Normal and minimum windows, including
+200% interface scaling, check every complete inspection fragment, separate consent,
+positive footer bounds/focus and the committed framebuffer. No reuse confirmation,
+network request or acquired runtime execution occurs. Unique `29-retained-reuse-*`
+files are development captures, not real game, physical input or platform evidence.
