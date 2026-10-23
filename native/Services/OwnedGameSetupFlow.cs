@@ -26,7 +26,8 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
             try
             {
                 if (freedoom && (game == null || !OwnedGameSetupService.OffersFreedoom(game))) throw new IOException("Freedoom setup is unavailable for this project.");
-                if (freedoom && !game!.IsInstalled && !await InstallFreedoomEngineAsync(game)) return;
+                if (!game!.IsInstalled && (freedoom || OwnedGameSetupService.Requirement(game) == OwnedGameSetupService.Z2rs) &&
+                    !await InstallEngineAsync(game)) return;
                 session.Token.ThrowIfCancellationRequested();
                 var setup = new OwnedGameSetupSession(manager, key, freedoom ? OwnedGameSetupService.FreedoomPhase2 : null);
                 model = new OwnedGameSetupViewModel(session, key, setup);
@@ -49,7 +50,7 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
             }
         });
     }
-    async Task<bool> InstallFreedoomEngineAsync(GameInfo game)
+    async Task<bool> InstallEngineAsync(GameInfo game)
     {
         var progress = CreateEngineProgress(game, manager, settings.Current, session);
         var window = new FreedoomEngineProgressDialog(progress); dialogs.Track(window);
@@ -71,13 +72,13 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
     {
         // Preserve the existing pre-prompt refusal and original library binding.
         // The installer also repeats its current-target checks when Install is chosen.
-        var prepared = FreedoomEngineInstallService.PrepareFirstInstall(game, manager, session.Token, definition);
+        var prepared = GuidedEngineInstallService.PrepareFirstInstall(game, manager, session.Token, definition);
         return new(session, game, token =>
         {
             prepared.Context.ValidateDownloadRequest(token);
-            return FreedoomEngineInstallService.InstallAsync(game, manager, settings, token,
+            return GuidedEngineInstallService.InstallAsync(game, manager, settings, token,
                 (_, _) => Task.FromResult(true), engineDialogs, definition); // Only the explicit Install action invokes this.
-        });
+        }, prepared.Project.Title, prepared.Project.Confirmation);
     }
     internal static async Task InitializeFreedoomAsync(OwnedGameSetupViewModel model, OwnedGameSetupSession setup,
         CancellationToken token, Func<CancellationToken, Task<bool>> launch, Action<bool>? afterLaunch)

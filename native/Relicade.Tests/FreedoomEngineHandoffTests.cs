@@ -194,7 +194,7 @@ public sealed class FreedoomEngineHandoffTests
                 browser_download_url = $"https://github.com/UZDoom/UZDoom/releases/download/{Definition.ReleaseIdentity}/{Asset}", digest = "sha256:" + hash }] };
         }
         internal Task<bool> Install(CancellationToken token, Func<string,string,Task<bool>> confirm)
-            => FreedoomEngineInstallService.InstallAsync(Game, Manager, Store.Current, token, confirm, Dialogs, Definition);
+            => GuidedEngineInstallService.InstallAsync(Game, Manager, Store.Current, token, confirm, Dialogs, Definition);
         public void Dispose()
         { Manager?.Dispose(); SettingsStoreProvider.Default = previousStore; RelicadePaths.OverrideUserDataRoot = previousRoot; if (Directory.Exists(Root)) Directory.Delete(Root, true); }
         sealed class Handler(Fixture f) : HttpMessageHandler

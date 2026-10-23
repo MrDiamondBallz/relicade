@@ -143,3 +143,8 @@ retain the filters and existing image binding. At enlarged scale, natural
 controller selection scrolls the first card into view. No provider request or
 game artwork is used; these are presentation checks, not catalog rights or
 physical controller/platform acceptance.
+`Z2rsFirstInstallRenderingTests` uses the same shared owner for the native
+project-specific engine confirmation at normal/minimum size and 200% scaling.
+Its synthetic entry starts no download or game. Footer controller focus, the
+separate ROM-consent disclosure and visible geometry are checked independently
+of the injected installer and cancellation tests.

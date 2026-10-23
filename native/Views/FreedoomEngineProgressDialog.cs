@@ -20,14 +20,14 @@ internal sealed class FreedoomEngineProgressDialog : Window
     internal Button NextDetailsButton { get; } = new() { Content = "Next", MinHeight = 44, IsVisible = false };
     internal TextBlock DiagnosticText { get; } = new() { TextWrapping = TextWrapping.Wrap, FontSize = 16 };
     readonly TextBlock diagnosticPage = new() { FontSize = 14 };
-    readonly TextBlock introduction = new() { Text = FreedoomEngineInstallService.ConfirmationMessage(), FontSize = 16, TextWrapping = TextWrapping.Wrap };
+    readonly TextBlock introduction = new() { FontSize = 16, TextWrapping = TextWrapping.Wrap };
     readonly List<string> diagnosticPages = new();
     int pageIndex;
     string? displayedDiagnostic;
 
     internal FreedoomEngineProgressDialog(FreedoomEngineProgressViewModel model)
     {
-        Model = model; Title = "Set up Freedoom Phase 2";
+        Model = model; Title = model.Title; introduction.Text = model.Confirmation;
         Width = 700; Height = 510; MinWidth = 580; MinHeight = 440;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         SetValue(DesktopInterfaceScaling.ManagesScrollingProperty, true);

@@ -964,6 +964,7 @@ namespace Relicade.Models
                 if (PortableRecoveryError != null) return "Recovery needed";
                 if (IsPortableCommitInProgress) return "Finishing safely";
                 if (HasOwnedDataAdapter && IsInstalled && !OwnedDataReady) return "Finish game setup";
+                if (GuidedEngineInstallService.OffersRequiredFirstInstall(this)) return "Set up game";
                 if (IsManuallyManaged && Status == GameStatus.NotInstalled)
                     return "Open Folder";
 

@@ -28,6 +28,8 @@ download followed by separate copy confirmation and Play. New entries can confir
 one pinned engine installation with setup-only progress/cancel and retained-state
 reporting. A separate z2rs v0.6.0 Linux x64 definition validates a lawful Zelda II
 USA body, preserves headered/headerless files and revalidates before launch.
+Its new-entry primary action joins explicit pinned engine installation to the
+separate owned-file preview and confirmation, without fetching a ROM or autoplay.
 This is not a general durable download queue. These flows do not establish complete catalog
 setup or tested gameplay. [The setup guide](GAME_SETUP.md) lists the supported input and limits.
 

@@ -411,7 +411,10 @@ platform or complete catalog acceptance. See [supported input, provenance and
 recovery limits](../docs/GAME_SETUP.md).
 
 A further compiled definition covers z2rs v0.6.0 Linux x64 with a lawful Zelda II
-USA dump, headered or headerless. It preserves the whole original, validates the
+USA dump, headered or headerless. Its new-entry **Set up game** action first
+offers the pinned engine installation with progress/cancel, then opens the
+separately confirmed local-file import. No ROM download or automatic play is
+performed, and an existing engine is not replaced. It preserves the whole original, validates the
 upstream body hashes and binds the retained copy by full-file SHA-256 and length.
 Launch disables Discord presence; the engine may remember the ROM path while
 retaining its existing save locations. Linked/manual entries remain unchanged.
