@@ -5,16 +5,18 @@ uses dummy drawing for layout tests and explicitly excludes this directory.
 Avalonia renderer/font resources can outlive a headless application session;
 initializing both backends in a single test process can produce blank frames.
 Do not link these fixtures into the parent assembly or load both test assemblies
-in one process. The library, catalog-details and setup fixtures in the `SharedCatalogRenderer`
+in one process. The smoke, library, catalog-details and setup fixtures in the `SharedCatalogRenderer`
 collection share one application and dispatcher owner: application resources
 include thread-affine Geometry objects. Do not dispose and recreate that owner
 between collection members. Await a real composition commit before asserting a
 newly rendered framebuffer; timer ticks alone do not guarantee completion.
 These are lifecycle requirements, not a license to retry failed captures or
-weaken assertions. `RealRenderSmokeTests` has separate session setup, and
-`RendererProcessBoundaryTests` checks the assembly boundary. Neither belongs to
-this shared collection; its passing selection does not establish acceptance of
-the entire renderer project run. Run each project separately:
+weaken assertions. `RealRenderSmokeTests` closes each window and drains the shell
+while retaining the shared application/dispatcher until the collection ends. Its
+frame helper awaits the actual compositor commit. `RendererProcessBoundaryTests`
+checks the assembly boundary without opening a UI session. A passing selection
+does not establish acceptance of the entire renderer project run. Run each
+project separately:
 
 ```sh
 dotnet test native/Relicade.Tests/Relicade.Tests.csproj
@@ -144,7 +146,9 @@ controller selection scrolls the first card into view. No provider request or
 game artwork is used; these are presentation checks, not catalog rights or
 physical controller/platform acceptance.
 The Discover cases also check rendered hint text width against its available
-footer viewport at the same narrow and scaled inputs.
+footer viewport at the same narrow and scaled inputs. A delayed-image case
+releases its synthetic image after the first selection layout; the fixture waits
+for the actual binding and updates layout before asserting artwork bounds.
 `Z2rsFirstInstallRenderingTests` uses the same shared owner for the native
 project-specific engine confirmation at normal/minimum size and 200% scaling.
 Its synthetic entry starts no download or game. Footer controller focus, the

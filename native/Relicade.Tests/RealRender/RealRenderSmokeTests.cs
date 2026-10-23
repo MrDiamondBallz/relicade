@@ -14,24 +14,25 @@ using Relicade.Views;
 namespace Relicade.Tests;
 
 /// <summary>CPU-rendered native views with synthetic state, never a platform/game acceptance test.</summary>
-public class RealRenderSmokeTests(ITestOutputHelper output)
+[Collection(SharedCatalogRenderer.CollectionName)]
+public class RealRenderSmokeTests(SharedCatalogRenderer renderer, ITestOutputHelper output)
 {
     [Fact]
     public async Task Real_renderer_captures_native_settings_pixels()
     {
-        await using var session = HeadlessUnitTestSession.StartNew(typeof(RealRenderTestApp));
-        await session.Dispatch(() =>
+        await renderer.Session.Dispatch<int>(async () =>
         {
             var window = new Window { Width = 400, Height = 720, Content = new SettingsView() };
             try
             {
                 window.Show();
-                using var frame = ReadyFrame(window);
+                using var frame = await ReadyFrame(window);
                 AssertPixels(frame, 400, 720);
             }
             finally { window.Close(); Dispatcher.UIThread.RunJobs(); }
+            return 0;
         }, CancellationToken.None);
-        output.WriteLine("real-render settings probe closed; isolated application/dispatcher disposed");
+        output.WriteLine("real-render settings probe closed; shared application/dispatcher remains owned by collection");
     }
 
     [Fact]
@@ -55,9 +56,8 @@ public class RealRenderSmokeTests(ITestOutputHelper output)
     [Fact]
     public async Task Native_shell_transitions_library_offline_catalog_settings_and_drains_close()
     {
-        await using (var session = HeadlessUnitTestSession.StartNew(typeof(RealRenderTestApp)))
         {
-            await session.Dispatch<int>(async () =>
+            await renderer.Session.Dispatch<int>(async () =>
             {
                 var store = new Store();
                 var offline = new OfflineCatalog();
@@ -83,7 +83,7 @@ public class RealRenderSmokeTests(ITestOutputHelper output)
                     Visible(view, "LibraryNavButton");
                     Visible(view, "BrowseNavButton");
                     Visible(view, "SettingsButton");
-                    hashes.Add(Capture(window, "01-library-empty"));
+                    hashes.Add(await Capture(window, "01-library-empty"));
                     Assert.Equal(0, offline.Requests);
 
                     Click(view, "BrowseNavButton");
@@ -96,7 +96,7 @@ public class RealRenderSmokeTests(ITestOutputHelper output)
                     Assert.True(offline.Requests > 0);
                     Visible(browse, "BrowseSearchTextBox");
                     Visible(browse, "BrowseRetryButton");
-                    hashes.Add(Capture(window, "02-catalog-offline"));
+                    hashes.Add(await Capture(window, "02-catalog-offline"));
                     var requests = offline.Requests;
                     Click(browse, "BrowseRetryButton");
                     await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Background);
@@ -113,7 +113,7 @@ public class RealRenderSmokeTests(ITestOutputHelper output)
                     Dispatcher.UIThread.RunJobs();
                     window.UpdateLayout();
                     Visible(settings, "ShowOSTopBarCheckBox");
-                    hashes.Add(Capture(window, "03-settings"));
+                    hashes.Add(await Capture(window, "03-settings"));
                     Assert.Equal(3, hashes.Distinct().Count());
                     AssertNoDeviceService(view);
                     output.WriteLine($"actual native transitions library -> catalog error -> retry -> settings; synthetic failed HTTP requests={offline.Requests}");
@@ -132,7 +132,7 @@ public class RealRenderSmokeTests(ITestOutputHelper output)
                 return 0;
             }, CancellationToken.None);
         }
-        output.WriteLine("isolated real-render application/dispatcher disposal completed");
+        output.WriteLine("native shell drained and closed; shared renderer remains owned by collection");
     }
 
     private static void AssertNoDeviceService(MainView view)
@@ -160,20 +160,22 @@ public class RealRenderSmokeTests(ITestOutputHelper output)
         Dispatcher.UIThread.RunJobs();
     }
 
-    private static WriteableBitmap ReadyFrame(Window window)
+    private static async Task<WriteableBitmap> ReadyFrame(Window window)
     {
         // A bounded compositor/layout barrier, not sleep or retry-until-green.
         window.UpdateLayout();
         Dispatcher.UIThread.RunJobs();
+        var commit = Avalonia.Rendering.Composition.ElementComposition.GetElementVisual(window)!.Compositor.RequestCommitAsync();
         AvaloniaHeadlessPlatform.ForceRenderTimerTick(2);
+        await commit.WaitAsync(TimeSpan.FromSeconds(10));
         var frame = window.CaptureRenderedFrame();
         Assert.NotNull(frame);
         return frame;
     }
 
-    private string Capture(Window window, string name)
+    private async Task<string> Capture(Window window, string name)
     {
-        using var frame = ReadyFrame(window);
+        using var frame = await ReadyFrame(window);
         var pixels = AssertPixels(frame, 1280, 720);
         var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(pixels));
         var directory = Environment.GetEnvironmentVariable("RELICADE_RENDER_OUTPUT");

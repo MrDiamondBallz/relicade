@@ -48,7 +48,7 @@ class ReadmeBrandingTests(unittest.TestCase):
 
     @unittest.skipUnless(importlib.util.find_spec('PIL'),
                          'Optional image QA dependency not installed')
-    def test_actual_native_capture_uses_the_same_single_r(self):
+    def test_historical_native_capture_uses_the_same_single_r(self):
         from PIL import Image
         image = Image.open(ROOT / 'docs/assets/relicade-native-linux.png').convert('RGB')
         # The orange initial replaces R; exactly seven light-coloured letters follow.
@@ -61,7 +61,7 @@ class ReadmeBrandingTests(unittest.TestCase):
     def test_interface_preview_and_tagline_remain(self):
         readme = (ROOT / 'README.md').read_text()
         self.assertIn('### Old legends. New life.', readme)
-        self.assertIn('docs/assets/relicade-native-linux.png', readme)
+        self.assertIn('docs/assets/relicade-native-empty-8a1796c-20261023.png', readme)
 
 if __name__ == '__main__':
     unittest.main()

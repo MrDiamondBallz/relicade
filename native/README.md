@@ -20,7 +20,8 @@ and preserved.
 - `Relicade.Tests/`: retained baseline unit/headless tests and product-boundary,
   offline-library and artwork regressions. Test fixtures are synthetic.
 - `tools/export_assets.py`: original identity/glyph exports; Pillow and
-  `rsvg-convert` are needed only to regenerate committed PNG/ICO resources.
+  `rsvg-convert` regenerate committed PNG/ICO resources and are also required by
+  the Python native-branding regression that compares those exports to the SVG masters.
 
 Exact source origin, license/copyright and asset boundaries are in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), [LICENSE](LICENSE), the
