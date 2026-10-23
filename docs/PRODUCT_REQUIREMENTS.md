@@ -97,6 +97,13 @@ Persist jobs by project/release/asset identity with states queued, resolving, do
 - P1 resume is **capability-dependent**: only verified Range support + stable ETag/Last-Modified/asset identity. A changed resource, ignored Range, mismatched size or missing validator restarts safely with an explanation. Saved progress is never trusted as integrity evidence; verify complete bytes before commit. Do not advertise resume before server/protocol tests pass.
 - **Accept:** controlled HTTP fixtures for disconnect, 200/206/416, unknown length, redirect, 403/429/5xx, expired URL, ignored Range and changed ETag; restart launcher at 25/75% and after verify; deduplicate identical jobs; cancel one job without corrupting or cancelling others. Capture real stage/byte transitions and final disk hashes.
 
+Current source adds bounded saved intent/stages and explicit fresh retry for the
+compiled Linux x64 guided first-install adapters only. Reopening their confirmation
+is read-only; unknown history and commit uncertainty require inspection. This does
+not complete R2: global scheduling, generic installs/updates/mods, Range resume,
+process-kill/power-loss and native-platform acceptance remain unverified. See
+[interrupted guided setup](GAME_SETUP.md#interrupted-guided-engine-setup).
+
 ### R3 — Transactional portable upgrades and rollback (P0)
 
 Download/verify/extract into isolated staging; build a manifest and validate launch target before activation. Preserve prior immutable payload and a durable operation journal. Commit uses atomic same-volume activation where supported, or explicitly journaled recoverable steps; no in-place merge masquerading as a transaction.

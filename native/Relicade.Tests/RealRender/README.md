@@ -207,3 +207,11 @@ The original is renamed aside, not deleted. Normal and minimum windows, includin
 positive footer bounds/focus and the committed framebuffer. No reuse confirmation,
 network request or acquired runtime execution occurs. Unique `29-retained-reuse-*`
 files are development captures, not real game, physical input or platform evidence.
+
+`GuidedInstallIntentRenderingTests` reopens the actual confirmation from a saved
+synthetic Downloading attempt. Normal/minimum/200% cases check default Cancel,
+explicit Retry, complete bounded Previous/Next history inspection, visible status,
+footer bounds, keyboard/controller focus and committed nonblank pixels. Its
+throw-only transport receives no request and no Install button is clicked. Unique
+`30-guided-intent-retry-*` captures are private development evidence, not real
+download/gameplay, hard-kill restart or hardware/platform acceptance.

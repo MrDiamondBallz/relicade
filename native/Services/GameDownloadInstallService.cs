@@ -261,6 +261,7 @@ public static class GameDownloadInstallService
             {
                 // Consent dialogs may outlive the entry or its saved write permission.
                 firstInstall?.ValidateContext?.Invoke();
+                firstInstall?.PersistStage?.Invoke("Downloading");
                 using var request = new HttpRequestMessage(HttpMethod.Get, asset.browser_download_url);
                 using var downloadResponse = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, LauncherSession.OperationCancellation)
                     .ConfigureAwait(false);
@@ -329,6 +330,7 @@ public static class GameDownloadInstallService
 
                 // The file must be the one The source catalog checked (or, outside the catalog, the one GitHub published).
                 var expected = expectedDigest;
+                firstInstall?.PersistStage?.Invoke("Verifying");
                 var actual = await Sha256Async(downloadPath).ConfigureAwait(false);
                 if (expected != null && !string.Equals(actual, expected, StringComparison.OrdinalIgnoreCase) &&
                     // A rolling release is rebuilt under the same tag: the build GitHub publishes now is fine too.
@@ -440,6 +442,8 @@ public static class GameDownloadInstallService
                         {
                             if (point is "FirstInstallationChecked" or "Extracted" or "Staged" or "Applying")
                                 firstInstall?.ValidateContext?.Invoke();
+                            if (point == "BeforeApplying") firstInstall?.PersistStage?.Invoke("Committing");
+                            if (point == "Committed") firstInstall?.PersistStage?.Invoke("Completed");
                             if (point != "Applying") return;
                             game.IsPortableCommitInProgress = true;
                             game.IsInstallIndeterminate = true;
@@ -451,6 +455,7 @@ public static class GameDownloadInstallService
                         AcceptLicenseAsync = (fileName, license) => dialogs.AcceptLicenseAsync(game.DisplayName, fileName, license),
                     };
 
+                    firstInstall?.PersistStage?.Invoke("Staging");
                     await GameInstallationService.InstallOrUpdateGameAsync(
                         downloadPath,
                         gamePath,

@@ -694,3 +694,13 @@ The guide interaction tests inject the host URL opener as well as HTTP transport
 They verify the actual keyboard/controller action and requested destination
 without invoking a desktop browser. The normal host still uses the operating-system
 URL launcher; headless interaction results do not certify that external handoff.
+
+### Guided first-install intent
+
+The compiled Linux x64 engine-setup paths retain exact attempt identity and stage
+before payload transfer. Reopening the confirmation only inspects local history;
+**Retry engine install** starts a separately confirmed fresh request after current
+context/source checks. Unknown records and commit uncertainty are retained and
+refused, not repaired or retried automatically. Engine completion is separate from
+owned-data readiness. See [the setup contract](../docs/GAME_SETUP.md#interrupted-guided-engine-setup);
+this is not a generic durable queue or packaged/runtime acceptance.

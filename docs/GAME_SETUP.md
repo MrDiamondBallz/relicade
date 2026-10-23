@@ -78,6 +78,37 @@ retain their metadata but cannot lend arbitrary approval or checksums. See
 [release-history completeness](../native/README.md#release-history-completeness)
 for cursor, resource, offline-cache and session-lifetime limits.
 
+## Interrupted guided engine setup
+
+The explicit Linux x64 first-install adapters (Perfect Dark, z2rs and UZDoom for
+Freedoom) save the reviewed repository, release, asset digest and destination-context
+fingerprint before payload transfer. Each attempt has its own ID and durable last
+stage. These IDs identify setup attempts, not portable transaction operations.
+Credentials and absolute destination paths are not stored in these records.
+
+Reopening the first-install confirmation reads saved history without starting a
+request, repairing a transaction or committing an installation. **Retry engine
+install** is a separate explicit choice: it creates a new attempt and rechecks the
+current entry, target, exact release/address and compiled package digest. It starts
+a fresh transfer, not a Range resume. Previous attempt records are retained; a
+concurrent attempt cannot share the same entry's writer lease. Declining creates no
+new attempt. Cancellation drains the active work and never starts game-data setup
+or gameplay automatically.
+
+Corrupt, unknown, conflicting or unfinished record writes are retained and refused,
+not silently deleted. An attempt at the commit boundary requires inspection rather
+than automatic retry. A failed status write before commit stops further work; if
+the engine has already committed, that disk outcome remains committed even when
+its saved status is uncertain. The library's actual installation and existing
+recovery controls determine the next setup action, not the saved progress record.
+Existing data-file consent and readiness checks are unchanged.
+
+This is a narrow first-install capability, not a global download queue, scheduler,
+byte-range resume, general update/mod persistence or power-loss/platform acceptance.
+The focused synthetic tests reopen saved state in-process and exercise real local
+transaction callbacks; they do not certify every process-kill boundary or real game
+runtime. Full R2 acceptance remains open.
+
 ## Keeping a specific build
 
 A version pin with a `+build` label stays attached to that exact source tag across

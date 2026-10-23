@@ -15,6 +15,8 @@ internal sealed class FreedoomEngineProgressViewModel : ObservableViewModel
     double progress;
     internal string Title { get; }
     internal string Confirmation { get; }
+    internal string InstallLabel { get; }
+    internal bool HasPreviousAttempt { get; }
     internal Task Work { get; private set; } = Task.CompletedTask;
     internal bool IsBusy { get; private set; }
     internal bool Succeeded { get; private set; }
@@ -26,9 +28,12 @@ internal sealed class FreedoomEngineProgressViewModel : ObservableViewModel
     internal string Message { get; private set; } = "Confirm the pinned engine installation. Game-data setup is a separate step; nothing is played automatically.";
 
     internal FreedoomEngineProgressViewModel(LauncherSession session, GameInfo game,
-        Func<CancellationToken, Task<bool>> install, string title = "Set up Freedoom Phase 2", string? confirmation = null)
+        Func<CancellationToken, Task<bool>> install, string title = "Set up Freedoom Phase 2", string? confirmation = null, string? previousAttempt = null)
     {
         Title = title; Confirmation = confirmation ?? GuidedEngineInstallService.ConfirmationMessage();
+        HasPreviousAttempt = previousAttempt != null;
+        InstallLabel = HasPreviousAttempt ? "Retry engine install" : "Install engine";
+        if (previousAttempt != null) Message = previousAttempt;
         this.session = session; this.game = game; this.install = install;
         cancellation = CancellationTokenSource.CreateLinkedTokenSource(session.Token);
         game.PropertyChanged += GameChanged;

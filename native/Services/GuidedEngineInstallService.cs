@@ -71,12 +71,15 @@ internal static class GuidedEngineInstallService
         var prepared = PrepareFirstInstall(game, manager, token, definition);
         var requirement = prepared.Requirement; var assetName = prepared.AssetName;
         var context = prepared.Context; var constraint = prepared.Constraint;
+        GuidedInstallIntent? intent = null;
         game.IsLoading = true;
         try
         {
             if (!await confirm(prepared.Project.Confirmation, prepared.Project.Title)) return false;
             token.ThrowIfCancellationRequested();
             context.ValidateDownloadRequest(token);
+            intent = GuidedInstallIntent.Begin(GuidedInstallIntent.For(game, manager, prepared));
+            constraint = constraint with { PersistStage = intent.Advance };
             using var fresh = ReleaseRequestCoordinator.AllowCachedMetadata(TimeSpan.Zero);
             var release = await CatalogReleaseSelection.FetchSelectedAsync(manager.HttpClient, "github", prepared.Project.Repository,
                 requirement.ReleaseIdentity, game.GetReleaseApiToken(settings), token);
@@ -92,6 +95,10 @@ internal static class GuidedEngineInstallService
             await GameDownloadInstallService.DownloadAndInstallAsync(game, manager.HttpClient, manager.GamesFolder,
                 release, settings, GameStatus.NotInstalled, dialogs, releaseMode: ReleaseInstallMode.ExplicitRelease,
                 firstInstall: constraint);
+            if (intent.StatusUncertain || (!intent.Committed && intent.Stage == "Committing"))
+                throw new IOException(intent.Committed
+                    ? "The engine committed, but its saved download status could not be confirmed. Inspect the installed entry; do not repeat the transfer."
+                    : "Setup reached the installation commit boundary. Inspect existing installation and recovery evidence before retrying; nothing was repaired automatically.");
             token.ThrowIfCancellationRequested();
             context.ValidateDownloadRequest(token);
             if (!game.IsInstalled || game.InstalledVersion != requirement.ReleaseIdentity ||
@@ -100,6 +107,10 @@ internal static class GuidedEngineInstallService
             // package with its non-recovering owned-data authority before showing readiness.
             return true;
         }
-        finally { game.IsLoading = false; }
+        finally
+        {
+            try { intent?.Finish(token.IsCancellationRequested); }
+            finally { intent?.Dispose(); game.IsLoading = false; }
+        }
     }
 }

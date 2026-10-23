@@ -9,6 +9,7 @@ public sealed record FirstInstallPackageConstraint(string Release, string FileNa
     // Enabled only by a compiled project adapter; remote metadata cannot opt in.
     internal bool AllowTarGzip { get; init; }
     internal Action? ValidateContext { get; init; }
+    internal Action<string>? PersistStage { get; init; }
 
     internal void ValidateSelection(string release, string fileName)
     {

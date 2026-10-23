@@ -74,12 +74,16 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
         // Preserve the existing pre-prompt refusal and original library binding.
         // The installer also repeats its current-target checks when Install is chosen.
         var prepared = GuidedEngineInstallService.PrepareFirstInstall(game, manager, session.Token, definition);
+        var previous = GuidedInstallIntent.Inspect(GuidedInstallIntent.For(game, manager, prepared));
+        if (previous?.Stage is "Committing" or "Completed")
+            throw new IOException("Previous engine setup reached its commit boundary. Inspect the installed entry or existing recovery controls before retrying. No transfer or recovery was started.");
         return new(session, game, token =>
         {
             prepared.Context.ValidateDownloadRequest(token);
             return GuidedEngineInstallService.InstallAsync(game, manager, settings, token,
                 (_, _) => Task.FromResult(true), engineDialogs, definition); // Only the explicit Install action invokes this.
-        }, prepared.Project.Title, prepared.Project.Confirmation);
+        }, prepared.Project.Title, prepared.Project.Confirmation, previous == null ? null
+            : $"Previous attempt: {previous.Stage}. It may have stopped or still be active; nothing resumes automatically. Retry starts a new transfer only after fresh source and entry checks. Prior attempts and personal files are retained.");
     }
     internal static async Task InitializeFreedoomAsync(OwnedGameSetupViewModel model, OwnedGameSetupSession setup,
         CancellationToken token, Func<CancellationToken, Task<bool>> launch, Action<bool>? afterLaunch)

@@ -209,6 +209,219 @@ public sealed class PerfectDarkFirstInstallTests
         Assert.Equal(0, f.MetadataCalls + f.DownloadCalls); Assert.Equal("synthetic retained user bytes", File.ReadAllText(path));
     }
 
+    [AvaloniaFact]
+    public async Task Confirmed_guided_install_persists_exact_intent_before_payload_transfer()
+    {
+        using var f = new Fixture("perfect-dark-pc-port/perfect_dark"); await f.Initialize();
+        await using var session = new LauncherSession();
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        f.OnDownload = async _ =>
+        {
+            entered.TrySetResult();
+            await release.Task;
+            throw new HttpRequestException("Synthetic offline stop after observing durable intent; no payload returned.");
+        };
+        var work = session.RunAsync(() => f.Install(session.Token, (_, _) => Task.FromResult(true)));
+        try
+        {
+            await entered.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            Assert.False(work.IsCompleted);
+            var directory = Path.Combine(f.Root, "DownloadIntents");
+            Assert.True(Directory.Exists(directory), "A confirmed pinned request must survive launcher restart before payload transfer begins.");
+            var record = Assert.Single(Directory.GetFiles(directory, "*.json"));
+            using var document = JsonDocument.Parse(File.ReadAllBytes(record));
+            var root = document.RootElement;
+            Assert.Equal(1, root.GetProperty("SchemaVersion").GetInt32());
+            Assert.Equal("Downloading", root.GetProperty("Stage").GetString());
+            var intent = root.GetProperty("Intent");
+            Assert.Equal("perfect-dark-pc-port/perfect_dark", intent.GetProperty("Repository").GetString());
+            Assert.Equal(f.Definition.ReleaseIdentity, intent.GetProperty("ReleaseTag").GetString());
+            Assert.Equal(f.Release.assets[0].name, intent.GetProperty("AssetName").GetString());
+            Assert.Equal(f.Definition.AssetIdentity.Split("|sha256:")[1], intent.GetProperty("AssetSha256").GetString());
+            Assert.False(f.Game.IsInstalled); Assert.False(f.Game.OwnedDataReady);
+        }
+        finally
+        {
+            release.TrySetResult();
+            await work.WaitAsync(TimeSpan.FromSeconds(10));
+        }
+    }
+
+    [AvaloniaFact]
+    public async Task Reopened_confirmation_only_inspects_history_and_explicit_retry_creates_a_new_attempt()
+    {
+        using var f = new Fixture("perfect-dark-pc-port/perfect_dark"); await f.Initialize();
+        await using var session = new LauncherSession();
+        var prepared = GuidedEngineInstallService.PrepareFirstInstall(f.Game, f.Manager, session.Token, f.Definition);
+        var identity = GuidedInstallIntent.For(f.Game, f.Manager, prepared);
+        using (var interrupted = GuidedInstallIntent.Begin(identity)) interrupted.Advance("Downloading");
+        var original = Assert.Single(Directory.GetFiles(Path.Combine(f.Root, "DownloadIntents"), "*.json"));
+        var bytes = File.ReadAllBytes(original);
+        var model = OwnedGameSetupFlow.CreateEngineProgress(f.Game, f.Manager, f.Store.Current, session, f.Dialogs, f.Definition);
+        var window = new FreedoomEngineProgressDialog(model);
+        try
+        {
+            window.Show();
+            Assert.Equal("Retry engine install", window.InstallButton.Content);
+            Assert.Contains("Downloading", model.Message); Assert.Contains("nothing resumes automatically", model.Message);
+            Assert.True(model.Work.IsCompleted); Assert.True(model.CanStart);
+            Assert.Equal(0, f.MetadataCalls + f.DownloadCalls); Assert.Equal(bytes, File.ReadAllBytes(original));
+            Assert.Single(Directory.GetFiles(Path.Combine(f.Root, "DownloadIntents"), "*.json"));
+            window.InstallButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await model.Work.WaitAsync(TimeSpan.FromSeconds(10));
+            Assert.True(model.Succeeded); Assert.True(f.Game.IsInstalled); Assert.False(f.Game.OwnedDataReady);
+            Assert.Equal(1, f.DownloadCalls); Assert.True(f.MetadataCalls > 0);
+            Assert.Equal(bytes, File.ReadAllBytes(original));
+            Assert.Equal(2, Directory.GetFiles(Path.Combine(f.Root, "DownloadIntents"), "*.json").Length);
+            var latest = GuidedInstallIntent.Inspect(identity)!;
+            Assert.Equal("Completed", latest.Stage);
+            Assert.Equal(JsonSerializer.Deserialize<GuidedInstallIntent.Record>(bytes)!.AttemptId, latest.PreviousAttemptId);
+        }
+        finally { window.Close(); await model.Work; model.DisposeAfterDrain(); }
+    }
+
+    [AvaloniaTheory]
+    [InlineData("corrupt")] [InlineData("unknown-schema")] [InlineData("pending-write")]
+    [InlineData("changed-package")] [InlineData("commit-boundary")]
+    public async Task Unknown_or_unsafe_saved_attempt_is_preserved_without_retry_or_recovery(string change)
+    {
+        using var f = new Fixture("perfect-dark-pc-port/perfect_dark"); await f.Initialize();
+        await using var session = new LauncherSession();
+        var prepared = GuidedEngineInstallService.PrepareFirstInstall(f.Game, f.Manager, session.Token, f.Definition);
+        var identity = GuidedInstallIntent.For(f.Game, f.Manager, prepared);
+        using (var attempt = GuidedInstallIntent.Begin(identity))
+        {
+            attempt.Advance("Downloading");
+            if (change == "commit-boundary") { attempt.Advance("Verifying"); attempt.Advance("Staging"); attempt.Advance("Committing"); }
+        }
+        var directory = Path.Combine(f.Root, "DownloadIntents");
+        var path = Assert.Single(Directory.GetFiles(directory, "*.json"));
+        if (change == "corrupt") File.WriteAllText(path, "{ interrupted synthetic record");
+        if (change == "unknown-schema") File.WriteAllText(path, File.ReadAllText(path).Replace("\"SchemaVersion\":1", "\"SchemaVersion\":9"));
+        if (change == "pending-write") File.WriteAllText(path + ".pending.tmp", "retained partial write");
+        if (change == "changed-package") f.Definition = f.Definition with { ExecutableSha256 = new string('0', 64) };
+        var before = Directory.GetFiles(directory).ToDictionary(Path.GetFileName, File.ReadAllBytes);
+        Assert.Throws<IOException>(() => OwnedGameSetupFlow.CreateEngineProgress(f.Game, f.Manager, f.Store.Current, session, f.Dialogs, f.Definition));
+        Assert.Equal(0, f.MetadataCalls + f.DownloadCalls);
+        Assert.False(Directory.Exists(f.Live)); Assert.False(f.Game.IsInstalled); Assert.False(f.Game.OwnedDataReady);
+        Assert.Equal(before.Count, Directory.GetFiles(directory).Length);
+        foreach (var pair in before) Assert.Equal(pair.Value, File.ReadAllBytes(Path.Combine(directory, pair.Key!)));
+    }
+
+    [AvaloniaFact]
+    public async Task Active_attempt_excludes_a_second_retry_and_refuses_stale_stage_overwrite()
+    {
+        using var f = new Fixture("perfect-dark-pc-port/perfect_dark"); await f.Initialize();
+        await using var session = new LauncherSession();
+        var prepared = GuidedEngineInstallService.PrepareFirstInstall(f.Game, f.Manager, session.Token, f.Definition);
+        var identity = GuidedInstallIntent.For(f.Game, f.Manager, prepared);
+        using var attempt = GuidedInstallIntent.Begin(identity);
+        Assert.Throws<IOException>(() => GuidedInstallIntent.Begin(identity));
+        var path = Assert.Single(Directory.GetFiles(Path.Combine(f.Root, "DownloadIntents"), "*.json"));
+        var changed = File.ReadAllText(path).Replace("Resolving", "Failed"); File.WriteAllText(path, changed);
+        Assert.Throws<IOException>(() => attempt.Advance("Downloading"));
+        Assert.Equal(changed, File.ReadAllText(path)); Assert.Equal(0, f.MetadataCalls + f.DownloadCalls);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Stage_write_failure_distinguishes_precommit_refusal_from_committed_status_uncertainty(bool committed)
+    {
+        using var f = new Fixture("perfect-dark-pc-port/perfect_dark"); await f.Initialize();
+        await using var session = new LauncherSession();
+        var prepared = GuidedEngineInstallService.PrepareFirstInstall(f.Game, f.Manager, session.Token, f.Definition);
+        var identity = GuidedInstallIntent.For(f.Game, f.Manager, prepared);
+        using var attempt = GuidedInstallIntent.Begin(identity);
+        if (committed) { attempt.Advance("Downloading"); attempt.Advance("Verifying"); attempt.Advance("Staging"); attempt.Advance("Committing"); }
+        var path = Assert.Single(Directory.GetFiles(Path.Combine(f.Root, "DownloadIntents"), "*.json"));
+        var retained = File.ReadAllBytes(path); File.Move(path, path + ".retained");
+        if (committed)
+        {
+            // Unit boundary: simulate the already-committed transaction callback, not a real disk commit.
+            attempt.Advance("Completed"); Assert.True(attempt.Committed); Assert.True(attempt.StatusUncertain);
+            attempt.Finish(cancelled: true); Assert.Equal("Committing", attempt.Stage);
+        }
+        else { Assert.ThrowsAny<IOException>(() => attempt.Advance("Downloading")); Assert.False(attempt.Committed); }
+        Assert.Equal(retained, File.ReadAllBytes(path + ".retained")); Assert.False(File.Exists(path));
+        Assert.Equal(0, f.MetadataCalls + f.DownloadCalls); Assert.False(f.Game.IsInstalled);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Actual_transaction_stage_write_failure_preserves_commit_vs_status_outcomes(bool afterCommit)
+    {
+        using var f = new Fixture("perfect-dark-pc-port/perfect_dark"); await f.Initialize();
+        await using var session = new LauncherSession();
+        var prepared = GuidedEngineInstallService.PrepareFirstInstall(f.Game, f.Manager, session.Token, f.Definition);
+        var identity = GuidedInstallIntent.For(f.Game, f.Manager, prepared);
+        using var attempt = GuidedInstallIntent.Begin(identity);
+        var path = Assert.Single(Directory.GetFiles(Path.Combine(f.Root, "DownloadIntents"), "*.json"));
+        byte[]? retained = null;
+        var constraint = prepared.Constraint with { PersistStage = stage =>
+        {
+            if (stage == (afterCommit ? "Completed" : "Downloading"))
+            { retained = File.ReadAllBytes(path); File.Move(path, path + ".retained"); }
+            attempt.Advance(stage);
+        } };
+        GameDownloadService.SelectExplicit(f.Game, f.Release, f.Store.Current, f.Release.assets[0]);
+        await session.RunAsync(() => GameDownloadInstallService.DownloadAndInstallAsync(f.Game, f.Manager.HttpClient,
+            f.Manager.GamesFolder, f.Release, f.Store.Current, GameStatus.NotInstalled, f.Dialogs,
+            releaseMode: ReleaseInstallMode.ExplicitRelease, firstInstall: constraint));
+        Assert.NotNull(retained); Assert.Equal(retained, File.ReadAllBytes(path + ".retained"));
+        Assert.False(File.Exists(path)); Assert.False(f.Game.OwnedDataReady);
+        Assert.Equal(afterCommit ? 1 : 0, f.DownloadCalls);
+        Assert.Equal(afterCommit, attempt.Committed); Assert.Equal(afterCommit, attempt.StatusUncertain);
+        Assert.Equal(afterCommit, f.Game.IsInstalled);
+        Assert.Equal(afterCommit, File.Exists(Path.Combine(f.Live, PortableInstallationTransaction.ManifestFileName)));
+        if (afterCommit)
+        {
+            using var manifest = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(f.Live, PortableInstallationTransaction.ManifestFileName)));
+            Assert.Equal(f.Definition.ReleaseIdentity, manifest.RootElement.GetProperty("selectedVersion").GetString());
+            var operation = manifest.RootElement.GetProperty("operationId").GetString()!;
+            Assert.True(Guid.TryParseExact(operation, "N", out _));
+            using var journal = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(new PortableInstallationTransaction(f.Live).OperationsPath, operation, "journal.json")));
+            Assert.Equal(operation, journal.RootElement.GetProperty("operationId").GetString());
+            Assert.Equal("Committed", journal.RootElement.GetProperty("phase").GetString());
+            Assert.Equal(f.Engine, File.ReadAllBytes(Path.Combine(f.Live, "pd.x86_64")));
+            Assert.Equal("Committing", attempt.Stage);
+        }
+        else Assert.Contains("Installation", f.Dialogs.Error);
+    }
+
+    [AvaloniaFact]
+    public async Task Declined_guided_confirmation_creates_no_intent_and_starts_no_request()
+    {
+        using var f = new Fixture("perfect-dark-pc-port/perfect_dark"); await f.Initialize();
+        await using var session = new LauncherSession();
+        Assert.False(await session.RunAsync(() => f.Install(session.Token, (_, _) => Task.FromResult(false))));
+        Assert.Equal(0, f.MetadataCalls + f.DownloadCalls);
+        Assert.False(Directory.Exists(Path.Combine(f.Root, "DownloadIntents")));
+        Assert.False(f.Game.IsInstalled); Assert.False(f.Game.IsLoading);
+    }
+
+    [AvaloniaTheory]
+    [InlineData(false)] [InlineData(true)]
+    public async Task Saved_history_label_requires_an_actual_prior_attempt(bool previous)
+    {
+        await using var session = new LauncherSession();
+        using var game = new GameInfo { Name = "Synthetic confirmation only" };
+        var model = new FreedoomEngineProgressViewModel(session, game,
+            _ => throw new InvalidOperationException("No install may run from this wording check."),
+            previousAttempt: previous ? "Previous attempt: Downloading. " + new string('x', 300) : null);
+        var window = new FreedoomEngineProgressDialog(model);
+        try
+        {
+            window.Show(); window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
+            Assert.True(model.CanStart); Assert.Equal(previous, model.HasPreviousAttempt);
+            Assert.Equal(previous ? "Retry engine install" : "Install engine", window.InstallButton.Content);
+            if (previous) Assert.StartsWith("Saved setup details", window.StatusText.Text);
+            else { Assert.DoesNotContain("Saved", window.StatusText.Text); Assert.DoesNotContain("Retry", window.StatusText.Text); }
+            Assert.True(model.Work.IsCompleted); Assert.False(model.IsBusy);
+        }
+        finally { window.Close(); await model.Work; model.DisposeAfterDrain(); }
+    }
+
     sealed class Fixture(string repository) : IDisposable
     {
         const string Asset = "pd-x86_64-linux.tar.gz";

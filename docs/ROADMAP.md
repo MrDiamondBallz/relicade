@@ -37,6 +37,9 @@ The supported owned-data adapters also expose explicit retained-file reuse after
 a compatible generation change: preview and consent add only a current setup
 receipt, with both writer authorities guarding readiness publication. No automatic
 rollback adoption, original-file guard bypass or gameplay acceptance is implied.
+The compiled Linux x64 guided first-install paths now retain exact attempt identity
+and last stage, with read-only reopening and a separately confirmed fresh retry.
+Unknown history and commit uncertainty are refused without automatic repair.
 This is not a general durable download queue. These flows do not establish complete catalog
 setup or tested gameplay. [The setup guide](GAME_SETUP.md) lists the supported input and limits.
 

@@ -28,6 +28,7 @@ internal sealed class FreedoomEngineProgressDialog : Window
     internal FreedoomEngineProgressDialog(FreedoomEngineProgressViewModel model)
     {
         Model = model; Title = model.Title; introduction.Text = model.Confirmation;
+        InstallButton.Content = model.InstallLabel;
         Width = 700; Height = 510; MinWidth = 580; MinHeight = 440;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         SetValue(DesktopInterfaceScaling.ManagesScrollingProperty, true);
@@ -75,7 +76,9 @@ internal sealed class FreedoomEngineProgressDialog : Window
     {
         var installFocused = InstallButton.IsFocused;
         var diagnostic = IsVisible && (Model.Message.Length > 280 || !FitsDiagnosticPage(Model.Message)) ? Model.Message : "";
-        StatusText.Text = diagnostic.Length == 0 ? Model.Message : "Engine setup stopped. Review the details with Previous and Next.";
+        StatusText.Text = diagnostic.Length == 0 ? Model.Message : Model.CanStart && Model.HasPreviousAttempt
+            ? "Saved setup details. Review with Previous and Next before choosing Retry."
+            : "Engine setup stopped. Review the details with Previous and Next.";
         AutomationProperties.SetName(StatusText, StatusText.Text);
         var pagesChanged = diagnostic != displayedDiagnostic;
         if (pagesChanged)

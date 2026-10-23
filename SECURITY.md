@@ -120,3 +120,14 @@ writer authorities span the awaited guarded readiness callback. Cancellation or
 changed UI context after receipt creation can retain that receipt without Ready.
 This does not establish legal entitlement, hostile filesystem safety or power-loss
 acceptance; the ordinary original-file and launch-time checks remain required.
+
+## Guided first-install history
+
+Saved first-install intents are local status evidence, not authorization to resume
+a transfer or repair a transaction. They contain exact reviewed package identity
+and hashed entry/root context, never provider credentials or private absolute paths.
+Explicit retry revalidates the current context and compiled pin. Unknown records,
+partial writes and commit uncertainty are retained and refused; a committed engine
+is not called unchanged merely because its status write failed. The per-entry
+writer lease and existing portable authority are not a sandbox against hostile
+concurrent filesystem mutation, and no universal power-loss safety is claimed.

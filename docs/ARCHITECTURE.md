@@ -374,6 +374,23 @@ cancellation never opens the data dialog and can leave a committed engine.
 Shared metadata waiter cancellation retains its existing coordinator semantics;
 the UI does not claim ownership of an independently shared metadata transport.
 
+`GuidedInstallIntent` adds a separate versioned first-install intent store under
+Relicade's user-data root. The per-entry persistent writer lease spans one explicit
+attempt; a new attempt links to retained earlier history without rewriting it.
+Records bind the compiled repository/release/asset/executable identity and a hashed
+entry/root context. Bounded strict inspection creates no directory, acquires no
+writer, and invokes no recovery or network. Unknown schema, partial writes,
+conflicting chains and changed identity are refused with evidence preserved.
+
+Atomic, flushed stage records precede payload request, verification, staging and
+the existing transaction's BeforeApplying boundary. Only its actual Committed
+callback marks engine completion. A postcommit status-write failure cannot reverse
+that disk outcome or authorize a retry. The saved attempt ID is not represented as
+the portable manifest's operation ID. Explicit retry repeats current context,
+source and first-install authority checks; no old consent, payload offset or
+progress value is installation authority. This is not a generic job scheduler,
+transaction-recovery replacement or hostile-writer/power-loss guarantee.
+
 The dialog requires explicit Play after data setup. It checks the saved library,
 settings and retained data before dispatch, and the launch service revalidates
 the exact generation and data under the existing portable launch lifetime. The
