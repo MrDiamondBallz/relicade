@@ -1,10 +1,8 @@
 # Windows Freedoom Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Complete the existing explicit UZDoom/Freedoom setup and optional Play journey on Windows x64 with pinned packages and preserved data.
 
-**Architecture:** Extend compiled adapters and the current first-install/owned-data authorities. Add a focused Windows play-profile service; preserve Linux adapters and ordinary engine Launch. The sole writer implements; a read-only reviewer checks immutable changes before publication.
+**Architecture:** Extend compiled adapters and the current first-install/owned-data authorities. Add a focused Windows play-profile service; preserve Linux adapters and ordinary engine Launch. Review exact changes independently before integration.
 
 **Tech Stack:** Existing pinned .NET10.0.402, C#, Avalonia, managed ZIP extraction, BCL cryptography/filesystem and xUnit; no new dependency or provider.
 
@@ -13,12 +11,11 @@
 ## Global Constraints
 
 - Copy the exact package, executable and WAD pins from the spec; archive and executable digests differ.
-- Cloud: source/synthetic only. Approved engine/data acquisition/execution: receiving Windows PC only.
+- Keep synthetic checks, native install/data checks and actual gameplay acceptance separate.
 - Existing Linux definitions default to Linux x64; Windows opt-in is only this compiled UZDoom adapter.
 - Preserve all ownership, stale-context, preview/import, no-overwrite, recovery and data/history checks.
-- Both commit identities: `MrDiamondBallz <264773240+MrDiamondBallz@users.noreply.github.com>`; normal reviewed pushes only.
-- No paid services, hosted CI, provider/model changes, credentials, signing enrollment or premature release tag.
-- Android SDK/license installation is deferred; Mac runtime access is unavailable.
+- Preserve existing credits, notices and history.
+- Android package/runtime and macOS native runtime acceptance remain pending.
 
 ## Review Focus
 
@@ -26,7 +23,7 @@
 - Case-equivalent/overlapping Windows paths: equivalent roots stay bound; another entry/root never gains authority.
 - Interrupted transfer/import: no automatic transfer/recovery on reopen; prior generations, data and explicit retry remain visible.
 - Existing profile/config alias or changed updater controls: preserve bytes and refuse; do not overwrite player preferences.
-- Actual gameplay is on hold by user choice: stock Vulkan initialization can fall back to unapproved GL/GLES cache paths. Do not execute, re-ask, or infer preference1 prevents fallback. Continue source/synthetic and install/data/Close checks separately.
+- Integrated Windows gameplay acceptance remains pending: stock Vulkan initialization can fall back to GL/GLES, so preference1 does not establish filesystem isolation. Review engine-owned cache behavior separately from install/data/Close checks.
 
 ---
 
@@ -61,7 +58,7 @@
 - [ ] Write tests for first configuration creation, unchanged valid existing configuration, conflicting/duplicate updater controls, effective Vulkan preference1/replaygainfalse, nonregular/reparse/hardlinked configuration, unsafe overlap and long paths. Existing bytes must remain exact on refusal.
 - [ ] Implement bounded regular single-link config inspection, create-new/durable publication, required disabled updater/node-write controls, and disjoint profile directories. Never replace an existing config or save.
 - [ ] Configure literal arguments, owned-process execution and environment sanitation only for optional Windows Freedoom. Test spaces/Unicode/quotes as literal tokens, exact executable selection and unchanged ordinary/Linux arguments.
-- [ ] Review documented upstream cache limits, Vulkan-to-GL/GLES automatic fallback and PC scope before any actual game start. A preference is not enforcement; keep that execution boundary unresolved until concretely reconciled. Run synthetic checks; review/commit/push.
+- [ ] Review documented upstream cache limits and Vulkan-to-GL/GLES automatic fallback before gameplay acceptance. A preference is not enforcement. Run synthetic checks and independently review changes.
 
 ### Task 4: Validate the native journey and reconcile docs
 
@@ -69,5 +66,5 @@
 
 - [ ] Render confirmation/progress/data/ready/error/cancel states with synthetic fixtures at ordinary/minimum sizes and scaling; ensure unsupported platform actions are not offered.
 - [ ] Run the complete relevant Linux suite after production changes, and actual Windows setup/input/ownership/cancellation selections. Retain every failure/skip and exact source hash; do not repeat accepted probes without new context.
-- [ ] Receiving PC: after cache-boundary reconciliation, verify exact approved package/notice hashes, real Relicade install/data/Play/save/load/normal exit/relaunch and launcher responsiveness; no other engine/game execution.
+- [ ] Windows native acceptance: verify exact package/notice hashes, real Relicade install/data/Play/save/load/normal exit/relaunch and launcher responsiveness after launch-profile/cache review.
 - [ ] Reconcile documentation against source and actual acceptance, cold-review immutable changes, publish and verify ref/identities. Integrate only accepted changes; official release remains separately gated.

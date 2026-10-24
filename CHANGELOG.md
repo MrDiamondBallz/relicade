@@ -18,7 +18,7 @@ These are source milestones, not an official release or complete platform accept
 
 ### Still pending
 - Official packages, the branded dependency-complete Windows wizard, automatic launcher updates and big-screen mode.
-- Integrated Windows gameplay, full clean-machine/recovery/accessibility acceptance and complete per-platform evidence. Cross-builds are not runtime acceptance; macOS hardware is unavailable and Android SDK setup remains deferred.
+- Integrated Windows gameplay, full clean-machine/recovery/accessibility acceptance and complete per-platform evidence. Cross-builds are not runtime acceptance; macOS native runtime and Android package/device acceptance remain pending.
 - Broader game compatibility and lawful emulator support. Metadata coverage is not a playable-game count.
 
 ## Earlier preview history

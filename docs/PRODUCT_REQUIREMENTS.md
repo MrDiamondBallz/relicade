@@ -211,7 +211,7 @@ Each accepted requirement records **build commit, platform/hardware, fixture, co
 
 Release cannot pass with fake successful downloads/launches, a screenshot-only native workflow, unmeasured “faster,” a backend stub returning success, or a broad “fully reverse engineered” claim. Source inspection informs design; it does not substitute for binary tracing, native runtime tests or demonstrated Relicade behavior.
 
-## Additional user-directed release requirements
+## Additional release requirements
 
 - Broad original-game discovery: at least 10,000 real named source records as a
   first milestone, with stable source IDs, explicit edition/project distinctions,
@@ -233,10 +233,9 @@ Release cannot pass with fake successful downloads/launches, a screenshot-only n
   retaining Relicade's own identity and honest unsupported-path states.
 - Repository presentation: current controller-R identity, genuine native catalog
   captures, accurate feature/platform/readiness and setup/release documentation.
-  No prototype image may masquerade as a native capture, and no personal account
-  avatar/settings changes are implied.
+  No prototype image may masquerade as a native capture.
 
-Android SDK/license installation remains deferred by explicit user choice. No
-Mac is available for native runtime acceptance. Actual approved Windows gameplay
-is on hold because the unmodified engine may fall back to unapproved cache
-backends; source/synthetic and separate install/data/Close work may continue.
+Android package/runtime and macOS native runtime acceptance remain pending.
+Integrated Windows gameplay acceptance is also pending: automatic renderer
+fallback and engine-owned cache behavior require profile review. Source/synthetic
+and separate install/data/Close evidence do not establish gameplay acceptance.

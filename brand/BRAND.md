@@ -43,13 +43,13 @@ the boxed app icon is not part of the interface wordmark.
 The accessible product name remains **Relicade**. Pure app/window/tray/package
 icon surfaces use the established orange R on its graphite field, without a
 suffix. This active-native rule supersedes the general monochrome/light-surface
-permissions below for those surfaces. The user-requested controller details now apply to standalone symbols, full-name
+permissions below for those surfaces. The controller details apply to standalone symbols, full-name
 masters, repository lockups, the brand board and native/Android exports. Historical
 application captures remain dated evidence; never repaint them as a new build.
 
 The controller R retains the original outer silhouette and **open right counter**,
 with one directional cross and two diagonal face-button circles cut through the
-letter using even-odd fill. This user-requested master supersedes the former
+letter using even-odd fill. This master supersedes the former
 uncut single-polygon rule. Keep the supplied controller cutouts, clipped shoulder
 and forward diagonal leg; monochrome variants change the fill, not the geometry.
 

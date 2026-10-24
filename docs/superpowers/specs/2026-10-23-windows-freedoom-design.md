@@ -1,28 +1,23 @@
 # Windows UZDoom / Freedoom guided setup
 
-## Intent and authorization
+## Intent
 
 Extend the existing explicit engine-install, separate free-data import and Play
-journey to Windows x64. The user delegated routine design, source changes,
-independent review and verified GitHub publication to the sole cloud writer.
-Actual acquisition/execution remains limited to the exact approved packages on
-the receiving Windows PC; cloud work uses source and synthetic payloads only.
+journey to Windows x64. Synthetic install/data checks remain distinct from actual
+gameplay and release acceptance.
 
 This design is one release milestone. Broad native discovery with at least
 10,000 real named game records, all declared platform quality, readable reference
 Markdown, a real branded Windows install wizard and authenticated automatic
 launcher updates remain separate work. No catalog count implies playability.
-Android SDK/license installation is explicitly deferred; no Mac is available.
-No paid services, hosted CI, provider/model changes, credential creation/copy,
-signing enrollment, force pushes or premature release tags are authorized.
+Android package/runtime and macOS native runtime acceptance remain pending.
 
 ## Approach
 
 Use a compiled Windows adapter in the existing guided transaction, ownership,
-receipt, progress/cancellation and library-binding architecture. This is the
-writer's implementation choice within the delegated scope. A parallel installer
-or a generic removal of Linux guards would duplicate authority or incorrectly
-broaden Perfect Dark/z2rs; ordinary UZDoom Launch stays unchanged.
+receipt, progress/cancellation and library-binding architecture. A parallel
+installer or a generic removal of Linux guards would duplicate authority or
+incorrectly broaden Perfect Dark/z2rs; ordinary UZDoom Launch stays unchanged.
 
 The UI offers guided Freedoom only on a supported Linux/Windows x64 host before
 presenting an action. Unsupported host builds retain discovery and ordinary
@@ -99,17 +94,14 @@ writes can be disabled; existing node-cache reads remain possible. Vulkan and
 Intel OpenGL may write `%LocalAppData%/doom/uzdoom/vulkanpipelinecache` and
 `glshadercache`; portable mode and environment variables do not redirect those
 known-folder paths. Multiplayer ignores `-savedir`. Do not claim full filesystem
-isolation or multiplayer/save compatibility. The user additionally approved the
-same PC test reading/updating the Vulkan cache and per-map node-cache paths,
-including existing cache bytes. No GL/GLES, replaygain, other backend/device or
-external-file deletion scope was added. Keep Vulkan preference and replaygain
-disabled in the acceptance profile; do not re-ask the same cache permission.
+isolation or multiplayer/save compatibility. Cache behavior must be included in
+the launch-profile review; a configuration preference does not constrain every
+engine filesystem access.
 `vid_preferbackend=1` is not Vulkan-only enforcement: upstream catches a Vulkan
 initialization error and falls back to GL/GLES ([fallback](https://github.com/UZDoom/UZDoom/blob/7910df7102033fd7754a317f3254f24101135926/src/common/platform/win32/hardware.cpp#L84-L95)).
-The user explicitly chose to keep gameplay pending if fallback cannot be excluded.
-Actual engine/game execution is therefore on hold; do not re-ask or treat this
-preference as enforcement. Source/synthetic checks and separately confirmed
-install/data/Close checks may proceed without selecting Play.
+Integrated gameplay acceptance remains pending while the Windows launch profile
+and renderer fallback/cache behavior are reviewed. Source/synthetic and separate
+install/data/Close checks do not establish gameplay acceptance.
 
 ## Acceptance
 
@@ -119,10 +111,9 @@ receipt and current-save preservation, profile no-overwrite/refusal, and literal
 launch arguments. Keep real Linux regressions and explicit capability limits.
 Windows-only skips on Linux are not Windows passes.
 
-The receiving PC first verifies confirmation, engine install, separate data
-confirmation/import and Close with no launch. After the gameplay hold is resolved,
-the remaining acceptance includes Play, normal game exit,
-responsive launcher, save/load and relaunch/restart. Direct engine smoke is not
-Relicade integration. Optional manual rapid/held-A testing was waived; do not
-request it again or call it complete. Do not promote release/support claims from
-builds, counts or virtual input tests. Review actual package notices separately.
+Windows acceptance separates confirmation, engine install, data confirmation/import
+and Close from actual execution. Remaining gameplay acceptance includes Play,
+normal game exit, responsive launcher, save/load and relaunch/restart. Direct
+engine smoke is not Relicade integration. Physical rapid/held-A behavior remains
+unvalidated; builds, counts or virtual input tests do not establish hardware or
+release support. Review actual package notices separately.

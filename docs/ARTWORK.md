@@ -20,10 +20,10 @@ make the product appear more complete.
 
 The [current Windows catalog capture](assets/relicade-windows-controller-catalog-d092f2f-20261024.jpg)
 comes from actual native source [`d092f2f`](https://github.com/MrDiamondBallz/relicade/tree/d092f2fc4cc50656681eba31e50f20453710cf1c),
-process 18140, at 1920×1032 pixels, captured UTC `2026-10-24T09:13:23.5076508Z`.
+at 1920×1032 pixels, captured on 2026-10-24.
 Its [provenance record](assets/relicade-windows-controller-catalog-d092f2f-20261024.json)
-records exact JPEG/Git blob hashes, fresh isolated profile, maximized 100% interface
-scale and limits. Ten real public project cards occupy five columns/two rows.
+records exact JPEG/Git blob hashes, source commit, date, image dimensions and
+authenticity limits. Ten real public project cards occupy five columns/two rows.
 The controller R is actually rendered in the native header/footer; no logo was
 pasted in, and no cropping, resizing, compositing or fake population occurred.
 Upstream community labels are not Relicade gameplay certification. Names/artwork
@@ -32,8 +32,8 @@ No personal paths, installed games or gameplay/release acceptance are implied.
 
 The earlier [wide pre-controller-R photo](assets/relicade-windows-wide-catalog-9cfa7fc-20261024.jpg)
 and [narrower catalog photo](assets/relicade-windows-catalog-9cfa7fc-20261024.jpg)
-remain unchanged with their provenance as engineering evidence. The current-brand
-wide photo supersedes them only as the README hero.
+retain their unchanged image bytes and public provenance as engineering evidence.
+The current-brand wide photo supersedes them only as the README hero.
 
 The [historical empty-library capture](assets/relicade-native-empty-8a1796c-20261023.png) renders native source
 [`8a1796c`](https://github.com/MrDiamondBallz/relicade/tree/8a1796c3fd97a77ff55546a6958054ea8dafd3e0)
@@ -56,7 +56,7 @@ source and rights/provenance review; an attractive card never proves install or
 play support. Missing or offline art must keep a useful labeled fallback. Reveal
 concepts describe a future interface, not evidence of the current application.
 
-The native sidebar wordmark uses the user-requested transparent controller-R master and
+The native sidebar wordmark uses the transparent controller-R master and
 unchanged ELICADE paths, with a shared optical center and tagline beneath the
 suffix. The graphite-backed app icon remains for app/window/tray icon surfaces.
 

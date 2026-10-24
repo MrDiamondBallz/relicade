@@ -61,4 +61,7 @@ At every meaningful source milestone, and before main adoption:
 
 Register newly authored Markdown, reStructuredText, plain-text guides and license/notice files with explicit policy. Legal notices, licenses, trademarks and historical changelog/evidence bytes are protected from regeneration. Follow [the complete contract](docs/DOCUMENTATION.md), including input/schema protections and periodic maintainer reconciliation. Periodic checks complement, not replace, contribution-time checks and explicit semantic review.
 
-No credentials, personal files, user game data, signing keys or sensitive diagnostics in source control. Use synthetic fixtures for destructive tests. Hosted CI status is documented in [docs/CI.md](docs/CI.md); a template or local pass is not a hosted run.
+Keep private session notes, handoffs and approval transcripts local. Public reports
+should contain reproducible technical facts and sanitized evidence, without
+personal paths or tool/account-access details. No credentials, personal files,
+user game data, signing keys or sensitive diagnostics in source control. Use synthetic fixtures for destructive tests. Hosted CI status is documented in [docs/CI.md](docs/CI.md); a template or local pass is not a hosted run.

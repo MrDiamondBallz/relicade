@@ -331,7 +331,7 @@ cleanup, original-data exports, all variants, all projects or emulation. Back up
 originals and the local data store separately; do not assume metadata exports
 include them. Full catalog and platform requirements remain in the
 [coverage contract](FEATURE_COVERAGE.md). Synthetic copy, failure and UI tests are
-not permission to execute external games or evidence of real gameplay acceptance.
+not evidence of real gameplay acceptance.
 The exact pinned archive has also been checked through the download/install caller
 using a local test transport, without starting its executables. This establishes
 bounded extraction/activation evidence, not a working game or a packaged launcher.
@@ -372,10 +372,11 @@ Windows install/data tests use synthetic, non-runnable MZ files and tiny data;
 Linux skips do not establish Windows acceptance. The Windows optional-play profile
 is still being implemented; the production Windows guided Play entrypoint refuses
 before process launch. Completed setup shows a disabled **Play unavailable** action
-and an explanation, without suggesting that Play can start. Actual integrated gameplay is **pending**: the user
-kept execution on hold because stock UZDoom can fall back from Vulkan to GL/GLES,
-whose cache paths are outside the approved test scope. Install/data/Close are
-separate from Play; this development candidate must not be used to start a game.
+and an explanation, without suggesting that Play can start. Actual integrated
+gameplay acceptance is **pending**. Stock UZDoom can fall back from Vulkan to
+GL/GLES; the launch profile and engine-owned cache behavior remain under review.
+Install/data/Close are separate from Play; the Windows guided Play path remains
+unavailable in this development candidate.
 
 For an uninstalled entry on a matching Windows/Linux x64 host, **Set up Freedoom Phase 2…** first asks
 whether to install the exact UZDoom package above. The setup window requires an

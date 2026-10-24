@@ -257,8 +257,8 @@ The existing artwork source, cache and privacy boundaries still apply.
 | Linux x64 | Self-contained publish; private AppDir/AppImage recipe; isolated virtual-X11 startup and local/headless fixture exercises | Released AppImage/Flatpak, real installs/launches, game-data requirements, recovery/security, controller/accessibility/hardware tests |
 | Windows x64 | Native self-contained publish; bounded isolated settings/catalog/library/export/restart checks; reviewed synthetic transaction/menu/input checks | Actual release package, full install/play/recovery journey, signing, accessibility and remaining hardware acceptance |
 | Linux ARM64 | Cross-publish passed | ARM64 package/runtime and hardware acceptance |
-| macOS Intel/Apple Silicon | Both cross-publishes passed; no Mac available | Signing/notarization, package/runtime and hardware acceptance |
-| Android | Source retained; isolated workload installed, SDK/license installation deferred by user | SDK prerequisites, signed APK build/package/install, permissions/input/runtime and hardware acceptance; SDL gamepad is unsupported |
+| macOS Intel/Apple Silicon | Both cross-publishes passed; native runtime unvalidated | Signing/notarization, package/runtime and hardware acceptance |
+| Android | Source retained; APK/package and native runtime unvalidated | SDK prerequisites, signed APK build/package/install, permissions/input/runtime and hardware acceptance; SDL gamepad is unsupported |
 
 The local library really persists, snapshots and fails closed on corrupt JSON.
 Synthetic fixtures exercise the native shell, missing/executable detection and

@@ -44,15 +44,14 @@ Windows suite. An earlier broad run was aborted, with partial results retained.
 Actual isolated native Windows checks cover catalog UZDoom search/details/Add,
 Library reopening, settings, metadata export, close/restart and corrupt-library
 refusal/manual restoration. A direct engine smoke is historical evidence only;
-Relicade-integrated gameplay is pending because automatic renderer fallback may
-write outside the approved cache scope. The optional physical rapid/held-A
-sequence was waived and is not a passing hardware test.
+Relicade-integrated gameplay acceptance remains pending. Automatic renderer
+fallback and engine-owned cache paths require further profile review. Physical
+rapid/held-A behavior has not been accepted by these checks.
 
-All five declared desktop RIDs cross-published successfully. No Mac is available;
-macOS runtime remains unverified. Android's workload is installed in the isolated
-PC toolchain, but the user deferred SDK/license installation, so APK/runtime checks
-remain pending. First Windows release sequencing does not remove other platform
-quality requirements. No accepted platform cells or release claims are added.
+All five declared desktop RIDs cross-published successfully. macOS native runtime
+remains unverified, and Android APK/package and runtime checks remain pending.
+First Windows release sequencing does not remove other platform quality
+requirements. No accepted platform cells or release claims are added.
 
 Complete these gates in order before claiming the first public release:
 

@@ -95,8 +95,8 @@ for tests and pinned developer dependencies. Hosted CI is not enabled.
 | --- | --- |
 | Windows x64 | Self-contained development builds and bounded native setup/library/input checks. First official release remains gated. |
 | Linux x64 / ARM64 | Both desktop builds compile; Linux x64 has isolated native development checks. Packaging/runtime acceptance is incomplete. |
-| macOS Intel / Apple Silicon | Both desktop builds compile. No Mac is available for native installation/runtime acceptance. |
-| Android | Host source exists; SDK installation was deferred. No APK or device acceptance; desktop SDL controller support does not apply. |
+| macOS Intel / Apple Silicon | Both desktop builds compile. Native installation/runtime acceptance remains pending. |
+| Android | Host source exists. APK/package and device acceptance remain pending; desktop SDL controller support does not apply. |
 
 Builds do not establish runtime compatibility. See the
 [ordered release gates](docs/FEATURE_COVERAGE.md#first-public-release-gates),
