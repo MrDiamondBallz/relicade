@@ -156,9 +156,16 @@ public sealed partial class PortableInstallationTransaction
             var roots = installRoots.Select(p => Path.TrimEndingDirectorySeparator(Path.GetFullPath(p)))
                 .Distinct(comparer).Order(StringComparer.Ordinal).ToArray();
             if (roots.Length == 0) throw new IOException("The removal folder is not configured.");
+            foreach (var path in roots)
+            {
+                var writer = Path.Combine(new PortableInstallationTransaction(path).operations, "writer.lock");
+                if (roots.Any(target => writer.StartsWith(target + Path.DirectorySeparatorChar, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal)))
+                    throw new IOException("Overlapping removal roots require an explicit preservation policy; no authority history was created.");
+            }
             // Deterministic target order, then outside-in ancestor discovery per
             // target. Locks fail immediately, never wait on another removal.
-            foreach (var path in roots) new PortableInstallationTransaction(path).AcquireRemovalAuthority(held);
+            var protectedTrees = roots.Concat(roots.Select(path => new PortableInstallationTransaction(path).operations)).ToArray();
+            foreach (var path in roots) new PortableInstallationTransaction(path).AcquireRemovalAuthority(held, movingRoot: true, mutationRoots: protectedTrees);
             return new RemovalAuthorityLeases(held.Values.ToList());
         }
         catch
@@ -191,7 +198,7 @@ public sealed partial class PortableInstallationTransaction
         }
     }
 
-    void AcquireRemovalAuthority(Dictionary<string, IDisposable> held)
+    void AcquireRemovalAuthority(Dictionary<string, IDisposable> held, bool movingRoot = false, IReadOnlyList<string>? mutationRoots = null)
     {
         // A selected/located directory can be current data inside another managed
         // root. Check ancestors BEFORE creating this target's child lock/history.
@@ -230,7 +237,9 @@ public sealed partial class PortableInstallationTransaction
         // Older mod writers may hold the in-generation lock alone. Do not create
         // it (or the root); retain an existing lock until the mutation finishes.
         var mod = SafePath(root, ModLock);
-        try { HoldRemovalLease(held, mod, () => new FileStream(mod, FileMode.Open, FileAccess.ReadWrite, FileShare.None)); }
+        try { HoldRemovalLease(held, mod, () => movingRoot
+            ? WindowsGenerationModLease.Open(mod, FileMode.Open, parent, (mutationRoots ?? [root]).Append(operations).ToArray())
+            : new FileStream(mod, FileMode.Open, FileAccess.ReadWrite, FileShare.None)); }
         catch (FileNotFoundException) { }
         catch (DirectoryNotFoundException) { }
     }
@@ -297,10 +306,10 @@ public sealed partial class PortableInstallationTransaction
         public void Dispose() { foreach (var lease in held.AsEnumerable().Reverse()) lease.Dispose(); }
     }
 
-    static FileStream AcquireModLease(string path)
+    FileStream AcquireModLease(string path)
     {
         Directory.CreateDirectory(path);
-        return new FileStream(SafePath(path, ModLock), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        return WindowsGenerationModLease.Open(SafePath(path, ModLock), FileMode.OpenOrCreate, parent, [root, operations]);
     }
     public void Recover()
     {
@@ -634,7 +643,7 @@ public sealed partial class PortableInstallationTransaction
         // A killed game writer released its in-generation G05 locks. Reopened recovery
         // must exclude mod writers on every occupied generation before validation/renames.
         FileStream? ExistingLease(string path) => locksAlreadyHeld || !Directory.Exists(path) ? null :
-            new FileStream(SafePath(path, ModLock), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+            WindowsGenerationModLease.Open(SafePath(path, ModLock), FileMode.OpenOrCreate, parent, [root, operations]);
         using var liveModLease = ExistingLease(root);
         using var candidateModLease = ExistingLease(candidate);
         using var previousModLease = ExistingLease(previous);

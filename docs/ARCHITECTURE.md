@@ -132,6 +132,23 @@ invoked on Windows, including with a null value. Existing writer leases, strict
 validation, durable flush, atomic replace/create publication, permission
 intersection and temporary-file ownership rules still govern the save.
 
+On Windows, generation-changing portable transactions hold the stable outside
+writer and an exclusive outside hard-link name of the reserved empty mod lock
+for each generation being renamed. Windows cannot rename a directory while a descendant
+handle is open, even with delete sharing. The alias keeps the same file identity
+and exclusive sharing as the legacy inside name while allowing directory renames.
+Acquisition checks existing legacy ownership, verifies both path and held file
+identities, and refuses uncertain or conflicting evidence. Coordination remains
+on the same filesystem outside all moved generation and transaction trees;
+permission denial never selects a weaker lock or another permission route.
+Aliases remain as empty coordination evidence and are never overwritten or
+automatically removed. Read-only rollback observations keep their existing
+inside-lock behavior. Linux retains the original exclusive streams and evidence
+rules. This protocol covers cooperative writer exclusion across activation and
+recovery, not arbitrary external writers or a power-loss guarantee. Overlapping
+unmanaged removal targets refuse before creating history when one target would
+contain another target's stable writer.
+
 ## Artwork dispatcher ownership
 
 A view's display-scale callback checks that view's existing instance dispatcher,

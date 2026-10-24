@@ -54,7 +54,7 @@ public sealed partial class PortableInstallationTransaction
         ArgumentNullException.ThrowIfNull(validateContext);
         if (!ValidHash(expectedPlanSha256) || !ValidHash(contextSha256)) throw new ArgumentException("Expected an exact lower-case SHA256 rollback plan.");
         cancellationToken.ThrowIfCancellationRequested();
-        using var authority = AcquireRollbackAuthority(alternativeRoot);
+        using var authority = AcquireRollbackAuthority(alternativeRoot, movingLive: true);
         validateContext();
         var state = InspectRollback(contextSha256);
         if (state.Hash != expectedPlanSha256) throw new IOException("The rollback preview is stale. Preview again and explicitly confirm the new displayed hash.");
@@ -143,7 +143,7 @@ public sealed partial class PortableInstallationTransaction
         return await publish().ConfigureAwait(false);
     }
 
-    IDisposable AcquireRollbackAuthority(string? alternativeRoot)
+    IDisposable AcquireRollbackAuthority(string? alternativeRoot, bool movingLive = false)
     {
         if (options.IsSharedFolder) throw new IOException("Shared installations cannot authorize portable rollback.");
         var comparer = OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
@@ -166,7 +166,9 @@ public sealed partial class PortableInstallationTransaction
                 var file = SafePath(path, ModLock);
                 if (!RemovalEntryExists(file)) return;
                 RequireCleanupKind(file, false);
-                HoldRemovalLease(held, file, () => new FileStream(file, FileMode.Open, FileAccess.ReadWrite, FileShare.None));
+                HoldRemovalLease(held, file, () => movingLive && comparer.Equals(path, root)
+                    ? WindowsGenerationModLease.Open(file, FileMode.Open, parent, [root, operations])
+                    : new FileStream(file, FileMode.Open, FileAccess.ReadWrite, FileShare.None));
             }
             Mod(root);
             foreach (var op in Directory.EnumerateDirectories(operations))

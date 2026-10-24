@@ -145,6 +145,22 @@ privilege are likewise reported as capability limits, rather than successful
 Windows checks. Cross-platform refusal cases still exercise non-file settings
 and library paths; Windows ACL and game-data setup acceptance remain separate.
 
+Windows generation-changing transactions use an exclusive outside hard-link
+name of the same empty legacy mod lock while retaining the stable writer lock.
+This allows directory activation/recovery renames without releasing mod exclusion.
+Full file identity and same-volume placement are required; missing capabilities,
+permissions or conflicting aliases refuse mutation. Empty coordination aliases
+are retained outside installation/history trees. Observation paths do not create
+them, and Unix uses the original streams. To exercise the Windows cross-process
+activation, recovery, rollback, selection and removal regressions:
+
+```powershell
+dotnet test Relicade.Tests/Relicade.Tests.csproj -c Release -m:1 --filter "FullyQualifiedName~WindowsGenerationLeaseTests|FullyQualifiedName~UpdateOutcomeTests"
+```
+
+These synthetic tests use nonexecutable payloads. Their explicit Linux skips are
+not Windows runtime acceptance or a packaged installation/gameplay result.
+
 Settings atomic writes assign Unix creation permissions only on non-Windows
 systems. Passing null to that property's setter still throws on Windows, so the
 Windows path does not invoke it. Create-new staging, exclusive sharing, durable

@@ -42,6 +42,22 @@ public sealed class ManagedRemovalCompositionAuthorityTests
         using var releasedFirst = new PortableInstallationTransaction(first).AcquireLease();
     }
     [Fact]
+    public void Overlapping_targets_refuse_before_creating_history_or_changing_payload()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "removal-overlap-" + Guid.NewGuid().ToString("N"));
+        var outer = Path.Combine(root, "outer"); var inner = Path.Combine(outer, "inner");
+        Directory.CreateDirectory(inner); File.WriteAllText(Path.Combine(inner, "keep"), "user data");
+        try
+        {
+            Assert.Throws<IOException>(() => { using var held = PortableInstallationTransaction.AcquireUnmanagedRemovalLeases([outer, inner]); });
+            Assert.Equal(new[] { Path.Combine(inner, "keep") }, Directory.GetFiles(root, "*", SearchOption.AllDirectories));
+            Assert.Equal("user data", File.ReadAllText(Path.Combine(inner, "keep")));
+            Assert.False(Directory.Exists(new PortableInstallationTransaction(outer).OperationsPath));
+            Assert.False(Directory.Exists(new PortableInstallationTransaction(inner).OperationsPath));
+        }
+        finally { Directory.Delete(root, true); }
+    }
+    [Fact]
     public void Empty_target_set_is_not_success()
     {
         Assert.Throws<IOException>(() => { using var ignored = PortableInstallationTransaction.AcquireUnmanagedRemovalLeases([]); });
