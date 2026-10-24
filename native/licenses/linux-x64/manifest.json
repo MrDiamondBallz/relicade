@@ -266,6 +266,16 @@
         "blob_sha1": "679d2f91a10afcf9f026e1af77fb1e90fd1b000b",
         "url": "https://github.com/ppy/SDL3-CS/blob/442a5a2346600f574f654e95a12d6bf4305a4732/LICENCE"
       }
+    },
+    "packages/system.formats.nrbf/10.0.13/THIRD-PARTY-NOTICES.TXT": {
+      "sha256": "6d15e10a101c6bfff2ab4429ed061bf76c456fc4b23ad6b03e0d0f8377148a21",
+      "origin": {
+        "kind": "nuget",
+        "identity": "System.Formats.Nrbf/10.0.13",
+        "member": "THIRD-PARTY-NOTICES.TXT",
+        "raw_archive_sha256": "e552c3869ea2bed3780626b7b179137a7443d06357ecc898c74a9ec12ac25be6",
+        "canonical_content_sha512": "sKdW9UAUGT9Xmtf9HPy+7IdXs8B6Yr5NpqbB1mTjislf8oGkEyyUyJUtH36qGNBxBnNkGGbdqc6cPbVq5Te2uQ=="
+      }
     }
   },
   "packages": [
@@ -794,6 +804,27 @@
           "package_member": "lib/net10.0/System.Private.Windows.GdiPlus.dll",
           "published_path": "System.Private.Windows.GdiPlus.dll",
           "sha256": "2e6df51d4e518c26306c046ec2cb6b6594c64de4695a60a9719b816a37f73617",
+          "kind": "runtime"
+        }
+      ]
+    },
+    {
+      "identity": "System.Formats.Nrbf/10.0.13",
+      "kind": "package",
+      "declared_package_license": "MIT",
+      "deps_sha512": "sha512-sKdW9UAUGT9Xmtf9HPy+7IdXs8B6Yr5NpqbB1mTjislf8oGkEyyUyJUtH36qGNBxBnNkGGbdqc6cPbVq5Te2uQ==",
+      "raw_archive_sha256": "e552c3869ea2bed3780626b7b179137a7443d06357ecc898c74a9ec12ac25be6",
+      "canonical_content_sha512": "sKdW9UAUGT9Xmtf9HPy+7IdXs8B6Yr5NpqbB1mTjislf8oGkEyyUyJUtH36qGNBxBnNkGGbdqc6cPbVq5Te2uQ==",
+      "notices": [
+        "upstream/dotnet--dotnet/LICENSE.TXT",
+        "packages/system.formats.nrbf/10.0.13/THIRD-PARTY-NOTICES.TXT"
+      ],
+      "assets": [
+        {
+          "deps_path": "lib/net10.0/System.Formats.Nrbf.dll",
+          "package_member": "lib/net10.0/System.Formats.Nrbf.dll",
+          "published_path": "System.Formats.Nrbf.dll",
+          "sha256": "0fea63bfb84ef3a657cfd5d8139b496b8091700ff8944036b466631e34ce77fe",
           "kind": "runtime"
         }
       ]
@@ -2234,11 +2265,13 @@
     }
   ],
   "own_source_files": [
-    "Relicade.dll",
+    "CatalogData/ATTRIBUTION.txt",
+    "CatalogData/snapshot.json",
     "Relicade.Core.dll",
-    "Relicade.Desktop.dll",
     "Relicade.Desktop.deps.json",
+    "Relicade.Desktop.dll",
     "Relicade.Desktop.runtimeconfig.json",
+    "Relicade.dll",
     "icon.ico",
     "licenses/Core-MIT.txt",
     "licenses/Native-MIT.txt",

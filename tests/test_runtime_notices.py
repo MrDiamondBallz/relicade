@@ -73,7 +73,7 @@ class RuntimeNoticeTests(unittest.TestCase):
 
     def test_actual_source_bundle_is_scoped_and_unaccepted(self):
         result = checker.validate()
-        self.assertEqual((25, 225, 25), (result['packages'], result['runtime_assets'], result['notice_files']))
+        self.assertEqual((26, 226, 26), (result['packages'], result['runtime_assets'], result['notice_files']))
         self.assertEqual('not_accepted', result['distribution_rights'])
         self.assertEqual('not_accepted', result['platform_support'])
         self.assertFalse(result['published_output_checked'])
