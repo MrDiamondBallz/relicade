@@ -47,7 +47,11 @@ public sealed class ManagedRemovalAncestorTests(ITestOutputHelper output)
         if (fault == "dot-alias") target = Path.Combine(f.Live, "saves", "..", "saves");
         if (fault == "linked-alias")
         {
-            var alias = Path.Combine(f.Root, "linked"); Directory.CreateSymbolicLink(alias, f.Live); target = Path.Combine(alias, "saves");
+            var alias = Path.Combine(f.Root, "linked");
+            try { Directory.CreateSymbolicLink(alias, f.Live); }
+            catch (IOException ex) when (OperatingSystem.IsWindows() && (ex.HResult & 0xffff) == 1314)
+            { Assert.Skip("The Windows process lacks directory symbolic-link privilege (ERROR_PRIVILEGE_NOT_HELD); no OS security setting was changed and this link route is not validated."); }
+            target = Path.Combine(alias, "saves");
         }
         await Refuse(f, target, route);
     }
@@ -99,6 +103,8 @@ public sealed class ManagedRemovalAncestorTests(ITestOutputHelper output)
     [InlineData("history")][InlineData("marker")][InlineData("ancestor")]
     public async Task Unreadable_ancestor_authority_refuses_with_caps_zero(string denied)
     {
+        Assert.SkipUnless(OperatingSystem.IsLinux() && !OperatingSystem.IsAndroid(),
+            "This fixture requires Linux /proc capability evidence and POSIX mode denial; it does not validate Windows ACL refusal.");
         Assert.Contains("CapEff:\t0000000000000000", File.ReadAllText("/proc/self/status"));
         using var f = new ManagedRemovalFixture(); await f.Install();
         var target = Path.Combine(f.Live, "saves"); Metadata(target);

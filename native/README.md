@@ -144,6 +144,9 @@ skips on other platforms. POSIX permission cases and unavailable Windows symlink
 privilege are likewise reported as capability limits, rather than successful
 Windows checks. Cross-platform refusal cases still exercise non-file settings
 and library paths; Windows ACL and game-data setup acceptance remain separate.
+The ELF/Unix-mode ZIP fixture and `/proc` capability-denial fixture are explicitly
+Linux-only. Directory-link routes skip only a Windows native privilege error
+1314; other failures still fail, and a skipped link route is not acceptance.
 
 Windows generation-changing transactions use an exclusive outside hard-link
 name of the same empty legacy mod lock while retaining the stable writer lock.

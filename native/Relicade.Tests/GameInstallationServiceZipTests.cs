@@ -12,6 +12,8 @@ public class GameInstallationServiceZipTests
     [Fact]
     public async Task InstallOrUpdateGameAsync_keeps_nested_executable_and_unix_mode()
     {
+        Assert.SkipUnless(OperatingSystem.IsLinux() && !OperatingSystem.IsAndroid(),
+            "This fixture uses Linux ELF payloads and Unix executable modes; it does not validate Windows ZIP installation.");
         var archivePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.zip");
         var gamePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
 

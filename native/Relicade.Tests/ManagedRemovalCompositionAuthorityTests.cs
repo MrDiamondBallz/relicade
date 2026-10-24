@@ -34,7 +34,14 @@ public sealed class ManagedRemovalCompositionAuthorityTests
         foreach (var p in new[] { first, last }) { using var held = new PortableInstallationTransaction(p).AcquireLease(); }
         if (evidence == "marker") File.WriteAllText(Path.Combine(last, PortableInstallationTransaction.ManifestFileName), "{unknown");
         if (evidence == "history") File.WriteAllText(Path.Combine(new PortableInstallationTransaction(last).OperationsPath, "unknown"), "retained");
-        if (evidence == "alias") { var alias = Path.Combine(f.Root, "zzz-alias"); Directory.CreateSymbolicLink(alias, last); last = alias; }
+        if (evidence == "alias")
+        {
+            var alias = Path.Combine(f.Root, "zzz-alias");
+            try { Directory.CreateSymbolicLink(alias, last); }
+            catch (IOException ex) when (OperatingSystem.IsWindows() && (ex.HResult & 0xffff) == 1314)
+            { Assert.Skip("The Windows process lacks directory symbolic-link privilege (ERROR_PRIVILEGE_NOT_HELD); no OS security setting was changed and this link route is not validated."); }
+            last = alias;
+        }
         if (evidence == "ancestor-marker") File.WriteAllText(Path.Combine(f.Root, PortableInstallationTransaction.ManifestFileName), "{unknown");
         var before = f.Snapshot();
         Assert.ThrowsAny<Exception>(() => { using var held = PortableInstallationTransaction.AcquireUnmanagedRemovalLeases([first, last]); });
