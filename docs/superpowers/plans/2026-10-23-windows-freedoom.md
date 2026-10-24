@@ -26,7 +26,7 @@
 - Case-equivalent/overlapping Windows paths: equivalent roots stay bound; another entry/root never gains authority.
 - Interrupted transfer/import: no automatic transfer/recovery on reopen; prior generations, data and explicit retry remain visible.
 - Existing profile/config alias or changed updater controls: preserve bytes and refuse; do not overwrite player preferences.
-- Stock engine caches outside the redirected profile: record exact boundaries and reconcile PC scope before actual integrated launch.
+- Actual gameplay is on hold by user choice: stock Vulkan initialization can fall back to unapproved GL/GLES cache paths. Do not execute, re-ask, or infer preference1 prevents fallback. Continue source/synthetic and install/data/Close checks separately.
 
 ---
 
@@ -36,8 +36,8 @@
 
 **Interfaces:** Keep `FreedoomPhase2` as the Linux definition. Add `FreedoomPhase2Windows`, `SupportsFreedoomHere` and `CurrentFreedoomPhase2`. Add internal compiled `AllowZip` and `PinnedTarget` to `FirstInstallPackageConstraint`; consume that target before the existing ordinary-install target fallback. `InstallTarget.Validate` remains relative path/length/hash validation.
 
-- [ ] Add Windows-native tests against existing `ProjectFor`/`PrepareFirstInstall` behavior: expected Windows ZIP, Windows confirmation, separate executable digest and exact size. Obtain the actual failing-before result on PC without acquiring a package.
-- [ ] Implement platform selection and exact compiled pins; allow ZIP only through the compiled Windows adapter. Keep Linux AppImage/tar checks intact.
+- [x] Add Windows-native tests against existing `ProjectFor`/`PrepareFirstInstall` behavior: expected Windows ZIP, Windows confirmation, separate executable digest and exact size. Obtain the actual failing-before result on PC without acquiring a package.
+- [x] Implement platform selection and exact compiled pins; allow ZIP only through the compiled Windows adapter. Keep Linux AppImage/tar checks intact.
 - [ ] Bind `uzdoom.exe` before selection; validate it after additional-file staging. Add synthetic ZIP with helper first, wrong/missing/changed executable, bad archive digest and changed context; chooser/activation must not run on refusal.
 - [ ] Run synthetic Windows selection on PC, Linux existing handoff/progress regressions and source documentation checks. Review immutable diff, commit and verify remote ref.
 
@@ -48,7 +48,7 @@
 **Interfaces:** Add `OwnedDataPlatform` with Linux x64 default and Windows x64 opt-in, plus optional compiled executable-length metadata if required for the staged-target contract. Use `CurrentFreedoomPhase2` in optional Freedoom flows only.
 
 - [ ] Add actual Windows synthetic red witnesses for valid import/receipt and unsupported Linux definition refusal before destination writes; use tiny synthetic WAD data and nonexecuted MZ payloads.
-- [ ] Guard Unix directory/file mode calls by actual OS. Apply Windows-aware path equality/overlap to setup paths while preserving repository and exact library-byte checks.
+- [x] Guard Unix directory/file mode calls by actual OS. Apply Windows-aware path equality/overlap to setup paths while preserving repository and exact library-byte checks.
 - [ ] Exercise correct/wrong data, stale preview/context, cancellation, interrupted/reopened import, retained conflicting data, locked/link/alias cases where capabilities exist, and unchanged saves/receipt/library/backup bytes.
 - [ ] Run affected Linux owned-data tests and native Windows tests; independently review, commit and verify publication.
 

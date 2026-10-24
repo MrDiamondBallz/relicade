@@ -30,7 +30,11 @@ public static class GameLaunchService
 
     internal static Task<bool> LaunchFreedoomAsync(GameInfo game, string gamesFolder, CancellationToken cancellation = default)
     {
-        if (!OwnedGameSetupService.OffersFreedoom(game)) throw new IOException("Freedoom setup is unavailable for this project.");
+        if (!OwnedGameSetupService.SupportsFreedoomHere || !OwnedGameSetupService.OffersFreedoom(game)) throw new IOException("Freedoom setup is unavailable for this project and host.");
+        // Install/data support precedes the reviewed Windows play-profile contract.
+        // Never fall through to ordinary shell launch with only an -iwad argument.
+        if (OperatingSystem.IsWindows())
+            throw new NotSupportedException("Windows guided Play is not available in this development build. Engine and data setup can finish and close without starting a game.");
         return LaunchCoreAsync(game, gamesFolder, null, null, true, cancellation);
     }
 
@@ -146,7 +150,7 @@ public static class GameLaunchService
 
             using var portableLifetime = PortableInstallationLifetime.Begin(gamePath, expectedOperationId ?? portableManifest?.OperationId);
             string? ownedGameData = null;
-            if ((freedoom ? OwnedGameSetupService.FreedoomPhase2 : OwnedGameSetupService.Requirement(game)) is { } requirement)
+            if ((freedoom ? OwnedGameSetupService.CurrentFreedoomPhase2 : OwnedGameSetupService.Requirement(game)) is { } requirement)
             {
                 var exactManifest = portableLifetime.CommittedManifest
                     ?? throw new IOException("Game setup requires a supported managed package. Open Finish game setup from the library.");

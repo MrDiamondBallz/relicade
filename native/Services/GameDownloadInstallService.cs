@@ -423,7 +423,7 @@ public static class GameDownloadInstallService
                     var folderHasOtherApps = LocatedInstallRemoval.FolderHasOtherApps(game, game.GameManager?.Games, gamesFolder);
                     var baseOptions = game.GetInstallationOptions();
                     var assetIdentity = asset.name + "|sha256:" + actual;
-                    var setupTarget = OwnedGameSetupService.PinnedInstallTarget(game, latestRelease.tag_name, assetIdentity);
+                    var setupTarget = firstInstall?.PinnedTarget ?? OwnedGameSetupService.PinnedInstallTarget(game, latestRelease.tag_name, assetIdentity);
                     var installOptions = new GameInstallationOptions
                     {
                         Log = baseOptions.Log,
@@ -438,8 +438,8 @@ public static class GameDownloadInstallService
                         InstalledBuildText = $"{asset.name}\n{actual}\n",
                         PrepareCandidate = path =>
                         {
-                            setupTarget?.Validate(path);
                             AppFilesToAddService.Sync(path, null, game.FilesToAdd, throwOnFailure: true);
+                            setupTarget?.Validate(path);
                         },
                         TransactionBoundary = point =>
                         {

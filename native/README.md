@@ -255,10 +255,10 @@ The existing artwork source, cache and privacy boundaries still apply.
 | Target | Foundation status | Still required |
 | --- | --- | --- |
 | Linux x64 | Self-contained publish; private AppDir/AppImage recipe; isolated virtual-X11 startup and local/headless fixture exercises | Released AppImage/Flatpak, real installs/launches, game-data requirements, recovery/security, controller/accessibility/hardware tests |
-| Windows x64 | Self-contained cross-publish from Linux | Native Windows build/package/runtime, install/launch/recovery, signing, DPI/Narrator/controller acceptance |
-| Linux ARM64 | Desktop RID and source retained; not built here | ARM64 build/package/runtime and hardware acceptance |
-| macOS Intel/Apple Silicon | Both desktop RIDs and platform adapters retained; not built here | macOS build, signing/notarization, packaging/runtime and hardware acceptance |
-| Android | Full host/package source/resources retained; workload not installed or built here | Android SDK/workload, signed APK build/package/install, permissions/input/runtime and hardware acceptance |
+| Windows x64 | Native self-contained publish; bounded isolated settings/catalog/library/export/restart checks; reviewed synthetic transaction/menu/input checks | Actual release package, full install/play/recovery journey, signing, accessibility and remaining hardware acceptance |
+| Linux ARM64 | Cross-publish passed | ARM64 package/runtime and hardware acceptance |
+| macOS Intel/Apple Silicon | Both cross-publishes passed; no Mac available | Signing/notarization, package/runtime and hardware acceptance |
+| Android | Source retained; isolated workload installed, SDK/license installation deferred by user | SDK prerequisites, signed APK build/package/install, permissions/input/runtime and hardware acceptance; SDL gamepad is unsupported |
 
 The local library really persists, snapshots and fails closed on corrupt JSON.
 Synthetic fixtures exercise the native shell, missing/executable detection and
@@ -654,12 +654,17 @@ an atomic combined snapshot. Short or empty pages with advancing cursors remain
 valid; this is not metadata authentication or full catalog acceptance.
 
 The optional **Play Freedoom Phase 2…** library action is a second package-bound
-setup path, for UZDoom 5.0.3 Linux x64 and Freedoom 0.13.0 Phase 2 only. Players
+setup path, for compiled UZDoom 5.0.3 Windows/Linux x64 packages and Freedoom
+0.13.0 Phase 2 only. Windows binds the exact ZIP and separately hashed `uzdoom.exe`.
+Its install/data-only synthetic checks never execute the fake executable; actual
+Windows acceptance is separate. The optional Windows play profile is unfinished,
+and actual integrated gameplay is on hold because the stock engine can fall back
+to cache-writing GL/GLES backends outside the approved test scope. Players
 can explicitly download the pinned official free-data archive or choose an
 existing `.wad`, then review and confirm a separate copy before Play. Verified
 original downloads and notices are retained and reusable; cancellation drains the
 request without starting a game. Normal engine Launch and saves are unchanged.
-New Linux x64 entries can first choose **Set up Freedoom Phase 2…** and confirm
+New matching Windows/Linux x64 entries can first choose **Set up Freedoom Phase 2…** and confirm
 the exact engine package. This guarded first installation never replaces an
 existing version or retained data, never falls back to an unreviewed package, and
 opens the separate data setup only after success. Its confirmation/progress window

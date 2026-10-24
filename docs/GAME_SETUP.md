@@ -344,7 +344,7 @@ explicit setup path, not a replacement for normal engine Launch or
 existing WAD configuration. It does not change the working directory, move saves,
 download data in the background or claim gameplay certification.
 
-The compiled adapter accepts only this managed **Linux x64** package:
+The original compiled **Linux x64** adapter accepts this managed package:
 
 - [UZDoom 5.0.3](https://github.com/UZDoom/UZDoom/releases/tag/5.0.3), asset
   `584674268`, `Linux-UZDoom-Release-x86_64.AppImage`, 34,560,504 bytes.
@@ -358,7 +358,25 @@ The compiled adapter accepts only this managed **Linux x64** package:
   `a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b`;
   MD5 `cd666466759b5e5f63af93c5f0ffd0a1`.
 
-For an uninstalled entry on Linux x64, **Set up Freedoom Phase 2…** first asks
+The compiled **Windows x64** adapter instead pins the same UZDoom release, asset
+`584674267`, `Windows-UZDoom-Release-x86_64.zip` (29,337,585 bytes), SHA256
+`3a41131845415bc4bb5474f8de301a77736bd858e2ab489926325a2675e8263f`.
+Its selected `uzdoom.exe` is separately pinned at 17,872,896 bytes and SHA256
+`e6df57d1027cee089d33388ab743817a236148992ac3881d9141ea2b547677d9`.
+The ZIP may contain helpers; only the compiled target can be selected, and its
+length/hash are checked after staging before activation. Windows data import
+uses the same explicit preview/copy/receipt authority with Windows path comparison
+and without invoking Unix permission APIs. Other game adapters retain Linux scope.
+
+Windows install/data tests use synthetic, non-runnable MZ files and tiny data;
+Linux skips do not establish Windows acceptance. The Windows optional-play profile
+is still being implemented; the production Windows guided Play entrypoint refuses
+before process launch. Actual integrated gameplay is **pending**: the user
+kept execution on hold because stock UZDoom can fall back from Vulkan to GL/GLES,
+whose cache paths are outside the approved test scope. Install/data/Close are
+separate from Play; this development candidate must not be used to start a game.
+
+For an uninstalled entry on a matching Windows/Linux x64 host, **Set up Freedoom Phase 2…** first asks
 whether to install the exact UZDoom package above. The setup window requires an
 explicit **Install engine** action and shows progress. Declining makes no download.
 The selected release, asset name and official download address must still match;

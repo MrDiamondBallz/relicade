@@ -106,8 +106,10 @@ external-file deletion scope was added. Keep Vulkan preference and replaygain
 disabled in the acceptance profile; do not re-ask the same cache permission.
 `vid_preferbackend=1` is not Vulkan-only enforcement: upstream catches a Vulkan
 initialization error and falls back to GL/GLES ([fallback](https://github.com/UZDoom/UZDoom/blob/7910df7102033fd7754a317f3254f24101135926/src/common/platform/win32/hardware.cpp#L84-L95)).
-That fallback remains an unresolved pre-execution boundary under the narrower
-backend approval. Do not claim the preference prevents it or launch beyond scope.
+The user explicitly chose to keep gameplay pending if fallback cannot be excluded.
+Actual engine/game execution is therefore on hold; do not re-ask or treat this
+preference as enforcement. Source/synthetic checks and separately confirmed
+install/data/Close checks may proceed without selecting Play.
 
 ## Acceptance
 
@@ -117,8 +119,9 @@ receipt and current-save preservation, profile no-overwrite/refusal, and literal
 launch arguments. Keep real Linux regressions and explicit capability limits.
 Windows-only skips on Linux are not Windows passes.
 
-The receiving PC must verify the previously refused flow through confirmation,
-engine install, separate data confirmation/import, Play, normal game exit,
+The receiving PC first verifies confirmation, engine install, separate data
+confirmation/import and Close with no launch. After the gameplay hold is resolved,
+the remaining acceptance includes Play, normal game exit,
 responsive launcher, save/load and relaunch/restart. Direct engine smoke is not
 Relicade integration. Optional manual rapid/held-A testing was waived; do not
 request it again or call it complete. Do not promote release/support claims from

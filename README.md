@@ -58,15 +58,17 @@ verified existing copy without its original or another game-data copy. This is b
 source, not gameplay certification or complete project support. See
 [local game-data setup](docs/GAME_SETUP.md) for the exact package and limits. The separate
 **Set up / Play Freedoom Phase 2…** action can explicitly install one pinned
-UZDoom Linux x64 package in a new entry, then offer a separately confirmed local
-data copy or free-data download. Existing engines and normal Launch are not
+UZDoom package for the matching Windows/Linux x64 host in a new entry, then offer a separately confirmed local
+data copy or free-data download. Windows guided Play remains unavailable in this
+development candidate while its profile contract is implemented; install/data and
+Close are separate from execution. Existing engines and normal Launch are not
 replaced. The first engine setup has explicit confirmation, progress and its own
 Cancel action; cancellation waits for owned work and preserves a committed engine.
 Neither flow is complete catalog coverage or gameplay certification.
 
 The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. It does not install, update, verify or launch executables.
 
-The [native development source](native/README.md) uses .NET 10/Avalonia. The compiled Linux x64 launcher has been observed opening an empty Library, showing General Settings, returning to Library and closing normally with exit code 0 on an isolated virtual display. This covers that sequence only; gameplay, live catalog/artwork/setup and Windows runtime remain unverified, and a broader controller-test failure remains unresolved. See the [exact evidence limits and ordered release gates](docs/FEATURE_COVERAGE.md#first-public-release-gates).
+The [native development source](native/README.md) uses .NET 10/Avalonia. Isolated Linux desktop and Windows native checks have exercised catalog search/details, metadata-only Add/Open in Library, settings persistence, export, close/restart and corrupt-library refusal. Reviewed Windows settings, controller lifetime, menu routing and generation-lease repairs are integrated through `627f6ea`; synthetic tests and bounded native journeys do not establish full platform or release acceptance. Integrated Windows gameplay remains pending under the user's execution scope. See the [evidence limits and ordered release gates](docs/FEATURE_COVERAGE.md#first-public-release-gates).
 
 **Windows x64 is the first public-release target.** Linux remains a private development proof path. Windows cross-publish and the [private Linux x64 AppDir/AppImage recipe](docs/LINUX_APPIMAGE_DEVELOPMENT.md) are development checks, not supported downloads or platform acceptance.
 

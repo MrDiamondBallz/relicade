@@ -8,6 +8,8 @@ public sealed record FirstInstallPackageConstraint(string Release, string FileNa
     public long MaximumBytes { get; init; } = 64L * 1024 * 1024;
     // Enabled only by a compiled project adapter; remote metadata cannot opt in.
     internal bool AllowTarGzip { get; init; }
+    internal bool AllowZip { get; init; }
+    internal OwnedGameSetupService.InstallTarget? PinnedTarget { get; init; }
     internal Action? ValidateContext { get; init; }
     internal Action<string>? PersistStage { get; init; }
     internal Action<GuidedEngineProgress>? ReportProgress { get; init; }
@@ -17,7 +19,8 @@ public sealed record FirstInstallPackageConstraint(string Release, string FileNa
         if (MaximumBytes <= 0 || MaximumBytes > 64L * 1024 * 1024 || PublishedAssetDigest.Normalize(Sha256) != Sha256 || release != Release || fileName != FileName ||
             Path.GetFileName(FileName) != FileName || FileName.Contains('\\') ||
             !(GameInstallationService.IsAppImageAsset(FileName) ||
-              (AllowTarGzip && FileName.EndsWith(".tar.gz", StringComparison.Ordinal))))
+              (AllowTarGzip && FileName.EndsWith(".tar.gz", StringComparison.Ordinal)) ||
+              (AllowZip && FileName.EndsWith(".zip", StringComparison.Ordinal))))
             throw new IOException("The selected download is not the reviewed first-install package. No alternative version will be installed.");
     }
 

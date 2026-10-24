@@ -30,7 +30,7 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
                     GuidedEngineInstallService.OffersRequiredFirstInstall(game)) &&
                     !await InstallEngineAsync(game)) return;
                 session.Token.ThrowIfCancellationRequested();
-                var setup = new OwnedGameSetupSession(manager, key, freedoom ? OwnedGameSetupService.FreedoomPhase2 : null);
+                var setup = new OwnedGameSetupSession(manager, key, freedoom ? OwnedGameSetupService.CurrentFreedoomPhase2 : null);
                 model = new OwnedGameSetupViewModel(session, key, setup);
                 if (freedoom)
                 {

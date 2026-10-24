@@ -27,8 +27,11 @@ Next gates remain complete catalog and behavior coverage, project requirements/o
 A first package-bound local game-data setup flow is included in the development
 source, with explicit copy confirmation and shared launch revalidation. It covers
 one exact Perfect Dark Linux x64 package, with a separate optional Freedoom
-Phase 2 flow bound to UZDoom 5.0.3 Linux x64, including an explicit pinned free-data
-download followed by separate copy confirmation and Play. New entries can confirm
+Phase 2 flow bound to compiled UZDoom 5.0.3 packages, including an explicit pinned free-data
+download followed by separate copy confirmation. The new Windows x64 install/data
+route keeps guided Play unavailable until its profile implementation is reviewed;
+actual integrated gameplay remains on hold. Linux retains its separate explicit
+Play path. New entries can confirm
 one pinned engine installation with setup-only progress/cancel and retained-state
 reporting. A separate z2rs v0.6.0 Linux x64 definition validates a lawful Zelda II
 USA body, preserves headered/headerless files and revalidates before launch.

@@ -5,10 +5,13 @@ using System.Text.Json;
 namespace Relicade.Core.Services;
 
 // Definitions are compiled, reviewed adapters, never instructions from catalog metadata.
+internal enum OwnedDataPlatform { LinuxX64, WindowsX64 }
 internal sealed record OwnedDataRequirement(string Id, string Label, string ReleaseIdentity,
     string AssetIdentity, string ExecutableSha256, long Length, string Md5,
-    string FileName = "game-data.z64", string? ExpectedSha256 = null, OwnedNesBodyRule? NesBody = null)
+    string FileName = "game-data.z64", string? ExpectedSha256 = null, OwnedNesBodyRule? NesBody = null,
+    OwnedDataPlatform Platform = OwnedDataPlatform.LinuxX64)
 {
+    internal long? ExecutableLength { get; init; }
     internal bool AcceptsLength(long length) => length == Length || NesBody != null && length == checked(Length + 16);
     internal long MaximumLength => NesBody == null ? Length : checked(Length + 16);
 }
@@ -51,7 +54,8 @@ public sealed partial class PortableInstallationTransaction
         });
         var folder = Path.GetDirectoryName(current.Destination)!;
         CheckLinks(folder);
-        Directory.CreateDirectory(folder, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        if (OperatingSystem.IsWindows()) Directory.CreateDirectory(folder);
+        else Directory.CreateDirectory(folder, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
         RequireCleanupKind(folder, true);
         var receipt = SafePath(folder, manifest.OperationId + ".json");
         var record = new OwnedDataReceipt(1, requirement.Id, key, manifest.OperationId,
@@ -263,8 +267,14 @@ public sealed partial class PortableInstallationTransaction
 
     void ValidateOwnedBinding(OwnedDataRequirement requirement, Manifest manifest)
     {
-        if (!OperatingSystem.IsLinux() || OperatingSystem.IsAndroid() || RuntimeInformation.ProcessArchitecture != Architecture.X64)
-            throw new IOException("This setup adapter is verified only for the specified Linux x64 package.");
+        var platformMatches = requirement.Platform switch
+        {
+            OwnedDataPlatform.LinuxX64 => OperatingSystem.IsLinux() && !OperatingSystem.IsAndroid(),
+            OwnedDataPlatform.WindowsX64 => OperatingSystem.IsWindows(),
+            _ => false
+        };
+        if (!platformMatches || RuntimeInformation.ProcessArchitecture != Architecture.X64)
+            throw new IOException("This setup adapter requires its exact compiled package and matching x64 host.");
         if (manifest.InstallKey != key || manifest.ReleaseIdentity != requirement.ReleaseIdentity || manifest.AssetIdentity != requirement.AssetIdentity ||
             !manifest.Files.Any(f => f.Path == manifest.SelectedExecutable && f.Kind == "file" && f.Ownership == "payload" && f.Sha256 == requirement.ExecutableSha256))
             throw new IOException("Requirements are not confirmed for this package or selected executable.");
@@ -273,11 +283,12 @@ public sealed partial class PortableInstallationTransaction
             throw new IOException("The selected executable changed. Repair the installation before setup or launch.");
     }
 
-    static FileStream CreateOwnedDataFile(string path) => new(path, new FileStreamOptions
+    static FileStream CreateOwnedDataFile(string path)
     {
-        Mode = FileMode.CreateNew, Access = FileAccess.Write, Share = FileShare.None,
-        UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite
-    });
+        var options = new FileStreamOptions { Mode = FileMode.CreateNew, Access = FileAccess.Write, Share = FileShare.None };
+        if (!OperatingSystem.IsWindows()) options.UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite;
+        return new(path, options);
+    }
 
     static string HashOwnedInput(string path, OwnedDataRequirement requirement, CancellationToken token, out long length)
     {

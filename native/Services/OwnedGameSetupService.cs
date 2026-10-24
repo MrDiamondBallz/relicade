@@ -24,6 +24,20 @@ internal static class OwnedGameSetupService
         "cd666466759b5e5f63af93c5f0ffd0a1", "freedoom2.wad",
         "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b");
 
+    internal static readonly OwnedDataRequirement FreedoomPhase2Windows = new(
+        "uzdoom-5-0-3-freedoom-0-13-phase2-windows-x64", "Freedoom Phase 2 v0.13.0 (.wad)", "5.0.3",
+        "Windows-UZDoom-Release-x86_64.zip|sha256:3a41131845415bc4bb5474f8de301a77736bd858e2ab489926325a2675e8263f",
+        "e6df57d1027cee089d33388ab743817a236148992ac3881d9141ea2b547677d9", 28787748,
+        "cd666466759b5e5f63af93c5f0ffd0a1", "freedoom2.wad",
+        "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b",
+        Platform: OwnedDataPlatform.WindowsX64) { ExecutableLength = 17_872_896 };
+
+    internal static bool SupportsFreedoomHere => RuntimeInformation.ProcessArchitecture == Architecture.X64 &&
+        (OperatingSystem.IsWindows() || OperatingSystem.IsLinux() && !OperatingSystem.IsAndroid());
+    internal static OwnedDataRequirement CurrentFreedoomPhase2 => !SupportsFreedoomHere
+        ? throw new IOException("Guided Freedoom setup supports the reviewed Windows x64 and Linux x64 packages on their matching hosts.")
+        : OperatingSystem.IsWindows() ? FreedoomPhase2Windows : FreedoomPhase2;
+
     // Official v0.6.0 release asset 664693912; the upstream source's body
     // compatibility contract is pinned in GAME_SETUP.md. No ROM is supplied.
     internal static readonly OwnedDataRequirement Z2rs = new("z2rs-0-6-0-usa-linux-x64",
@@ -55,6 +69,9 @@ internal static class OwnedGameSetupService
 
     internal static InstallTarget? PinnedInstallTarget(GameInfo game, string release, string asset)
     {
+        if (OperatingSystem.IsWindows() && SupportsFreedoomHere && OffersFreedoom(game) &&
+            release == FreedoomPhase2Windows.ReleaseIdentity && asset == FreedoomPhase2Windows.AssetIdentity)
+            return new("uzdoom.exe", FreedoomPhase2Windows.ExecutableLength!.Value, FreedoomPhase2Windows.ExecutableSha256);
         var requirement = Requirement(game);
         if (!OperatingSystem.IsLinux() || RuntimeInformation.ProcessArchitecture != Architecture.X64 ||
             requirement == null || requirement.ReleaseIdentity != release || requirement.AssetIdentity != asset)
@@ -96,6 +113,9 @@ internal static class OwnedGameSetupService
 // dialog. Selecting another card during the picker never retargets the operation.
 internal sealed class OwnedGameSetupSession
 {
+    static readonly StringComparison PathComparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+    static bool SamePath(string? left, string? right) => left == null || right == null ? left == right :
+        string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(left)), Path.TrimEndingDirectorySeparator(Path.GetFullPath(right)), PathComparison);
     readonly GameManager manager;
     readonly GameInfo game;
     readonly string instance, install, dataRoot, appsRoot, repository, libraryPath;
@@ -158,12 +178,12 @@ internal sealed class OwnedGameSetupSession
         if (store is ISettingsRecoveryState { IsReadOnly: true } || store is not IPortableRollbackSettingsEvidence evidence)
             throw new IOException("Initialized writable settings evidence is required. Reopen Relicade before setup.");
         var (persistedSettings, _, _) = evidence.ReadRollbackSettings();
-        if (KioskLaunch.IsStartupLocked(persistedSettings) || Path.GetFullPath(persistedSettings.AppsPath) != appsRoot)
+        if (KioskLaunch.IsStartupLocked(persistedSettings) || !SamePath(persistedSettings.AppsPath, appsRoot))
             throw new IOException("Saved setup permissions or apps directory changed. Reopen game setup.");
         if (KioskLaunch.IsStartupLocked(manager.CurrentSettings) ||
-            Path.GetFullPath(manager.CurrentSettings.AppsPath) != appsRoot || RelicadePaths.UserDataRoot != dataRoot ||
+            !SamePath(manager.CurrentSettings.AppsPath, appsRoot) || !SamePath(RelicadePaths.UserDataRoot, dataRoot) ||
             !manager.Games.Any(g => ReferenceEquals(g, game)) || game.InstanceKey != instance || game.Repository != repository ||
-            game.GetInstallPath(manager.GamesFolder) != install || !string.IsNullOrEmpty(game.InstallPath) ||
+            !SamePath(game.GetInstallPath(manager.GamesFolder), install) || !string.IsNullOrEmpty(game.InstallPath) ||
             game.IsManuallyManaged || game.IsFlatpak || game.IsWindowsInstaller)
             throw new IOException("Library or setup permissions changed. Reopen game setup before continuing.");
         if (!ReadLibrary(library.Length).AsSpan().SequenceEqual(library))
@@ -177,13 +197,13 @@ internal sealed class OwnedGameSetupSession
         if (rows.Keys.Any(k => k is not ("apps" or "standard" or "experimental" or "custom"))) throw new IOException("Unknown library format.");
         var apps = manager.CatalogService.ParseAppsFromDictionary(rows);
         var persisted = ManagedShortcutLaunch.Resolve(apps, instance);
-        if (persisted.Repository != repository || persisted.GetInstallPath(appsRoot) != install || !string.IsNullOrEmpty(persisted.InstallPath))
+        if (persisted.Repository != repository || !SamePath(persisted.GetInstallPath(appsRoot), install) || !string.IsNullOrEmpty(persisted.InstallPath))
             throw new IOException("The saved library does not identify this dedicated installation.");
         foreach (var other in apps.Where(g => g.InstanceKey != instance))
         {
             var path = Path.TrimEndingDirectorySeparator(Path.GetFullPath(other.GetInstallPath(appsRoot)));
-            if (path == install || path.StartsWith(install + Path.DirectorySeparatorChar, StringComparison.Ordinal) ||
-                install.StartsWith(path + Path.DirectorySeparatorChar, StringComparison.Ordinal))
+            if (SamePath(path, install) || path.StartsWith(install + Path.DirectorySeparatorChar, PathComparison) ||
+                install.StartsWith(path + Path.DirectorySeparatorChar, PathComparison))
                 throw new IOException("Shared or overlapping installations require separate setup support.");
         }
     }
@@ -215,12 +235,12 @@ internal sealed class OwnedGameSetupSession
     bool RetainedContextMatches() => ReferenceEquals(retainedStore, SettingsStoreProvider.RollbackCurrent) &&
         retainedStore is not ISettingsRecoveryState { IsReadOnly: true } && !KioskLaunch.IsStartupLocked(manager.CurrentSettings) &&
         ReferenceEquals(retainedSettings, manager.CurrentSettings) && ReferenceEquals(retainedCollection, manager.Games) &&
-        manager.Games.Count(g => g.InstanceKey == instance) == 1 && Path.GetFullPath(manager.CurrentSettings.AppsPath) == appsRoot &&
-        RelicadePaths.UserDataRoot == dataRoot && manager.Games.Any(g => ReferenceEquals(g, game)) &&
+        manager.Games.Count(g => g.InstanceKey == instance) == 1 && SamePath(manager.CurrentSettings.AppsPath, appsRoot) &&
+        SamePath(RelicadePaths.UserDataRoot, dataRoot) && manager.Games.Any(g => ReferenceEquals(g, game)) &&
         game.InstanceKey == instance && game.Repository == repository && game.RepositorySource == repositorySource &&
-        game.GetInstallPath(manager.GamesFolder) == install && string.IsNullOrEmpty(game.InstallPath) &&
+        SamePath(game.GetInstallPath(manager.GamesFolder), install) && string.IsNullOrEmpty(game.InstallPath) &&
         !game.IsManuallyManaged && !game.IsFlatpak && !game.IsWindowsInstaller &&
-        game.SelectedExecutable == selectedExecutable && game.InstalledVersion == installedVersion &&
+        SamePath(game.SelectedExecutable, selectedExecutable) && game.InstalledVersion == installedVersion &&
         game.InstalledBuild == installedBuild && game.IsInstalled && !game.IsLoading &&
         !game.IsPortableCommitInProgress && !game.IsInstallIndeterminate;
 

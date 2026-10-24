@@ -609,7 +609,7 @@ namespace Relicade.Models
             internal set { if (_isManagedPortable == value) return; _isManagedPortable = value; DispatchPropertyChanged(); DispatchPropertyChanged(nameof(CanManageMods)); }
         }
         [System.Text.Json.Serialization.JsonIgnore]
-        public bool OffersFreedoomSetup => OwnedGameSetupService.OffersFreedoom(this);
+        public bool OffersFreedoomSetup => OwnedGameSetupService.SupportsFreedoomHere && OwnedGameSetupService.OffersFreedoom(this);
         [System.Text.Json.Serialization.JsonIgnore]
         public bool CanOfferFreedoomSetup => OffersFreedoomSetup && PortableRecoveryError == null && (IsInstalled || Status == GameStatus.NotInstalled);
         [System.Text.Json.Serialization.JsonIgnore]

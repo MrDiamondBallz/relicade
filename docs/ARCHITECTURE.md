@@ -412,7 +412,12 @@ Dark entries join it on Linux x64, while other hosts keep their ordinary downloa
 action. Their ordinary Download menu routes remain separate. The shared progress lifecycle receives the
 project-specific confirmation and title. The first-install constraint defaults
 to AppImage only; the compiled z2rs and Perfect Dark adapters explicitly enable
-their exact tar.gz assets, still subject to the same digest, byte limit and
+their exact tar.gz assets. The Windows x64 UZDoom adapter explicitly enables its
+pinned ZIP and separately pinned `uzdoom.exe`; helpers cannot become the selected
+setup target. A platform discriminator defaults existing owned-data definitions
+to Linux x64 and opts in only this Windows definition. Unix permission setters
+are never called on Windows; path identity/overlap uses Windows case comparison
+while saved library bytes remain exact. All packages retain the same digest, byte limit and
 transaction boundary. The former Perfect Dark repository identity resolves to
 the canonical project's pinned package; a changed rolling tag cannot substitute
 new bytes.

@@ -34,6 +34,26 @@ mechanism, rather than inferred from an isolated passing rerun or the earlier
 rapid-press change. Failed or detached shell-menu opening has separate cleanup
 coverage. These source checks do not establish hardware or Windows acceptance.
 
+Later Windows evidence for the reviewed repairs through `627f6ea` includes the
+unchanged settings round-trip failing before/passing after, 56 generation/update
+checks passing with one worker-only skip, 146 ownership/archive/branding checks
+passing with nine precise Linux/symlink-capability skips, 54 update/process checks,
+22 UI/menu checks including the six former Windows fixture failures, and the
+exact CLI separator witness passing. These are distinct selections, not a full
+Windows suite. An earlier broad run was aborted, with partial results retained.
+Actual isolated native Windows checks cover catalog UZDoom search/details/Add,
+Library reopening, settings, metadata export, close/restart and corrupt-library
+refusal/manual restoration. A direct engine smoke is historical evidence only;
+Relicade-integrated gameplay is pending because automatic renderer fallback may
+write outside the approved cache scope. The optional physical rapid/held-A
+sequence was waived and is not a passing hardware test.
+
+All five declared desktop RIDs cross-published successfully. No Mac is available;
+macOS runtime remains unverified. Android's workload is installed in the isolated
+PC toolchain, but the user deferred SDK/license installation, so APK/runtime checks
+remain pending. First Windows release sequencing does not remove other platform
+quality requirements. No accepted platform cells or release claims are added.
+
 Complete these gates in order before claiming the first public release:
 
 1. Retain the demonstrated fixture-order regression and complete the required

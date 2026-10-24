@@ -23,7 +23,11 @@ internal static class GuidedEngineInstallService
     internal static Project ProjectFor(GameInfo game, OwnedDataRequirement? definition = null)
     {
         if (OwnedGameSetupService.OffersFreedoom(game))
-            return new("UZDoom/UZDoom", "Set up Freedoom Phase 2", definition ?? OwnedGameSetupService.FreedoomPhase2, 34_560_504);
+        {
+            var requirement = definition ?? OwnedGameSetupService.CurrentFreedoomPhase2;
+            return new("UZDoom/UZDoom", "Set up Freedoom Phase 2", requirement,
+                requirement.Platform == OwnedDataPlatform.WindowsX64 ? 29_337_585 : 34_560_504);
+        }
         if (OwnedGameSetupService.Requirement(game) == OwnedGameSetupService.Z2rs)
             return new("troyedwardsjr/z2rs", "Set up z2rs", definition ?? OwnedGameSetupService.Z2rs, 20_928_166);
         if (OwnedGameSetupService.Requirement(game) == OwnedGameSetupService.PerfectDark)
@@ -33,9 +37,10 @@ internal static class GuidedEngineInstallService
 
     internal static string ConfirmationMessage(OwnedDataRequirement? definition = null)
     {
-        var requirement = definition ?? OwnedGameSetupService.FreedoomPhase2;
+        var requirement = definition ?? OwnedGameSetupService.CurrentFreedoomPhase2;
         var asset = requirement.AssetIdentity.Split("|sha256:", StringSplitOptions.None)[0];
-        return $"Install UZDoom {requirement.ReleaseIdentity} for Linux x64 in this library entry?\n\nThis explicit setup uses the reviewed {asset} package. After installation, you can download and confirm the free Freedoom Phase 2 data. Nothing is played automatically. Existing engines, versions and personal game files are not replaced.";
+        var platform = requirement.Platform == OwnedDataPlatform.WindowsX64 ? "Windows x64" : "Linux x64";
+        return $"Install UZDoom {requirement.ReleaseIdentity} for {platform} in this library entry?\n\nThis explicit setup uses the reviewed {asset} package. After installation, you can download and confirm the free Freedoom Phase 2 data. Nothing is played automatically. Existing engines, versions and personal game files are not replaced.";
     }
     internal sealed record PreparedInstall(OwnedDataRequirement Requirement, string AssetName,
         OwnedGameSetupSession Context, FirstInstallPackageConstraint Constraint, Project Project);
@@ -44,20 +49,30 @@ internal static class GuidedEngineInstallService
         CancellationToken token, OwnedDataRequirement? definition = null)
     {
         token.ThrowIfCancellationRequested();
-        if (!OperatingSystem.IsLinux() || OperatingSystem.IsAndroid() || RuntimeInformation.ProcessArchitecture != Architecture.X64)
-            throw new IOException("Guided engine installation currently supports Linux x64 only. Ordinary engine installation and manual game setup remain available on their supported platforms.");
         var project = ProjectFor(game, definition);
+        var windows = project.Repository == "UZDoom/UZDoom" && project.Requirement.Platform == OwnedDataPlatform.WindowsX64 && OperatingSystem.IsWindows();
+        var linux = project.Requirement.Platform == OwnedDataPlatform.LinuxX64 && OperatingSystem.IsLinux() && !OperatingSystem.IsAndroid();
+        if ((!windows && !linux) || RuntimeInformation.ProcessArchitecture != Architecture.X64)
+            throw new IOException("Guided engine installation requires the reviewed package for this host. Windows x64 supports the compiled UZDoom adapter; existing Linux x64 adapters remain separate.");
         if (game.Status != GameStatus.NotInstalled || game.IsLoading ||
             !string.IsNullOrEmpty(game.InstalledVersion))
             throw new IOException("First-time engine setup will not replace an existing or busy engine. Use ordinary version controls for an existing installation.");
         var requirement = project.Requirement;
         var split = requirement.AssetIdentity.Split("|sha256:", StringSplitOptions.None);
         if (split.Length != 2 || split[1].Length != 64 || !split[1].All(Uri.IsHexDigit) ||
-            (project.Repository == "UZDoom/UZDoom" && split[1] != requirement.ExecutableSha256))
+            PublishedAssetDigest.Normalize(requirement.ExecutableSha256) != requirement.ExecutableSha256 ||
+            (project.Repository == "UZDoom/UZDoom" && !windows && split[1] != requirement.ExecutableSha256) ||
+            (windows && (requirement.ExecutableLength is not > 0 or > 64L * 1024 * 1024)))
             throw new IOException("The guided engine package definition is invalid.");
         var context = new OwnedGameSetupSession(manager, game.InstanceKey, requirement);
         var constraint = new FirstInstallPackageConstraint(requirement.ReleaseIdentity, split[0], split[1])
-        { MaximumBytes = project.MaximumBytes, AllowTarGzip = project.Repository is "troyedwardsjr/z2rs" or "perfect-dark-pc-port/perfect_dark", ValidateContext = () => context.ValidateDownloadRequest(token) };
+        {
+            MaximumBytes = project.MaximumBytes,
+            AllowTarGzip = project.Repository is "troyedwardsjr/z2rs" or "perfect-dark-pc-port/perfect_dark",
+            AllowZip = windows,
+            PinnedTarget = windows ? new("uzdoom.exe", requirement.ExecutableLength!.Value, requirement.ExecutableSha256) : null,
+            ValidateContext = () => context.ValidateDownloadRequest(token)
+        };
         constraint.ValidateSelection(requirement.ReleaseIdentity, split[0]);
         var destination = game.GetInstallPath(manager.GamesFolder);
         new PortableInstallationTransaction(destination).RequireFirstInstallationTarget();
