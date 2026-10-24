@@ -42,6 +42,9 @@
 		<PackageReference Include="SharpCompress" Version="0.50.1" />
 		<PackageReference Include="System.Text.Json" Version="10.0.3" />
 		<PackageReference Include="System.Drawing.Common" Version="10.0.3" Condition="'$(RelicadeExcludeWindowsDrawing)' != 'true'" />
+		<!-- System.Private.Windows.Core declares NRBF types but Drawing's package
+		     omits that dependency; keep the compatible serviced reader app-local. -->
+		<PackageReference Include="System.Formats.Nrbf" Version="10.0.13" Condition="'$(RelicadeExcludeWindowsDrawing)' != 'true'" />
 		<PackageReference Include="NAudio" Version="2.2.1" Condition="'$(RuntimeIdentifier)' == 'win-x64' or ('$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('Windows')))" />
 		<PackageReference Include="Velopack" Version="1.2.0" />
 	</ItemGroup>

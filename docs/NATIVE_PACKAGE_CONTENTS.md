@@ -11,8 +11,8 @@ new reuse rights over its separately owned source, branding or artwork.
 
 `native/licenses/linux-x64/manifest.json` binds the inspected .NET 10 Linux x64
 runtime to SDK 10.0.402 and the exact package versions, canonical content hashes,
-asset paths and SHA-256 values recorded there. Its 25 package/runtimepack rows map
-225 actual runtime files back to exact package members. The two SDK apphosts,
+asset paths and SHA-256 values recorded there. Its 26 package/runtimepack rows map
+226 actual runtime files back to exact package members. The two SDK apphosts,
 own assemblies, generated configuration and original icon are separate. The
 `Relicade.Reference` metadata entry aliases `Relicade.dll`; it is not another
 external binary or an extra independent dependency.
@@ -120,3 +120,21 @@ snapshot, separate from executable dependencies and game payloads. Its
 CC0 scope and exact hashes. No art or executable/data download is part of this
 metadata bundle. This addition does not complete the pending Windows runtime
 notice inventory or approve a release package.
+
+## Windows drawing dependency closure
+
+`System.Drawing.Common` 10.0.3 ships `System.Private.Windows.Core`, whose metadata
+declares NRBF reader types without a package dependency that brings that assembly
+into the application. The application explicitly pins the compatible serviced
+`System.Formats.Nrbf` 10.0.13 package beside Drawing, with the same Android
+exclusion. This is an app-local managed library, not a global .NET/VC++/SDK
+prerequisite or an unsafe BinaryFormatter switch. A metadata-only regression
+checks the actual output assembly identity, public-key token and every requested
+NRBF type without running Windows platform code.
+
+The package's aggregate notice is retained verbatim; its pinned source MIT notice
+is byte-identical to the existing retained dotnet/dotnet notice (same Git blob),
+so existing legal bytes and provenance remain unchanged. Raw signed archive
+SHA256 and canonical NuGet content SHA512 remain separate. The Linux inventory
+adds this assembly and the two owned catalog metadata files. Windows notice
+aggregation and clean-machine installer acceptance are still separate gates.
