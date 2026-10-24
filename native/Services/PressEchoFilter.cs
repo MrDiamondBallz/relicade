@@ -19,7 +19,7 @@ public enum PressSource
 /// </summary>
 public sealed class PressEchoFilter
 {
-    /// <summary>Same as the controller's own button repeat guard in <see cref="InputService"/>.</summary>
+    /// <summary>Cross-source echo window; separate sampled gamepad presses are gated by rising edges.</summary>
     public static readonly TimeSpan EchoWindow = TimeSpan.FromMilliseconds(300);
 
     // A dropped key keeps being dropped while it repeats. Longer than the usual 500-660 ms repeat delay.

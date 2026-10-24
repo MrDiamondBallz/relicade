@@ -42,17 +42,12 @@ namespace Relicade.Services
                 .Where(a => a is not (SDL_GamepadAxis.SDL_GAMEPAD_AXIS_INVALID or SDL_GamepadAxis.SDL_GAMEPAD_AXIS_COUNT))
                 .ToArray();
 
-        // Input repeat delays (hold auto-repeat; discrete presses reset on release)
+        // Navigation hold-repeat delays. Discrete actions use sampled rising edges.
         private const int InitialRepeatDelay = 500;
         private const int RepeatDelay = 250;
 
         private DateTime _lastNavigationTime = DateTime.MinValue;
         private int _movesInHold;
-
-        private DateTime _lastConfirmTime = DateTime.MinValue;
-        private DateTime _lastCancelTime = DateTime.MinValue;
-        private DateTime _lastOptionsTime = DateTime.MinValue;
-        private const int ButtonRepeatDelay = 300;
 
         public event Action<NavigationDirection>? OnNavigate;
         public event Action? OnConfirm;
@@ -314,8 +309,6 @@ namespace Relicade.Services
             if (!_isWindowActive && !overlayActive && !_captureMode)
             {
                 ResetNavigationState();
-                _lastConfirmTime = DateTime.MinValue;
-                _lastCancelTime = DateTime.MinValue;
                 return;
             }
 
@@ -350,37 +343,22 @@ namespace Relicade.Services
 
                 if (IsActionRisingEdge(GamepadAction.Confirm, previousState, currentState))
                 {
-                    var now = DateTime.Now;
-                    if ((now - _lastConfirmTime).TotalMilliseconds > ButtonRepeatDelay)
-                    {
-                        _lastConfirmTime = now;
-                        if (PressEchoFilter.Instance.TryAccept(GamepadAction.Confirm, PressSource.Gamepad) &&
-                            !TryHandleOverlayConfirm())
-                            OnConfirm?.Invoke();
-                    }
+                    if (PressEchoFilter.Instance.TryAccept(GamepadAction.Confirm, PressSource.Gamepad) &&
+                        !TryHandleOverlayConfirm())
+                        OnConfirm?.Invoke();
                 }
 
                 if (IsActionRisingEdge(GamepadAction.Cancel, previousState, currentState))
                 {
-                    var now = DateTime.Now;
-                    if ((now - _lastCancelTime).TotalMilliseconds > ButtonRepeatDelay)
-                    {
-                        _lastCancelTime = now;
-                        if (PressEchoFilter.Instance.TryAccept(GamepadAction.Cancel, PressSource.Gamepad) &&
-                            !TryHandleOverlayCancel())
-                            OnCancel?.Invoke();
-                    }
+                    if (PressEchoFilter.Instance.TryAccept(GamepadAction.Cancel, PressSource.Gamepad) &&
+                        !TryHandleOverlayCancel())
+                        OnCancel?.Invoke();
                 }
 
                 if (IsActionRisingEdge(GamepadAction.Options, previousState, currentState))
                 {
-                    var now = DateTime.Now;
-                    if ((now - _lastOptionsTime).TotalMilliseconds > ButtonRepeatDelay)
-                    {
-                        _lastOptionsTime = now;
-                        if (PressEchoFilter.Instance.TryAccept(GamepadAction.Options, PressSource.Gamepad))
-                            OnOptions?.Invoke();
-                    }
+                    if (PressEchoFilter.Instance.TryAccept(GamepadAction.Options, PressSource.Gamepad))
+                        OnOptions?.Invoke();
                 }
             }
 

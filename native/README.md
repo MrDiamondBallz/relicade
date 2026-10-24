@@ -112,6 +112,17 @@ Skia pixels with synthetic state in its own process; never load both test assemb
 in one process. That controlled headless check does not replace real native
 rendering, image decoding and hardware acceptance on an isolated display.
 
+The [SDL3 virtual-pad regressions](Relicade.Tests/SteamDeckDoublePressTests.cs)
+exercise rapid released-and-pressed-again Confirm, Cancel and Options actions,
+axis-bound confirmation and two independent pads. Discrete pad actions now use
+sampled rising edges without a wall-clock cooldown; held samples do not repeat.
+The separate 300 ms gamepad/keyboard echo filter remains in place, including its
+299/300 ms boundary checks. This corrects dropped independent pad presses; it
+does not explain or resolve the broader pad/keyboard test failure recorded in
+the [release gates](../docs/FEATURE_COVERAGE.md#first-public-release-gates).
+These targeted headless checks do not establish full-suite, physical-controller,
+Windows runtime or gameplay acceptance.
+
 ## Identity, data and network boundaries
 
 Application/assembly/executable identity is Relicade. Android package identity
