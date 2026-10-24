@@ -49,6 +49,7 @@ This inventory is generated from the explicit maintenance registry. Semantic rev
 | [native/licenses/linux-x64/packages/skiasharp/3.119.4/LICENSE.txt](../native/licenses/linux-x64/packages/skiasharp/3.119.4/LICENSE.txt) | protected |  |
 | [native/licenses/linux-x64/packages/system.drawing.common/10.0.3/LICENSE.TXT](../native/licenses/linux-x64/packages/system.drawing.common/10.0.3/LICENSE.TXT) | protected |  |
 | [native/licenses/linux-x64/packages/system.drawing.common/10.0.3/THIRD-PARTY-NOTICES.TXT](../native/licenses/linux-x64/packages/system.drawing.common/10.0.3/THIRD-PARTY-NOTICES.TXT) | protected |  |
+| [native/licenses/linux-x64/packages/system.formats.nrbf/10.0.13/THIRD-PARTY-NOTICES.TXT](../native/licenses/linux-x64/packages/system.formats.nrbf/10.0.13/THIRD-PARTY-NOTICES.TXT) | protected |  |
 | [native/licenses/linux-x64/sdk/10.0.402/ThirdPartyNotices.txt](../native/licenses/linux-x64/sdk/10.0.402/ThirdPartyNotices.txt) | protected |  |
 | [native/licenses/linux-x64/upstream/AvaloniaUI--Avalonia/NOTICE.md](../native/licenses/linux-x64/upstream/AvaloniaUI--Avalonia/NOTICE.md) | protected |  |
 | [native/licenses/linux-x64/upstream/AvaloniaUI--Avalonia/licence.md](../native/licenses/linux-x64/upstream/AvaloniaUI--Avalonia/licence.md) | protected |  |
