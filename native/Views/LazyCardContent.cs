@@ -83,9 +83,11 @@ public sealed class LazyCardContent : ContentControl
         if (Content == null)
         {
             var height = KnownHeights.TryGetValue(Group, out var known) ? known : PlaceholderHeight;
-            // A size bound to an auto (NaN) width, as compact cards are on a phone, has no height to keep.
-            if (!double.IsFinite(height) || height < 0)
-                height = 0;
+            // A cold auto/zero-height card inside a clipped parent otherwise
+            // collapses its effective viewport to zero and can never build.
+            // Reserve only a measurable pixel until its real content is known.
+            if (!double.IsFinite(height) || height <= 0)
+                height = 1;
             return new Size(0, double.IsFinite(availableSize.Height) ? Math.Min(height, availableSize.Height) : height);
         }
         var size = base.MeasureOverride(availableSize);

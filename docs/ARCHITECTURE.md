@@ -153,6 +153,13 @@ contain another target's stable writer.
 
 ## Artwork dispatcher ownership
 
+Lazy library cards reserve a one-pixel height when no finite positive cached or
+placeholder height exists. A zero-height child inside a clipped parent otherwise
+receives a zero effective viewport and never materializes its controls. This cold
+case does not depend on another card warming the height cache. Finite positive
+estimates, viewport-triggered construction, offscreen dropping and focus/menu
+retention keep their existing behavior.
+
 A view's display-scale callback checks that view's existing instance dispatcher,
 not the global lazy UI dispatcher. Pending artwork decoding can finish after its
 host has closed; off-owner completion still uses the last UI-read scale without

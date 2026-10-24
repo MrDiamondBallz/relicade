@@ -10,6 +10,33 @@ namespace Relicade.Tests;
 
 public class LazyCardContentTests
 {
+    [AvaloniaTheory]
+    [InlineData(0)][InlineData(double.NaN)]
+    public void A_cold_auto_height_card_inside_a_clipped_parent_materializes_its_visible_menu(double placeholder)
+    {
+        var card = new LazyCardContent
+        {
+            Group = "cold-visible-" + Guid.NewGuid().ToString("N"), PlaceholderHeight = placeholder,
+            DataContext = "visible app",
+            ContentTemplate = new FuncDataTemplate<string>((_, _) => new Button
+            {
+                Width = 160, Height = 100, Content = "Options",
+                ContextMenu = new ContextMenu { Items = { new MenuItem { Header = "Restore previous portable version…" } } }
+            })
+        };
+        var parent = new Border { ClipToBounds = true, Width = 200, Child = card };
+        var window = new Window { Content = new StackPanel { Children = { parent } }, Width = 400, Height = 300 };
+        try
+        {
+            window.Show(); window.UpdateLayout();
+            for (var i = 0; i < 4; i++) { Dispatcher.UIThread.RunJobs(); window.UpdateLayout(); }
+            Assert.True(card.IsBuilt, "Visible cold content must not depend on a previous card warming the height cache.");
+            var button = Assert.IsType<Button>(card.Presenter!.Child);
+            Assert.Contains(button.ContextMenu!.Items.OfType<MenuItem>(), item => item.Header?.ToString() == "Restore previous portable version…");
+        }
+        finally { window.Close(); }
+    }
+
     [AvaloniaFact]
     public void Cards_are_built_near_the_screen_and_dropped_far_from_it_without_moving()
     {
