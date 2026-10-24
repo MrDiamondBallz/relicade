@@ -87,8 +87,12 @@ public sealed class WindowsGenerationLeaseTests
         await Install(live, "old");
         Directory.CreateDirectory(Path.Combine(live, "saves")); File.WriteAllText(Path.Combine(live, "saves", "slot"), "long-path save");
         await Install(live, "new");
-        await Assert.ThrowsAsync<IOException>(() => Install(live, "interrupted", point =>
-        { if (point == "CandidateRenamed") throw new IOException("Synthetic reporting failure after both renames."); }));
+        var reachedCandidateRenamed = false;
+        var interruption = new IOException("Synthetic reporting failure after both renames.");
+        var thrown = await Assert.ThrowsAsync<IOException>(() => Install(live, "interrupted", point =>
+        { if (point == "CandidateRenamed") { reachedCandidateRenamed = true; throw interruption; } }));
+        Assert.True(reachedCandidateRenamed, "The long-path transaction must reach both rename boundaries before the injected failure.");
+        Assert.Same(interruption, thrown); // An earlier filesystem failure or failed recovery cannot satisfy this witness.
         var manifest = new PortableInstallationTransaction(live).ReadCommitted()!;
         Assert.Equal("new", manifest.SelectedVersion);
         Assert.Equal("NONEXECUTABLE synthetic new", File.ReadAllText(Path.Combine(live, "fixture.exe")));
