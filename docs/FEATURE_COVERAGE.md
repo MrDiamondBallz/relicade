@@ -8,6 +8,43 @@ into stable feature IDs and explicit target cells. It deliberately contains no
 accepted native results. Passing the validator accepts the document's integrity,
 not the launcher.
 
+## First public release gates
+
+Windows x64 is the first public-release target. Linux is a private development
+proof path; other listed platforms remain requirements, not accepted support.
+
+At source [207894c089b6ca5f28d5c35e85d326ed6bb68aec](https://github.com/MrDiamondBallz/relicade/tree/207894c089b6ca5f28d5c35e85d326ed6bb68aec),
+the compiled Release/Linux x64 self-contained directory publish was observed on
+an isolated virtual X11 display: empty Library → General Settings → Library →
+normal window close, with direct application exit code 0 and owned display cleanup.
+This returning-user profile skipped welcome. It is a bounded launcher observation,
+not AppImage/package acceptance, physical-device testing, gameplay or Windows
+runtime evidence. Live catalog discovery, candidate artwork, engine/data setup
+and their complete player journey have not been accepted by this observation.
+
+A broad native test attempt at that source failed
+`SteamDeckDoublePressTests.Separate_presses_from_pad_and_keyboard_both_count`:
+expected two confirmations, observed one. Isolated reruns passed, but the cause
+remains unexplained and the failure unresolved; those passes do not supersede it.
+
+Complete these gates in order before claiming the first public release:
+
+1. Resolve the controller-test failure with a demonstrated cause and regression
+   evidence; complete the required build/test checks for the candidate commit.
+2. Exercise real catalog discovery, credited lawful artwork and adding a selected
+   project to Library, including unavailable/offline metadata and image behavior.
+   Check project identity, release provenance and lawful data requirements.
+3. Exercise the selected project's actual package installation and separately
+   confirmed game-data setup, including cancel before install and during transfer.
+   Verify hashes, notices and truthful Needs setup/Ready/Repair states.
+4. Observe gameplay, normal game/launcher exit and restart, offline use without a
+   required account, save preservation and interrupted-update/recovery behavior.
+   A build, screenshot or synthetic fixture cannot stand in for these journeys.
+5. Repeat applicable journeys using the actual Windows x64 release package on
+   Windows, including installation/removal, keyboard, physical controllers and
+   accessibility. Independently review that exact build's evidence, distribution
+   rights, notices and remaining limitations before publishing a release.
+
 ## Run the contract and fixture checks
 
 Python's standard library is sufficient:

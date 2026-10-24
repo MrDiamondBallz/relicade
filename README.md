@@ -66,7 +66,9 @@ Neither flow is complete catalog coverage or gameplay certification.
 
 The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. It does not install, update, verify or launch executables.
 
-The [native development source](native/README.md) uses .NET 10/Avalonia. Linux x64 self-contained publish and isolated startup, plus Windows x64 cross-publish, are development checks only. A [private Linux x64 AppDir/AppImage recipe](docs/LINUX_APPIMAGE_DEVELOPMENT.md) is available for development, not as a supported download. The [coverage contract](docs/FEATURE_COVERAGE.md) keeps native/package acceptance separate.
+The [native development source](native/README.md) uses .NET 10/Avalonia. The compiled Linux x64 launcher has been observed opening an empty Library, showing General Settings, returning to Library and closing normally with exit code 0 on an isolated virtual display. This covers that sequence only; gameplay, live catalog/artwork/setup and Windows runtime remain unverified, and a broader controller-test failure remains unresolved. See the [exact evidence limits and ordered release gates](docs/FEATURE_COVERAGE.md#first-public-release-gates).
+
+**Windows x64 is the first public-release target.** Linux remains a private development proof path. Windows cross-publish and the [private Linux x64 AppDir/AppImage recipe](docs/LINUX_APPIMAGE_DEVELOPMENT.md) are development checks, not supported downloads or platform acceptance.
 
 <!-- docs-sync:begin facts -->
 Repository facts (not acceptance results): **12 catalog projects**, **71 required feature rows**, **8 platform/package targets** and **23 synthetic fixture scenarios**. Counts describe repository inputs, not working games or passing tests.

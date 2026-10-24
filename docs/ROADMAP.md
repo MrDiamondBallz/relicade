@@ -14,6 +14,10 @@ Progress is accepted through working behaviour and recorded tests, not screensho
 
 Hosted CI remains pending activation. No native launcher release is implied.
 
+Windows x64 is the first public-release target; Linux remains a private development
+proof path. Follow the [ordered release gates and current evidence limits](FEATURE_COVERAGE.md#first-public-release-gates)
+before publishing a launcher release. The other platform targets remain requirements.
+
 ## 2. Native foundation — in intensive development, not full readiness
 
 A buildable .NET 10/Avalonia source foundation now retains the shared native capability baseline, with independent application/data identities, local-library persistence/headless fixtures, real runtime artwork loading/cache and disabled inherited self-update/telemetry/reporting channels. Linux self-contained startup and Windows cross-publish are development checks, not complete native/platform acceptance; see [native status](../native/README.md).
