@@ -57,6 +57,7 @@ public sealed class Z2rsOwnedBodyTests : IDisposable
     }
     async Task Prepare(bool header)
     {
+        OwnedDataFixturePlatform.RequireLinuxX64();
         Directory.CreateDirectory(root); File.WriteAllBytes(Source, Input(header));
         var executable = PortableInstallationFixtures.NativePayload("owned NES fixture");
         definition = new("synthetic-nes", "synthetic NES body", "test", "fixture|sha256:" + new string('a', 64),

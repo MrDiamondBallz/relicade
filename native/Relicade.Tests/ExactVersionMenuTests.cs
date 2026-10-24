@@ -55,7 +55,7 @@ public sealed class ExactVersionMenuTests
                 InstalledVersion = selected, LatestVersion = selected, PreferredVersion = selected, Status = GameStatus.Installed };
             var button = new Button { Content = "Versions" }; window = new Window { Content = button, Width = 900, Height = 700 }; window.Show();
             var controller = new LibraryLaunchController(manager, new SettingsViewModel(store), session, new LibraryPersistenceService(manager),
-                (_, anchor) => anchor, (anchor, opened) => { menu = opened; opened.Open(anchor); },
+                (_, anchor) => anchor, (anchor, opened) => { menu = opened; GamepadContextMenuNavigation.Attach(opened); opened.Open(anchor); },
                 (message, title) => throw new Exception(title + ": " + message), _ => { }, () => { }, _ => { }, () => 900);
             if (cached)
             {
@@ -135,7 +135,7 @@ public sealed class ExactVersionMenuTests
             var releases = tags.Select(tag => new GitHubRelease { tag_name = tag }).ToArray();
             var anchor = new Button { Content = "Versions" }; window = new Window { Content = anchor, Width = 900, Height = 700 }; window.Show();
             var controller = new LibraryLaunchController(manager, new SettingsViewModel(store), session, new LibraryPersistenceService(manager),
-                (_, control) => control, (control, opened) => { menu = opened; opened.Open(control); },
+                (_, control) => control, (control, opened) => { menu = opened; GamepadContextMenuNavigation.Attach(opened); opened.Open(control); },
                 (text, title) => throw new Exception(title + ": " + text), _ => { }, () => { }, _ => { }, () => 900);
             controller.ShowVersionSelectionMenu(anchor, game, releases);
             menu!.IsOpen.Should().BeTrue(); requests.Should().Be(0);

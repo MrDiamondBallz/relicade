@@ -16,6 +16,7 @@ public sealed class LauncherMenuController(Control view, Action preserveFocus, A
     public void Open(Control anchor, ContextMenu menu)
     {
         if (_disposed || menu.IsOpen) return;
+        if (TopLevel.GetTopLevel(anchor) == null && TopLevel.GetTopLevel(view) == null) return;
         if (double.IsNaN(menu.MaxHeight) || menu.MaxHeight <= 0)
             menu.MaxHeight = Math.Max(240, view.Bounds.Height > 0 ? view.Bounds.Height - 120 : 560);
         _activatedItem = null;
@@ -34,7 +35,7 @@ public sealed class LauncherMenuController(Control view, Action preserveFocus, A
         void Closed(object? sender, EventArgs e)
         {
             menu.Closed -= Closed;
-            _menus.Remove(menu);
+            if (!_menus.Remove(menu)) return;
             _activatedItem = null;
             foreach (var item in menu.Items.OfType<MenuItem>()) DetachTouch(item);
             if (_disposed) return;
@@ -52,9 +53,15 @@ public sealed class LauncherMenuController(Control view, Action preserveFocus, A
         {
             // Better no menu than closing the launcher.
             System.Diagnostics.Debug.WriteLine($"Menu not opened: {ex.Message}");
-            menu.Closed -= Closed;
-            _menus.Remove(menu);
-            restoreFocus();
+            menu.Close();
+        }
+        finally
+        {
+            if (!menu.IsOpen)
+            {
+                GamepadContextMenuNavigation.Instance.UnregisterContextMenu(menu);
+                Closed(menu, EventArgs.Empty);
+            }
         }
     }
 
@@ -106,7 +113,8 @@ public sealed class LauncherMenuController(Control view, Action preserveFocus, A
         foreach (var pair in _menus.ToArray())
         {
             pair.Key.Closed -= pair.Value;
-            pair.Key.Close();
+            try { pair.Key.Close(); }
+            finally { GamepadContextMenuNavigation.Instance.UnregisterContextMenu(pair.Key); }
         }
         _menus.Clear();
         foreach (var item in _touchItems.ToArray()) DetachTouch(item);

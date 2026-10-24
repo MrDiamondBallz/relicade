@@ -118,7 +118,7 @@ axis-bound confirmation and two independent pads. Discrete pad actions now use
 sampled rising edges without a wall-clock cooldown; held samples do not repeat.
 The separate 300 ms gamepad/keyboard echo filter remains in place, including its
 299/300 ms boundary checks. This corrects dropped independent pad presses; it
-does not explain or resolve the broader pad/keyboard test failure recorded in
+is separate from the fixture-order pad/keyboard failure described in
 the [release gates](../docs/FEATURE_COVERAGE.md#first-public-release-gates).
 These targeted headless checks do not establish full-suite, physical-controller,
 Windows runtime or gameplay acceptance.
@@ -130,6 +130,20 @@ owner stay inactive. The [lifetime regression](Relicade.Tests/InputServiceLifeti
 uses a real SDL virtual pad, and virtual-pad counts are relative to devices
 already attached. Keep physical devices stable and idle during synthetic tests;
 those fixtures do not certify physical-controller behavior.
+
+A controlled fixture-order regression reproduced the earlier one-confirmation
+symptom after an uncached version-menu fixture. Its injected opener omitted the
+normal navigation close handler, leaving a closed context menu registered to
+consume the next pad action. The fixture now installs the real lifecycle hook.
+Menu owners also refuse detached openings and unregister their own menus after
+failed openings or disposal. The regression retains the 400 ms separation;
+neither press-edge detection nor the 300 ms echo interval changes.
+
+Owned-data fixtures that require the compiled Linux x64 adapter report explicit
+skips on other platforms. POSIX permission cases and unavailable Windows symlink
+privilege are likewise reported as capability limits, rather than successful
+Windows checks. Cross-platform refusal cases still exercise non-file settings
+and library paths; Windows ACL and game-data setup acceptance remain separate.
 
 Settings atomic writes assign Unix creation permissions only on non-Windows
 systems. Passing null to that property's setter still throws on Windows, so the

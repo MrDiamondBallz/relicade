@@ -33,6 +33,7 @@ internal sealed class OwnedSetupFixture : IDisposable
     }
     internal async Task Initialize()
     {
+        OwnedDataFixturePlatform.RequireLinuxX64();
         Directory.CreateDirectory(Root); RelicadePaths.OverrideUserDataRoot = Root;
         Store = new FileSettingsStore(Path.Combine(Root, "settings.json"));
         Store.Current.AppsPath = Path.Combine(Root, "Apps"); Store.Save(Store.Current); SettingsStoreProvider.Default = Store;

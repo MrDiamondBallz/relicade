@@ -124,13 +124,46 @@ public class SteamDeckDoublePressTests : IDisposable
         h.CheckBox.Focus();
 
         h.PressA();
-        h.Confirms.Should().Be(1, "the virtual pad press must reach the shell before the separate keyboard press");
+        h.Confirms.Should().Be(1, "the virtual pad must reach the shell before the keyboard press; " + h.InputState);
         h.ReleaseA();
         h.Advance(TimeSpan.FromMilliseconds(400));
         h.TypeEnter();
 
         h.Confirms.Should().Be(2);
         h.CheckBox.IsChecked.Should().BeFalse();
+    }
+
+    [AvaloniaFact]
+    public void Failed_harness_constructor_does_not_leave_a_virtual_pad_connected()
+    {
+        using var observer = new InputService(new UserControl(), new AppSettings { EnableGamepadInput = false });
+        var initialCount = observer.ConnectedGamepadCount;
+
+        Assert.Throws<InvalidOperationException>(() => new Harness(
+            () => throw new InvalidOperationException("Synthetic fixture construction failure after attaching the pad.")));
+
+        observer.GetConnectedGamepads().Should().HaveCount(initialCount);
+    }
+
+    [AvaloniaFact]
+    public async Task Closed_version_menu_does_not_consume_a_later_separate_pad_and_keyboard_press()
+    {
+        try
+        {
+            await new ExactVersionMenuTests().Version_menu_keeps_case_distinct_release_badges_separate(false, false, "states");
+            using var h = new Harness();
+            h.CheckBox.Focus();
+            var before = h.InputState;
+
+            h.PressA();
+            h.ReleaseA();
+            h.Advance(TimeSpan.FromMilliseconds(400));
+            h.TypeEnter();
+
+            h.Confirms.Should().Be(2, "the prior closed menu must not consume the pad press; " + before);
+            h.CheckBox.IsChecked.Should().BeFalse();
+        }
+        finally { GamepadContextMenuNavigation.Instance.TryHandleOptionsDismiss(); }
     }
 
     [AvaloniaTheory]
@@ -168,7 +201,7 @@ public class SteamDeckDoublePressTests : IDisposable
 
         var elapsed = System.Diagnostics.Stopwatch.StartNew();
         h.Press(button);
-        Count().Should().Be(1);
+        Count().Should().Be(1, h.InputState);
         // Repeated polls of a held button must not create another logical press.
         h.Press(button);
         h.Press(button);
@@ -298,8 +331,17 @@ public class SteamDeckDoublePressTests : IDisposable
         public int Confirms { get; private set; }
         public int Cancels { get; private set; }
         public int Options { get; private set; }
+        public string InputState =>
+            $"modal={GamepadModalDialogNavigation.Instance.ActiveDialog?.GetType().Name}/" +
+            $"{GamepadModalDialogNavigation.Instance.ActiveDialog?.Title}, " +
+            $"modalVisible={GamepadModalDialogNavigation.Instance.ActiveDialog?.IsVisible}, " +
+            $"modalCount={GamepadModalDialogNavigation.Instance.DialogStackCount}, " +
+            $"combo={GamepadComboBoxNavigation.Instance.HasActiveComboBox}, " +
+            $"context={GamepadContextMenuNavigation.Instance.HasActiveContextMenu}, " +
+            $"focused={Window.FocusManager?.GetFocusedElement()?.GetType().Name}, " +
+            $"editing={GamepadTextInput.IsEditing}";
 
-        public Harness()
+        public Harness(Action? afterVirtualPadOpened = null)
         {
             PressEchoFilter.Instance.Clock = () => _now;
             GamepadComboBoxNavigation.Attach(ComboBox);
@@ -315,16 +357,26 @@ public class SteamDeckDoublePressTests : IDisposable
                 new(_ => true, Confirm, () => Cancels++, () => Options++, _ => { }, () => { }), enableInput: true);
             _initialGamepadCount = _controller.Service!.ConnectedGamepadCount;
 
-            SDL_VirtualJoystickDesc desc;
-            SDL_INIT_INTERFACE(out desc);
-            desc.type = (ushort)SDL_JoystickType.SDL_JOYSTICK_TYPE_GAMEPAD;
-            desc.naxes = (ushort)SDL_GamepadAxis.SDL_GAMEPAD_AXIS_COUNT;
-            desc.nbuttons = (ushort)SDL_GamepadButton.SDL_GAMEPAD_BUTTON_COUNT;
-            _padId = SDL_AttachVirtualJoystick(&desc);
-            _pad = SDL_OpenJoystick(_padId);
-            ((nint)_pad).Should().NotBe(0, SDL_GetError());
-            Poll();
-            _controller.Service!.ConnectedGamepadCount.Should().Be(_initialGamepadCount + 1);
+            try
+            {
+                SDL_VirtualJoystickDesc desc;
+                SDL_INIT_INTERFACE(out desc);
+                desc.type = (ushort)SDL_JoystickType.SDL_JOYSTICK_TYPE_GAMEPAD;
+                desc.naxes = (ushort)SDL_GamepadAxis.SDL_GAMEPAD_AXIS_COUNT;
+                desc.nbuttons = (ushort)SDL_GamepadButton.SDL_GAMEPAD_BUTTON_COUNT;
+                _padId = SDL_AttachVirtualJoystick(&desc);
+                _pad = SDL_OpenJoystick(_padId);
+                ((nint)_pad).Should().NotBe(0, SDL_GetError());
+                afterVirtualPadOpened?.Invoke();
+                Poll();
+                _controller.Service!.ConnectedGamepadCount.Should().Be(_initialGamepadCount + 1);
+            }
+            catch
+            {
+                // A failed constructor never reaches a caller's using/finally.
+                Dispose();
+                throw;
+            }
         }
 
         private void Confirm()
@@ -424,8 +476,8 @@ public class SteamDeckDoublePressTests : IDisposable
             ComboBox.IsDropDownOpen = false;
             if (_otherPad != null) SDL_CloseJoystick(_otherPad);
             if (_otherPadAttached) SDL_DetachVirtualJoystick(_otherPadId);
-            SDL_CloseJoystick(_pad);
-            SDL_DetachVirtualJoystick(_padId);
+            if (_pad != null) SDL_CloseJoystick(_pad);
+            if (_padId != 0) SDL_DetachVirtualJoystick(_padId);
             _controller.Dispose();
             _bindings.Dispose();
             Window.Close();

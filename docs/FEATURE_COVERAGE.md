@@ -24,13 +24,21 @@ and their complete player journey have not been accepted by this observation.
 
 A broad native test attempt at that source failed
 `SteamDeckDoublePressTests.Separate_presses_from_pad_and_keyboard_both_count`:
-expected two confirmations, observed one. Isolated reruns passed, but the cause
-remains unexplained and the failure unresolved; those passes do not supersede it.
+expected two confirmations, observed one. A later controlled sequence reproduced
+that symptom after an uncached version-menu fixture: its injected opener omitted
+the normal close hook, leaving a closed context menu registered to consume the
+pad action. The fixture now uses the real lifecycle hook, and a regression keeps
+the same 400 ms pad/keyboard separation. The historical individual dispatch had
+no event-level trace; the diagnosis is tied to this reproduced fixture-order
+mechanism, rather than inferred from an isolated passing rerun or the earlier
+rapid-press change. Failed or detached shell-menu opening has separate cleanup
+coverage. These source checks do not establish hardware or Windows acceptance.
 
 Complete these gates in order before claiming the first public release:
 
-1. Resolve the controller-test failure with a demonstrated cause and regression
-   evidence; complete the required build/test checks for the candidate commit.
+1. Retain the demonstrated fixture-order regression and complete the required
+   build/test checks for the exact candidate, reconciling any remaining failures
+   and explicit platform/capability limits.
 2. Exercise real catalog discovery, credited lawful artwork and adding a selected
    project to Library, including unavailable/offline metadata and image behavior.
    Check project identity, release provenance and lawful data requirements.

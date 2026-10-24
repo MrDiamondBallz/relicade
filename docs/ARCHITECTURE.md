@@ -118,6 +118,14 @@ keyboard resolver callbacks retain their existing ownership checks. This lifetim
 boundary does not change the sampled press edges, cross-source echo interval or
 navigation policy, and does not certify hardware or native Windows behavior.
 
+Shell menu owners require an attached top-level host before opening and release
+their matching context-menu navigation registration on failed opening or
+disposal. Injected test openers install the same close hook as the real shell.
+A closed version-menu fixture previously retained global input ownership and
+consumed a later independent pad press; the context-order regression preserves
+the real pad/keyboard route and its original separation rather than changing
+input timing to hide that state leak.
+
 Settings stage files use platform-neutral stream options on Windows and explicitly
 set owner-only Unix creation permissions on Unix. The Unix-only setter is never
 invoked on Windows, including with a null value. Existing writer leases, strict

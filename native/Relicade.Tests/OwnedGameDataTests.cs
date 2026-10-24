@@ -14,6 +14,7 @@ public sealed class OwnedGameDataTests : IDisposable
     OwnedDataRequirement requirement = null!;
     async Task Prepare()
     {
+        OwnedDataFixturePlatform.RequireLinuxX64();
         Directory.CreateDirectory(root); File.WriteAllBytes(Source, input);
         var executable = PortableInstallationFixtures.NativePayload("setup fixture");
         requirement = new("synthetic-test", "synthetic test input", "test-release", "test-asset|sha256:" + new string('a', 64),

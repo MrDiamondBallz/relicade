@@ -117,31 +117,39 @@ public sealed class ManagedRemovalCliExecuteTests(ITestOutputHelper output)
     public static IEnumerable<object[]> InvalidCases()
     {
         foreach (var injected in new[] { false, true })
-        foreach (var kind in new[] { "settings-corrupt", "settings-legacy", "settings-type", "library-missing", "library-corrupt", "library-unknown", "library-partial", "duplicate-instance", "duplicate-property", "ambiguous-name", "relative-location", "traversal", "linked-library", "denied-library", "denied-settings", "relative-apps", "missing-apps" })
+        foreach (var kind in new[] { "settings-corrupt", "settings-legacy", "settings-type", "settings-directory", "library-missing", "library-corrupt", "library-unknown", "library-partial", "library-directory", "duplicate-instance", "duplicate-property", "ambiguous-name", "relative-location", "traversal", "linked-library", "denied-library", "denied-settings", "relative-apps", "missing-apps" })
             yield return [injected, kind];
     }
     [Theory, MemberData(nameof(InvalidCases))]
     public async Task Unknown_corrupt_ambiguous_and_unsafe_local_input_fails_without_repair(bool injected, string kind)
     {
+        Assert.SkipWhen(OperatingSystem.IsWindows() && (kind is "denied-library" or "denied-settings"),
+            "This case denies POSIX file modes; Windows ACL denial is a separate unvalidated capability. Directory-as-file refusal cases run on Windows.");
         using var s = new Scope(); Directory.CreateDirectory(s.F.Live); File.WriteAllText(Path.Combine(s.F.Live, "keep"), "synthetic unmanaged keep"); s.WriteLibrary();
         var cli = s.Cli(injected); // ensure settings can become corrupt after construction too
-        var settings = JsonSerializer.Serialize(new AppSettings { AppsPath = Path.Combine(s.F.Root, "Apps") });
         switch (kind)
         {
             case "settings-corrupt": File.WriteAllText(s.Settings, "{broken"); break;
             case "settings-legacy": File.WriteAllText(s.Settings, "{\"GitHubApiToken\":\"synthetic-unused\"}"); break;
             case "settings-type": File.WriteAllText(s.Settings, "{\"AppsPath\":42}"); break;
+            case "settings-directory": File.Delete(s.Settings); Directory.CreateDirectory(s.Settings); break;
             case "library-missing": File.Move(s.Library, Path.Combine(s.Catalog, "games.json")); break;
             case "library-corrupt": File.WriteAllText(s.Library, "{broken"); break;
             case "library-unknown": File.WriteAllText(s.Library, "{\"schemaVersion\":999,\"apps\":[]}"); break;
             case "library-partial": File.WriteAllText(s.Library, "{\"apps\":[{\"name\":\"Synthetic execute removal\",\"folderName\":\"live\"},42]}"); break;
+            case "library-directory": File.Delete(s.Library); Directory.CreateDirectory(s.Library); break;
             case "duplicate-instance": File.WriteAllText(s.Library, "{\"apps\":[{\"name\":\"A\",\"folderName\":\"live\"},{\"name\":\"B\",\"folderName\":\"live\"}]}"); break;
             case "duplicate-property": File.WriteAllText(s.Library, "{\"apps\":[{\"name\":\"A\",\"folderName\":\"live\",\"folderName\":\"other\"}]}"); break;
             case "ambiguous-name": s.WriteLibrary(new GameInfo() { Name = s.Game.Name, FolderName = "other", Repository = "fixture/other" }); break;
             case "relative-location": s.Game.InstallPath = "relative"; s.WriteLibrary(); break;
             case "traversal": s.Game.FolderName = "../catalog"; s.WriteLibrary(); break;
-            case "linked-library": File.Move(s.Library, Path.Combine(s.Catalog, "original.json")); File.CreateSymbolicLink(s.Library, Path.Combine(s.Catalog, "original.json")); break;
-            case "relative-apps": File.WriteAllText(s.Settings, settings.Replace(Path.Combine(s.F.Root, "Apps"), "relative")); break;
+            case "linked-library":
+                File.Move(s.Library, Path.Combine(s.Catalog, "original.json"));
+                try { File.CreateSymbolicLink(s.Library, Path.Combine(s.Catalog, "original.json")); }
+                catch (IOException ex) when (OperatingSystem.IsWindows() && (ex.HResult & 0xffff) == 1314)
+                { Assert.Skip("The Windows test process lacks symbolic-link privilege (ERROR_PRIVILEGE_NOT_HELD); no OS security setting was changed and link refusal is not validated."); }
+                break;
+            case "relative-apps": File.WriteAllText(s.Settings, JsonSerializer.Serialize(new AppSettings { AppsPath = "relative" })); break;
             case "missing-apps": Directory.Move(Path.Combine(s.F.Root, "Apps"), Path.Combine(s.F.Root, "retained-apps")); break;
         }
         var deny = kind == "denied-library" ? s.Library : kind == "denied-settings" ? s.Settings : null;
