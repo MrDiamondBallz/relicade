@@ -210,3 +210,33 @@ A custom backend is not required for local/offline library use. Every service ou
 Each accepted requirement records **build commit, platform/hardware, fixture, command/test ID, actual output, artifact/log path and result**. Keep screenshots subordinate to filesystem/process/network evidence for side effects. Mark blocked/not-run/inconclusive distinctly. Redact user identities/secrets; retain only redistributable test data.
 
 Release cannot pass with fake successful downloads/launches, a screenshot-only native workflow, unmeasured “faster,” a backend stub returning success, or a broad “fully reverse engineered” claim. Source inspection informs design; it does not substitute for binary tracing, native runtime tests or demonstrated Relicade behavior.
+
+## Additional user-directed release requirements
+
+- Broad original-game discovery: at least 10,000 real named source records as a
+  first milestone, with stable source IDs, explicit edition/project distinctions,
+  local search/paging/offline behavior and per-path readiness. Metadata count must
+  never imply every entry has a verified download or playable host path.
+- Branded Windows EXE wizard: clear Welcome/location/progress/Finish, one
+  installation/update/uninstall owner, upgrade/removal preserving all user data,
+  and binary roots disjoint from library/game roots. Bundle lawful runtime
+  dependencies from the actual self-contained payload; do not require the .NET
+  SDK, Java or Android development SDK for Windows players. Review any real
+  prerequisite terms before acceptance, without inventing a license prompt.
+- Automatic launcher updates: authenticated bounded release metadata, mandatory
+  SHA256, trusted repository/package identity, explicit controls/status, no apply
+  during gameplay and an atomic launch/apply barrier with drained shutdown and
+  recovery. Game updates remain separate. Fixture trust does not provision a
+  production signing key or validate a public update feed.
+- Big-screen mode: TV-legible catalog/library, authentic available artwork, strong
+  focus and predictable A/B/back, quick settings and reliable return to desktop,
+  retaining Relicade's own identity and honest unsupported-path states.
+- Repository presentation: current controller-R identity, genuine native catalog
+  captures, accurate feature/platform/readiness and setup/release documentation.
+  No prototype image may masquerade as a native capture, and no personal account
+  avatar/settings changes are implied.
+
+Android SDK/license installation remains deferred by explicit user choice. No
+Mac is available for native runtime acceptance. Actual approved Windows gameplay
+is on hold because the unmodified engine may fall back to unapproved cache
+backends; source/synthetic and separate install/data/Close work may continue.

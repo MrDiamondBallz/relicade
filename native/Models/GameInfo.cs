@@ -613,7 +613,9 @@ namespace Relicade.Models
         [System.Text.Json.Serialization.JsonIgnore]
         public bool CanOfferFreedoomSetup => OffersFreedoomSetup && PortableRecoveryError == null && (IsInstalled || Status == GameStatus.NotInstalled);
         [System.Text.Json.Serialization.JsonIgnore]
-        public string FreedoomActionLabel => IsInstalled ? "Play Freedoom Phase 2…" : "Set up Freedoom Phase 2…";
+        public string FreedoomActionLabel => IsInstalled
+            ? GameLaunchService.FreedoomPlayUnavailableReason == null ? "Play Freedoom Phase 2…" : "Manage Freedoom data…"
+            : "Set up Freedoom Phase 2…";
         [System.Text.Json.Serialization.JsonIgnore]
         public bool HasOwnedDataAdapter => OwnedGameSetupService.Requirement(this) != null;
         private bool _ownedDataReady;

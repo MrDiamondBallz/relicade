@@ -31,6 +31,7 @@ This inventory is generated from the explicit maintenance registry. Semantic rev
 | [docs/superpowers/plans/2026-10-23-windows-freedoom.md](superpowers/plans/2026-10-23-windows-freedoom.md) | review | native, contracts |
 | [docs/superpowers/specs/2026-10-23-windows-freedoom-design.md](superpowers/specs/2026-10-23-windows-freedoom-design.md) | review | native, contracts |
 | [native/Assets/GameArt/taisei-portrait-NOTICE.txt](../native/Assets/GameArt/taisei-portrait-NOTICE.txt) | protected |  |
+| [native/CatalogData/ATTRIBUTION.txt](../native/CatalogData/ATTRIBUTION.txt) | review | native |
 | [native/LICENSE](../native/LICENSE) | protected |  |
 | [native/README.md](../native/README.md) | review | native, contracts, tooling |
 | [native/Relicade.Tests/RealRender/README.md](../native/Relicade.Tests/RealRender/README.md) | review | native |

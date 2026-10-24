@@ -47,6 +47,10 @@
 	</ItemGroup>
 
 	<!-- No telemetry token or inherited collection endpoint is embedded. -->
+	<ItemGroup>
+		<EmbeddedResource Include="CatalogData/wikidata-games-20261024.jsonl" />
+		<None Update="CatalogData/ATTRIBUTION.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<AvaloniaResource Include="Assets/**" />

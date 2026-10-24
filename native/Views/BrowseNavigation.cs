@@ -149,8 +149,8 @@ public sealed class BrowseNavigation(BrowseView view, IFeatureNavigationHost hos
 
     // "Hide apps in my library" belongs to whichever line it sits on: the title line beside the sort, or its own under the filters.
     internal List<Control> ToolbarControls() => view.HideOptionInTitle
-        ? Visible(view.BrowseCatalogTabButton, view.BrowseCustomListTabButton, view.BrowseHideLibraryCheckBox, view.BrowseSortComboBox)
-        : Visible(view.BrowseCatalogTabButton, view.BrowseCustomListTabButton, view.BrowseSortComboBox);
+        ? Visible(view.BrowseCatalogTabButton, view.BrowseCustomListTabButton, view.AllGamesButton, view.BrowseHideLibraryCheckBox, view.BrowseSortComboBox)
+        : Visible(view.BrowseCatalogTabButton, view.BrowseCustomListTabButton, view.AllGamesButton, view.BrowseSortComboBox);
 
     internal List<Control> FilterControls() => view.HideOptionInTitle
         ? Visible(view.BrowseSearchTextBox, view.BrowseTypeComboBox, view.BrowsePlatformComboBox,

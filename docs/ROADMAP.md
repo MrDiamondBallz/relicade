@@ -108,3 +108,19 @@ Emulation is not implemented. Future adapters need emulator/core license review,
 [Generated facts and the source-review map](DOC_STATUS.md) are maintained with [the documentation tool](DOCUMENTATION.md) through contribution-time checks and periodic maintainer reconciliation. Narrative progress needs explicit source-diff review and independent review before adoption, not an automatically bumped date; the tool does not approve prose. Cloning the repository does not install a timer or service.
 
 See [PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md) for detailed acceptance criteria. Public source availability is not an installable release, production service or universal compatibility claim.
+
+## Active broad discovery and Windows distribution work
+
+Native discovery now includes 10,000 distinct named Wikidata metadata records
+with local search, bounded pages and source identity, separate from source-project
+catalog entries and verified play paths. Stable game/edition-to-project mappings
+and richer offline enrichment remain implementation work; a title search is not
+such a mapping. The synthetic scale fixture is separate from this real snapshot.
+
+The requested Windows distribution path includes a branded EXE wizard, runtime
+dependency handling from the actual self-contained payload, and authenticated
+automatic launcher updates with one installation owner and disjoint binary/data
+roots. Game engines/data remain explicit per-game choices. TV-legible,
+controller-first big-screen navigation and consistent controller-R branding are
+also active requirements. None is accepted merely by this roadmap; actual native
+packages, interruption/recovery and platform journeys need their own evidence.

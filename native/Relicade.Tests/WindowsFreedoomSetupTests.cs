@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Relicade.Core.Models;
 using Relicade.Models;
 using Relicade.Services;
 
@@ -19,6 +20,8 @@ public sealed class WindowsFreedoomSetupTests
         Assert.Equal(29_337_585, project.MaximumBytes);
         Assert.Contains("Windows x64", project.Confirmation);
         Assert.DoesNotContain("Linux x64", project.Confirmation);
+        game.Status = GameStatus.Installed;
+        Assert.Equal("Manage Freedoom data…", game.FreedoomActionLabel);
     }
 
     [Fact]

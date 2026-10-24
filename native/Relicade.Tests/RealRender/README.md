@@ -255,3 +255,9 @@ window/200% layouts in both themes. Because the headless application has no
 desktop lifetime, the fixture explicitly registers the same owner scaling used
 by the desktop dialog service. Native OS file pickers, hardware input and import
 or restore acceptance are not established by these captures.
+
+`GameDiscoveryRenderingTests` renders the real offline 10,000-record discovery
+dialog at ordinary and minimum sizes, including light surfaces and the longest
+retained title. Search, result list, scrollable source/readiness summary and
+footer are checked for overlap. These are actual CPU-rendered native controls
+with metadata only; no artwork, browser, online project search or game runs.

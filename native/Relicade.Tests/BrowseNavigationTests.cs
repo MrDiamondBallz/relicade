@@ -51,7 +51,8 @@ public class BrowseNavigationTests
             Move(NavigationDirection.Right).Should().BeTrue();
             browse.Model.Items.Select(i => i.IsGamepadFocused).Should().Equal(false, true, false);
             // At this width the filters sit under the search, four across, and the library option is on the title line
-            // beside the sort: Up climbs line by line to it, and Down comes back the same way to the cards.
+            // beside the sort: Up climbs to the nearest toolbar action (All games),
+            // then Right reaches the hide option and sort before returning to cards.
             Move(NavigationDirection.Up).Should().BeTrue();
             navigation.ActiveZone.Should().Be(GamepadNavigationZone.BrowseFilters);
             new Control[] { browse.BrowseTypeComboBox, browse.BrowsePlatformComboBox, browse.BrowseConsoleComboBox, browse.BrowseAiComboBox }
@@ -61,6 +62,8 @@ public class BrowseNavigationTests
             Move(NavigationDirection.Up).Should().BeTrue();
             navigation.ActiveZone.Should().Be(GamepadNavigationZone.BrowseToolbar);
             browse.HideOptionInTitle.Should().BeTrue();
+            browse.AllGamesButton.Classes.Should().Contain("gamepad-focused");
+            Move(NavigationDirection.Right).Should().BeTrue();
             browse.BrowseHideLibraryCheckBox.Classes.Should().Contain("gamepad-focused");
             Move(NavigationDirection.Right).Should().BeTrue();
             browse.BrowseSortComboBox.Classes.Should().Contain("gamepad-focused");
@@ -168,7 +171,9 @@ public class BrowseNavigationTests
             (type.X, platform.Right).Should().Be((0, search.Right));
 
             // Two cards to a row, filling the width.
-            var cards = browse.BrowseItemsControl.GetVisualDescendants().OfType<BrowseCard>().Select(Place).ToList();
+            // Card slots define the complete layout; offscreen card contents remain lazy.
+            var cards = browse.BrowseItemsControl.GetVisualDescendants().OfType<Border>()
+                .Where(border => border.Classes.Contains("browse-card-slot")).Select(Place).ToList();
             cards.Should().HaveCount(3);
             (cards[0].X, cards[1].Y, cards[1].Right).Should().Be((0, cards[0].Y, search.Right));
             cards[2].Y.Should().BeGreaterThan(cards[0].Bottom);

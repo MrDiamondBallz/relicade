@@ -94,6 +94,8 @@
 						FontSize="11" MinHeight="32" Click="BrowseSourceTab_Click"/>
 				<Button x:Name="BrowseCustomListTabButton" Classes="catalog-filter" Content="My app list"
 						FontSize="11" MinHeight="32" Click="BrowseSourceTab_Click"/>
+				<Button x:Name="AllGamesButton" Classes="catalog-filter" Content="All games · 10,000"
+						FontSize="11" MinHeight="44" Click="AllGames_Click"/>
 			</StackPanel>
 			<!-- "Hide apps in my library" joins the sort here when the title line has room (see ArrangeHideOption). -->
 			<StackPanel x:Name="BrowseSortPanel" Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">

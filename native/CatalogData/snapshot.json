@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "source": "https://query.wikidata.org/sparql",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+  "completedUtc": "2026-10-24T06:36:56.544124+00:00",
+  "sourceAssertion": "wdt:P31/wd:Q7889",
+  "selection": "First 10000 nonempty English labels from 11000 direct-instance entities in lexical entity-URI order; editions and mods may be distinct source records",
+  "recordCount": 10000,
+  "jsonlSha256": "5b9d6c569e2a29f15fe4e7ac1adb24611bedac0d566a02d427c8b262aba839fb",
+  "orderedQidsSha256": "a71671a47ad6bdcf839c251e1399c89135c9cc3361993827ba360112b8b9edeb",
+  "artworkIncluded": false,
+  "payloadsIncluded": false,
+  "playabilityVerified": false,
+  "queryTemplate": "PREFIX wd: <http://www.wikidata.org/entity/>\nPREFIX wdt: <http://www.wikidata.org/prop/direct/>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nSELECT ?game ?labelEn WHERE { { SELECT DISTINCT ?game WHERE { ?game wdt:P31 wd:Q7889 . CURSOR_CLAUSE } ORDER BY ?game LIMIT 1000 } OPTIONAL { ?game rdfs:label ?labelEn . FILTER(LANG(?labelEn) = \"en\") } } ORDER BY ?game",
+  "cursorRule": "First page omits CURSOR_CLAUSE; subsequent pages use FILTER(STR(?game) > last entity URI). Eleven bounded pages. No live WDQS requests are made by the application."
+}

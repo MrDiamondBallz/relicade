@@ -1,0 +1,22 @@
+Relicade bundled original-game metadata snapshot — 2026-10-24
+
+Source: Wikidata structured entities and English labels, CC0-1.0.
+https://www.wikidata.org/wiki/Wikidata:Licensing
+https://creativecommons.org/publicdomain/zero/1.0/
+
+10,000 distinct Wikidata QIDs selected from the first 11,000 direct P31=Q7889
+(video game) entities in lexical entity-URI order, retaining the first 10,000
+nonempty English labels. This is an intentionally bounded, skewed subset, not
+an exhaustive or representative game inventory. Editions/mods/source errors may
+be separate entities. Titles are never merged to infer identity or compatibility.
+
+JSONL SHA256: 5b9d6c569e2a29f15fe4e7ac1adb24611bedac0d566a02d427c8b262aba839fb
+Ordered QID list SHA256: a71671a47ad6bdcf839c251e1399c89135c9cc3361993827ba360112b8b9edeb
+Retrieved from https://query.wikidata.org/sparql on 2026-10-24 (11 cursor pages).
+Raw source labels/IDs/assertions are preserved; UI sorts/searches locally.
+
+No artwork, descriptions, ROMs, BIOS, engine/game payloads or personal data are
+included. A source entity assertion is not verified playability, native host
+compatibility, ownership, a download license or Relicade endorsement. This CC0
+metadata scope does not change the rights of original Relicade source/branding
+or any game's separate names, imagery or software.

@@ -16,6 +16,7 @@ public partial class BrowseView : UserControl
 {
     private LauncherSession? _session;
     private CancellationTokenSource? _searchDelay;
+    private bool _gameDiscoveryOpen;
     private bool _updatingControls;
     private int _consoleChoices = -1;
     // The filters sit beside the search when both fit; otherwise under it, four across, or two by two when narrower still.
@@ -25,8 +26,8 @@ public partial class BrowseView : UserControl
     private const double FiltersFourAcrossWidth = 640;
     private readonly double[] _filterMinWidths;
     // The title line fits "Hide apps in my library" beside the sort from these widths (more with the list tabs showing).
-    private const double HideOptionInTitleWidth = 720;
     private const double HideOptionInTitleWithTabsWidth = 980;
+    private const double HideOptionInTitleWithGameDiscoveryWidth = 860;
     /// <summary>"Hide apps in my library" sits on the title line beside the sort, rather than on its own line under the filters.</summary>
     internal bool HideOptionInTitle { get; private set; }
     // Cards narrower than this are drawn like the website's narrow card.
@@ -256,7 +257,7 @@ public partial class BrowseView : UserControl
         Grid.SetColumn(BrowseSourceTabs, tabsBelow ? 0 : 1);
         Grid.SetColumnSpan(BrowseSourceTabs, tabsBelow ? 3 : 1);
         BrowseSourceTabs.Margin = tabsBelow ? new Thickness(0, 10, 0, 0) : new Thickness(24, 0, 0, 0);
-        var inTitle = width >= (BrowseSourceTabs.IsVisible ? HideOptionInTitleWithTabsWidth : HideOptionInTitleWidth);
+        var inTitle = width >= (Model?.HasCustomList == true ? HideOptionInTitleWithTabsWidth : HideOptionInTitleWithGameDiscoveryWidth);
         if (inTitle != HideOptionInTitle)
         {
             HideOptionInTitle = inTitle;
@@ -312,7 +313,8 @@ public partial class BrowseView : UserControl
             BrowseTitleText.Text = custom ? "My app list" : "Discover";
             DiscoverEditorialTitle.Text = custom ? "Your next replay, your way." : "Find your next replay.";
             BrowseCountText.Text = custom || Model.Total > 0 ? Model.Total.ToString() : "—";
-            BrowseSourceTabs.IsVisible = BrowseCatalogTabButton.IsVisible = BrowseCustomListTabButton.IsVisible = Model.HasCustomList;
+            BrowseSourceTabs.IsVisible = true;
+            BrowseCatalogTabButton.IsVisible = BrowseCustomListTabButton.IsVisible = Model.HasCustomList;
             BrowseCatalogTabButton.Classes.Set("selected", !custom);
             BrowseCustomListTabButton.Classes.Set("selected", custom);
             foreach (var combo in new[] { BrowseTypeComboBox, BrowsePlatformComboBox, BrowseConsoleComboBox, BrowseAiComboBox })
@@ -429,6 +431,34 @@ public partial class BrowseView : UserControl
         // The list may have been edited since it was last read.
         if (custom) Model.ForgetCustomList();
         Reload();
+    }
+
+    private void AllGames_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_gameDiscoveryOpen) return;
+        Run(async () =>
+        {
+            _gameDiscoveryOpen = true;
+            try
+            {
+                var index = await Task.Run(() => GameDiscoveryIndex.Bundled, Token);
+                Token.ThrowIfCancellationRequested();
+                var dialog = new GameDiscoveryDialog(index, work =>
+                {
+                    if (Token.IsCancellationRequested) return;
+                    Model.ShowingCustomList = false;
+                    _updatingControls = true;
+                    try { Model.Search = BrowseSearchTextBox.Text = work.Title; }
+                    finally { _updatingControls = false; }
+                    Reload();
+                });
+                try { await GameDialogService.ShowWindowAsync(dialog, Token); }
+                finally { dialog.Close(); await dialog.SourceWork; }
+            }
+            catch (OperationCanceledException) when (Token.IsCancellationRequested) { }
+            catch (Exception ex) { await GameDialogService.ShowMessageBoxAsync(ex.Message, "Game catalog unavailable"); }
+            finally { _gameDiscoveryOpen = false; if (!Token.IsCancellationRequested) AllGamesButton.Focus(); }
+        });
     }
 
     private void BrowseClearFilters_Click(object? sender, RoutedEventArgs e)

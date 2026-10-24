@@ -110,3 +110,12 @@ package to distribution acceptance.
 The separate [development AppImage recipe](LINUX_APPIMAGE_DEVELOPMENT.md) embeds
 an additional runtime with its own component obligations. This directory-publish
 inventory does not silently extend to that runtime or approve its distribution.
+
+## Bundled game metadata
+
+The application now embeds a pinned 10,000-record Wikidata structured-data
+snapshot, separate from executable dependencies and game payloads. Its
+[attribution](../native/CatalogData/ATTRIBUTION.txt) is copied to output and records
+CC0 scope and exact hashes. No art or executable/data download is part of this
+metadata bundle. This addition does not complete the pending Windows runtime
+notice inventory or approve a release package.

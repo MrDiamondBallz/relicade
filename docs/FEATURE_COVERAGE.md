@@ -267,3 +267,13 @@ The existing browser preview regression suites remain useful for their own
 surface only. Their results must not populate native acceptance cells. No feature
 count, passing document validator or successful synthetic fixture generation
 means complete functionality, universal compatibility or measured performance improvement.
+
+## Broad native discovery slice
+
+The native All games action now searches a pinned 10,000-record Wikidata CC0
+snapshot offline. Unique source IDs are not necessarily unique editions/work
+families, and the lexical subset is incomplete. These metadata-only records have
+no verified play paths. Explicit title search can find possible community
+projects but does not certify identity or platform compatibility. Bounded native
+source/layout tests are recorded separately from Windows native/package
+acceptance; the browser prototype count and acceptance cells are unchanged.

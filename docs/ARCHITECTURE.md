@@ -558,3 +558,21 @@ The embedded AppImage runtime introduces separate component-rights obligations;
 the directory-publish inventory does not cover them automatically. See the
 [development recipe](LINUX_APPIMAGE_DEVELOPMENT.md). This does not accept a
 platform, installer migration, full desktop behavior or public release.
+
+## Original-game metadata index
+
+`GameDiscoveryIndex` loads a pinned embedded Wikidata JSONL snapshot with a 2 MiB
+byte bound, exact SHA256, strict source assertion/ID checks and exactly 10,000
+records. It pre-normalizes titles and keeps distinct source IDs through local
+search and bounded 50-record result pages. It does not flatten game/edition IDs
+into project identity or execute metadata as commands. `GameDiscoveryDialog`
+uses native list navigation, explicit source opening and an explicit title-search
+bridge to the existing source catalog. The toolbar action participates in both
+Browse controller layouts. Closing or session shutdown drains the modal and any
+already requested browser handoff; reopening never starts a download.
+
+This first broad discovery slice has unknown play readiness, not 10,000 reviewed
+play paths. Live source-project metadata and its existing cache remain separate
+from the immutable bundled game snapshot; no Quiver bulk mirror or artwork
+redistribution is introduced. Future source enrichment/mappings need stable
+provenance and explicit compatibility evidence rather than title matching.
