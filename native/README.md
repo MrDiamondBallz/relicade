@@ -897,7 +897,9 @@ it is a lexical subset of direct video-game entities, not every game or a
 representative library. Editions/mods may remain separate source entities. Local
 case-normalized search and 50-row pages work offline without WDQS, per-card
 release checks, artwork fetches or a required account. The exact embedded bytes
-and record bounds are checked before use; an invalid snapshot refuses without
+and record bounds are checked before use. The exact JSONL has a repository
+`-text` byte pin, so Windows Git checkout cannot translate LF into CRLF; no
+user Git setting change is required. An invalid snapshot refuses without
 requesting a network replacement. Source project discovery remains separate.
 
 A selected record shows its stable Wikidata source and unverified play status.
@@ -908,7 +910,7 @@ Project-source requirements and ordinary Add/Library flows remain in use.
 
 The [snapshot manifest](CatalogData/snapshot.json) and
 [CC0 metadata attribution](CatalogData/ATTRIBUTION.txt) record source, selection,
-hashes and limits. Attribution is copied to publish output. This adds no game
+hashes and limits. Both files are copied to publish output for offline inspection. This adds no game
 artwork/payload or new rights over original Relicade material. The synthetic
 100,000-record test is a separate paging workload, never counted as real games
 or a measured performance certification.

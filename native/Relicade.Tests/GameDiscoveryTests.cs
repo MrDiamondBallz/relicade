@@ -8,6 +8,7 @@ using Relicade.Services;
 using Relicade.Views;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using Relicade.Models;
 using Relicade.ViewModels;
 
@@ -15,6 +16,18 @@ namespace Relicade.Tests;
 
 public sealed class GameDiscoveryTests
 {
+    [Fact]
+    public void Offline_provenance_is_copied_to_the_runtime_output_and_matches_the_compiled_snapshot()
+    {
+        using var provenance = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "CatalogData", "snapshot.json")));
+        var root = provenance.RootElement;
+        Assert.Equal(GameDiscoveryIndex.SnapshotSha256, root.GetProperty("jsonlSha256").GetString());
+        Assert.Equal(10_000, root.GetProperty("recordCount").GetInt32());
+        Assert.Equal("CC0-1.0", root.GetProperty("license").GetString());
+        Assert.False(root.GetProperty("playabilityVerified").GetBoolean());
+        Assert.Contains("CURSOR_CLAUSE", root.GetProperty("queryTemplate").GetString());
+    }
+
     [AvaloniaTheory]
     [InlineData(1280, false)][InlineData(700, false)][InlineData(700, true)]
     public async Task Configured_catalog_controller_opens_offline_discovery_and_cancel_restores_focus(int width, bool shutdown)
@@ -65,6 +78,27 @@ public sealed class GameDiscoveryTests
             var detail = dialog.Detail.Text; dialog.Close();
             release.SetException(new IOException("Synthetic browser handoff failure")); await dialog.SourceWork;
             Assert.Equal(detail, dialog.Detail.Text); Assert.Equal(before, GamepadModalDialogNavigation.Instance.DialogStackCount);
+        }
+        finally { release.TrySetResult(); dialog.Close(); await dialog.SourceWork; }
+    }
+
+    [AvaloniaFact]
+    public async Task Failure_of_an_old_source_open_does_not_change_the_newly_selected_game_details()
+    {
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var index = new GameDiscoveryIndex([new("Q1", "First game"), new("Q2", "Second game")]);
+        var dialog = new GameDiscoveryDialog(index, _ => throw new Exception("No project search"), _ => release.Task);
+        try
+        {
+            dialog.Show(); dialog.SearchBox.Text = "Q1"; Dispatcher.UIThread.RunJobs();
+            dialog.Results.SelectedItem = Assert.Single(dialog.Page.Items); Dispatcher.UIThread.RunJobs();
+            Assert.Contains("/Q1", dialog.Detail.Text);
+            dialog.SourceButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            dialog.SearchBox.Text = "Q2"; Dispatcher.UIThread.RunJobs();
+            dialog.Results.SelectedItem = Assert.Single(dialog.Page.Items); Dispatcher.UIThread.RunJobs();
+            var expected = dialog.Detail.Text; Assert.Contains("/Q2", expected);
+            release.SetException(new IOException("Synthetic browser failure for Q1")); await dialog.SourceWork;
+            Assert.Equal(expected, dialog.Detail.Text);
         }
         finally { release.TrySetResult(); dialog.Close(); await dialog.SourceWork; }
     }

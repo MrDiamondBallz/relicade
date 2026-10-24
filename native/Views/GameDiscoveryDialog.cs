@@ -86,17 +86,17 @@ internal sealed class GameDiscoveryDialog : Window
             if (closed || selected == null) return;
             var work = selected; Close(); findProjects(work); // A search, never an install or inferred mapping.
         };
-        SourceButton.Click += (_, _) => { if (!closed && !sourceBusy && selected != null) SourceWork = OpenSourceAsync(selected.SourceUrl); };
+        SourceButton.Click += (_, _) => { if (!closed && !sourceBusy && selected != null) SourceWork = OpenSourceAsync(selected.Id, selected.SourceUrl); };
         CloseButton.Click += (_, _) => Close();
         Closed += (_, _) => closed = true;
         Opened += (_, _) => { GamepadModalDialogNavigation.Attach(this); SearchBox.Focus(); };
         Refresh();
     }
-    async Task OpenSourceAsync(string url)
+    async Task OpenSourceAsync(string id, string url)
     {
         sourceBusy = true; SourceButton.IsEnabled = false;
         try { await openSource(url); }
-        catch (Exception) { if (!closed) Detail.Text += "\nThe browser could not open. The source address above remains available."; }
+        catch (Exception) { if (!closed && selected?.Id == id) Detail.Text += "\nThe browser could not open. The source address above remains available."; }
         finally { sourceBusy = false; if (!closed) SourceButton.IsEnabled = selected != null; }
     }
     void Refresh()

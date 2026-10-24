@@ -569,7 +569,9 @@ into project identity or execute metadata as commands. `GameDiscoveryDialog`
 uses native list navigation, explicit source opening and an explicit title-search
 bridge to the existing source catalog. The toolbar action participates in both
 Browse controller layouts. Closing or session shutdown drains the modal and any
-already requested browser handoff; reopening never starts a download.
+already requested browser handoff; reopening never starts a download. Browser
+failures are bound to the requested source ID, so an earlier request cannot append
+its error to another selected record.
 
 This first broad discovery slice has unknown play readiness, not 10,000 reviewed
 play paths. Live source-project metadata and its existing cache remain separate

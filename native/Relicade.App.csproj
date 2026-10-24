@@ -50,6 +50,7 @@
 	<ItemGroup>
 		<EmbeddedResource Include="CatalogData/wikidata-games-20261024.jsonl" />
 		<None Update="CatalogData/ATTRIBUTION.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+		<None Update="CatalogData/snapshot.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<ItemGroup>

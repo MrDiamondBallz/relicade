@@ -115,7 +115,8 @@ inventory does not silently extend to that runtime or approve its distribution.
 
 The application now embeds a pinned 10,000-record Wikidata structured-data
 snapshot, separate from executable dependencies and game payloads. Its
-[attribution](../native/CatalogData/ATTRIBUTION.txt) is copied to output and records
+[attribution](../native/CatalogData/ATTRIBUTION.txt) and
+[snapshot provenance](../native/CatalogData/snapshot.json) are copied to output and record
 CC0 scope and exact hashes. No art or executable/data download is part of this
 metadata bundle. This addition does not complete the pending Windows runtime
 notice inventory or approve a release package.

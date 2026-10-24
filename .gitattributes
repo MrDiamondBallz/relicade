@@ -1,5 +1,8 @@
 * text=auto
 
+# Embedded metadata is hashed as exact bytes; preserve it on Windows checkouts.
+/native/CatalogData/wikidata-games-20261024.jsonl -text
+
 # Preserve upstream OFL notice bytes, including inherited trailing spaces.
 brand/assets/fonts/Barlow-OFL.txt -text whitespace=-blank-at-eol
 brand/assets/fonts/Manrope-OFL.txt -text whitespace=-blank-at-eol
