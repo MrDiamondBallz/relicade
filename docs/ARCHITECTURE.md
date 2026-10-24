@@ -141,6 +141,8 @@ Acquisition checks existing legacy ownership, verifies both path and held file
 identities, and refuses uncertain or conflicting evidence. Coordination remains
 on the same filesystem outside all moved generation and transaction trees;
 permission denial never selects a weaker lock or another permission route.
+Raw Unicode Win32 calls use normalized extended drive/UNC paths, matching .NET
+filesystem support for installations longer than the legacy MAX_PATH limit.
 Aliases remain as empty coordination evidence and are never overwritten or
 automatically removed. Read-only rollback observations keep their existing
 inside-lock behavior. Linux retains the original exclusive streams and evidence

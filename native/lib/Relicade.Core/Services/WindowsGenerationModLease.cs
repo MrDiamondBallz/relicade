@@ -45,7 +45,7 @@ internal static class WindowsGenerationModLease
             throw new IOException("Mod coordination must stay on the installation's own filesystem.");
         var alias = Path.Combine(directory, $"{expected.Volume:x16}-{expected.High:x16}{expected.Low:x16}.lock");
         PortableInstallationTransaction.CheckLinks(alias);
-        if (!CreateHardLink(alias, path, IntPtr.Zero))
+        if (!CreateHardLink(NativePath(alias), NativePath(path), IntPtr.Zero))
         {
             var error = Marshal.GetLastPInvokeError();
             if (error is not (80 or 183))
@@ -101,7 +101,7 @@ internal static class WindowsGenerationModLease
         PortableInstallationTransaction.CheckLinks(path);
         // Metadata-only access works alongside our exclusive RW lease. Close this
         // descendant handle before any generation rename, and do not follow reparse points.
-        using var file = CreateFile(path, 0, 7, IntPtr.Zero, 3, 0x00200000 | (directory ? 0x02000000u : 0u), IntPtr.Zero);
+        using var file = CreateFile(NativePath(path), 0, 7, IntPtr.Zero, 3, 0x00200000 | (directory ? 0x02000000u : 0u), IntPtr.Zero);
         if (file.IsInvalid)
         {
             var error = Marshal.GetLastPInvokeError();
@@ -110,6 +110,21 @@ internal static class WindowsGenerationModLease
             throw new IOException("Windows could not inspect mod coordination identity.", new Win32Exception(error));
         }
         return FileIdentity(file, directory);
+    }
+
+    // .NET filesystem calls already support long paths; raw Unicode Win32 calls
+    // require the extended namespace too. Normalize before adding it so relative
+    // segments keep .NET path semantics, and preserve existing extended paths.
+    // This is namespace conversion, not path authorization: callers still apply
+    // their existing portable path, reparse and same-file identity checks.
+    internal static string NativePath(string path)
+    {
+        path = Path.GetFullPath(path);
+        if (path.StartsWith(@"\\?\", StringComparison.Ordinal)) return path;
+        if (path.StartsWith(@"\\.\", StringComparison.Ordinal))
+            throw new IOException("The Win32 device prefix cannot be translated to a mod coordination UNC path.");
+        if (path.StartsWith(@"\\", StringComparison.Ordinal)) return @"\\?\UNC\" + path[2..];
+        return @"\\?\" + path;
     }
 
     static Identity FileIdentity(SafeFileHandle file, bool directory)

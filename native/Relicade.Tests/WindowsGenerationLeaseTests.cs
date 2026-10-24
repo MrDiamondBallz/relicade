@@ -78,6 +78,43 @@ public sealed class WindowsGenerationLeaseTests
     }
 
     [Fact]
+    public async Task Long_generation_paths_activate_and_recover_without_shortening_the_installation()
+    {
+        Assert.SkipUnless(OperatingSystem.IsWindows(), "Exercises native Windows hard-link and identity calls beyond MAX_PATH.");
+        var root = Path.Combine(Path.GetTempPath(), "windows-generation-long-" + Guid.NewGuid().ToString("N"));
+        var live = Path.Combine(root, new string('a', 70), new string('b', 70), new string('c', 70), "long installation é", "live");
+        Assert.True(Path.Combine(live, LockName).Length > 300);
+        await Install(live, "old");
+        Directory.CreateDirectory(Path.Combine(live, "saves")); File.WriteAllText(Path.Combine(live, "saves", "slot"), "long-path save");
+        await Install(live, "new");
+        await Assert.ThrowsAsync<IOException>(() => Install(live, "interrupted", point =>
+        { if (point == "CandidateRenamed") throw new IOException("Synthetic reporting failure after both renames."); }));
+        var manifest = new PortableInstallationTransaction(live).ReadCommitted()!;
+        Assert.Equal("new", manifest.SelectedVersion);
+        Assert.Equal("NONEXECUTABLE synthetic new", File.ReadAllText(Path.Combine(live, "fixture.exe")));
+        Assert.Equal("long-path save", File.ReadAllText(Path.Combine(live, "saves", "slot")));
+    }
+
+    [Theory]
+    [InlineData(@"C:\folder\file", @"\\?\C:\folder\file")]
+    [InlineData(@"C:\folder\..\other\file", @"\\?\C:\other\file")]
+    [InlineData(@"\\server\share\folder\file", @"\\?\UNC\server\share\folder\file")]
+    [InlineData(@"\\?\C:\folder\file", @"\\?\C:\folder\file")]
+    [InlineData(@"\\?\UNC\server\share\file", @"\\?\UNC\server\share\file")]
+    public void Native_paths_preserve_normalized_drive_UNC_and_existing_extended_names(string path, string expected)
+    {
+        Assert.SkipUnless(OperatingSystem.IsWindows(), "Windows path namespace semantics.");
+        Assert.Equal(expected, WindowsGenerationModLease.NativePath(path));
+    }
+
+    [Fact]
+    public void Win32_device_prefix_is_not_reinterpreted_as_a_UNC_server()
+    {
+        Assert.SkipUnless(OperatingSystem.IsWindows(), "Windows device namespace semantics.");
+        Assert.Throws<IOException>(() => WindowsGenerationModLease.NativePath(@"\\.\C:\folder\file"));
+    }
+
+    [Fact]
     public async Task Both_commit_renames_preserve_independent_legacy_and_current_writer_exclusion()
     {
         Assert.SkipUnless(OperatingSystem.IsWindows(), "Exercises Windows generation rename and file-sharing rules.");
