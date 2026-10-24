@@ -17,7 +17,7 @@ Relicade's vision is a coherent home for community-revived classics, retro games
 | File | Use |
 | --- | --- |
 | `symbol.svg` | Reusable standalone controller R. `viewBox="0 0 128 128"`. Orange by default. |
-| `wordmark.svg` | Original uppercase RELICADE, eight named editable path letters. `viewBox="0 0 718 104"`. Ivory by default. No font dependency. |
+| `wordmark.svg` | Original uppercase RELICADE, eight named editable path letters. `viewBox="0 0 718 104"`. Orange controller R with ivory ELICADE suffix. No font dependency. |
 | `wordmark-tail.svg` | Native ELICADE suffix: seven unchanged paths from `wordmark.svg`, `viewBox="112 0 606 104"`. Only use after the orange controller-R initial; never as the standalone product name. |
 | `app-icon.svg` | Orange mark on graphite field, rounded-square master. `viewBox="0 0 256 256"`. |
 | `lockup-dark.svg` | Orange symbol / ivory path wordmark, transparent, for graphite surfaces. |

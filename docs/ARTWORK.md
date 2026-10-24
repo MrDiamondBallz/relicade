@@ -18,20 +18,22 @@ make the product appear more complete.
 
 ## Native capture provenance
 
-The [current Windows catalog capture](assets/relicade-windows-wide-catalog-9cfa7fc-20261024.jpg)
-comes from actual native source [`9cfa7fc`](https://github.com/MrDiamondBallz/relicade/tree/9cfa7fccd5200bb1a8f61c34c67c455b89bbf465),
-process 22212, on 2026-10-24 at 1920×1032 pixels. The exact capture receipt is
-`2026-10-24T08:57:56.1377573Z`. Its [provenance record](assets/relicade-windows-wide-catalog-9cfa7fc-20261024.json)
-records exact JPEG/Git blob hashes, isolated profile and limits. The untouched image
-shows ten live public project cards across five columns and two full rows, with
-authentic remote art/readiness labels. It was not resized or repopulated. Names/artwork retain their
-creators' rights; this documentary screenshot is not a new artwork reuse grant.
-It predates the controller-R update and makes no gameplay/release claim. No
-personal paths, installed games, compositing or image edits are included.
+The [current Windows catalog capture](assets/relicade-windows-controller-catalog-d092f2f-20261024.jpg)
+comes from actual native source [`d092f2f`](https://github.com/MrDiamondBallz/relicade/tree/d092f2fc4cc50656681eba31e50f20453710cf1c),
+process 18140, at 1920×1032 pixels, captured UTC `2026-10-24T09:13:23.5076508Z`.
+Its [provenance record](assets/relicade-windows-controller-catalog-d092f2f-20261024.json)
+records exact JPEG/Git blob hashes, fresh isolated profile, maximized 100% interface
+scale and limits. Ten real public project cards occupy five columns/two rows.
+The controller R is actually rendered in the native header/footer; no logo was
+pasted in, and no cropping, resizing, compositing or fake population occurred.
+Upstream community labels are not Relicade gameplay certification. Names/artwork
+retain creators' rights; the documentary screenshot grants no new reuse rights.
+No personal paths, installed games or gameplay/release acceptance are implied.
 
-The [earlier narrower Windows catalog capture](assets/relicade-windows-catalog-9cfa7fc-20261024.jpg)
-and its provenance remain unchanged as engineering evidence; the wider photo
-supersedes it only as the README hero.
+The earlier [wide pre-controller-R photo](assets/relicade-windows-wide-catalog-9cfa7fc-20261024.jpg)
+and [narrower catalog photo](assets/relicade-windows-catalog-9cfa7fc-20261024.jpg)
+remain unchanged with their provenance as engineering evidence. The current-brand
+wide photo supersedes them only as the README hero.
 
 The [historical empty-library capture](assets/relicade-native-empty-8a1796c-20261023.png) renders native source
 [`8a1796c`](https://github.com/MrDiamondBallz/relicade/tree/8a1796c3fd97a77ff55546a6958054ea8dafd3e0)

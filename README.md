@@ -84,13 +84,12 @@ Source status: merged development source includes [reviewed safety work](https:/
 
 ### Current native application
 
-![Actual Relicade Windows development application showing the live project catalog and All games discovery](docs/assets/relicade-windows-wide-catalog-9cfa7fc-20261024.jpg)
+![Actual Relicade Windows development application showing the live project catalog and All games discovery](docs/assets/relicade-windows-controller-catalog-d092f2f-20261024.jpg)
 
-*Genuine native Windows development build `9cfa7fc`, captured on 2026-10-24 in a maximized window with an isolated empty Library. Upstream community labels are shown as reported, not Relicade gameplay certification; **All games** opens the separate offline 10,000-record metadata index. This untouched capture predates the controller-R asset update. It is not a mockup, a playable-game count or release acceptance. [Capture provenance](docs/ARTWORK.md#native-capture-provenance).*
+*Genuine native Windows development build `d092f2f`, captured on 2026-10-24 in a maximized window with an isolated empty Library. Upstream community labels are shown as reported, not Relicade gameplay certification; **All games** opens the separate offline 10,000-record metadata index. The controller R is rendered by the actual application, without image edits. It is not a mockup, a playable-game count or release acceptance. [Capture provenance](docs/ARTWORK.md#native-capture-provenance).*
 
 The orange R now includes original retro-controller cutouts in the interface,
-app icons and repository wordmarks. The user-selected native photo remains an
-untouched capture from before that branding update. The [earlier Linux empty-library capture](docs/assets/relicade-native-empty-8a1796c-20261023.png)
+app icons and repository wordmarks, matching the untouched native photo above. The [earlier Linux empty-library capture](docs/assets/relicade-native-empty-8a1796c-20261023.png)
 remains unchanged as historical evidence.
 
 [Identity system](brand/BRAND.md) · [Brand presentation](docs/assets/relicade-brand.png) · [Architecture](docs/ARCHITECTURE.md)
