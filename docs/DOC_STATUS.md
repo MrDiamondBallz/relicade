@@ -20,6 +20,7 @@ This inventory is generated from the explicit maintenance registry. Semantic rev
 | [docs/ARCHITECTURE.md](ARCHITECTURE.md) | review | native, preview, presentation, tooling, contracts |
 | [docs/ARTWORK.md](ARTWORK.md) | review | preview, presentation, native |
 | [docs/CI.md](CI.md) | review | tooling, preview, contracts |
+| [docs/DEVELOPMENT_MILESTONES.md](DEVELOPMENT_MILESTONES.md) | review | native, preview, presentation, tooling, contracts |
 | [docs/DOCUMENTATION.md](DOCUMENTATION.md) | review | tooling, contracts |
 | [docs/DOC_STATUS.md](DOC_STATUS.md) | generated |  |
 | [docs/FEATURE_COVERAGE.md](FEATURE_COVERAGE.md) | review | contracts, tooling, native |

@@ -32,14 +32,14 @@
         "contracts"
       ],
       "reviewed": {
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
     "CHANGELOG.md": {
       "policy": "protected",
-      "sha256": "b3aea48a4a3bfd6f6a7f336373daf7e9c099359b4a710305983321f40f0dd93b"
+      "sha256": "5afac3bf379259cbd554849833e98ea1d53d76b79242d61322f80d39f4fdfdc8"
     },
     "CONTRIBUTING.md": {
       "policy": "review",
@@ -54,7 +54,7 @@
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "6f8a653effdf46998c22711438974dfc7b503d53dcc94fbdd8ed4f6d30a415e4",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -76,7 +76,7 @@
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "6f8a653effdf46998c22711438974dfc7b503d53dcc94fbdd8ed4f6d30a415e4",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -94,7 +94,7 @@
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "6f8a653effdf46998c22711438974dfc7b503d53dcc94fbdd8ed4f6d30a415e4",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -134,7 +134,7 @@
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "6f8a653effdf46998c22711438974dfc7b503d53dcc94fbdd8ed4f6d30a415e4",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -161,7 +161,7 @@
         "contracts"
       ],
       "reviewed": {
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
@@ -174,7 +174,7 @@
         "contracts"
       ],
       "reviewed": {
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -191,7 +191,7 @@
       ],
       "reviewed": {
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -209,7 +209,7 @@
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "6f8a653effdf46998c22711438974dfc7b503d53dcc94fbdd8ed4f6d30a415e4",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -227,7 +227,7 @@
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "6f8a653effdf46998c22711438974dfc7b503d53dcc94fbdd8ed4f6d30a415e4",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
@@ -246,7 +246,7 @@
       "reviewed": {
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
         "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -272,7 +272,7 @@
       "reviewed": {
         "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
         "presentation": "6f8a653effdf46998c22711438974dfc7b503d53dcc94fbdd8ed4f6d30a415e4",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -434,7 +434,7 @@
       ],
       "reviewed": {
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -450,7 +450,7 @@
       ],
       "reviewed": {
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
-        "tooling": "74ce96d30f3103ca19506c99bc76fe30550f88b45f8a22f306c78f6565e78f79",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     },
@@ -501,6 +501,24 @@
       ],
       "reviewed": {
         "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
+        "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
+      }
+    },
+    "docs/DEVELOPMENT_MILESTONES.md": {
+      "policy": "review",
+      "sources": [
+        "native",
+        "preview",
+        "presentation",
+        "tooling",
+        "contracts"
+      ],
+      "reviewed": {
+        "native": "db5c1b7446e8c9c92178ed8a33d6cee413ce158349e1d8f6310a80ada416c4c6",
+        "preview": "94290d2904b584ab44da1e44f5e6b2e4360daa73f13a8fd7f1c6f83177fc8222",
+        "presentation": "6f8a653effdf46998c22711438974dfc7b503d53dcc94fbdd8ed4f6d30a415e4",
+        "tooling": "1266e7d2ca589ad6d932bb3e9d89ca90208a1e0546b41bb4f11ae40331793720",
+        "contracts": "df7ae7bdda3882f9e2e8359c287804145f6476625d62a70ab4b7a5d703ce3067",
         "status": "3f91701b076f10d9e73704237db3fa859a91396e4e1b1153d436d04d5cd5fe5f"
       }
     }

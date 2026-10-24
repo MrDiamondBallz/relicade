@@ -19,14 +19,13 @@ HISTORICAL_PREVIEW = ROOT / 'docs/assets/relicade-native-linux.png'
 class ReadmePreviewTests(unittest.TestCase):
     def test_product_section_uses_the_actual_native_capture(self):
         text = (ROOT / 'README.md').read_text(encoding='utf-8')
-        section = text.split('### Current native application', 1)[1].split('## Explore locally', 1)[0]
+        section = text.split('### Current native application', 1)[1].split('## The vision', 1)[0]
         images = re.findall(r'!\[[^\]]*\]\(([^)]+)\)', section)
-        self.assertEqual(images, [PREVIEW.relative_to(ROOT).as_posix()])
-        self.assertIn('rendered headlessly on Linux', section)
-        self.assertIn('not a browser mockup, a desktop-host check or gameplay/platform acceptance', section)
-        self.assertIn('empty local library', section)
+        self.assertEqual(images, ['docs/assets/relicade-windows-controller-catalog-d092f2f-20261024.jpg'])
+        self.assertIn('Genuine native Windows development build', section)
+        self.assertIn('not a mockup, a playable-game count or release acceptance', section)
+        self.assertIn('isolated empty Library', section)
         self.assertNotIn('relicade-interface-ocarina.png', text)
-        self.assertNotIn('### Ocarina of Time\n\n![', text)
         self.assertNotRegex(text, r'!\[[^\]]*\]\(https://cdn2\.steamgriddb\.com/')
 
     def test_historical_desktop_capture_remains_immutable(self):

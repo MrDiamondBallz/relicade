@@ -13,74 +13,10 @@
 
 </div>
 
----
 
-## The vision
-
-Relicade is becoming one coherent home for **community-revived classics, retro games and emulation**—including native ports, recompilations and recreations. Discover the community project behind a favourite game, understand its setup and compatibility, and keep discovery, library, setup, versions, mods, recovery and play together.
-
-The goal is a clear path from “What can I play?” to the right version, game files, mods and recovery options. Controller-first and keyboard-complete journeys should make power features accessible, not remove them. Local and offline library use must remain possible without a required account.
-
-Catalog coverage is part of that goal: support the full upstream community-port catalog, with project sources, setup requirements and installation and launch behavior checked per game. The twelve-project browser preview is a sample, not the finished catalog.
-
-Emulation is **future scope, not yet implemented**. Each emulator/core needs its own licensing and compatibility review; players must supply any required game data or BIOS lawfully. Relicade will not distribute unlicensed ROMs, BIOS or keys.
-
-## Current progress
-
-**No packaged launcher release.** This is development source and a browser design preview, not complete functionality or accepted native platform support.
-
-Current source also includes [guided engine-setup history](docs/GAME_SETUP.md#interrupted-guided-engine-setup): saved reviewed intent and last stage, read-only reopening, and an explicit fresh retry for supported Linux x64 first-install adapters. A Library notice and bounded review can reveal a saved setup’s current entry even when filters hide it; reviewing history never starts setup. This is not a general download queue or automatic resume; game-file consent remains separate.
-
-The Library also offers an [export-only metadata preview](native/README.md#loaded-library-metadata-export) for its successfully loaded saved entries, including filtered entries. It excludes local installation paths, settings and game data, but included names and repository/release labels can still be personal. Review the exact fields before choosing a new file. This is not backup, import or restore.
-
-Recent merged work includes [rollback-state consistency and explicit retained-file reuse](https://github.com/MrDiamondBallz/relicade/pull/28). Earlier work adds [separate CPU-rendered native UI tests](https://github.com/MrDiamondBallz/relicade/pull/11) for the library, offline catalog and settings views. The [earlier maintenance update](https://github.com/MrDiamondBallz/relicade/pull/12) aligns the Avalonia dependencies on the official 12.1.4 patch and adds input-session cleanup and application-lifetime regressions. These changes have independent local review and test coverage; they are development milestones, not a packaged release or a claim that every target platform has been tested.
-
-- **Merged development source:** reviewed staged installation and recovery, explicit vault-backed credential migration, offline instance shortcuts and process lifetime handling, managed-removal safeguards, and [previewed, hash-confirmed redundant-backup payload cleanup](https://github.com/MrDiamondBallz/relicade/pull/3). Cleanup retains all previous generations, data snapshots and the current operation's entire backup; it is not credential erasure, general history pruning or managed uninstall. These are bounded source milestones, not a production-safe installer or a promise of compatibility with every game. See [the earlier source milestone](https://github.com/MrDiamondBallz/relicade/pull/1) and the [native guide](native/README.md).
-- **Included in this source:** the native library context menu exposes a redundant-backup preview, explicit displayed-plan confirmation, cancellation, truthful results and explicit same-plan resume. This UI is not released or native-platform accepted. **In progress:** full behavior reconciliation, packaged installation, security/rights checks and real platform/controller/accessibility acceptance remain open.
-- **Longer term:** the broader retro-game and emulation experience is not yet implemented. Versions, mods, owned-data setup and recovery need complete tested player journeys, not just service code.
-
-The library also includes **Restore previous portable version…**: an offline,
-explicitly hash-confirmed preview of the immediate retained payload. Current
-declared saves/data stay current; older saves are not restored and save-format
-compatibility is not guaranteed. Interrupted or uncertain history requires
-inspection, not preview/reopen repair or resume. A confirmed operation can attempt
-transaction-internal recovery on failure; an error is not an unchanged-state or
-safe-retry assurance. This is source-stage functionality,
-not a packaged or native-platform acceptance claim; see the [native guide](native/README.md).
-
-The native source includes **Finish game setup** for specific Perfect Dark and
-z2rs Linux x64 packages. New dedicated Perfect Dark and z2rs entries on Linux x64
-offer **Set up game** to confirm their pinned engine download before selecting a
-lawful local file. Review the copy,
-confirm explicitly and revalidate before launch. After a compatible generation
-change, **Use retained game files…** offers separate confirmation to reuse a
-verified existing copy without its original or another game-data copy. This is bounded development
-source, not gameplay certification or complete project support. See
-[local game-data setup](docs/GAME_SETUP.md) for the exact package and limits. The separate
-**Set up / Play Freedoom Phase 2…** action can explicitly install one pinned
-UZDoom package for the matching Windows/Linux x64 host in a new entry, then offer a separately confirmed local
-data copy or free-data download. Windows guided Play remains unavailable in this
-development candidate while its profile contract is implemented; install/data and
-Close are separate from execution. Existing engines and normal Launch are not
-replaced. The first engine setup has explicit confirmation, progress and its own
-Cancel action; cancellation waits for owned work and preserves a committed engine.
-Neither flow is complete catalog coverage or gameplay certification.
-
-The browser preview supports a bounded selection of real public project metadata, search, filters, project details, keyboard navigation and browser-local saved-library bookmarks. Saved projects are not installed games. It does not install, update, verify or launch executables.
-
-Native **All games** discovery now includes a pinned offline snapshot of 10,000 named Wikidata game records, with local search and bounded pages. Distinct source IDs keep editions separate; metadata-only records do not imply a playable download. An explicit title search can look for community projects in the existing source catalog. The bundled [metadata attribution and scope](native/CatalogData/ATTRIBUTION.txt) covers CC0 structured data, without artwork or game payloads.
-
-The [native development source](native/README.md) uses .NET 10/Avalonia. Isolated Linux desktop and Windows native checks have exercised catalog search/details, metadata-only Add/Open in Library, settings persistence, export, close/restart and corrupt-library refusal. Reviewed Windows settings, controller lifetime, menu routing and generation-lease repairs are integrated through `627f6ea`; synthetic tests and bounded native journeys do not establish full platform or release acceptance. Integrated Windows gameplay remains pending under the user's execution scope. See the [evidence limits and ordered release gates](docs/FEATURE_COVERAGE.md#first-public-release-gates).
-
-**Windows x64 is the first public-release target.** Linux remains a private development proof path. Windows cross-publish and the [private Linux x64 AppDir/AppImage recipe](docs/LINUX_APPIMAGE_DEVELOPMENT.md) are development checks, not supported downloads or platform acceptance.
-
-<!-- docs-sync:begin facts -->
-Repository facts (not acceptance results): **12 catalog projects**, **71 required feature rows**, **8 platform/package targets** and **23 synthetic fixture scenarios**. Counts describe repository inputs, not working games or passing tests.
-
-Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/3); [backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) is recorded as merged development source, not release acceptance. No packaged release, complete-functionality acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.
-<!-- docs-sync:end facts -->
-
-[How documentation stays current](docs/DOCUMENTATION.md): contribution-time checks and periodic maintainer reconciliation keep generated facts and source-sensitive prose under review. The tool checks facts mechanically; it does not approve prose. Cloning the repository does not install a timer or service.
+**In development — no packaged launcher release yet.** Windows x64 is the first
+release target. The image below is the real native application; source milestones
+and test results are not a promise that every catalog entry is playable.
 
 ### Current native application
 
@@ -94,53 +30,104 @@ remains unchanged as historical evidence.
 
 [Identity system](brand/BRAND.md) · [Brand presentation](docs/assets/relicade-brand.png) · [Architecture](docs/ARCHITECTURE.md)
 
-## Explore locally
+## The vision
 
-Requires **Python 3.10+**. The preview itself needs no package installation, account or build step.
+A native home for **community-revived classics, retro games and emulation**:
+find a game, understand the community project and its requirements, and keep
+setup, library, versions, mods and recovery together. Relicade aims for a smooth
+controller-first experience with complete keyboard access and a local, offline
+library that needs no required account.
+
+Emulation is planned, not yet implemented. Relicade does not supply unlicensed
+ROMs, BIOS or keys; game data and runtime rights remain separate from discovery.
+
+## Current progress
+
+**Merged development source** now includes:
+
+- **Broad discovery:** a searchable offline snapshot of 10,000 named game records,
+  with stable source identities and bounded pages. These are metadata records,
+  not 10,000 verified downloads or playable games. Community projects have their
+  own live catalog, requirements and readiness information.
+- **A local library:** Add/Open in Library, settings, metadata export, restart
+  persistence and refusal to overwrite a corrupt library have bounded native
+  Windows and Linux evidence.
+- **Explicit setup and recovery:** pinned engine confirmation, separate game-data
+  consent, cancellation, retained generations, portable rollback and backup
+  cleanup. The reviewed Windows UZDoom/Freedoom install/data journey reaches a
+  separate disabled Play action; integrated Windows gameplay is still pending.
+- **Controller and keyboard work:** reviewed input lifetime, rapid-edge, modal
+  routing and navigation repairs. Automated checks and limited physical input
+  observations do not establish complete hardware compatibility.
+
+**In progress:** an all-in-one branded Windows setup wizard, automatic launcher
+updates, big-screen mode, broader game support and remaining visual/accessibility
+polish. None is an available released feature. Earlier safety milestones
+([installation](https://github.com/MrDiamondBallz/relicade/pull/1),
+[backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3)) and detailed
+limitations remain in [development history](docs/DEVELOPMENT_MILESTONES.md),
+[game setup](docs/GAME_SETUP.md) and the [native guide](native/README.md).
+
+## Build or preview
+
+The native desktop source uses **.NET 10 and Avalonia**. Start with the
+[native build instructions](native/README.md); ordinary players should wait for
+an accepted package rather than install development tools.
+
+### Explore locally
+
+The separate browser design preview requires **Python 3.10+**, with no account
+or package installation:
 
 ```sh
 python tools/preview.py
 ```
 
-- Product preview: <http://127.0.0.1:8766/prototype/>
-- Brand presentation: <http://127.0.0.1:8766/brand/>
-
-The server binds only to loopback, serves only the preview/brand directories, rejects directory listings and applies a restrictive content security policy. Stop it with **Ctrl+C**. Clearing browser site storage removes saved preview bookmarks.
-
-Run the server regressions:
-
-```sh
-python -m unittest discover -s tests -v
-```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full developer suite and pinned dependencies. Hosted CI is not active yet; the [workflow template](docs/ci/prototype-quality.yml) is supplied without a misleading passing-build badge.
+Open <http://127.0.0.1:8766/prototype/> or the
+[brand presentation](http://127.0.0.1:8766/brand/). Stop the loopback-only server
+with **Ctrl+C**. Browser bookmarks are not installed games, and this preview
+cannot install, update or launch executables. See [Contributing](CONTRIBUTING.md)
+for tests and pinned developer dependencies. Hosted CI is not enabled.
 
 ## Platform targets
 
-These are **release requirements, not available downloads**:
+| Target | Current evidence and remaining limit |
+| --- | --- |
+| Windows x64 | Self-contained development builds and bounded native setup/library/input checks. First official release remains gated. |
+| Linux x64 / ARM64 | Both desktop builds compile; Linux x64 has isolated native development checks. Packaging/runtime acceptance is incomplete. |
+| macOS Intel / Apple Silicon | Both desktop builds compile. No Mac is available for native installation/runtime acceptance. |
+| Android | Host source exists; SDK installation was deferred. No APK or device acceptance; desktop SDL controller support does not apply. |
 
-- **Windows:** x64.
-- **Linux:** x64 and ARM64; AppImage and Flatpak packaging.
-- **macOS:** Intel x64 and Apple Silicon ARM64.
-- **Android:** APK, with mobile-specific permissions, input and application launching.
+Builds do not establish runtime compatibility. See the
+[ordered release gates](docs/FEATURE_COVERAGE.md#first-public-release-gates),
+[roadmap](docs/ROADMAP.md) and [product requirements](docs/PRODUCT_REQUIREMENTS.md).
+Game/runtime compatibility must be checked per platform and package.
 
-Every platform needs its own package and runtime evidence. Shared-code compilation or browser emulation does not establish native compatibility. Desktop executable launching is not an Android capability.
+## Repository facts and history
 
-## What comes next
+<!-- docs-sync:begin facts -->
+Repository facts (not acceptance results): **12 catalog projects**, **71 required feature rows**, **8 platform/package targets** and **23 synthetic fixture scenarios**. Counts describe repository inputs, not working games or passing tests.
 
-The [roadmap](docs/ROADMAP.md) prioritizes real native library and readiness flows, durable downloads, recoverable upgrades, reproducible mod profiles and controller-first navigation. These remain requirements until implementation and failure-path tests pass.
+Source status: merged development source includes [reviewed safety work](https://github.com/MrDiamondBallz/relicade/pull/3); [backup cleanup](https://github.com/MrDiamondBallz/relicade/pull/3) is recorded as merged development source, not release acceptance. No packaged release, complete-functionality acceptance or native-platform acceptance is recorded here. Emulation is planned, not implemented.
+<!-- docs-sync:end facts -->
 
-## Project structure
-
-- `brand/` — original identity masters, usage guide, tokens and licensed fonts.
-- `prototype/` — browser preview, public metadata snapshot and original project tiles.
-- `native/` — shared native code, desktop/Android hosts, retained license notices and native tests; see its build instructions and limitations.
-- `docs/` — product requirements, architecture, roadmap and CI template.
-- `tools/` — local preview and browser QA utilities.
-- `tests/` — repeatable regression checks.
+The generated catalog-project count above describes the browser preview fixture;
+it is separate from the native 10,000-record metadata index and the live public
+project catalog. [Documentation maintenance](docs/DOCUMENTATION.md) tracks
+source review without implying release acceptance. See [Changelog](CHANGELOG.md),
+[development milestones](docs/DEVELOPMENT_MILESTONES.md) and
+[architecture](docs/ARCHITECTURE.md) for engineering details.
 
 ## Credits and rights
 
-Community projects, game names and external metadata belong to their respective creators and rights holders. Source links and exact provenance remain available; a catalog listing is not a download license or safety endorsement. This repository contains no ROMs, BIOS, commercial game data, user credentials or copied installed executables.
+Community projects, game names and external metadata belong to their creators
+and rights holders. A catalog listing is not a download license or safety
+endorsement. The offline game index uses [CC0 structured metadata](native/CatalogData/ATTRIBUTION.txt);
+artwork and executable rights are separate. This repository contains no ROMs,
+BIOS, commercial game data, user credentials or copied installed executables.
 
-See [NOTICE.md](NOTICE.md) for third-party credits and font licenses. Inherited native source retains its applicable MIT notices. Except for the narrowly scoped AppStream metadata CC0 dedication described in NOTICE, no open-source license has been selected for separately owned original Relicade material; source visibility alone is not a reuse grant.
+See [NOTICE.md](NOTICE.md) for credits and font licenses. Inherited native source
+retains its applicable MIT notices. Except for the narrowly scoped AppStream
+metadata CC0 dedication described in NOTICE, no open-source license has been
+selected for separately owned original Relicade material; source visibility alone
+is not a reuse grant.

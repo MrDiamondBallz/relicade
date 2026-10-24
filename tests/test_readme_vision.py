@@ -19,11 +19,14 @@ class ReadmeVisionTests(unittest.TestCase):
 
     def test_progress_separates_merged_work_from_unfinished_features(self):
         text = (ROOT / 'README.md').read_text()
-        self.assertIn('## Current progress', text)
-        current = text.split('## Current progress', 1)[1].split('### Interface preview', 1)[0]
-        for phrase in ['Merged development source', 'In progress', 'No packaged launcher release',
-                       'not yet implemented', 'pull/1', 'pull/3']:
+        current = text.split('## Current progress', 1)[1].split('## Build or preview', 1)[0]
+        for phrase in ['Merged development source', 'In progress', 'pull/1', 'pull/3',
+                       'integrated Windows gameplay is still pending', 'disabled Play action']:
             self.assertIn(phrase, current)
+        self.assertIn('no packaged launcher release yet', text)
+        self.assertIn('docs/DEVELOPMENT_MILESTONES.md', text)
+        self.assertIn('not yet implemented', text)
+        self.assertLess(text.index('### Current native application'), text.index('## Current progress'))
 
     def test_product_goals_keep_catalog_breadth_and_honest_visual_setup_scope(self):
         requirements = (ROOT / 'docs/PRODUCT_REQUIREMENTS.md').read_text()
@@ -52,20 +55,19 @@ class ReadmeVisionTests(unittest.TestCase):
 
     def test_current_native_capture_has_immutable_provenance_and_honest_caption(self):
         text = (ROOT / 'README.md').read_text()
-        current = text.split('### Current native application', 1)[1].split('## Explore locally', 1)[0]
-        image = re.search(r'!\[[^\]]+\]\((docs/assets/[^)]+\.png)\)', current)
+        current = text.split('### Current native application', 1)[1].split('## The vision', 1)[0]
+        image = re.search(r'!\[[^\]]+\]\((docs/assets/[^)]+\.jpg)\)', current)
         self.assertIsNotNone(image)
         path = ROOT / image.group(1)
         metadata = json.loads(path.with_suffix('.json').read_text())
-        self.assertEqual(metadata['image'], path.name)
+        self.assertEqual(metadata['file'], path.name)
         self.assertEqual(metadata['sha256'], hashlib.sha256(path.read_bytes()).hexdigest())
-        self.assertEqual(metadata['capture_kind'], 'actual-native-headless')
-        self.assertRegex(metadata['native_source_commit'], r'^[0-9a-f]{40}$')
-        self.assertEqual((metadata['width'], metadata['height']), (1100, 760))
-        self.assertIn('headlessly', current)
-        self.assertIn('empty local library', current)
-        self.assertIn('not a browser mockup, a desktop-host check or gameplay/platform acceptance', current)
-        self.assertNotIn('relicade-native-linux.png', current)
+        self.assertEqual(metadata['platform'], 'Windows x64')
+        self.assertRegex(metadata['sourceCommit'], r'^[0-9a-f]{40}$')
+        self.assertEqual(metadata['dimensions'], [1920, 1032])
+        self.assertFalse(metadata['imageEdited'])
+        self.assertFalse(metadata['composited'])
+        self.assertIn('not a mockup, a playable-game count or release acceptance', current)
 
     def test_previous_native_capture_is_retained_as_history_not_current(self):
         self.assertTrue((ROOT / 'docs/assets/relicade-native-linux.png').is_file())
