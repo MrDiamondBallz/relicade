@@ -7,6 +7,8 @@ namespace Relicade.Services;
 
 public static class GameLaunchService
 {
+    internal static string? FreedoomPlayUnavailableReason => OperatingSystem.IsWindows()
+        ? "Windows guided Play is being prepared. You can close this window; nothing will start automatically." : null;
     public static Task<bool> LaunchAsync(GameInfo game, string gamesFolder) => LaunchAsync(game, gamesFolder, null);
 
     // Shortcut dispatch binds the generation it validated before entering this service.
@@ -33,8 +35,8 @@ public static class GameLaunchService
         if (!OwnedGameSetupService.SupportsFreedoomHere || !OwnedGameSetupService.OffersFreedoom(game)) throw new IOException("Freedoom setup is unavailable for this project and host.");
         // Install/data support precedes the reviewed Windows play-profile contract.
         // Never fall through to ordinary shell launch with only an -iwad argument.
-        if (OperatingSystem.IsWindows())
-            throw new NotSupportedException("Windows guided Play is not available in this development build. Engine and data setup can finish and close without starting a game.");
+        if (FreedoomPlayUnavailableReason is { } reason)
+            throw new NotSupportedException(reason);
         return LaunchCoreAsync(game, gamesFolder, null, null, true, cancellation);
     }
 

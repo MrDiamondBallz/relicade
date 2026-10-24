@@ -96,7 +96,7 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
         catch (DirectoryNotFoundException) { }
         catch (Relicade.Core.Services.OwnedDataNeedsRepairException ex) { repairMessage = ex.Message; }
         ConfigureFreedoomPlay(model, ready,
-            operation => Task.Run(() => setup.ValidateReady(operation)), launch, afterLaunch);
+            operation => Task.Run(() => setup.ValidateReady(operation)), launch, afterLaunch, GameLaunchService.FreedoomPlayUnavailableReason);
         ConfigureFreedoomDownload(model, setup, FreedoomDataDownload.DownloadAsync);
         if (repairMessage != null) model.ShowPreservedDataDiagnostic(repairMessage);
     }
@@ -111,7 +111,8 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
         });
     }
     internal static void ConfigureFreedoomPlay(OwnedGameSetupViewModel model, bool ready,
-        Func<CancellationToken, Task> validate, Func<CancellationToken, Task<bool>> launch, Action<bool>? afterLaunch)
+        Func<CancellationToken, Task> validate, Func<CancellationToken, Task<bool>> launch, Action<bool>? afterLaunch,
+        string? unavailableReason = null)
     {
         model.ConfigureFreedoom(async () =>
         {
@@ -120,7 +121,7 @@ internal sealed class OwnedGameSetupFlow(GameManager manager, SettingsViewModel 
             await validate(token);
             token.ThrowIfCancellationRequested();
             return await launch(token);
-        }, ready, afterLaunch);
+        }, ready, afterLaunch, unavailableReason);
     }
 
 }

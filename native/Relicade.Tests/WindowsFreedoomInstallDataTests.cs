@@ -35,9 +35,13 @@ public sealed class WindowsFreedoomInstallDataTests
         Assert.Equal(f.Definition.ExecutableSha256, manifest.Files.Single(row => row.Path == "uzdoom.exe").Sha256);
         var setup = f.Setup(); var playCalls = 0;
         var model = new OwnedGameSetupViewModel(session, f.Game.InstanceKey, setup);
-        model.ConfigureFreedoom(() => { playCalls++; throw new InvalidOperationException("This test never selects Play."); }, false);
-        model.PickFile = () => Task.FromResult<string?>(f.Source);
+        OwnedGameSetupFlow.ConfigureFreedoomPlay(model, false, _ => Task.CompletedTask,
+            _ => { playCalls++; throw new InvalidOperationException("This test never selects Play."); }, null,
+            GameLaunchService.FreedoomPlayUnavailableReason);
         var dialog = new OwnedGameSetupDialog(model);
+        // The dialog installs its native picker; inject after composition so the
+        // synthetic selection reaches the real preview/copy path on Windows.
+        model.PickFile = () => Task.FromResult<string?>(f.Source);
         try
         {
             dialog.Show(); Dispatcher.UIThread.RunJobs();
@@ -47,7 +51,9 @@ public sealed class WindowsFreedoomInstallDataTests
             dialog.ConfirmButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); await dialog.Work;
             Assert.Equal(OwnedGameSetupUiState.Completed, model.State);
             Assert.Equal(f.Data, File.ReadAllBytes(model.Plan.Destination));
-            Assert.True(dialog.PlayButton.IsVisible); Assert.True(dialog.PlayButton.IsEnabled);
+            Assert.True(dialog.PlayButton.IsVisible); Assert.False(dialog.PlayButton.IsEnabled);
+            Assert.Equal("Play unavailable", dialog.PlayButton.Content);
+            Assert.Contains("Windows guided Play is being prepared", model.Message);
             Assert.False(dialog.PlayButton.IsDefault);
             setup.ValidateReady();
             Assert.Equal(f.Data, File.ReadAllBytes(f.Source));
@@ -57,7 +63,7 @@ public sealed class WindowsFreedoomInstallDataTests
         Assert.Equal(0, playCalls); Assert.Equal(0, processEvents);
         Assert.False(File.Exists(Path.Combine(f.Live, "LastPlayed.txt")));
         var refusal = await Assert.ThrowsAsync<NotSupportedException>(() => GameLaunchService.LaunchFreedoomAsync(f.Game, f.Manager.GamesFolder));
-        Assert.Contains("Windows guided Play is not available", refusal.Message);
+        Assert.Contains("Windows guided Play is being prepared", refusal.Message);
         Assert.Equal(0, processEvents); // Exercise the production entrypoint too, never a real process.
     }
 

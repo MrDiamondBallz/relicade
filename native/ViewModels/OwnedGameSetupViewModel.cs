@@ -20,13 +20,16 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
     bool isNes;
     internal string FileTypeLabel => isNes ? "NES game data" : IsFreedoom ? "Freedoom Phase 2 data" : "Nintendo 64 big-endian data";
     internal string FilePattern => isNes ? "*.nes" : IsFreedoom ? "*.wad" : "*.z64";
-    internal string Title => IsFreedoom ? "Play Freedoom Phase 2" : "Finish game setup";
-    internal bool CanPlay => IsFreedoom && !IsClosed && !busy && State == OwnedGameSetupUiState.Completed;
-    internal void ConfigureFreedoom(Func<Task<bool>> launch, bool ready, Action<bool>? completed = null)
+    internal string Title => IsFreedoom ? PlayUnavailableReason == null ? "Play Freedoom Phase 2" : "Set up Freedoom Phase 2" : "Finish game setup";
+    internal string? PlayUnavailableReason { get; private set; }
+    string FreedoomReadyMessage => "Freedoom verified and retained locally. " + (PlayUnavailableReason ??
+        "Select Play Freedoom Phase 2. Ordinary engine Launch keeps your existing WAD configuration.");
+    internal bool CanPlay => IsFreedoom && PlayUnavailableReason == null && !IsClosed && !busy && State == OwnedGameSetupUiState.Completed;
+    internal void ConfigureFreedoom(Func<Task<bool>> launch, bool ready, Action<bool>? completed = null, string? unavailableReason = null)
     {
-        play = launch; afterLaunch = completed;
+        play = launch; afterLaunch = completed; PlayUnavailableReason = unavailableReason;
         if (ready) State = OwnedGameSetupUiState.Completed;
-        Message = ready ? "The retained Freedoom copy is verified for this package. Play rechecks it before starting."
+        Message = ready ? FreedoomReadyMessage
             : "Download Freedoom v0.13.0 from its official release, extract the ZIP and choose freedoom2.wad. This dialog does not download files.";
         Changed();
     }
@@ -159,7 +162,7 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
                 {
                     State = result.ReadyPublished ? OwnedGameSetupUiState.Completed : OwnedGameSetupUiState.Error;
                     Message = result.ReadyPublished
-                        ? "Retained game files verified and confirmed for this package. Close this window and select Launch. Nothing was started; gameplay and legal entitlement are not certified."
+                        ? IsFreedoom ? FreedoomReadyMessage : "Retained game files verified and confirmed for this package. Close this window and select Launch. Nothing was started; gameplay and legal entitlement are not certified."
                         : "The setup receipt is retained, but readiness was not published. Keep all files and reopen setup for a fresh verification.";
                 });
             }
@@ -223,7 +226,7 @@ internal sealed class OwnedGameSetupViewModel : ObservableViewModel
                 var result = await Task.Run(() => apply(plan, cancellation.Token));
                 await refresh();
                 await UpdateAsync(() => { State = result.Completed ? OwnedGameSetupUiState.Completed : OwnedGameSetupUiState.Error;
-                    Message = result.Completed ? (IsFreedoom ? "Freedoom verified and retained locally. Select Play Freedoom Phase 2. Ordinary engine Launch keeps your existing WAD configuration." : "Game data verified and retained locally. Close this window and select Launch. This does not certify gameplay or hardware compatibility.")
+                    Message = result.Completed ? (IsFreedoom ? FreedoomReadyMessage : "Game data verified and retained locally. Close this window and select Launch. This does not certify gameplay or hardware compatibility.")
                         : "Completion was not established. Keep the original and any retained copy; review setup before retrying.";
                     if (result.Completed && plan.Repair != null) Message += " Previous data retained at: " + plan.Repair.RetainedDestination;
                 });

@@ -165,6 +165,8 @@ internal sealed class OwnedGameSetupDialog : Window
     {
         ConfirmButton.Content = Model.RetainedPlan != null ? "Confirm lawful use and reuse" : Model.Plan?.Repair != null ? "Confirm lawful use and replace" : "Confirm lawful use and copy";
         PlayButton.IsVisible = Model.IsFreedoom && Model.State == OwnedGameSetupUiState.Completed; PlayButton.IsEnabled = Model.CanPlay;
+        PlayButton.Content = Model.PlayUnavailableReason == null ? "Play Freedoom Phase 2" : "Play unavailable";
+        ToolTip.SetTip(PlayButton, Model.PlayUnavailableReason);
         DownloadButton.Content = Model.HasFreeDataDownload ? "Get free game data" : "Official download";
         DownloadButton.IsVisible = Model.IsFreedoom && Model.State != OwnedGameSetupUiState.Completed; DownloadButton.IsEnabled = Model.CanChoose;
         ChooseButton.IsVisible = !Model.IsFreedoom || Model.State != OwnedGameSetupUiState.Completed;

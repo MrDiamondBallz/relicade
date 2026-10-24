@@ -658,7 +658,8 @@ setup path, for compiled UZDoom 5.0.3 Windows/Linux x64 packages and Freedoom
 0.13.0 Phase 2 only. Windows binds the exact ZIP and separately hashed `uzdoom.exe`.
 Its install/data-only synthetic checks never execute the fake executable; actual
 Windows acceptance is separate. The optional Windows play profile is unfinished,
-and actual integrated gameplay is on hold because the stock engine can fall back
+and the disabled Play action explains that guided Play is being prepared. Actual
+integrated gameplay is on hold because the stock engine can fall back
 to cache-writing GL/GLES backends outside the approved test scope. Players
 can explicitly download the pinned official free-data archive or choose an
 existing `.wad`, then review and confirm a separate copy before Play. Verified

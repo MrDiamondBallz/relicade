@@ -371,7 +371,8 @@ and without invoking Unix permission APIs. Other game adapters retain Linux scop
 Windows install/data tests use synthetic, non-runnable MZ files and tiny data;
 Linux skips do not establish Windows acceptance. The Windows optional-play profile
 is still being implemented; the production Windows guided Play entrypoint refuses
-before process launch. Actual integrated gameplay is **pending**: the user
+before process launch. Completed setup shows a disabled **Play unavailable** action
+and an explanation, without suggesting that Play can start. Actual integrated gameplay is **pending**: the user
 kept execution on hold because stock UZDoom can fall back from Vulkan to GL/GLES,
 whose cache paths are outside the approved test scope. Install/data/Close are
 separate from Play; this development candidate must not be used to start a game.

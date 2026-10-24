@@ -11,6 +11,29 @@ namespace Relicade.Tests;
 
 public sealed class FreedoomPlayLifetimeTests
 {
+    [AvaloniaFact]
+    public async Task Unavailable_play_shows_a_reason_and_never_dispatches_even_when_invoked_directly()
+    {
+        await using var session = new LauncherSession(); var dispatched = 0;
+        var model = new OwnedGameSetupViewModel(session, "synthetic", "Synthetic data only",
+            (_, _) => throw new Exception(), (_, _) => throw new Exception(), () => Task.CompletedTask);
+        const string reason = "Guided Play is being prepared. Close this window; nothing starts automatically.";
+        OwnedGameSetupFlow.ConfigureFreedoomPlay(model, true, _ => throw new Exception("No validation should run"),
+            _ => { dispatched++; return Task.FromResult(true); }, null, reason);
+        var dialog = new OwnedGameSetupDialog(model);
+        try
+        {
+            dialog.Show(); Dispatcher.UIThread.RunJobs();
+            Assert.Equal("Set up Freedoom Phase 2", dialog.Title);
+            Assert.Equal("Play unavailable", dialog.PlayButton.Content);
+            Assert.True(dialog.PlayButton.IsVisible); Assert.False(dialog.PlayButton.IsEnabled);
+            Assert.Contains(reason, model.Message); Assert.DoesNotContain("Select Play", model.Message);
+            dialog.PlayButton.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); await dialog.Work;
+            await model.PlayAsync(); Assert.Equal(0, dispatched);
+        }
+        finally { dialog.Close(); await dialog.Work; model.DisposeAfterDrain(); }
+    }
+
     [AvaloniaTheory]
     [InlineData(false)][InlineData(true)]
     public async Task Production_play_composition_drains_closed_dialog_without_later_dispatch(bool closeSession)
