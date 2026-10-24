@@ -84,9 +84,14 @@ Source status: merged development source includes [reviewed safety work](https:/
 
 ### Current native application
 
-![Actual Relicade native development interface showing an empty local library and the Old legends. New life. tagline](docs/assets/relicade-native-empty-8a1796c-20261023.png)
+![Actual Relicade Windows development application showing the live project catalog and All games discovery](docs/assets/relicade-windows-catalog-9cfa7fc-20261024.jpg)
 
-*Actual native development interface, rendered headlessly on Linux with an empty local library and isolated test settings. Captured from native source `8a1796c` on 2026-10-23, without image edits or game artwork. This is not a browser mockup, a desktop-host check or gameplay/platform acceptance. [Capture provenance](docs/ARTWORK.md#native-capture-provenance).*
+*Genuine native Windows development build `9cfa7fc`, captured on 2026-10-24 with an isolated empty Library. Public project cards retain their actual readiness labels; **All games** opens the separate offline 10,000-record metadata index. This untouched capture predates the controller-R asset update. It is not a mockup, a playable-game count or release acceptance. [Capture provenance](docs/ARTWORK.md#native-capture-provenance).*
+
+The orange R now includes original retro-controller cutouts in the interface,
+app icons and repository wordmarks. The user-selected native photo remains an
+untouched capture from before that branding update. The [earlier Linux empty-library capture](docs/assets/relicade-native-empty-8a1796c-20261023.png)
+remains unchanged as historical evidence.
 
 [Identity system](brand/BRAND.md) · [Brand presentation](docs/assets/relicade-brand.png) · [Architecture](docs/ARCHITECTURE.md)
 

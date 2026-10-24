@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none" role="img" aria-labelledby="title desc">
-  <title id="title">Relicade symbol</title>
-  <desc id="desc">A geometric R with an open angular counter and a forward-cut diagonal leg.</desc>
-  <!-- Original editable geometry. Live area: x16–112, y12–116. -->
-  <path id="relicade-cut-r" fill="#FF663D" d="M16 12H80L104 36V52H76V46L70 40H44V60H80L112 116H80L44 80V116H16Z"/>
+  <title id="title">Relicade controller R</title>
+  <desc id="desc">Original geometric controller R with transparent directional pad and diagonal face buttons; preserved silhouette and editable vector lettering.</desc>
+
+  <path id="relicade-controller-r" fill="#FF663D" d="M16 12H80L104 36V52H76V46L70 40H44V60H80L112 116H80L44 80V116H16Z M27 31H33V37H39V43H33V49H27V43H21V37H27Z M82 24A5 5 0 1 0 72 24A5 5 0 1 0 82 24Z M93 36A5 5 0 1 0 83 36A5 5 0 1 0 93 36Z" fill-rule="evenodd" />
 </svg>

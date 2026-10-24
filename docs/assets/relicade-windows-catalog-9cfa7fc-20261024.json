@@ -1,0 +1,28 @@
+{
+  "role": "Actual native Windows catalog capture, not a mockup",
+  "sourceCommit": "9cfa7fccd5200bb1a8f61c34c67c455b89bbf465",
+  "capturedUtc": "2026-10-24T08:42:06.9588382Z",
+  "nativeProcessId": 4328,
+  "platform": "Windows x64",
+  "dimensions": [
+    1282,
+    722
+  ],
+  "file": "relicade-windows-catalog-9cfa7fc-20261024.jpg",
+  "sha256": "80f568bd9eb9042891b4d34ee9e107a9b62126959ac69159bbd9a39759e90989",
+  "gitBlob": "2a992d0f1e177190467b8b144a9c596c846fc3fe",
+  "profile": "Fresh isolated profile with an empty local library",
+  "content": "Live public source-project catalog and the entrypoint to the offline 10000-record original-game index",
+  "visibleProjects": [
+    "UltraCombo",
+    "Blast Corps: Recompiled",
+    "Red Eclipse"
+  ],
+  "artworkSource": "https://quiverlauncher.com",
+  "branding": "Captured before the controller-R asset update; image remains unmodified",
+  "imageEdited": false,
+  "composited": false,
+  "gameplayAccepted": false,
+  "releaseAccepted": false,
+  "limitations": "Bounded native catalog observation, not every project playable or full platform/package acceptance"
+}

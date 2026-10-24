@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 718 104" role="img" aria-labelledby="title desc" fill="#F4F0E6"><title id="title">Relicade</title><desc id="desc">The orange cut-R forms the first letter of the Relicade wordmark.</desc><g id="relicade-wordmark">
-    <path id="letter-r" d="M0 0H64L88 24V40H60V34L54 28H28V48H64L96 104H64L28 68V104H0Z" fill="#FF663D" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 718 104" role="img" aria-labelledby="title desc" fill="#F4F0E6"><title id="title">Relicade</title><desc id="desc">Original geometric controller R with transparent directional pad and diagonal face buttons; preserved silhouette and editable vector lettering.</desc><g id="relicade-wordmark">
+    <path id="letter-r" d="M0 0H64L88 24V40H60V34L54 28H28V48H64L96 104H64L28 68V104H0Z M11 19H17V25H23V31H17V37H11V31H5V25H11Z M66 12A5 5 0 1 0 56 12A5 5 0 1 0 66 12Z M77 24A5 5 0 1 0 67 24A5 5 0 1 0 77 24Z" fill="#FF663D" fill-rule="evenodd" />
     <path id="letter-e-1" transform="translate(112)" d="M0 0H76L66 22H28V40H64L54 62H28V82H76L66 104H0Z" />
     <path id="letter-l" transform="translate(204)" d="M0 0H28V80H72L62 104H0Z" />
     <path id="letter-i" transform="translate(292)" d="M0 0H28V104H0Z" />

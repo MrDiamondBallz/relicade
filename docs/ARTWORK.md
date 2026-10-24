@@ -8,8 +8,9 @@ libraries or images that imply unimplemented features. Identify empty libraries,
 synthetic test data and development builds in their captions. Never include
 credentials, personal paths or private user data.
 
-The README's current capture shows the actual native interface with an empty
-library in a headless Linux development render, not a desktop-host session.
+The README's current capture shows the actual native Windows project catalog
+with a fresh isolated empty Library. It is a desktop-host observation; the separate
+10,000-record game index contains metadata, not verified playable downloads.
 Brand artwork and the historical browser prototype remain design assets, not
 evidence of native features or a released product. Preserve actual interface
 content and accurate upstream attribution rather than editing a screenshot to
@@ -17,7 +18,17 @@ make the product appear more complete.
 
 ## Native capture provenance
 
-The [current empty-library capture](assets/relicade-native-empty-8a1796c-20261023.png) renders native source
+The [current Windows catalog capture](assets/relicade-windows-catalog-9cfa7fc-20261024.jpg)
+comes from actual native source [`9cfa7fc`](https://github.com/MrDiamondBallz/relicade/tree/9cfa7fccd5200bb1a8f61c34c67c455b89bbf465),
+process 4328, on 2026-10-24 at 1282×722 pixels. Its [provenance record](assets/relicade-windows-catalog-9cfa7fc-20261024.json)
+records exact JPEG/Git blob hashes, isolated profile and limits. The untouched image
+shows live public UltraCombo, Blast Corps: Recompiled and Red Eclipse project
+cards with authentic remote art/readiness labels. Names/artwork retain their
+creators' rights; this documentary screenshot is not a new artwork reuse grant.
+It predates the controller-R update and makes no gameplay/release claim. No
+personal paths, installed games, compositing or image edits are included.
+
+The [historical empty-library capture](assets/relicade-native-empty-8a1796c-20261023.png) renders native source
 [`8a1796c`](https://github.com/MrDiamondBallz/relicade/tree/8a1796c3fd97a77ff55546a6958054ea8dafd3e0)
 on 2026-10-23 at 1100×760 pixels. [Its immutable metadata](assets/relicade-native-empty-8a1796c-20261023.json)
 records the PNG hash, fixture binding and limitations. It uses isolated test
@@ -33,12 +44,12 @@ the current interface and it is no longer the README's current product image.
 
 The intended native card layout puts real game imagery first, with readable game
 names, setup/play status and focus indicators over the art. Retain the established
-dark palette, orange cut-R and complete RELICADE wordmark. Artwork needs recorded
+dark palette, orange controller R and complete RELICADE wordmark. Artwork needs recorded
 source and rights/provenance review; an attractive card never proves install or
 play support. Missing or offline art must keep a useful labeled fallback. Reveal
 concepts describe a future interface, not evidence of the current application.
 
-The native sidebar wordmark uses the original transparent cut-R master and
+The native sidebar wordmark uses the user-requested transparent controller-R master and
 unchanged ELICADE paths, with a shared optical center and tagline beneath the
 suffix. The graphite-backed app icon remains for app/window/tray icon surfaces.
 

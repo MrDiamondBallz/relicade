@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 88" role="img" aria-labelledby="title desc"><title id="title">Relicade</title><desc id="desc">Original cut-R with custom vector RELICADE wordmark.</desc><path fill="#111211" transform="scale(.68)" d="M16 12H80L104 36V52H76V46L70 40H44V60H80L112 116H80L44 80V116H16Z"/><g transform="translate(104 20) scale(.46)" fill="#111211">  <g id="relicade-wordmark">
-    <path id="letter-r" d="M0 0H64L88 24V40H60V34L54 28H28V48H64L96 104H64L28 68V104H0Z"/>
-    <path id="letter-e-1" transform="translate(112)" d="M0 0H76L66 22H28V40H64L54 62H28V82H76L66 104H0Z"/>
-    <path id="letter-l" transform="translate(204)" d="M0 0H28V80H72L62 104H0Z"/>
-    <path id="letter-i" transform="translate(292)" d="M0 0H28V104H0Z"/>
-    <path id="letter-c" transform="translate(336)" d="M24 0H80L70 24H34L28 30V74L34 80H80L70 104H24L0 80V24Z"/>
-    <path id="letter-a" transform="translate(424)" fill-rule="evenodd" d="M0 104L32 0H64L96 104H66L61 84H35L30 104ZM42 60H54L48 38Z"/>
-    <path id="letter-d" transform="translate(536)" fill-rule="evenodd" d="M0 0H54L86 32V72L54 104H0ZM28 24V80H44L58 66V38L44 24Z"/>
-    <path id="letter-e-2" transform="translate(642)" d="M0 0H76L66 22H28V40H64L54 62H28V82H76L66 104H0Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 88" role="img" aria-labelledby="title desc"><title id="title">Relicade</title><desc id="desc">Original geometric controller R with transparent directional pad and diagonal face buttons; preserved silhouette and editable vector lettering.</desc><path fill="#111211" transform="scale(.68)" d="M16 12H80L104 36V52H76V46L70 40H44V60H80L112 116H80L44 80V116H16Z M27 31H33V37H39V43H33V49H27V43H21V37H27Z M82 24A5 5 0 1 0 72 24A5 5 0 1 0 82 24Z M93 36A5 5 0 1 0 83 36A5 5 0 1 0 93 36Z" id="relicade-controller-r" fill-rule="evenodd" /><g transform="translate(104 20) scale(.46)" fill="#111211">  <g id="relicade-wordmark">
+    <path id="letter-r" d="M0 0H64L88 24V40H60V34L54 28H28V48H64L96 104H64L28 68V104H0Z M11 19H17V25H23V31H17V37H11V31H5V25H11Z M66 12A5 5 0 1 0 56 12A5 5 0 1 0 66 12Z M77 24A5 5 0 1 0 67 24A5 5 0 1 0 77 24Z" fill-rule="evenodd" />
+    <path id="letter-e-1" transform="translate(112)" d="M0 0H76L66 22H28V40H64L54 62H28V82H76L66 104H0Z" />
+    <path id="letter-l" transform="translate(204)" d="M0 0H28V80H72L62 104H0Z" />
+    <path id="letter-i" transform="translate(292)" d="M0 0H28V104H0Z" />
+    <path id="letter-c" transform="translate(336)" d="M24 0H80L70 24H34L28 30V74L34 80H80L70 104H24L0 80V24Z" />
+    <path id="letter-a" transform="translate(424)" fill-rule="evenodd" d="M0 104L32 0H64L96 104H66L61 84H35L30 104ZM42 60H54L48 38Z" />
+    <path id="letter-d" transform="translate(536)" fill-rule="evenodd" d="M0 0H54L86 32V72L54 104H0ZM28 24V80H44L58 66V38L44 24Z" />
+    <path id="letter-e-2" transform="translate(642)" d="M0 0H76L66 22H28V40H64L54 62H28V82H76L66 104H0Z" />
   </g>
 </g></svg>

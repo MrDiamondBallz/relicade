@@ -14,6 +14,17 @@ LETTERS = ['letter-e-1', 'letter-l', 'letter-i', 'letter-c', 'letter-a', 'letter
 
 
 class NativeBrandingTests(unittest.TestCase):
+    @unittest.skipUnless(importlib.util.find_spec('PIL'), 'Optional image QA dependency not installed')
+    def test_controller_r_controls_cut_through_the_orange_letter(self):
+        from PIL import Image
+        symbol = Image.open(BytesIO(subprocess.check_output([
+            'rsvg-convert', '-w', '128', str(ROOT / 'brand/symbol.svg')]))).convert('RGBA')
+        # Functional transparent controls: D-pad centre and both diagonal face buttons.
+        for point in [(30, 40), (77, 24), (88, 36)]:
+            self.assertEqual(symbol.getpixel(point)[3], 0, point)
+        self.assertEqual(symbol.getpixel((25, 60)), (255, 102, 61, 255))
+        self.assertEqual(symbol.getchannel('A').getbbox(), (16, 12, 112, 116))
+
     def test_native_name_has_no_duplicate_initial_r(self):
         root = ET.parse(ROOT / 'native/MainView.axaml').getroot()
         panel = next(n for n in root.iter() if n.get(X + 'Name') == 'SidebarLogoPanel')

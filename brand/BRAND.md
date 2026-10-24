@@ -8,7 +8,7 @@ Status: **design prototype**, not a released launcher. Original identity directi
 
 A graphite stage, an ivory voice, one molten-orange signal. The silhouette and the games carry the identity—not effects, nostalgia props or technical decoration.
 
-**Visual spine:** an oversized custom wordmark establishes the name; the cut-R carries recognition into compact product surfaces; orange identifies the next deliberate action.
+**Visual spine:** an oversized custom wordmark establishes the name; the controller R carries recognition into compact product surfaces; orange identifies the next deliberate action.
 
 Relicade's vision is a coherent home for community-revived classics, retro games and emulation, including native ports, recompilations and recreations. Emulation is future scope, not a current capability. Speak to players without hiding the people doing the work. Do not imply every project is official, complete, legally cleared, installed or playable.
 
@@ -16,9 +16,9 @@ Relicade's vision is a coherent home for community-revived classics, retro games
 
 | File | Use |
 | --- | --- |
-| `symbol.svg` | Reusable standalone cut-R. `viewBox="0 0 128 128"`. Orange by default. |
+| `symbol.svg` | Reusable standalone controller R. `viewBox="0 0 128 128"`. Orange by default. |
 | `wordmark.svg` | Original uppercase RELICADE, eight named editable path letters. `viewBox="0 0 718 104"`. Ivory by default. No font dependency. |
-| `wordmark-tail.svg` | Native ELICADE suffix: seven unchanged paths from `wordmark.svg`, `viewBox="112 0 606 104"`. Only use after the orange cut-R initial; never as the standalone product name. |
+| `wordmark-tail.svg` | Native ELICADE suffix: seven unchanged paths from `wordmark.svg`, `viewBox="112 0 606 104"`. Only use after the orange controller-R initial; never as the standalone product name. |
 | `app-icon.svg` | Orange mark on graphite field, rounded-square master. `viewBox="0 0 256 256"`. |
 | `lockup-dark.svg` | Orange symbol / ivory path wordmark, transparent, for graphite surfaces. |
 | `lockup-light.svg` | Graphite symbol and path wordmark, transparent, for ivory surfaces. |
@@ -32,9 +32,9 @@ The standalone symbol is directly consumable by the parent prototype as `../bran
 
 ### Geometry
 
-Active native identity rule: the established **orange #FF663D cut-R is the first
+Active native identity rule: the established **orange #FF663D controller R is the first
 letter**, followed by the complete ivory ELICADE suffix. Preserve the larger R
-emphasis, original path geometry and optical spacing; never place a second ivory
+emphasis, outer silhouette and optical spacing; never place a second ivory
 R after it, retype the lettering or reduce the name to an icon-only header.
 Export `wordmark-tail.svg` as `native/Assets/wordmark-tail.png` for this binding;
 pair it with transparent `symbol.svg`, exported as `native/Assets/sidebar-symbol.png`.
@@ -43,10 +43,15 @@ the boxed app icon is not part of the interface wordmark.
 The accessible product name remains **Relicade**. Pure app/window/tray/package
 icon surfaces use the established orange R on its graphite field, without a
 suffix. This active-native rule supersedes the general monochrome/light-surface
-permissions below for those surfaces. Historical masters, standalone full-name
-assets, the brand board and existing browser presentation remain unchanged.
+permissions below for those surfaces. The user-requested controller details now apply to standalone symbols, full-name
+masters, repository lockups, the brand board and native/Android exports. Historical
+application captures remain dated evidence; never repaint them as a new build.
 
-The cut-R is one closed, fill-only polygon. Its counter is **open to the right**, not a decorative enclosed hole. A clipped shoulder turns into a forward diagonal leg. The exterior contains vertical mass, an angular shoulder and an advancing foot; it must remain readable in one color.
+The controller R retains the original outer silhouette and **open right counter**,
+with one directional cross and two diagonal face-button circles cut through the
+letter using even-odd fill. This user-requested master supersedes the former
+uncut single-polygon rule. Keep the supplied controller cutouts, clipped shoulder
+and forward diagonal leg; monochrome variants change the fill, not the geometry.
 
 Symbol live bounds: x=16–112, y=12–116 in the 128-unit canvas. Keep the supplied viewBox padding. Add external clear space of at least **16 units per 128-unit canvas**. Use extra clear space in hero compositions. Do not stretch, rotate, outline, bevel, glow, add shadows to the mark, close the counter or detach the diagonal leg.
 
