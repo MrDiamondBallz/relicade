@@ -14,12 +14,12 @@ LETTERS = ['letter-r', 'letter-e-1', 'letter-l', 'letter-i', 'letter-c', 'letter
 
 class ReadmeBrandingTests(unittest.TestCase):
     def test_current_catalog_photo_retains_verified_native_capture_bytes_and_provenance(self):
-        name = 'relicade-windows-catalog-9cfa7fc-20261024'
+        name = 'relicade-windows-wide-catalog-9cfa7fc-20261024'
         image = ROOT / 'docs/assets' / (name + '.jpg')
         metadata = json.loads((ROOT / 'docs/assets' / (name + '.json')).read_text())
         self.assertIn('docs/assets/' + name + '.jpg', (ROOT / 'README.md').read_text())
         self.assertEqual(hashlib.sha256(image.read_bytes()).hexdigest(), metadata['sha256'])
-        self.assertEqual(metadata['gitBlob'], '2a992d0f1e177190467b8b144a9c596c846fc3fe')
+        self.assertEqual(metadata['gitBlob'], 'd93b761f122eb21b09d262ecf24842628c78ac63')
         self.assertEqual(metadata['sourceCommit'], '9cfa7fccd5200bb1a8f61c34c67c455b89bbf465')
         self.assertEqual(metadata['platform'], 'Windows x64')
         self.assertFalse(metadata['imageEdited'])

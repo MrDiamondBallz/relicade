@@ -84,9 +84,9 @@ Source status: merged development source includes [reviewed safety work](https:/
 
 ### Current native application
 
-![Actual Relicade Windows development application showing the live project catalog and All games discovery](docs/assets/relicade-windows-catalog-9cfa7fc-20261024.jpg)
+![Actual Relicade Windows development application showing the live project catalog and All games discovery](docs/assets/relicade-windows-wide-catalog-9cfa7fc-20261024.jpg)
 
-*Genuine native Windows development build `9cfa7fc`, captured on 2026-10-24 with an isolated empty Library. Public project cards retain their actual readiness labels; **All games** opens the separate offline 10,000-record metadata index. This untouched capture predates the controller-R asset update. It is not a mockup, a playable-game count or release acceptance. [Capture provenance](docs/ARTWORK.md#native-capture-provenance).*
+*Genuine native Windows development build `9cfa7fc`, captured on 2026-10-24 in a maximized window with an isolated empty Library. Upstream community labels are shown as reported, not Relicade gameplay certification; **All games** opens the separate offline 10,000-record metadata index. This untouched capture predates the controller-R asset update. It is not a mockup, a playable-game count or release acceptance. [Capture provenance](docs/ARTWORK.md#native-capture-provenance).*
 
 The orange R now includes original retro-controller cutouts in the interface,
 app icons and repository wordmarks. The user-selected native photo remains an

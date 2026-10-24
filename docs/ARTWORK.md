@@ -18,15 +18,20 @@ make the product appear more complete.
 
 ## Native capture provenance
 
-The [current Windows catalog capture](assets/relicade-windows-catalog-9cfa7fc-20261024.jpg)
+The [current Windows catalog capture](assets/relicade-windows-wide-catalog-9cfa7fc-20261024.jpg)
 comes from actual native source [`9cfa7fc`](https://github.com/MrDiamondBallz/relicade/tree/9cfa7fccd5200bb1a8f61c34c67c455b89bbf465),
-process 4328, on 2026-10-24 at 1282×722 pixels. Its [provenance record](assets/relicade-windows-catalog-9cfa7fc-20261024.json)
+process 22212, on 2026-10-24 at 1920×1032 pixels. The exact capture receipt is
+`2026-10-24T08:57:56.1377573Z`. Its [provenance record](assets/relicade-windows-wide-catalog-9cfa7fc-20261024.json)
 records exact JPEG/Git blob hashes, isolated profile and limits. The untouched image
-shows live public UltraCombo, Blast Corps: Recompiled and Red Eclipse project
-cards with authentic remote art/readiness labels. Names/artwork retain their
+shows ten live public project cards across five columns and two full rows, with
+authentic remote art/readiness labels. It was not resized or repopulated. Names/artwork retain their
 creators' rights; this documentary screenshot is not a new artwork reuse grant.
 It predates the controller-R update and makes no gameplay/release claim. No
 personal paths, installed games, compositing or image edits are included.
+
+The [earlier narrower Windows catalog capture](assets/relicade-windows-catalog-9cfa7fc-20261024.jpg)
+and its provenance remain unchanged as engineering evidence; the wider photo
+supersedes it only as the README hero.
 
 The [historical empty-library capture](assets/relicade-native-empty-8a1796c-20261023.png) renders native source
 [`8a1796c`](https://github.com/MrDiamondBallz/relicade/tree/8a1796c3fd97a77ff55546a6958054ea8dafd3e0)

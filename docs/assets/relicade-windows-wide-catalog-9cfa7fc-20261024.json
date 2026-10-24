@@ -1,0 +1,37 @@
+{
+  "role": "Actual native Windows wide catalog capture, not a mockup",
+  "sourceCommit": "9cfa7fccd5200bb1a8f61c34c67c455b89bbf465",
+  "capturedDate": "2026-10-24",
+  "nativeProcessId": 22212,
+  "platform": "Windows x64",
+  "dimensions": [
+    1920,
+    1032
+  ],
+  "file": "relicade-windows-wide-catalog-9cfa7fc-20261024.jpg",
+  "sha256": "e2fd0d1c478597d344f66185fb51fdba5ccfb8c9e2f9c121a6b7b1154ce986db",
+  "gitBlob": "d93b761f122eb21b09d262ecf24842628c78ac63",
+  "profile": "Fresh isolated profile; maximized native window; interface scale100%",
+  "content": "Live public catalog with559 project entries and the entrypoint to the separate offline10000-record original-game metadata index",
+  "visibleProjects": [
+    "UltraCombo",
+    "Blast Corps: Recompiled",
+    "Red Eclipse",
+    "Super Metroid Plus",
+    "Eternal Darkness Recomp",
+    "Saboteur II (x86-64 recomp)",
+    "Dora3-64",
+    "Super Mario 64: Recompiled",
+    "Perfect Dark: Recompiled",
+    "Forza Horizon 1: Reimagined"
+  ],
+  "artworkSource": "https://quiverlauncher.com",
+  "branding": "Captured before the controller-R asset update; image remains unmodified",
+  "imageEdited": false,
+  "composited": false,
+  "resized": false,
+  "gameplayAccepted": false,
+  "releaseAccepted": false,
+  "limitations": "Bounded native catalog observation, not every project playable or full platform/package acceptance",
+  "capturedUtc": "2026-10-24T08:57:56.1377573Z"
+}
