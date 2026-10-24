@@ -123,6 +123,21 @@ the [release gates](../docs/FEATURE_COVERAGE.md#first-public-release-gates).
 These targeted headless checks do not establish full-suite, physical-controller,
 Windows runtime or gameplay acceptance.
 
+Input services retain one successful SDL gamepad-subsystem acquisition per owner.
+Closing a replaced owner releases that reference without shutting down the
+replacement's pads; late polling/reclaim calls and timer starts on a disposed
+owner stay inactive. The [lifetime regression](Relicade.Tests/InputServiceLifetimeTests.cs)
+uses a real SDL virtual pad, and virtual-pad counts are relative to devices
+already attached. Keep physical devices stable and idle during synthetic tests;
+those fixtures do not certify physical-controller behavior.
+
+Settings atomic writes assign Unix creation permissions only on non-Windows
+systems. Passing null to that property's setter still throws on Windows, so the
+Windows path does not invoke it. Create-new staging, exclusive sharing, durable
+flush, atomic publication and restrictive Unix replacement permissions remain
+in place. Native Windows save/reload and startup must be validated separately
+from Linux unit checks.
+
 ## Identity, data and network boundaries
 
 Application/assembly/executable identity is Relicade. Android package identity

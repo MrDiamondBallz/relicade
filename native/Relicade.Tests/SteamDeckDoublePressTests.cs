@@ -124,6 +124,7 @@ public class SteamDeckDoublePressTests : IDisposable
         h.CheckBox.Focus();
 
         h.PressA();
+        h.Confirms.Should().Be(1, "the virtual pad press must reach the shell before the separate keyboard press");
         h.ReleaseA();
         h.Advance(TimeSpan.FromMilliseconds(400));
         h.TypeEnter();
@@ -287,6 +288,7 @@ public class SteamDeckDoublePressTests : IDisposable
         private SDL_JoystickID _otherPadId;
         private SDL_Joystick* _otherPad;
         private bool _otherPadAttached;
+        private readonly int _initialGamepadCount;
         private DateTime _now = new(2026, 10, 13, 9, 0, 0);
 
         public Window Window { get; }
@@ -311,6 +313,7 @@ public class SteamDeckDoublePressTests : IDisposable
             _bindings = new InputBindingsViewModel(settings, () => null, action => action());
             _controller = new LauncherInputController(view, () => settings.Current, _bindings, () => true, () => false, () => { },
                 new(_ => true, Confirm, () => Cancels++, () => Options++, _ => { }, () => { }), enableInput: true);
+            _initialGamepadCount = _controller.Service!.ConnectedGamepadCount;
 
             SDL_VirtualJoystickDesc desc;
             SDL_INIT_INTERFACE(out desc);
@@ -321,7 +324,7 @@ public class SteamDeckDoublePressTests : IDisposable
             _pad = SDL_OpenJoystick(_padId);
             ((nint)_pad).Should().NotBe(0, SDL_GetError());
             Poll();
-            _controller.Service!.ConnectedGamepadCount.Should().Be(1);
+            _controller.Service!.ConnectedGamepadCount.Should().Be(_initialGamepadCount + 1);
         }
 
         private void Confirm()
@@ -378,7 +381,7 @@ public class SteamDeckDoublePressTests : IDisposable
             _otherPad = SDL_OpenJoystick(_otherPadId);
             ((nint)_otherPad).Should().NotBe(0, SDL_GetError());
             Poll();
-            _controller.Service!.ConnectedGamepadCount.Should().Be(2);
+            _controller.Service!.ConnectedGamepadCount.Should().Be(_initialGamepadCount + 2);
         }
 
         public void PressOtherA()

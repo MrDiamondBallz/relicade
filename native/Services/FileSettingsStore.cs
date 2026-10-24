@@ -100,11 +100,14 @@ public partial class FileSettingsStore : ISettingsStore, ISettingsRecoveryState,
         var temporary = _settingsPath + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
-            using (var stream = new FileStream(temporary, new FileStreamOptions
+            var options = new FileStreamOptions
             {
-                Mode = FileMode.CreateNew, Access = FileAccess.Write, Share = FileShare.None,
-                UnixCreateMode = OperatingSystem.IsWindows() ? null : UnixFileMode.UserRead | UnixFileMode.UserWrite
-            }))
+                Mode = FileMode.CreateNew, Access = FileAccess.Write, Share = FileShare.None
+            };
+            // Even assigning null invokes this Unix-only setter on Windows.
+            if (!OperatingSystem.IsWindows())
+                options.UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite;
+            using (var stream = new FileStream(temporary, options))
             {
                 stream.Write(bytes);
                 stream.Flush(flushToDisk: true);

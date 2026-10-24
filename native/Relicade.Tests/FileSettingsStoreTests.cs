@@ -81,6 +81,24 @@ public class FileSettingsStoreTests : IDisposable
             new DateTimeOffset(2026, 9, 15, 0, 0, 0, TimeSpan.Zero));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Atomic_save_creates_or_replaces_settings_on_the_current_platform(bool existing)
+    {
+        if (existing)
+            File.WriteAllText(_settingsPath, "{\"FirstStartup\":false,\"SortBy\":\"LastPlayed\"}");
+        var store = new FileSettingsStore(_settingsPath);
+        store.Current.SortBy = "Name";
+
+        store.Save(store.Current);
+
+        new FileSettingsStore(_settingsPath).Current.SortBy.Should().Be("Name");
+        Directory.GetFiles(_tempDirectory, "*.tmp").Should().BeEmpty();
+        if (!OperatingSystem.IsWindows())
+            File.GetUnixFileMode(_settingsPath).Should().Be(UnixFileMode.UserRead | UnixFileMode.UserWrite);
+    }
+
     [Fact]
     public void AppSettings_static_methods_use_default_store()
     {

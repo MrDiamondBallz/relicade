@@ -107,6 +107,23 @@ authorize success. Internal scheduling callbacks cannot authorize this exception
 Cleanup failures propagate. This narrow Attach boundary changes no receipt schema,
 child-tree policy, journal/rollback algorithm or native-platform acceptance.
 
+## Input-service ownership
+
+Each input service owns one successfully initialized SDL gamepad subsystem
+reference. Reinitialization releases and reacquires only that reference; disposal
+closes the owner's controllers and releases its reference without a global SDL
+shutdown that would invalidate a replacement service. Uninitialized and disposed
+owners do not poll, reclaim controllers or restart their polling timer. Global
+keyboard resolver callbacks retain their existing ownership checks. This lifetime
+boundary does not change the sampled press edges, cross-source echo interval or
+navigation policy, and does not certify hardware or native Windows behavior.
+
+Settings stage files use platform-neutral stream options on Windows and explicitly
+set owner-only Unix creation permissions on Unix. The Unix-only setter is never
+invoked on Windows, including with a null value. Existing writer leases, strict
+validation, durable flush, atomic replace/create publication, permission
+intersection and temporary-file ownership rules still govern the save.
+
 ## Artwork dispatcher ownership
 
 A view's display-scale callback checks that view's existing instance dispatcher,

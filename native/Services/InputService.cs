@@ -25,8 +25,9 @@ namespace Relicade.Services
         private bool _captureMode;
         // Set when the native SDL3 library cannot be loaded; gamepad input is then unavailable.
         private bool _sdlLibraryMissing;
+        private bool _sdlInitialized;
 
-        private bool SdlAvailable => PlatformCapabilities.SupportsGamepadSdl && !_sdlLibraryMissing;
+        private bool SdlAvailable => PlatformCapabilities.SupportsGamepadSdl && !_sdlLibraryMissing && _sdlInitialized && !_disposed;
 
         // Gamepad deadzone threshold
         private const float DeadZone = 0.3f;
@@ -229,6 +230,7 @@ namespace Relicade.Services
 
         private void ReinitGameControllerSubsystem()
         {
+            _sdlInitialized = false;
             SDL_QuitSubSystem(SDL_InitFlags.SDL_INIT_GAMEPAD);
             SteamDeckSdlHints.ApplyBeforeInit((name, value) => SDL_SetHint(name, value));
             if (!SDL_InitSubSystem(SDL_InitFlags.SDL_INIT_GAMEPAD))
@@ -237,6 +239,7 @@ namespace Relicade.Services
                 return;
             }
 
+            _sdlInitialized = true;
             RefreshConnectedControllers();
         }
 
@@ -256,6 +259,7 @@ namespace Relicade.Services
                     System.Diagnostics.Debug.WriteLine($"SDL initialization failed: {SDL_GetError()}");
                     return;
                 }
+                _sdlInitialized = true;
             }
             catch (DllNotFoundException ex)
             {
@@ -284,6 +288,9 @@ namespace Relicade.Services
 
         private void InitializeGamepadPolling()
         {
+            if (!SdlAvailable || _gamepadTimer != null)
+                return;
+
             _gamepadTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(16)
@@ -818,8 +825,13 @@ namespace Relicade.Services
                 foreach (var id in _gameControllers.Keys.ToList())
                     CloseControllerAt(id);
 
-                if (SdlAvailable)
-                    SDL_Quit();
+                if (_sdlInitialized)
+                {
+                    _sdlInitialized = false;
+                    // Each input owner acquires one gamepad subsystem reference.
+                    // Global SDL_Quit would also destroy a replacement owner's pads.
+                    SDL_QuitSubSystem(SDL_InitFlags.SDL_INIT_GAMEPAD);
+                }
                 _disposed = true;
             }
         }
