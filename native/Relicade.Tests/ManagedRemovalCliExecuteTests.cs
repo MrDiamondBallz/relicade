@@ -261,7 +261,8 @@ public sealed class ManagedRemovalCliExecuteTests(ITestOutputHelper output)
         Assert.NotEqual(0, result.Code); Assert.Empty(s.Calls);
         Assert.Empty(Directory.EnumerateFileSystemEntries(Path.Combine(s.Catalog, "Apps")));
         Assert.Empty(Directory.EnumerateFileSystemEntries(Path.Combine(s.Catalog, "Cache")));
-        var after = s.F.Snapshot().Where(r => r is not ("dir catalog/Apps" or "dir catalog/Cache")).ToArray();
+        var createdDirectories = new[] { "dir " + Path.Combine("catalog", "Apps"), "dir " + Path.Combine("catalog", "Cache") };
+        var after = s.F.Snapshot().Where(r => !createdDirectories.Contains(r, StringComparer.Ordinal)).ToArray();
         Assert.Equal(before, after);
     }
     [Theory]
