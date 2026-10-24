@@ -16,7 +16,7 @@ public sealed class NativeTaglineRenderingTests(SharedCatalogRenderer renderer, 
     [InlineData(1100, 760, false)]
     [InlineData(750, 490, false)]
     [InlineData(1100, 760, true)]
-    public async Task Product_tagline_is_readable_beneath_the_unchanged_native_wordmark(int width, int height, bool light)
+    public async Task Product_tagline_is_readable_beneath_the_transparent_native_wordmark(int width, int height, bool light)
     {
         await renderer.Session.Dispatch<int>(async () =>
         {
@@ -35,11 +35,14 @@ public sealed class NativeTaglineRenderingTests(SharedCatalogRenderer renderer, 
                 AvaloniaHeadlessPlatform.ForceRenderTimerTick(2);
                 var tagline = view.FindControl<TextBlock>("SidebarTagline")!;
                 var suffix = view.FindControl<Image>("SidebarWordmarkTail")!;
+                var initial = view.FindControl<Image>("SidebarLogoImage")!;
                 var sidebar = view.FindControl<Border>("SidebarPanel")!;
                 Assert.Equal("Old legends. New life.", tagline.Text); Assert.True(tagline.IsEffectivelyVisible);
                 Assert.DoesNotContain(view.GetVisualDescendants().OfType<TextBlock>(), t => t.Text == "Native foundation");
                 var point = tagline.TranslatePoint(default, sidebar)!.Value;
                 var wordmark = suffix.TranslatePoint(default, sidebar)!.Value;
+                var symbol = initial.TranslatePoint(default, sidebar)!.Value;
+                Assert.InRange(Math.Abs(symbol.Y + initial.Bounds.Height / 2 - wordmark.Y - suffix.Bounds.Height / 2), 0, 1);
                 Assert.InRange(point.X, 0, sidebar.Bounds.Width - tagline.Bounds.Width);
                 Assert.True(point.Y >= wordmark.Y + suffix.Bounds.Height);
                 Assert.True(tagline.Bounds.Height >= 11); Assert.True(tagline.Bounds.Width > 90);
@@ -53,7 +56,7 @@ public sealed class NativeTaglineRenderingTests(SharedCatalogRenderer renderer, 
                     using var file = new FileStream(Path.Combine(directory, $"18-native-tagline-{width}x{height}-light-{light}.png"), FileMode.CreateNew, FileAccess.Write);
                     frame.Save(file);
                 }
-                output.WriteLine("Actual headless native Library with an empty isolated profile, unchanged logo assets, no external requests and no gameplay/platform acceptance.");
+                output.WriteLine("Actual headless native Library with an empty isolated profile, the existing transparent cut-R master, no external requests and no gameplay/platform acceptance.");
             }
             finally { window.Close(); await view.ShutdownAsync(); RelicadePaths.OverrideUserDataRoot = previous; Directory.Delete(root, true); }
             return 0;

@@ -14,7 +14,7 @@ This inventory is generated from the explicit maintenance registry. Semantic rev
 | [NOTICE.md](../NOTICE.md) | protected |  |
 | [README.md](../README.md) | review | native, preview, presentation, tooling, contracts |
 | [SECURITY.md](../SECURITY.md) | review | native, preview, presentation, tooling, contracts |
-| [brand/BRAND.md](../brand/BRAND.md) | review | presentation, preview |
+| [brand/BRAND.md](../brand/BRAND.md) | review | presentation, preview, native |
 | [brand/assets/fonts/Barlow-OFL.txt](../brand/assets/fonts/Barlow-OFL.txt) | protected |  |
 | [brand/assets/fonts/Manrope-OFL.txt](../brand/assets/fonts/Manrope-OFL.txt) | protected |  |
 | [docs/ARCHITECTURE.md](ARCHITECTURE.md) | review | native, preview, presentation, tooling, contracts |

@@ -19,13 +19,12 @@ class NativeBrandingTests(unittest.TestCase):
         panel = next(n for n in root.iter() if n.get(X + 'Name') == 'SidebarLogoPanel')
         images = list(panel.iter(XAML + 'Image'))
         self.assertEqual([i.get('Source') for i in images], [
-            'avares://Relicade/Assets/app.png', 'avares://Relicade/Assets/wordmark-tail.png'])
+            'avares://Relicade/Assets/sidebar-symbol.png', 'avares://Relicade/Assets/wordmark-tail.png'])
         self.assertEqual(images[1].get('AutomationProperties.Name'), 'Relicade')
         self.assertEqual(images[1].get('HorizontalAlignment'), 'Left')
-        self.assertEqual(panel.get('Spacing'), '0')
-        suffix_stack = images[1] in list(panel)[1].iter()
-        self.assertTrue(suffix_stack)
-        self.assertEqual(list(panel)[1].get('Margin'), '0,16,0,0')
+        self.assertEqual(panel.tag, XAML + 'Grid')
+        self.assertEqual([i.get('Grid.Column') for i in images], ['0', '1'])
+        self.assertEqual([i.get('Grid.Row') for i in images], ['0', '0'])
 
     def test_sidebar_uses_the_established_product_tagline(self):
         root = ET.parse(ROOT / 'native/MainView.axaml').getroot()
@@ -44,6 +43,18 @@ class NativeBrandingTests(unittest.TestCase):
         self.assertEqual([p.attrib for p in paths], [p.attrib for p in master.iter(SVG + 'path')][1:])
         self.assertFalse(list(tail.iter(SVG + 'text')))
         self.assertEqual(len(list(master.iter(SVG + 'path'))), 8)
+
+    @unittest.skipUnless(importlib.util.find_spec('PIL'), 'Optional image QA dependency not installed')
+    def test_sidebar_symbol_is_the_transparent_original_cut_r(self):
+        from PIL import Image
+        actual = Image.open(ROOT / 'native/Assets/sidebar-symbol.png').convert('RGBA')
+        expected = Image.open(BytesIO(subprocess.check_output([
+            'rsvg-convert', '-w', '128', str(ROOT / 'brand/symbol.svg')]))).convert('RGBA')
+        self.assertEqual(actual.size, (128, 128))
+        self.assertEqual(actual.tobytes(), expected.tobytes())
+        self.assertEqual(actual.getchannel('A').getbbox(), (16, 12, 112, 116))
+        self.assertEqual(actual.getpixel((0, 64))[3], 0)
+        self.assertEqual(actual.getpixel((127, 64))[3], 0)
 
     @unittest.skipUnless(importlib.util.find_spec('PIL'), 'Optional image QA dependency not installed')
     def test_native_exports_match_orange_master_and_suffix(self):

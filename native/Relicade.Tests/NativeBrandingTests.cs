@@ -38,7 +38,7 @@ public class NativeBrandingTests
         try
         {
             window.Show(); Dispatcher.UIThread.RunJobs(); window.UpdateLayout();
-            var panel = view.FindControl<StackPanel>("SidebarLogoPanel")!;
+            var panel = view.FindControl<Grid>("SidebarLogoPanel")!;
             var initial = view.FindControl<Image>("SidebarLogoImage")!;
             var suffix = view.FindControl<Image>("SidebarWordmarkTail")!;
             panel.GetVisualDescendants().OfType<Image>().Should().Equal(initial, suffix);
@@ -47,16 +47,21 @@ public class NativeBrandingTests
             // The headless drawing backend intentionally substitutes 1x1 dummy pixels.
             // Inspect actual embedded PNG headers, not its fabricated decode dimensions;
             // normal production rendering must be inspected separately.
-            PngSize("app.png").Should().Be(new PixelSize(256, 256));
+            PngSize("sidebar-symbol.png").Should().Be(new PixelSize(128, 128));
             PngSize("wordmark-tail.png").Should().Be(new PixelSize(606, 104));
             AutomationProperties.GetName(suffix).Should().Be("Relicade");
             var sidebar = view.FindControl<Border>("SidebarPanel")!;
             var point = suffix.TranslatePoint(default, sidebar)!.Value;
             point.X.Should().BeGreaterThan(0);
             (point.X + suffix.Bounds.Width).Should().BeLessThanOrEqualTo(sidebar.Bounds.Width);
-            // The orange path occupies 144/256 of its padded square; cap height is 156/256.
-            (initial.Bounds.Width * 156 / 256).Should().BeGreaterThan(suffix.Bounds.Width * 104 / 606,
+            // The transparent master has a 104/128 cap height and no app-icon field.
+            (initial.Bounds.Height * 104 / 128).Should().BeGreaterThan(suffix.Bounds.Width * 104 / 606,
                 "the established orange initial retains its larger emphasis");
+            var initialPoint = initial.TranslatePoint(default, sidebar)!.Value;
+            Math.Abs(initialPoint.Y + initial.Bounds.Height / 2 - point.Y - suffix.Bounds.Height / 2).Should().BeLessThan(1,
+                "the initial and suffix share an optical center without the former vertical offset");
+            (point.X - initialPoint.X - initial.Bounds.Width * 112 / 128).Should().BeInRange(2, 10,
+                "transparent symbol padding leaves a deliberate gap before the suffix");
             var split = view.FindControl<SplitView>("MainSplitView")!;
             view.SettingsModel.DesktopSidebarCollapsed = true;
             Dispatcher.UIThread.RunJobs(); window.UpdateLayout();

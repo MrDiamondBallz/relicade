@@ -1678,29 +1678,29 @@
 		<Setter Property="Background" Value="Transparent"/>
 		<Setter Property="Foreground" Value="White"/>
 	</Style>
-	<Style Selector="StackPanel#SidebarLogoPanel">
+	<Style Selector="Grid#SidebarLogoPanel">
 		<Setter Property="Margin" Value="20"/>
 	</Style>
 	<Style Selector="Image#SidebarLogoImage">
-		<Setter Property="Width" Value="45.75"/>
-		<Setter Property="Height" Value="95.25"/>
+		<Setter Property="Width" Value="38"/>
+		<Setter Property="Height" Value="38"/>
 	</Style>
 	<Style Selector="Button#ContinueButton">
 		<Setter Property="Height" Value="64"/>
 	</Style>
-	<Style Selector="UserControl.mobile StackPanel#SidebarLogoPanel">
+	<Style Selector="UserControl.mobile Grid#SidebarLogoPanel">
 		<Setter Property="Margin" Value="8"/>
 	</Style>
 	<Style Selector="UserControl.mobile Image#SidebarLogoImage">
-		<Setter Property="Width" Value="19.2"/>
-		<Setter Property="Height" Value="40"/>
+		<Setter Property="Width" Value="32"/>
+		<Setter Property="Height" Value="32"/>
 	</Style>
-	<Style Selector="UserControl.mobile-landscape StackPanel#SidebarLogoPanel">
+	<Style Selector="UserControl.mobile-landscape Grid#SidebarLogoPanel">
 		<Setter Property="Margin" Value="8,4"/>
 	</Style>
 	<Style Selector="UserControl.mobile-landscape Image#SidebarLogoImage">
-		<Setter Property="Width" Value="15.36"/>
-		<Setter Property="Height" Value="32"/>
+		<Setter Property="Width" Value="28"/>
+		<Setter Property="Height" Value="28"/>
 	</Style>
 	<Style Selector="UserControl.mobile-landscape Button#ContinueButton">
 		<Setter Property="Height" Value="40"/>

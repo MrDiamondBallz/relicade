@@ -38,6 +38,10 @@ source and rights/provenance review; an attractive card never proves install or
 play support. Missing or offline art must keep a useful labeled fallback. Reveal
 concepts describe a future interface, not evidence of the current application.
 
+The native sidebar wordmark uses the original transparent cut-R master and
+unchanged ELICADE paths, with a shared optical center and tagline beneath the
+suffix. The graphite-backed app icon remains for app/window/tray icon surfaces.
+
 ## Catalog artwork
 
 The browser reference prefers actual game imagery from the catalog's retained

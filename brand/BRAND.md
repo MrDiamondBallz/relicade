@@ -37,7 +37,10 @@ letter**, followed by the complete ivory ELICADE suffix. Preserve the larger R
 emphasis, original path geometry and optical spacing; never place a second ivory
 R after it, retype the lettering or reduce the name to an icon-only header.
 Export `wordmark-tail.svg` as `native/Assets/wordmark-tail.png` for this binding;
-the accessible product name remains **Relicade**. Pure app/window/tray/package
+pair it with transparent `symbol.svg`, exported as `native/Assets/sidebar-symbol.png`.
+Align the initial and suffix optically, with the tagline beneath the suffix;
+the boxed app icon is not part of the interface wordmark.
+The accessible product name remains **Relicade**. Pure app/window/tray/package
 icon surfaces use the established orange R on its graphite field, without a
 suffix. This active-native rule supersedes the general monochrome/light-surface
 permissions below for those surfaces. Historical masters, standalone full-name

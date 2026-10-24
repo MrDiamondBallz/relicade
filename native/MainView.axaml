@@ -57,28 +57,24 @@
 				</Grid.RowDefinitions>
 
 				<!-- Logo/Header -->
-				<StackPanel x:Name="SidebarLogoPanel"
+				<Grid x:Name="SidebarLogoPanel"
 							Grid.Row="0"
-							Orientation="Horizontal"
+							ColumnDefinitions="Auto,Auto"
+							RowDefinitions="Auto,Auto"
 							HorizontalAlignment="Center"
-							VerticalAlignment="Center"
-							Spacing="0">
+							VerticalAlignment="Center">
 					<Image x:Name="SidebarLogoImage"
-						   Source="avares://Relicade/Assets/app.png"
+						   Grid.Row="0" Grid.Column="0"
+						   Source="avares://Relicade/Assets/sidebar-symbol.png"
 						   VerticalAlignment="Center"/>
-					<StackPanel Orientation="Vertical"
-								VerticalAlignment="Center"
-								Margin="0,16,0,0"
-								Spacing="2">
-						<Image x:Name="SidebarWordmarkTail" Source="avares://Relicade/Assets/wordmark-tail.png" Width="128" Height="26" HorizontalAlignment="Left"
+						<Image x:Name="SidebarWordmarkTail" Grid.Row="0" Grid.Column="1" Source="avares://Relicade/Assets/wordmark-tail.png" Width="128" Height="26" HorizontalAlignment="Left" VerticalAlignment="Center"
                                    AutomationProperties.Name="Relicade"/>
-						<TextBlock x:Name="SidebarTagline" Text="Old legends. New life."
+						<TextBlock x:Name="SidebarTagline" Grid.Row="1" Grid.Column="1" Margin="0,2,0,0" Text="Old legends. New life."
 								   FontSize="11"
 								   FontWeight="SemiBold"
 								   Foreground="{DynamicResource ThemeTextSecondary}"
 								   LetterSpacing="0.4"/>
-					</StackPanel>
-				</StackPanel>
+				</Grid>
 
 				<!-- Navigation Buttons -->
 				<StackPanel x:Name="SidebarNavPanel" Grid.Row="1" Margin="12,0" VerticalAlignment="Top">

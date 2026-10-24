@@ -127,7 +127,9 @@ separate from the actual injected-installer, keyboard/controller and lifetime te
 
 `NativeTaglineRenderingTests` captures the empty native Library at normal and
 minimum window sizes, with a light-theme control. The established tagline sits
-beneath the original wordmark, inside the sidebar bounds. The isolated profile
+beneath the transparent cut-R and original suffix, inside the sidebar bounds.
+The initial and suffix share an optical center; app/window/tray icon exports
+retain their graphite field. The isolated profile
 has no games or external requests; these frames verify native product copy and
 layout, not desktop-host, accessibility-device or gameplay acceptance.
 
