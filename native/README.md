@@ -147,6 +147,9 @@ and library paths; Windows ACL and game-data setup acceptance remain separate.
 The ELF/Unix-mode ZIP fixture and `/proc` capability-denial fixture are explicitly
 Linux-only. Directory-link routes skip only a Windows native privilege error
 1314; other failures still fail, and a skipped link route is not acceptance.
+The rollback and backup-cleanup UI baselines opt into nonexecuted MZ-shaped
+`.exe` fixtures on Windows, retaining their real generations, saves and menu
+assertions. Their historical Linux payload defaults remain available unchanged.
 
 Windows generation-changing transactions use an exclusive outside hard-link
 name of the same empty legacy mod lock while retaining the stable writer lock.

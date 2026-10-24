@@ -8,13 +8,17 @@ namespace Relicade.Tests;
 
 internal sealed class PortableBackupCleanupFixture
 {
+    readonly bool windowsPayload;
+    internal PortableBackupCleanupFixture() : this(false) { }
+    internal PortableBackupCleanupFixture(bool windowsPayload) => this.windowsPayload = windowsPayload;
+    internal string ExecutableName => windowsPayload ? "fixture.exe" : "fixture.AppImage";
     internal string Root { get; } = Path.Combine(Path.GetTempPath(), "bc-core-" + Guid.NewGuid().ToString("N"));
     internal string Live => Path.Combine(Root, "live");
-    internal PortableInstallationTransaction Tx(Action<string>? boundary = null) => new(Live, Options(boundary));
-    internal static GameInstallationOptions Options(Action<string>? boundary = null) => new()
+    internal PortableInstallationTransaction Tx(Action<string>? boundary = null) => new(Live, Options(boundary, ExecutableName));
+    internal static GameInstallationOptions Options(Action<string>? boundary = null, string selectedExecutable = "fixture.AppImage") => new()
     {
         PreservedDataPaths = ["saves", "config", "owneddata", "LastPlayed.txt"], TransactionBoundary = boundary,
-        SelectedExecutableRelativePath = "fixture.AppImage", InstalledBuildText = "synthetic-build-evidence"
+        SelectedExecutableRelativePath = selectedExecutable, InstalledBuildText = "synthetic-build-evidence"
     };
     internal async Task Install(string version)
     {
@@ -25,7 +29,9 @@ internal sealed class PortableBackupCleanupFixture
         if (!File.Exists(Path.Combine(Root, "sibling/keep.bin"))) File.WriteAllText(Path.Combine(Root, "sibling/keep.bin"), "SYNTHETIC SIBLING CANARY — never a cleanup target");
         await Tx().InstallAsync(p =>
         {
-            foreach (var name in new[] { "fixture.AppImage", "other.AppImage" }) File.WriteAllBytes(Path.Combine(p, name), PortableInstallationFixtures.NativePayload(version + name));
+            foreach (var name in new[] { ExecutableName, windowsPayload ? "other.exe" : "other.AppImage" })
+                File.WriteAllBytes(Path.Combine(p, name), windowsPayload ? PortableInstallationFixtures.WindowsPayload(version + name)
+                    : PortableInstallationFixtures.NativePayload(version + name));
             Directory.CreateDirectory(Path.Combine(p, "assets")); File.WriteAllText(Path.Combine(p, "assets", "immutable.bin"), "synthetic-" + version);
             return Task.CompletedTask;
         }, version);

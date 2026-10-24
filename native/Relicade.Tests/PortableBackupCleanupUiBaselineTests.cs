@@ -17,7 +17,7 @@ public sealed class PortableBackupCleanupUiBaselineTests
     [InlineData("CompactGridViewTemplate")]
     public async Task Actual_library_layout_offers_explicit_cleanup_for_real_redundant_history(string template)
     {
-        var fixture = new PortableBackupCleanupFixture();
+        var fixture = new PortableBackupCleanupFixture(windowsPayload: OperatingSystem.IsWindows());
         await fixture.Generations();
         var plan = fixture.Tx().PreviewRedundantBackups();
         Assert.NotEmpty(plan.Files);

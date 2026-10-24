@@ -39,6 +39,7 @@ public sealed class PortableBackupCleanupBaselineTests(ITestOutputHelper output)
 
 internal sealed class PortableBackupCleanupBaselineScope : IDisposable
 {
+    readonly bool windowsPayload;
     readonly CredentialVaultTestScope vault = new();
     readonly ISettingsStore previous = SettingsStoreProvider.Default;
     readonly string? oldRoot = RelicadePaths.OverrideUserDataRoot;
@@ -47,12 +48,15 @@ internal sealed class PortableBackupCleanupBaselineScope : IDisposable
     public string Catalog => Path.Combine(Root, "catalog");
     public string Library => Path.Combine(Catalog, "apps.json");
     public string Settings => Path.Combine(Catalog, "settings.json");
+    public string ExecutableName => windowsPayload ? "fixture.exe" : "fixture.AppImage";
     public PortableInstallationTransaction Tx => new(Live);
     public FileSettingsStore Store { get; }
     public ManagedRemovalLibraryTests.Handler Network { get; } = new();
     public GameInfo Game { get; } = new() { Name = "Synthetic backup cleanup", Repository = "fixture/cleanup", FolderName = "live", AutoUpdate = true };
-    public PortableBackupCleanupBaselineScope()
+    public PortableBackupCleanupBaselineScope() : this(false) { }
+    public PortableBackupCleanupBaselineScope(bool windowsPayload)
     {
+        this.windowsPayload = windowsPayload;
         Directory.CreateDirectory(Path.Combine(Root, "Apps"));
         foreach (var d in new[] { Catalog, Path.Combine(Catalog, "Apps"), Path.Combine(Catalog, "Cache") }) Directory.CreateDirectory(d);
         RelicadePaths.OverrideUserDataRoot = Catalog;
@@ -63,7 +67,8 @@ internal sealed class PortableBackupCleanupBaselineScope : IDisposable
     public void SaveLibrary(params GameInfo[] other) => File.WriteAllText(Library, JsonSerializer.Serialize(new { apps = new[] { Game }.Concat(other).Select(AppCatalogService.SerializeApp) }));
     public async Task Install(string version)
     {
-        await Tx.InstallAsync(p => { File.WriteAllBytes(Path.Combine(p, "fixture.AppImage"), PortableInstallationFixtures.NativePayload(version)); return Task.CompletedTask; }, version);
+        await Tx.InstallAsync(p => { File.WriteAllBytes(Path.Combine(p, ExecutableName), windowsPayload
+            ? PortableInstallationFixtures.WindowsPayload(version) : PortableInstallationFixtures.NativePayload(version)); return Task.CompletedTask; }, version);
     }
     public async Task<(int Code, string Text)> Execute(bool injected, string[] args)
     {

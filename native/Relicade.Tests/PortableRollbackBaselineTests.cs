@@ -13,7 +13,7 @@ public sealed class PortableRollbackBaselineTests
     [InlineData("ListViewTemplate")][InlineData("GridViewTemplate")][InlineData("CompactGridViewTemplate")]
     public async Task Actual_native_library_offers_previous_payload_for_readable_retained_generation(string template)
     {
-        using var s = new PortableBackupCleanupBaselineScope();
+        using var s = new PortableBackupCleanupBaselineScope(windowsPayload: OperatingSystem.IsWindows());
         await s.Install("v1"); await s.Install("v2");
         var current = s.Tx.ReadCommitted()!;
         Assert.Equal("v2", current.SelectedVersion);
